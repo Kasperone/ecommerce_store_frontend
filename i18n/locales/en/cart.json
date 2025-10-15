@@ -1,0 +1,31 @@
+{
+  "title": "Shopping Cart",
+  "empty": "Your cart is empty",
+  "emptyCta": "Continue Shopping",
+  "summary": {
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "discount": "Discount",
+    "total": "Total"
+  },
+  "actions": {
+    "remove": "Remove",
+    "updateQuantity": "Update Quantity",
+    "proceedToCheckout": "Proceed to Checkout",
+    "continueShopping": "Continue Shopping",
+    "applyCoupon": "Apply Coupon"
+  },
+  "item": {
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total"
+  },
+  "messages": {
+    "added": "Added to cart",
+    "removed": "Removed from cart",
+    "updated": "Cart updated",
+    "couponApplied": "Coupon applied successfully",
+    "couponInvalid": "Invalid coupon code"
+  }
+}

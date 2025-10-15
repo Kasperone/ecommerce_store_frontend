@@ -1,0 +1,33 @@
+{
+  "details": {
+    "price": "Price",
+    "sku": "SKU",
+    "category": "Category",
+    "brand": "Brand",
+    "availability": "Availability",
+    "description": "Description",
+    "specifications": "Specifications",
+    "reviews": "Reviews"
+  },
+  "actions": {
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "addToWishlist": "Add to Wishlist",
+    "compare": "Compare",
+    "share": "Share"
+  },
+  "stock": {
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "lowStock": "Only {count} left in stock",
+    "preOrder": "Pre-order"
+  },
+  "filters": {
+    "sortBy": "Sort by",
+    "priceRange": "Price Range",
+    "category": "Category",
+    "brand": "Brand",
+    "rating": "Rating",
+    "clearAll": "Clear All"
+  }
+}

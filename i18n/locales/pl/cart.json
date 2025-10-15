@@ -1,0 +1,31 @@
+{
+  "title": "Koszyk",
+  "empty": "Twój koszyk jest pusty",
+  "emptyCta": "Kontynuuj Zakupy",
+  "summary": {
+    "subtotal": "Suma Częściowa",
+    "shipping": "Wysyłka",
+    "tax": "Podatek",
+    "discount": "Rabat",
+    "total": "Razem"
+  },
+  "actions": {
+    "remove": "Usuń",
+    "updateQuantity": "Zaktualizuj Ilość",
+    "proceedToCheckout": "Przejdź do Kasy",
+    "continueShopping": "Kontynuuj Zakupy",
+    "applyCoupon": "Zastosuj Kupon"
+  },
+  "item": {
+    "quantity": "Ilość",
+    "price": "Cena",
+    "total": "Razem"
+  },
+  "messages": {
+    "added": "Dodano do koszyka",
+    "removed": "Usunięto z koszyka",
+    "updated": "Koszyk zaktualizowany",
+    "couponApplied": "Kupon zastosowany pomyślnie",
+    "couponInvalid": "Nieprawidłowy kod kuponu"
+  }
+}

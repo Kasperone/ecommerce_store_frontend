@@ -1,0 +1,42 @@
+{
+  "header": {
+    "cart": "Koszyk",
+    "login": "Zaloguj",
+    "logout": "Wyloguj",
+    "register": "Zarejestruj",
+    "account": "Konto",
+    "search": "Szukaj produktów..."
+  },
+  "footer": {
+    "aboutUs": "O Nas",
+    "contact": "Kontakt",
+    "terms": "Regulamin",
+    "privacy": "Polityka Prywatności",
+    "followUs": "Śledź Nas"
+  },
+  "navigation": {
+    "home": "Strona Główna",
+    "products": "Produkty",
+    "categories": "Kategorie",
+    "orders": "Moje Zamówienia",
+    "wishlist": "Lista Życzeń"
+  },
+  "actions": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "view": "Zobacz",
+    "close": "Zamknij",
+    "submit": "Wyślij",
+    "loading": "Ładowanie...",
+    "confirm": "Potwierdź"
+  },
+  "messages": {
+    "success": "Sukces!",
+    "error": "Wystąpił błąd",
+    "loading": "Ładowanie...",
+    "noResults": "Brak wyników",
+    "confirmDelete": "Czy na pewno chcesz to usunąć?"
+  }
+}
