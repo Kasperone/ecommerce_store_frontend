@@ -1,0 +1,34 @@
+{
+  "hero": {
+    "welcome": "Witamy w Naszym Sklepie",
+    "subtitle": "Nowoczesna platforma e-commerce zbudowana z Nuxt 4 i FastAPI"
+  },
+  "features": {
+    "fastModern": {
+      "title": "Szybki i Nowoczesny",
+      "description": "Zbudowany z najnowszych technologii dla najlepszej wydajności"
+    },
+    "securePayments": {
+      "title": "Bezpieczne Płatności",
+      "description": "Integracja PayU i Stripe dla bezpiecznych transakcji"
+    },
+    "freeShipping": {
+      "title": "Darmowa Wysyłka",
+      "description": "Darmowa wysyłka przy zamówieniach powyżej {amount}"
+    },
+    "support": {
+      "title": "Wsparcie 24/7",
+      "description": "Nasz zespół wsparcia jest zawsze gotowy pomóc"
+    }
+  },
+  "cta": {
+    "testApi": "Testuj Połączenie API",
+    "viewGithub": "Zobacz na GitHub",
+    "shopNow": "Kup Teraz",
+    "learnMore": "Dowiedz Się Więcej"
+  },
+  "api": {
+    "success": "Połączenie z API udane!",
+    "failed": "Nie udało się połączyć z API. Upewnij się, że backend działa."
+  }
+}

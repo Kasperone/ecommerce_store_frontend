@@ -9,12 +9,30 @@
           </h1>
           
           <div class="flex items-center gap-4">
+            <!-- Language Switcher -->
+            <UButton
+              v-if="locale === 'en'"
+              color="gray"
+              variant="ghost"
+              @click="setLocale('pl')"
+            >
+              🇵🇱 PL
+            </UButton>
+            <UButton
+              v-else
+              color="gray"
+              variant="ghost"
+              @click="setLocale('en')"
+            >
+              🇺🇸 EN
+            </UButton>
+            
             <UButton
               icon="i-heroicons-shopping-cart"
               color="primary"
               variant="soft"
             >
-              Cart (0)
+              {{ t('header.cart') }} (0)
             </UButton>
             
             <UButton
@@ -22,7 +40,7 @@
               color="gray"
               variant="ghost"
             >
-              Login
+              {{ t('header.login') }}
             </UButton>
           </div>
         </div>
@@ -35,11 +53,27 @@
         <template #header>
           <div class="text-center">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Welcome to Our Store
+              {{ t('hero.welcome') }}
             </h2>
             <p class="text-lg text-gray-600 dark:text-gray-400">
-              Modern e-commerce platform built with Nuxt 4 and FastAPI
+              {{ t('hero.subtitle') }}
             </p>
+            <!-- Currency Display -->
+            <div class="mt-4 space-y-2">
+              <p class="text-sm text-gray-500">
+                Current currency: {{ currentCurrency.code }}
+              </p>
+              <div class="flex gap-4 text-sm">
+                <span>Sample price:</span>
+                <span class="font-semibold">{{ formatPrice(99.99) }}</span>
+              </div>
+              <!-- All currency examples -->
+              <div class="flex gap-4 text-xs text-gray-400">
+                <span v-for="curr in availableCurrencies" :key="curr.code">
+                  {{ curr.code }}: {{ formatPrice(99.99, curr.code) }}
+                </span>
+              </div>
+            </div>
           </div>
         </template>
 
@@ -50,9 +84,9 @@
                 <UIcon name="i-heroicons-rocket-launch" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
-                <h3 class="font-semibold text-lg mb-2">Fast & Modern</h3>
+                <h3 class="font-semibold text-lg mb-2">{{ t('features.fastModern.title') }}</h3>
                 <p class="text-gray-600 dark:text-gray-400">
-                  Built with latest technologies for best performance
+                  {{ t('features.fastModern.description') }}
                 </p>
               </div>
             </div>
@@ -64,9 +98,9 @@
                 <UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
-                <h3 class="font-semibold text-lg mb-2">Secure Payments</h3>
+                <h3 class="font-semibold text-lg mb-2">{{ t('features.securePayments.title') }}</h3>
                 <p class="text-gray-600 dark:text-gray-400">
-                  PayU and Stripe integration for safe transactions
+                  {{ t('features.securePayments.description') }}
                 </p>
               </div>
             </div>
@@ -80,7 +114,7 @@
               color="primary"
               @click="testApi"
             >
-              Test API Connection
+              {{ t('cta.testApi') }}
             </UButton>
             
             <UButton
@@ -90,7 +124,7 @@
               to="https://github.com/Kasperone"
               target="_blank"
             >
-              View on GitHub
+              {{ t('cta.viewGithub') }}
             </UButton>
           </div>
         </template>
@@ -119,6 +153,8 @@
 </template>
 
 <script setup lang="ts">
+const { t, locale, setLocale } = useI18n()
+const { currentCurrency, availableCurrencies, formatPrice } = useCurrency()
 const config = useRuntimeConfig()
 const apiStatus = ref<{ success: boolean; message: string; data?: any } | null>(null)
 
@@ -127,13 +163,13 @@ const testApi = async () => {
     const response = await $fetch(`${config.public.apiBase}/health`)
     apiStatus.value = {
       success: true,
-      message: 'API connection successful!',
+      message: t('api.success'),
       data: response
     }
   } catch (error) {
     apiStatus.value = {
       success: false,
-      message: 'Failed to connect to API. Make sure backend is running on ' + config.public.apiBase
+      message: t('api.failed')
     }
   }
 }

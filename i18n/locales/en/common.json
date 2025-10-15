@@ -1,0 +1,42 @@
+{
+  "header": {
+    "cart": "Cart",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "account": "Account",
+    "search": "Search products..."
+  },
+  "footer": {
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "followUs": "Follow Us"
+  },
+  "navigation": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "orders": "My Orders",
+    "wishlist": "Wishlist"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "confirm": "Confirm"
+  },
+  "messages": {
+    "success": "Success!",
+    "error": "An error occurred",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "confirmDelete": "Are you sure you want to delete this?"
+  }
+}

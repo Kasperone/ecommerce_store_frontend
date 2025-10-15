@@ -1,0 +1,33 @@
+{
+  "details": {
+    "price": "Cena",
+    "sku": "SKU",
+    "category": "Kategoria",
+    "brand": "Marka",
+    "availability": "Dostępność",
+    "description": "Opis",
+    "specifications": "Specyfikacja",
+    "reviews": "Opinie"
+  },
+  "actions": {
+    "addToCart": "Dodaj do Koszyka",
+    "buyNow": "Kup Teraz",
+    "addToWishlist": "Dodaj do Ulubionych",
+    "compare": "Porównaj",
+    "share": "Udostępnij"
+  },
+  "stock": {
+    "inStock": "Dostępny",
+    "outOfStock": "Niedostępny",
+    "lowStock": "Tylko {count} sztuk w magazynie",
+    "preOrder": "Przedsprzedaż"
+  },
+  "filters": {
+    "sortBy": "Sortuj według",
+    "priceRange": "Zakres Cen",
+    "category": "Kategoria",
+    "brand": "Marka",
+    "rating": "Ocena",
+    "clearAll": "Wyczyść Wszystko"
+  }
+}
