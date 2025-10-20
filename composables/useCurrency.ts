@@ -16,6 +16,7 @@ export const useCurrency = () => {
   const currencies = {
     en: { code: 'USD', symbol: '$' },
     pl: { code: 'PLN', symbol: 'zł' },
+    eu: { code: 'EUR', symbol: '€' },
   }
   
   // All available currencies
