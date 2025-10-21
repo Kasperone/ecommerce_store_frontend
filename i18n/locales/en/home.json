@@ -22,13 +22,7 @@
     }
   },
   "cta": {
-    "testApi": "Test API Connection",
-    "viewGithub": "View on GitHub",
     "shopNow": "Shop Now",
     "learnMore": "Learn More"
-  },
-  "api": {
-    "success": "API connection successful!",
-    "failed": "Failed to connect to API. Make sure backend is running."
   }
 }

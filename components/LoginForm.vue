@@ -1,75 +1,73 @@
 <script setup lang="ts">
-import * as z from 'zod'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
+import * as z from 'zod'
 
-const toast = useToast()
+const { t, locale } = useI18n()
 
-const fields: AuthFormField[] = [{
+const fields = computed<AuthFormField[]>(() => {
+  // ensure computed re-runs when locale changes
+  void locale.value
+  return [{
   name: 'email',
   type: 'email',
-  label: 'Email',
-  placeholder: 'Enter your email',
+  label: t('auth.email'),
+  placeholder: t('auth.enterYourEmail'),
   required: true
 }, {
   name: 'password',
-  label: 'Password',
+  label: t('auth.password'),
   type: 'password',
-  placeholder: 'Enter your password',
+  placeholder: t('auth.enterYourPassword'),
   required: true
 }, {
   name: 'remember',
-  label: 'Remember me',
+  label: t('auth.rememberMe'),
   type: 'checkbox'
-}]
+ }]
+})
 
-const providers = [{
-  label: 'Google',
-  icon: 'i-simple-icons-google',
-  onClick: () => {
-    toast.add({ title: 'Google', description: 'Login with Google' })
-  }
-}, {
-  label: 'GitHub',
-  icon: 'i-simple-icons-github',
-  onClick: () => {
-    toast.add({ title: 'GitHub', description: 'Login with GitHub' })
-  }
-}]
-
-const schema = z.object({
-  email: z.email('Invalid email'),
-  password: z.string('Password is required').min(8, 'Must be at least 8 characters')
+const schema = computed(() => {
+  // ensure recompute when locale changes
+  void locale.value
+  return z.object({
+    email: z.string().email({ message: t('auth.errors.invalidEmail', { default: 'Invalid email' }) }),
+    password: z.string().min(8, { message: t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' }) })
+  })
 })
 
 type Schema = z.output<typeof schema>
 
-function onSubmit(payload: FormSubmitEvent<Schema>) {
+const submit = (payload: FormSubmitEvent<Schema>) => {
   console.log('Submitted', payload)
 }
 </script>
 
 <template>
-  <div class="c-auth-form flex flex-col items-center justify-center gap-4 p-4">
+  <div class="c-login-form flex flex-col items-center justify-center gap-4 p-4">
     <UPageCard class="w-full max-w-md">
       <UAuthForm
         :schema="schema"
         :fields="fields"
-        :providers="providers"
-        title="Welcome back!"
+        :title="t('auth.welcome')"
         icon="i-lucide-lock"
-        @submit="onSubmit"
+        @submit="submit"
       >
         <template #description>
-          Don't have an account? <ULink to="#" class="text-primary font-medium">Sign up</ULink>.
+          {{ t('authExtra.noAccount') }} <ULink to="/sign-up" class="text-primary font-medium">{{ t('auth.signUp') }}</ULink>
         </template>
+
         <template #password-hint>
-          <ULink to="#" class="text-primary font-medium" tabindex="-1">Forgot password?</ULink>
+          <ULink to="/password-recovery" class="text-primary font-medium" tabindex="-1">{{ t('auth.forgotPassword') }}</ULink>
         </template>
+
         <template #validation>
-          <UAlert color="error" icon="i-lucide-info" title="Error signing in" />
+          <UAlert color="error" icon="i-lucide-info" :title="t('auth.errorSigningIn')" />
         </template>
+        
         <template #footer>
-          By signing in, you agree to our <ULink to="#" class="text-primary font-medium">Terms of Service</ULink>.
+          {{ t('authExtra.agreeTo') }} <ULink to="/terms-of-service" class="text-primary font-medium">{{ t('auth.termsOfService') }}</ULink>
         </template>
       </UAuthForm>
     </UPageCard>
