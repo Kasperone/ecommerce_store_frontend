@@ -38,5 +38,27 @@
     "loading": "Ładowanie...",
     "noResults": "Brak wyników",
     "confirmDelete": "Czy na pewno chcesz to usunąć?"
+  },
+  "auth": {
+    "email": "Email",
+    "enterYourEmail": "Wprowadź swój adres e-mail",
+    "enterYourPassword": "Wprowadź swoje hasło",
+    "errorSigningIn": "Wystąpił błąd podczas logowania",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "password": "Hasło",
+    "rememberMe": "Zapamiętaj mnie",
+    "signUp": "Zarejestruj się",
+    "termsOfService": "Regulamin",
+    "welcome": "Witamy!",
+    "errors": {
+      "invalidEmail": "Nieprawidłowy adres e-mail",
+      "passwordMin": "Musi mieć co najmniej {count} znaków",
+      "default": "Nieprawidłowe dane"
+    }
+  }
+  ,
+  "authExtra": {
+    "agreeTo": "Logując się, zgadzasz się z naszym",
+    "noAccount": "Nie masz konta?"
   }
 }

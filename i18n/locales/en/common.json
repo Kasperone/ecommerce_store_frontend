@@ -38,5 +38,27 @@
     "loading": "Loading...",
     "noResults": "No results found",
     "confirmDelete": "Are you sure you want to delete this?"
+  },
+  "auth": {
+    "email": "Email",
+    "enterYourEmail": "Enter your email",
+    "enterYourPassword": "Enter your password",
+    "errorSigningIn": "Error signing in",
+    "forgotPassword": "Forgot password?",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "signUp": "Sign up",
+    "termsOfService": "Terms of Service",
+    "welcome": "Welcome!",
+    "errors": {
+      "invalidEmail": "Invalid email",
+      "passwordMin": "Must be at least {count} characters",
+      "default": "Invalid input"
+    }
+  }
+  ,
+  "authExtra": {
+    "agreeTo": "By signing in, you agree to our",
+    "noAccount": "Don't have an account?"
   }
 }

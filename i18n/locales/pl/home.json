@@ -22,13 +22,7 @@
     }
   },
   "cta": {
-    "testApi": "Testuj Połączenie API",
-    "viewGithub": "Zobacz na GitHub",
     "shopNow": "Kup Teraz",
     "learnMore": "Dowiedz Się Więcej"
-  },
-  "api": {
-    "success": "Połączenie z API udane!",
-    "failed": "Nie udało się połączyć z API. Upewnij się, że backend działa."
   }
 }

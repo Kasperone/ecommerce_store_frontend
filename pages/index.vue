@@ -1,3 +1,9 @@
+<script setup lang="ts">
+useHead({
+  titleTemplate: '%s | MAIN PAGE'
+})
+</script>
+
 <template>
   <NuxtLayout>
     <div class="p-main">
@@ -5,9 +11,3 @@
     </div>
   </NuxtLayout>
 </template>
-
-<script setup lang="ts">
-useHead({
-  titleTemplate: '%s | MAIN PAGE'
-})
-</script>
