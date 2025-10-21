@@ -1,28 +1,31 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const route = useRoute()
+const { locale, setLocale } = useI18n()
+
+function toggleLocale() {
+  setLocale(locale.value === 'pl' ? 'en' : 'pl')
+}
 
 const items = computed<NavigationMenuItem[]>(() => [{
-  label: 'Docs',
-  to: '/docs/getting-started',
-  icon: 'i-lucide-book-open',
-  active: route.path.startsWith('/docs/getting-started')
+  label: 'Tab-1',
+  to: '/tab-1',
+  active: route.path.startsWith('/tab-1')
 }, {
-  label: 'Components',
-  to: '/docs/components',
-  icon: 'i-lucide-box',
-  active: route.path.startsWith('/docs/components')
+  label: 'Tab-2',
+  to: '/tab-2',
+  active: route.path.startsWith('/tab-2')
 }, {
-  label: 'Figma',
-  icon: 'i-simple-icons-figma',
-  to: 'https://go.nuxt.com/figma-ui',
-  target: '_blank'
+  label: 'Tab-3',
+  to: '/tab-3',
+  active: route.path.startsWith('/tab-3')
 }, {
-  label: 'Releases',
-  icon: 'i-lucide-rocket',
-  to: 'https://github.com/nuxt/ui/releases',
-  target: '_blank'
+  label: 'Tab-4',
+  to: '/tab-4',
+  active: route.path.startsWith('/tab-4')
 }])
 </script>
 
@@ -44,16 +47,26 @@ const items = computed<NavigationMenuItem[]>(() => [{
     <template #right>
       <UColorModeButton />
 
-      <UTooltip text="Open on GitHub" :kbds="['meta', 'G']">
+      <UTooltip text="Open on Instagram" :kbds="['meta', 'I']">
         <UButton
           color="neutral"
           variant="ghost"
-          to="https://github.com/nuxt/ui"
+          to="https://instagram.com"
           target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
+          icon="i-simple-icons-instagram"
+          aria-label="Instagram"
         />
       </UTooltip>
+
+      <UButton
+        color="neutral"
+        variant="ghost"
+        class="ml-2 px-2 text-sm"
+        @click="toggleLocale"
+        aria-label="Toggle language"
+      >
+        {{ locale === 'pl' ? 'PL' : 'EN' }}
+      </UButton>
     </template>
 
     <template #body>
