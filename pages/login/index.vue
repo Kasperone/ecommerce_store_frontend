@@ -1,6 +1,11 @@
 <template>
-    <div>LOGIN PAGE</div>
+  <NuxtLayout>
+    <LoginForm class="p-login" />
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
+useHead({
+  titleTemplate: '%s | LOGIN PAGE'
+})
 </script>
