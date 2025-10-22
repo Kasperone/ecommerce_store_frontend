@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const route = useRoute()
-const { locale, setLocale } = useI18n()
+const { locale, setLocale, t } = useI18n()
 
 function toggleLocale() {
   setLocale(locale.value === 'pl' ? 'en' : 'pl')
@@ -36,8 +36,7 @@ const items = computed<NavigationMenuItem[]>(() => [{
       color: 'primary',
       variant: 'subtle',
       class: 'rounded-full'
-    }"
-  >
+    }">
     <template #title>
       <p class="text-lg font-semibold">LOGO</p>
     </template>
@@ -45,32 +44,41 @@ const items = computed<NavigationMenuItem[]>(() => [{
     <UNavigationMenu :items="items" />
 
     <template #right>
-      <UColorModeButton />
+      <UColorModeButton class="cursor-pointer"/>
 
-      <UTooltip text="Open on Instagram" :kbds="['meta', 'I']">
-        <UButton
-          color="neutral"
-          variant="ghost"
-          to="https://instagram.com"
-          target="_blank"
-          icon="i-simple-icons-instagram"
-          aria-label="Instagram"
-        />
+      <UTooltip :text="t('header.toggleLang')">
+          <UButton color="neutral"
+                   variant="ghost"
+                   class="ml-2 px-2 text-sm cursor-pointer"
+                   @click="toggleLocale"
+                   aria-label="Toggle language">
+            {{ locale === 'pl' ? 'PL' : 'EN' }}
+          </UButton>
       </UTooltip>
 
-      <UButton
-        color="neutral"
-        variant="ghost"
-        class="ml-2 px-2 text-sm"
-        @click="toggleLocale"
-        aria-label="Toggle language"
-      >
-        {{ locale === 'pl' ? 'PL' : 'EN' }}
-      </UButton>
+      <UTooltip :text="t('header.login')">
+        <UButton color="neutral"
+                        variant="ghost"
+                        class="ml-2 px-2"
+                        aria-label="Login"
+                        to="/login"
+                        icon="i-lucide-log-in" />
+      </UTooltip>
+
+      <UTooltip :text="t('header.signUp')">
+        <UButton color="neutral" 
+                 variant="ghost"
+                 class="ml-2 px-2"
+                 aria-label="Sign up"
+                 to="/sign-up"
+                 icon="i-lucide-user-plus" />
+      </UTooltip>
     </template>
 
     <template #body>
-      <UNavigationMenu :items="items" orientation="vertical" class="-mx-2.5" />
+      <UNavigationMenu :items="items" 
+                       orientation="vertical"
+                       class="-mx-2.5" />
     </template>
   </UHeader>
 </template>
