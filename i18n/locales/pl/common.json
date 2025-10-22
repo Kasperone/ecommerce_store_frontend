@@ -1,11 +1,13 @@
 {
   "header": {
+    "account": "Konto",
     "cart": "Koszyk",
+    "colorMode": "Przełącz tryb kolorów",
     "login": "Zaloguj",
     "logout": "Wyloguj",
-    "register": "Zarejestruj",
-    "account": "Konto",
-    "search": "Szukaj produktów..."
+    "search": "Szukaj produktów...",
+    "signUp": "Zarejestruj się",
+    "toggleLang": "Zmień język"
   },
   "footer": {
     "aboutUs": "O Nas",
@@ -50,9 +52,50 @@
     "signUp": "Zarejestruj się",
     "termsOfService": "Regulamin",
     "welcome": "Witamy!",
+    "firstName": "Imię",
+    "enterYourFirstName": "Wprowadź swoje imię",
+    "lastName": "Nazwisko",
+    "enterYourLastName": "Wprowadź swoje nazwisko",
+    "phone": "Telefon",
+    "enterYourPhone": "Wprowadź numer telefonu",
+    "confirmPassword": "Potwierdź hasło",
+    "confirmYourPassword": "Potwierdź swoje hasło",
+    "shipping": {
+      "street": "Ulica",
+      "enterStreet": "Wprowadź ulicę",
+      "city": "Miasto",
+      "enterCity": "Wprowadź miasto",
+      "postalCode": "Kod pocztowy",
+      "enterPostalCode": "Wprowadź kod pocztowy",
+      "country": "Kraj",
+      "enterCountry": "Wprowadź kraj",
+      "state": "Województwo",
+      "enterState": "Wprowadź województwo"
+    },
+    "company": {
+      "name": "Nazwa firmy",
+      "enterName": "Wprowadź nazwę firmy",
+      "taxId": "NIP",
+      "enterTaxId": "Wprowadź NIP firmy",
+      "address": {
+        "street": "Ulica",
+        "enterStreet": "Wprowadź ulicę",
+        "city": "Miasto",
+        "enterCity": "Wprowadź miasto",
+        "postalCode": "Kod pocztowy",
+        "enterPostalCode": "Wprowadź kod pocztowy",
+        "country": "Kraj",
+        "enterCountry": "Wprowadź kraj",
+        "state": "Województwo",
+        "enterState": "Wprowadź województwo"
+      }
+    },
     "errors": {
       "invalidEmail": "Nieprawidłowy adres e-mail",
       "passwordMin": "Musi mieć co najmniej {count} znaków",
+      "firstNameRequired": "Imię jest wymagane",
+      "lastNameRequired": "Nazwisko jest wymagane",
+      "passwordsDontMatch": "Hasła nie są identyczne",
       "default": "Nieprawidłowe dane"
     }
   }
