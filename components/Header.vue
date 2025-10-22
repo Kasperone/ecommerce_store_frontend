@@ -73,6 +73,16 @@ const items = computed<NavigationMenuItem[]>(() => [{
                  to="/sign-up"
                  icon="i-lucide-user-plus" />
       </UTooltip>
+
+      <UButton
+        color="neutral"
+        variant="ghost"
+        class="ml-2 px-2 text-sm"
+        @click="toggleLocale"
+        aria-label="Toggle language"
+      >
+        {{ locale === 'pl' ? 'PL' : 'EN' }}
+      </UButton>
     </template>
 
     <template #body>
