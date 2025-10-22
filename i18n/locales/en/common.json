@@ -1,11 +1,13 @@
 {
   "header": {
+    "account": "Account",
     "cart": "Cart",
+    "colorMode": "Toggle color mode",
     "login": "Login",
     "logout": "Logout",
-    "register": "Register",
-    "account": "Account",
-    "search": "Search products..."
+    "search": "Search products...",
+    "signUp": "Sign up",
+    "toggleLang": "Switch language"
   },
   "footer": {
     "aboutUs": "About Us",
@@ -50,9 +52,50 @@
     "signUp": "Sign up",
     "termsOfService": "Terms of Service",
     "welcome": "Welcome!",
+    "firstName": "First name",
+    "enterYourFirstName": "Enter your first name",
+    "lastName": "Last name",
+    "enterYourLastName": "Enter your last name",
+    "phone": "Phone",
+    "enterYourPhone": "Enter your phone number",
+    "confirmPassword": "Confirm password",
+    "confirmYourPassword": "Confirm your password",
+    "shipping": {
+      "street": "Street",
+      "enterStreet": "Enter street",
+      "city": "City",
+      "enterCity": "Enter city",
+      "postalCode": "Postal code",
+      "enterPostalCode": "Enter postal code",
+      "country": "Country",
+      "enterCountry": "Enter country",
+      "state": "State/Province",
+      "enterState": "Enter state or province"
+    },
+    "company": {
+      "name": "Company name",
+      "enterName": "Enter company name",
+      "taxId": "Tax ID",
+      "enterTaxId": "Enter company tax ID",
+      "address": {
+        "street": "Street",
+        "enterStreet": "Enter street",
+        "city": "City",
+        "enterCity": "Enter city",
+        "postalCode": "Postal code",
+        "enterPostalCode": "Enter postal code",
+        "country": "Country",
+        "enterCountry": "Enter country",
+        "state": "State/Province",
+        "enterState": "Enter state or province"
+      }
+    },
     "errors": {
       "invalidEmail": "Invalid email",
       "passwordMin": "Must be at least {count} characters",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "passwordsDontMatch": "Passwords do not match",
       "default": "Invalid input"
     }
   }

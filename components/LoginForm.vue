@@ -32,7 +32,7 @@ const schema = computed(() => {
   // ensure recompute when locale changes
   void locale.value
   return z.object({
-    email: z.string().email({ message: t('auth.errors.invalidEmail', { default: 'Invalid email' }) }),
+    email: z.email({ message: t('auth.errors.invalidEmail', { default: 'Invalid email' }) }),
     password: z.string().min(8, { message: t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' }) })
   })
 })
@@ -62,9 +62,9 @@ const submit = (payload: FormSubmitEvent<Schema>) => {
           <ULink to="/password-recovery" class="text-primary font-medium" tabindex="-1">{{ t('auth.forgotPassword') }}</ULink>
         </template>
 
-        <template #validation>
+        <!-- <template #validation>
           <UAlert color="error" icon="i-lucide-info" :title="t('auth.errorSigningIn')" />
-        </template>
+        </template> -->
         
         <template #footer>
           {{ t('authExtra.agreeTo') }} <ULink to="/terms-of-service" class="text-primary font-medium">{{ t('auth.termsOfService') }}</ULink>
