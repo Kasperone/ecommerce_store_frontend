@@ -56,11 +56,11 @@ export const createPersonalSignUpSchema = (t: (key: string, options?: any) => st
       error: (issue) => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input` 
     }),
     // Shipping fields
-    shipping_street: optionalNullableString(),
-    shipping_city: optionalNullableString(),
-    shipping_postal_code: optionalNullableString(),
-    shipping_country: optionalNullableString(),
-    shipping_state: optionalNullableString()
+    shippingStreet: optionalNullableString(),
+    shippingCity: optionalNullableString(),
+    shippingPostalCode: optionalNullableString(),
+    shippingCountry: optionalNullableString(),
+    shippingState: optionalNullableString()
   }).superRefine((val, ctx) => {
     if (val.password !== val.confirmPassword) {
       ctx.addIssue({
@@ -85,13 +85,13 @@ export const createBusinessSignUpSchema = (t: (key: string, options?: any) => st
       error: (issue) => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input` 
     }),
     // Company fields
-    company_name: createNameValidation(1, t('auth.errors.companyNameRequired', { default: 'Company name is required' })),
-    company_tax_id: optionalNullableString(),
-    company_address_street: optionalNullableString(),
-    company_address_city: optionalNullableString(),
-    company_address_postal_code: optionalNullableString(),
-    company_address_country: optionalNullableString(),
-    company_address_state: optionalNullableString()
+    companyName: createNameValidation(1, t('auth.errors.companyNameRequired', { default: 'Company name is required' })),
+    companyTaxId: optionalNullableString(),
+    companyAddressStreet: optionalNullableString(),
+    companyAddressCity: optionalNullableString(),
+    companyAddressPostalCode: optionalNullableString(),
+    companyAddressCountry: optionalNullableString(),
+    companyAddressState: optionalNullableString()
   }).superRefine((val, ctx) => {
     if (val.password !== val.confirmPassword) {
       ctx.addIssue({
