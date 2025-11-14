@@ -3,9 +3,10 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import { createPersonalSignUpSchema, type PersonalSignUpFormData } from '#shared/validators/auth'
+import { useAuthStore } from '~/stores/auth'
 
 const { t, locale } = useI18n()
-const { register } = useAuth()
+const authStore = useAuthStore()
 const toast = useToast()
 const router = useRouter()
 
@@ -106,7 +107,7 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
   isLoading.value = true
   errorMessage.value = ''
   
-  const result = await register(payload.data)
+  const result = await authStore.register(payload.data)
   
   isLoading.value = false
   
