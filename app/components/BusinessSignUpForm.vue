@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import { createBusinessSignUpSchema, type BusinessSignUpFormData } from '#shared/validators/auth'
+import { useAuthStore } from '~/stores/auth'
 
 const { t, locale } = useI18n()
+const authStore = useAuthStore()
+const toast = useToast()
+const router = useRouter()
+
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const fields = computed<AuthFormField[]>(() => {
   // ensure computed re-runs when locale changes
@@ -53,49 +60,49 @@ const fields = computed<AuthFormField[]>(() => {
       required: true
     },
     {
-      name: 'company_name',
+      name: 'companyName',
       type: 'text',
       label: t('auth.company.name'),
       placeholder: t('auth.company.enterName'),
       required: true
     },
     {
-      name: 'company_tax_id',
+      name: 'companyTaxId',
       type: 'text',
       label: t('auth.company.taxId'),
       placeholder: t('auth.company.enterTaxId'),
       required: false
     },
     {
-      name: 'company_address_street',
+      name: 'companyAddressStreet',
       type: 'text',
       label: t('auth.company.address.street'),
       placeholder: t('auth.company.address.enterStreet'),
       required: false
     },
     {
-      name: 'company_address_city',
+      name: 'companyAddressCity',
       type: 'text',
       label: t('auth.company.address.city'),
       placeholder: t('auth.company.address.enterCity'),
       required: false
     },
     {
-      name: 'company_address_postal_code',
+      name: 'companyAddressPostalCode',
       type: 'text',
       label: t('auth.company.address.postalCode'),
       placeholder: t('auth.company.address.enterPostalCode'),
       required: false
     },
     {
-      name: 'company_address_country',
+      name: 'companyAddressCountry',
       type: 'text',
       label: t('auth.company.address.country'),
       placeholder: t('auth.company.address.enterCountry'),
       required: false
     },
     {
-      name: 'company_address_state',
+      name: 'companyAddressState',
       type: 'text',
       label: t('auth.company.address.state'),
       placeholder: t('auth.company.address.enterState'),
@@ -110,18 +117,55 @@ const schema = computed(() => {
   return createBusinessSignUpSchema(t)
 })
 
-const submit = (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
-  console.log('Business signup submitted:', payload)
+const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
+  isLoading.value = true
+  errorMessage.value = ''
+  
+  const result = await authStore.register(payload.data)
+  
+  isLoading.value = false
+  
+  if (result.success) {
+    toast.add({
+      title: t('auth.registrationSuccess'),
+      description: t('auth.registrationSuccessDescription'),
+      color: 'success',
+      icon: 'i-lucide-check-circle'
+    })
+    
+    // Redirect to home or dashboard
+    router.push('/')
+  } else {
+    errorMessage.value = result.error || t('auth.registrationError')
+    toast.add({
+      title: t('auth.registrationError'),
+      description: errorMessage.value,
+      color: 'error',
+      icon: 'i-lucide-circle-x'
+    })
+  }
 }
 </script>
 
 <template>
   <div class="c-business-sign-up">
+    <UAlert
+      v-if="errorMessage"
+      color="error"
+      variant="soft"
+      :title="t('auth.registrationError')"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+      class="mb-4"
+      @close="errorMessage = ''"
+    />
+    
     <UAuthForm
       :schema="schema"
       :fields="fields"
       :title="t('auth.business')"
       icon="i-lucide-building"
+      :loading="isLoading"
       @submit="submit"
     >
       <template #footer>

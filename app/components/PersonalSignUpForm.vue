@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import { createPersonalSignUpSchema, type PersonalSignUpFormData } from '#shared/validators/auth'
+import { useAuthStore } from '~/stores/auth'
 
 const { t, locale } = useI18n()
+const authStore = useAuthStore()
+const toast = useToast()
+const router = useRouter()
+
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const fields = computed<AuthFormField[]>(() => {
   // ensure computed re-runs when locale changes
@@ -53,35 +60,35 @@ const fields = computed<AuthFormField[]>(() => {
       required: true
     },
     {
-      name: 'shipping_street',
+      name: 'shippingStreet',
       type: 'text',
       label: t('auth.shipping.street'),
       placeholder: t('auth.shipping.enterStreet'),
       required: false
     },
     {
-      name: 'shipping_city',
+      name: 'shippingCity',
       type: 'text',
       label: t('auth.shipping.city'),
       placeholder: t('auth.shipping.enterCity'),
       required: false
     },
     {
-      name: 'shipping_postal_code',
+      name: 'shippingPostalCode',
       type: 'text',
       label: t('auth.shipping.postalCode'),
       placeholder: t('auth.shipping.enterPostalCode'),
       required: false
     },
     {
-      name: 'shipping_country',
+      name: 'shippingCountry',
       type: 'text',
       label: t('auth.shipping.country'),
       placeholder: t('auth.shipping.enterCountry'),
       required: false
     },
     {
-      name: 'shipping_state',
+      name: 'shippingState',
       type: 'text',
       label: t('auth.shipping.state'),
       placeholder: t('auth.shipping.enterState'),
@@ -96,18 +103,55 @@ const schema = computed(() => {
   return createPersonalSignUpSchema(t)
 })
 
-const submit = (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
-  console.log('Personal signup submitted:', payload)
+const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
+  isLoading.value = true
+  errorMessage.value = ''
+  
+  const result = await authStore.register(payload.data)
+  
+  isLoading.value = false
+  
+  if (result.success) {
+    toast.add({
+      title: t('auth.registrationSuccess'),
+      description: t('auth.registrationSuccessDescription'),
+      color: 'success',
+      icon: 'i-lucide-check-circle'
+    })
+    
+    // Redirect to home or dashboard
+    router.push('/')
+  } else {
+    errorMessage.value = result.error || t('auth.registrationError')
+    toast.add({
+      title: t('auth.registrationError'),
+      description: errorMessage.value,
+      color: 'error',
+      icon: 'i-lucide-circle-x'
+    })
+  }
 }
 </script>
 
 <template>
   <div class="c-personal-sign-up">
+    <UAlert
+      v-if="errorMessage"
+      color="error"
+      variant="soft"
+      :title="t('auth.registrationError')"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+      class="mb-4"
+      @close="errorMessage = ''"
+    />
+    
     <UAuthForm
       :schema="schema"
       :fields="fields"
       :title="t('auth.personal')"
       icon="i-lucide-user"
+      :loading="isLoading"
       @submit="submit"
     >
       <template #footer>
