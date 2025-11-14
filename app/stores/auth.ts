@@ -1,3 +1,5 @@
+import { defineStore } from 'pinia'
+import { ref, computed, readonly } from 'vue'
 import { AUTH_ENDPOINTS } from '~/shared/constants/api'
 import type { 
   PersonalSignUpFormData, 
@@ -41,17 +43,34 @@ interface ApiError {
   detail: string
 }
 
-export const useAuth = () => {
-  const { apiFetch } = useApi()
+/**
+ * Auth Store
+ * Manages user authentication, registration, and session state
+ */
+export const useAuthStore = defineStore('auth', () => {
+  // State
+  const user = ref<UserResponse | null>(null)
   const authToken = useCookie('auth_token', {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production'
   })
-  const user = useState<UserResponse | null>('user', () => null)
 
+  // Getters
+  const isAuthenticated = computed(() => !!authToken.value && !!user.value)
+  
+  const fullName = computed(() => {
+    if (!user.value) return null
+    return `${user.value.first_name} ${user.value.last_name}`
+  })
+
+  const isAdmin = computed(() => user.value?.role === 'ADMIN')
+
+  // Actions
   const register = async (data: PersonalSignUpFormData | BusinessSignUpFormData) => {
     try {
+      const { apiFetch } = useApi()
+      
       const response = await apiFetch<UserResponse>(AUTH_ENDPOINTS.REGISTER, {
         method: 'POST',
         body: {
@@ -96,6 +115,8 @@ export const useAuth = () => {
 
   const login = async (email: string, password: string) => {
     try {
+      const { apiFetch } = useApi()
+      
       // FastAPI uses OAuth2PasswordRequestForm which expects form data
       const formData = new FormData()
       formData.append('username', email) // OAuth2 uses 'username' field
@@ -133,6 +154,8 @@ export const useAuth = () => {
     }
 
     try {
+      const { apiFetch } = useApi()
+      
       const response = await apiFetch<UserResponse>(AUTH_ENDPOINTS.ME, {
         method: 'GET'
       })
@@ -148,6 +171,8 @@ export const useAuth = () => {
     if (!authToken.value) return
 
     try {
+      const { apiFetch } = useApi()
+      
       const response = await apiFetch<TokenResponse>(AUTH_ENDPOINTS.REFRESH, {
         method: 'POST'
       })
@@ -159,15 +184,28 @@ export const useAuth = () => {
     }
   }
 
-  const isAuthenticated = computed(() => !!authToken.value && !!user.value)
+  const updateUser = (userData: Partial<UserResponse>) => {
+    if (user.value) {
+      user.value = { ...user.value, ...userData }
+    }
+  }
 
   return {
+    // State
     user: readonly(user),
+    authToken: readonly(authToken),
+    
+    // Getters
     isAuthenticated,
+    fullName,
+    isAdmin,
+    
+    // Actions
     register,
     login,
     logout,
     fetchUser,
-    refreshToken
+    refreshToken,
+    updateUser
   }
-}
+})
