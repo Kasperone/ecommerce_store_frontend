@@ -105,7 +105,26 @@
     },
     "registrationSuccess": "Registration successful!",
     "registrationSuccessDescription": "Your account has been created. Welcome!",
-    "registrationError": "Registration failed"
+    "registrationError": "Registration failed",
+    "verification": {
+      "title": "Check Your Email",
+      "message": "We've sent a verification link to",
+      "instruction": "Please click the link in the email to verify your account.",
+      "didNotReceive": "Didn't receive the email?",
+      "resendButton": "Resend Verification Email",
+      "resendSuccess": "Verification email sent!",
+      "resendError": "Failed to resend email",
+      "verifying": "Verifying your email...",
+      "success": "Email Verified!",
+      "successMessage": "Your email has been successfully verified. You can now log in.",
+      "goToLogin": "Go to Login",
+      "expired": "Link Expired",
+      "expiredMessage": "This verification link has expired. Please request a new one.",
+      "invalid": "Invalid Link",
+      "invalidMessage": "This verification link is invalid or has already been used.",
+      "alreadyVerified": "Email already verified",
+      "checkSpam": "Please check your spam folder if you don't see the email."
+    }
   },
   "authExtra": {
     "agreeTo": "By signing in, you agree to our",
