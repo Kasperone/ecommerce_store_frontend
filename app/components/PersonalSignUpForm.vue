@@ -119,8 +119,8 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
       icon: 'i-lucide-check-circle'
     })
     
-    // Redirect to home or dashboard
-    router.push('/')
+    // Redirect to email verification page
+    router.push(`/verify-email-sent?email=${encodeURIComponent(payload.data.email)}`)
   } else {
     errorMessage.value = result.error || t('auth.registrationError')
     toast.add({
