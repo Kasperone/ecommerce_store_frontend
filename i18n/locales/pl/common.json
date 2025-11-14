@@ -105,7 +105,26 @@
     },
     "registrationSuccess": "Rejestracja zakończona sukcesem!",
     "registrationSuccessDescription": "Twoje konto zostało utworzone. Witamy!",
-    "registrationError": "Rejestracja nie powiodła się"
+    "registrationError": "Rejestracja nie powiodła się",
+    "verification": {
+      "title": "Sprawdź swoją skrzynkę email",
+      "message": "Wysłaliśmy link weryfikacyjny na adres",
+      "instruction": "Kliknij link w emailu, aby zweryfikować swoje konto.",
+      "didNotReceive": "Nie otrzymałeś emaila?",
+      "resendButton": "Wyślij ponownie email weryfikacyjny",
+      "resendSuccess": "Email weryfikacyjny został wysłany!",
+      "resendError": "Nie udało się wysłać emaila",
+      "verifying": "Weryfikujemy Twój email...",
+      "success": "Email zweryfikowany!",
+      "successMessage": "Twój email został pomyślnie zweryfikowany. Możesz się teraz zalogować.",
+      "goToLogin": "Przejdź do logowania",
+      "expired": "Link wygasł",
+      "expiredMessage": "Ten link weryfikacyjny wygasł. Poproś o nowy.",
+      "invalid": "Nieprawidłowy link",
+      "invalidMessage": "Ten link weryfikacyjny jest nieprawidłowy lub został już użyty.",
+      "alreadyVerified": "Email już zweryfikowany",
+      "checkSpam": "Sprawdź folder spam, jeśli nie widzisz emaila."
+    }
   }
   ,
   "authExtra": {
