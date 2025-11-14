@@ -1,13 +1,13 @@
 <template>
   <div class="l-default w-full max-w-[2560px] min-h-screen flex flex-col">
-    <Header />
+    <LayoutHeader />
 
     <div class="flex-1 flex flex-col">
       <main class="flex-1">
         <slot />
       </main>
 
-      <Footer />
+      <LayoutFooter />
     </div>
   </div>
 </template>
