@@ -7,7 +7,7 @@ useHead({
 <template>
   <NuxtLayout>
     <div class="p-sign-up">
-        <SignUpForm />
+        <FormsSignUpForm />
     </div>
   </NuxtLayout>
 </template>

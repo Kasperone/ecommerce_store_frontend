@@ -6,6 +6,6 @@ useHead({
 
 <template>
   <NuxtLayout>
-    <LoginForm class="p-login" />
+    <FormsLoginForm class="p-login" />
   </NuxtLayout>
 </template>

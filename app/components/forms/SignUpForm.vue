@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import PersonalSignUpForm from './PersonalSignUpForm.vue'
-import BusinessSignUpForm from './BusinessSignUpForm.vue'
 
 const { t, locale } = useI18n()
 
@@ -43,10 +41,10 @@ const tabItems = computed(() => {
           variant="pill"
         >
           <template #personal>
-            <PersonalSignUpForm />
+            <FormsPersonalSignUpForm />
           </template>
           <template #business>
-            <BusinessSignUpForm />
+            <FormsBusinessSignUpForm />
           </template>
         </UTabs>
       </div>
