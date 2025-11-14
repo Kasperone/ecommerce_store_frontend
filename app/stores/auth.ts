@@ -1,16 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, computed, readonly } from 'vue'
-import { AUTH_ENDPOINTS } from '~/shared/constants/api'
+import { AUTH_ENDPOINTS } from '#shared/constants/api'
 import type { 
   PersonalSignUpFormData, 
   BusinessSignUpFormData 
-} from '~/shared/validators/auth'
+} from '#shared/validators/auth'
 import type { 
   UserResponse, 
   TokenResponse, 
   ApiError,
   ApiResponse
-} from '~/shared/types/api'
+} from '#shared/types/api'
 
 /**
  * Auth Store
