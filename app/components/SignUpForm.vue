@@ -1,181 +1,55 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
-import { createSignUpSchema, type SignUpFormData } from '#shared/validators/auth'
+import PersonalSignUpForm from './PersonalSignUpForm.vue'
+import BusinessSignUpForm from './BusinessSignUpForm.vue'
 
 const { t, locale } = useI18n()
 
-const fields = computed<AuthFormField[]>(() => {
+const tabItems = computed(() => {
   // ensure computed re-runs when locale changes
   void locale.value
   return [
     {
-      name: 'firstName',
-      type: 'text',
-      label: t('auth.firstName'),
-      placeholder: t('auth.enterYourFirstName'),
-      required: true
+      label: t('auth.personal'),
+      icon: 'i-lucide-user',
+      slot: 'personal'
     },
     {
-      name: 'lastName',
-      type: 'text',
-      label: t('auth.lastName'),
-      placeholder: t('auth.enterYourLastName'),
-      required: true
-    },
-    {
-      name: 'email',
-      type: 'email',
-      label: t('auth.email'),
-      placeholder: t('auth.enterYourEmail'),
-      required: true
-    },
-    {
-      name: 'phone',
-      label: t('auth.phone'),
-      type: 'text',
-      placeholder: t('auth.enterYourPhone'),
-      required: false
-    },
-    {
-      name: 'password',
-      label: t('auth.password'),
-      type: 'password',
-      placeholder: t('auth.enterYourPassword'),
-      required: true
-    },
-    {
-      name: 'confirmPassword',
-      label: t('auth.confirmPassword'),
-      type: 'password',
-      placeholder: t('auth.confirmYourPassword'),
-      required: true
-    },
-    {
-      name: 'shipping_street',
-      type: 'text',
-      label: t('auth.shipping.street'),
-      placeholder: t('auth.shipping.enterStreet'),
-      required: false
-    },
-    {
-      name: 'shipping_city',
-      type: 'text',
-      label: t('auth.shipping.city'),
-      placeholder: t('auth.shipping.enterCity'),
-      required: false
-    },
-    {
-      name: 'shipping_postal_code',
-      type: 'text',
-      label: t('auth.shipping.postalCode'),
-      placeholder: t('auth.shipping.enterPostalCode'),
-      required: false
-    },
-    {
-      name: 'shipping_country',
-      type: 'text',
-      label: t('auth.shipping.country'),
-      placeholder: t('auth.shipping.enterCountry'),
-      required: false
-    },
-    {
-      name: 'shipping_state',
-      type: 'text',
-      label: t('auth.shipping.state'),
-      placeholder: t('auth.shipping.enterState'),
-      required: false
-    },
-    {
-      name: 'company_name',
-      type: 'text',
-      label: t('auth.company.name'),
-      placeholder: t('auth.company.enterName'),
-      required: false
-    },
-    {
-      name: 'company_tax_id',
-      type: 'text',
-      label: t('auth.company.taxId'),
-      placeholder: t('auth.company.enterTaxId'),
-      required: false
-    },
-    {
-      name: 'company_address_street',
-      type: 'text',
-      label: t('auth.company.address.street'),
-      placeholder: t('auth.company.address.enterStreet'),
-      required: false
-    },
-    {
-      name: 'company_address_city',
-      type: 'text',
-      label: t('auth.company.address.city'),
-      placeholder: t('auth.company.address.enterCity'),
-      required: false
-    },
-    {
-      name: 'company_address_postal_code',
-      type: 'text',
-      label: t('auth.company.address.postalCode'),
-      placeholder: t('auth.company.address.enterPostalCode'),
-      required: false
-    },
-    {
-      name: 'company_address_country',
-      type: 'text',
-      label: t('auth.company.address.country'),
-      placeholder: t('auth.company.address.enterCountry'),
-      required: false
-    },
-    {
-      name: 'company_address_state',
-      type: 'text',
-      label: t('auth.company.address.state'),
-      placeholder: t('auth.company.address.enterState'),
-      required: false
+      label: t('auth.business'), 
+      icon: 'i-lucide-building',
+      slot: 'business'
     }
   ]
 })
-
-const schema = computed(() => {
-  // ensure recompute when locale changes
-  void locale.value
-  return createSignUpSchema(t)
-})
-
-const submit = (payload: FormSubmitEvent<SignUpFormData>) => {
-  console.log('Submitted', payload)
-}
 </script>
 
 <template>
   <div class="c-sign-up flex flex-col items-center justify-center gap-4 p-4">
-    <UPageCard class="w-full max-w-md">
-      <UAuthForm
-        :schema="schema"
-        :fields="fields"
-        :title="t('auth.welcome')"
-        icon="i-lucide-lock"
-        @submit="submit"
-      >
-        <template #description>
-          {{ t('authExtra.noAccount') }} <ULink to="/sign-up" class="text-primary font-medium">{{ t('auth.signUp') }}</ULink>
-        </template>
-
-        <template #password-hint>
-          <ULink to="/password-recovery" class="text-primary font-medium" tabindex="-1">{{ t('auth.forgotPassword') }}</ULink>
-        </template>
-
-        <!-- <template #validation>
-          <UAlert color="error" icon="i-lucide-info" :title="t('auth.errorSigningIn')" />
-        </template> -->
+    <UPageCard class="w-full max-w-2xl">
+      <div class="p-6">
+        <div class="text-center mb-6">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            {{ t('auth.welcome') }}
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400">
+            {{ t('authExtra.noAccount') }} <ULink to="/login" class="text-primary font-medium">{{ t('auth.login') }}</ULink>
+          </p>
+        </div>
         
-        <template #footer>
-          {{ t('authExtra.agreeTo') }} <ULink to="/terms-of-service" class="text-primary font-medium">{{ t('auth.termsOfService') }}</ULink>
-        </template>
-      </UAuthForm>
+        <UTabs
+          :items="tabItems"
+          class="w-full"
+          variant="pill"
+        >
+          <template #personal>
+            <PersonalSignUpForm />
+          </template>
+          <template #business>
+            <BusinessSignUpForm />
+          </template>
+        </UTabs>
+      </div>
     </UPageCard>
   </div>
 </template>

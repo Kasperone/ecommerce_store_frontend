@@ -52,6 +52,9 @@
     "signUp": "Zarejestruj się",
     "termsOfService": "Regulamin",
     "welcome": "Witamy!",
+    "login": "Zaloguj",
+    "personal": "Konto Osobiste",
+    "business": "Konto Firmowe",
     "firstName": "Imię",
     "enterYourFirstName": "Wprowadź swoje imię",
     "lastName": "Nazwisko",
@@ -96,6 +99,7 @@
       "firstNameRequired": "Imię jest wymagane",
       "lastNameRequired": "Nazwisko jest wymagane",
       "confirmPasswordRequired": "Potwierdzenie hasła jest wymagane",
+      "companyNameRequired": "Nazwa firmy jest wymagana",
       "passwordsDontMatch": "Hasła nie są identyczne",
       "default": "Nieprawidłowe dane"
     }
