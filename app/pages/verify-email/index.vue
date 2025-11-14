@@ -14,7 +14,7 @@ const isSuccess = ref(false)
 const errorMessage = ref('')
 const countdown = ref(5)
 
-let countdownInterval: NodeJS.Timeout | null = null
+let countdownInterval: ReturnType<typeof setInterval> | null = null
 
 const verifyToken = async (token: string) => {
   const result = await authStore.verifyEmail(token)
@@ -106,7 +106,7 @@ const goToLogin = () => {
           
           <UAlert
             icon="i-lucide-info"
-            color="green"
+            color="success"
             variant="soft"
             :title="t('auth.verification.canLogin')"
             class="text-left"
@@ -145,7 +145,7 @@ const goToLogin = () => {
           
           <UAlert
             icon="i-lucide-alert-triangle"
-            color="red"
+            color="error"
             variant="soft"
             :title="t('auth.verification.tokenExpired')"
             :description="t('auth.verification.requestNew')"
@@ -163,7 +163,7 @@ const goToLogin = () => {
             
             <UButton
               :label="t('common.goHome')"
-              color="gray"
+              color="neutral"
               variant="ghost"
               block
               @click="router.push('/')"
