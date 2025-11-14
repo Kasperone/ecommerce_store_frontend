@@ -5,43 +5,12 @@ import type {
   PersonalSignUpFormData, 
   BusinessSignUpFormData 
 } from '~/shared/validators/auth'
-
-interface UserResponse {
-  email: string
-  first_name: string
-  last_name: string
-  phone: string
-  is_active: boolean
-  is_verified: boolean
-  role: 'CUSTOMER' | 'ADMIN'
-  created_at: string
-  updated_at: string
-  
-  // Shipping address (optional)
-  shipping_street?: string | null
-  shipping_city?: string | null
-  shipping_postal_code?: string | null
-  shipping_country?: string | null
-  shipping_state?: string | null
-  
-  // Company data (optional)
-  company_name?: string | null
-  company_tax_id?: string | null
-  company_address_street?: string | null
-  company_address_city?: string | null
-  company_address_postal_code?: string | null
-  company_address_country?: string | null
-  company_address_state?: string | null
-}
-
-interface TokenResponse {
-  access_token: string
-  token_type: string
-}
-
-interface ApiError {
-  detail: string
-}
+import type { 
+  UserResponse, 
+  TokenResponse, 
+  ApiError,
+  ApiResponse
+} from '~/shared/types/api'
 
 /**
  * Auth Store
@@ -103,13 +72,13 @@ export const useAuthStore = defineStore('auth', () => {
       })
 
       user.value = response
-      return { success: true, data: response }
+      return { success: true, data: response } as ApiResponse<UserResponse>
     } catch (error: any) {
       const apiError = error?.data as ApiError
       return { 
         success: false, 
         error: apiError?.detail || 'Registration failed. Please try again.' 
-      }
+      } as ApiResponse<UserResponse>
     }
   }
 
@@ -132,13 +101,13 @@ export const useAuthStore = defineStore('auth', () => {
       // Fetch user info after successful login
       await fetchUser()
       
-      return { success: true, data: response }
+      return { success: true, data: response } as ApiResponse<TokenResponse>
     } catch (error: any) {
       const apiError = error?.data as ApiError
       return { 
         success: false, 
         error: apiError?.detail || 'Login failed. Please check your credentials.' 
-      }
+      } as ApiResponse<TokenResponse>
     }
   }
 
