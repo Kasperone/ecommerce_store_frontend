@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
-import * as z from 'zod'
+import { createLoginSchema, type LoginFormData } from '#shared/validators/auth'
 
 const { t, locale } = useI18n()
 
@@ -31,15 +31,10 @@ const fields = computed<AuthFormField[]>(() => {
 const schema = computed(() => {
   // ensure recompute when locale changes
   void locale.value
-  return z.object({
-    email: z.email({ message: t('auth.errors.invalidEmail', { default: 'Invalid email' }) }),
-    password: z.string().min(8, { message: t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' }) })
-  })
+  return createLoginSchema(t)
 })
 
-type Schema = z.output<typeof schema>
-
-const submit = (payload: FormSubmitEvent<Schema>) => {
+const submit = (payload: FormSubmitEvent<LoginFormData>) => {
   console.log('Submitted', payload)
 }
 </script>
