@@ -159,6 +159,44 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const verifyEmail = async (token: string) => {
+    try {
+      const { apiFetch } = useApi()
+      
+      const response = await apiFetch<{ message: string }>(`${AUTH_ENDPOINTS.BASE}/verify-email`, {
+        method: 'POST',
+        body: { token }
+      })
+      
+      return { success: true, message: response.message }
+    } catch (error: any) {
+      const apiError = error?.data as ApiError
+      return { 
+        success: false, 
+        error: apiError?.detail || 'Email verification failed.' 
+      }
+    }
+  }
+
+  const resendVerification = async (email: string) => {
+    try {
+      const { apiFetch } = useApi()
+      
+      const response = await apiFetch<{ message: string }>(`${AUTH_ENDPOINTS.BASE}/resend-verification`, {
+        method: 'POST',
+        body: { email }
+      })
+      
+      return { success: true, message: response.message }
+    } catch (error: any) {
+      const apiError = error?.data as ApiError
+      return { 
+        success: false, 
+        error: apiError?.detail || 'Failed to resend verification email.' 
+      }
+    }
+  }
+
   return {
     // State
     user: readonly(user),
@@ -175,6 +213,8 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     fetchUser,
     refreshToken,
-    updateUser
+    updateUser,
+    verifyEmail,
+    resendVerification
   }
 })
