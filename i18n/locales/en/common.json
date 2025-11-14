@@ -102,7 +102,10 @@
       "companyNameRequired": "Company name is required",
       "passwordsDontMatch": "Passwords do not match",
       "default": "Invalid input"
-    }
+    },
+    "registrationSuccess": "Registration successful!",
+    "registrationSuccessDescription": "Your account has been created. Welcome!",
+    "registrationError": "Registration failed"
   },
   "authExtra": {
     "agreeTo": "By signing in, you agree to our",

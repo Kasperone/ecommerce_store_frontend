@@ -102,7 +102,10 @@
       "companyNameRequired": "Nazwa firmy jest wymagana",
       "passwordsDontMatch": "Hasła nie są identyczne",
       "default": "Nieprawidłowe dane"
-    }
+    },
+    "registrationSuccess": "Rejestracja zakończona sukcesem!",
+    "registrationSuccessDescription": "Twoje konto zostało utworzone. Witamy!",
+    "registrationError": "Rejestracja nie powiodła się"
   }
   ,
   "authExtra": {
