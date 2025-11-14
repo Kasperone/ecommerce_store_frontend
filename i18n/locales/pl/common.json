@@ -95,6 +95,7 @@
       "passwordMin": "Musi mieć co najmniej {count} znaków",
       "firstNameRequired": "Imię jest wymagane",
       "lastNameRequired": "Nazwisko jest wymagane",
+      "confirmPasswordRequired": "Potwierdzenie hasła jest wymagane",
       "passwordsDontMatch": "Hasła nie są identyczne",
       "default": "Nieprawidłowe dane"
     }

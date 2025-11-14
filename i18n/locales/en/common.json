@@ -95,11 +95,11 @@
       "passwordMin": "Must be at least {count} characters",
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
+      "confirmPasswordRequired": "Confirm password is required",
       "passwordsDontMatch": "Passwords do not match",
       "default": "Invalid input"
     }
-  }
-  ,
+  },
   "authExtra": {
     "agreeTo": "By signing in, you agree to our",
     "noAccount": "Don't have an account?"

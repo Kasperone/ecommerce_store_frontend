@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
-import * as z from 'zod'
+import { createSignUpSchema, type SignUpFormData } from '#shared/validators/auth'
 
 const { t, locale } = useI18n()
 
@@ -142,39 +142,10 @@ const fields = computed<AuthFormField[]>(() => {
 const schema = computed(() => {
   // ensure recompute when locale changes
   void locale.value
-  return z.object({
-    firstName: z.string().min(1, { message: t('auth.errors.firstNameRequired', { default: 'First name is required' }) }),
-    lastName: z.string().min(1, { message: t('auth.errors.lastNameRequired', { default: 'Last name is required' }) }),
-    email: z.email({ message: t('auth.errors.invalidEmail', { default: 'Invalid email' }) }),
-    phone: z.string().optional(),
-    password: z.string().min(8, { message: t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' }) }).max(100),
-    confirmPassword: z.string(),
-    shipping_street: z.string().optional().nullable(),
-    shipping_city: z.string().optional().nullable(),
-    shipping_postal_code: z.string().optional().nullable(),
-    shipping_country: z.string().optional().nullable(),
-    shipping_state: z.string().optional().nullable(),
-    company_name: z.string().optional().nullable(),
-    company_tax_id: z.string().optional().nullable(),
-    company_address_street: z.string().optional().nullable(),
-    company_address_city: z.string().optional().nullable(),
-    company_address_postal_code: z.string().optional().nullable(),
-    company_address_country: z.string().optional().nullable(),
-    company_address_state: z.string().optional().nullable()
-  }).superRefine((val, ctx) => {
-    if (val.password !== val.confirmPassword) {
-      ctx.addIssue({
-        code: 'custom',
-        message: t('auth.errors.passwordsDontMatch', { default: 'Passwords do not match' }),
-        path: ['confirmPassword']
-      })
-    }
-  })
+  return createSignUpSchema(t)
 })
 
-type Schema = z.output<typeof schema>
-
-const submit = (payload: FormSubmitEvent<Schema>) => {
+const submit = (payload: FormSubmitEvent<SignUpFormData>) => {
   console.log('Submitted', payload)
 }
 </script>

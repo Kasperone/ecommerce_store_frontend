@@ -1,7 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { fileURLToPath } from 'node:url'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   
+  // Nuxt 4 uses app/ as default srcDir
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   
@@ -10,6 +13,38 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/i18n',
   ],
+  
+  // Components configuration
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false,
+    },
+  ],
+  
+  // Auto-imports configuration
+  imports: {
+    dirs: [
+      'composables',
+      'composables/**',
+      'utils',
+      'utils/**'
+    ]
+  },
+  
+  // Alias configuration for shared directory
+  alias: {
+    '#shared': fileURLToPath(new URL('./shared', import.meta.url))
+  },
+  
+  // Vite configuration
+  vite: {
+    resolve: {
+      alias: {
+        '#shared': fileURLToPath(new URL('./shared', import.meta.url))
+      }
+    }
+  },
   
   // i18n Configuration
   i18n: {
