@@ -111,3 +111,10 @@ export const buildApiUrl = {
   deleteCategory: (id: number | string) => 
     API_ENDPOINTS.CATEGORIES.DELETE.replace('{id}', String(id))
 } as const
+
+/**
+ * Named exports for convenience
+ */
+export const AUTH_ENDPOINTS = API_ENDPOINTS.AUTH
+export const PRODUCTS_ENDPOINTS = API_ENDPOINTS.PRODUCTS
+export const CATEGORIES_ENDPOINTS = API_ENDPOINTS.CATEGORIES
