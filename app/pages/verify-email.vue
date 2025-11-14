@@ -72,36 +72,32 @@ const goToLogin = () => {
   <div class="min-h-screen flex items-center justify-center p-4">
     <UCard class="max-w-md w-full">
       <!-- Loading State -->
-      <div v-if="isVerifying" class="py-8">
-        <div class="text-center space-y-4">
-          <div class="flex justify-center mb-4">
-            <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <UIcon name="i-lucide-loader" class="w-8 h-8 text-primary animate-spin" />
-            </div>
+      <div v-if="isVerifying" class="py-8 text-center space-y-4">
+        <div class="flex justify-center mb-4">
+          <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+            <UIcon name="i-lucide-loader" class="w-8 h-8 text-primary animate-spin" />
           </div>
-          <h1 class="text-2xl font-bold">
-            {{ t('auth.verification.verifying') }}
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400">
-            {{ t('auth.verification.pleaseWait') }}
-          </p>
         </div>
+        <h1 class="text-2xl font-bold">
+          {{ t('auth.verification.verifying') }}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          {{ t('auth.verification.pleaseWait') }}
+        </p>
       </div>
 
       <!-- Success State -->
       <div v-else-if="isSuccess" class="py-8">
-        <template #header>
-          <div class="text-center">
-            <div class="flex justify-center mb-4">
-              <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center">
-                <UIcon name="i-lucide-check-circle" class="w-8 h-8 text-success" />
-              </div>
+        <div class="text-center mb-6">
+          <div class="flex justify-center mb-4">
+            <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center">
+              <UIcon name="i-lucide-check-circle" class="w-8 h-8 text-success" />
             </div>
-            <h1 class="text-2xl font-bold">
-              {{ t('auth.verification.success') }}
-            </h1>
           </div>
-        </template>
+          <h1 class="text-2xl font-bold">
+            {{ t('auth.verification.success') }}
+          </h1>
+        </div>
 
         <div class="space-y-4 text-center">
           <p class="text-gray-600 dark:text-gray-400">
@@ -131,18 +127,16 @@ const goToLogin = () => {
 
       <!-- Error State -->
       <div v-else class="py-8">
-        <template #header>
-          <div class="text-center">
-            <div class="flex justify-center mb-4">
-              <div class="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center">
-                <UIcon name="i-lucide-circle-x" class="w-8 h-8 text-error" />
-              </div>
+        <div class="text-center mb-6">
+          <div class="flex justify-center mb-4">
+            <div class="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center">
+              <UIcon name="i-lucide-circle-x" class="w-8 h-8 text-error" />
             </div>
-            <h1 class="text-2xl font-bold">
-              {{ t('auth.verification.failed') }}
-            </h1>
           </div>
-        </template>
+          <h1 class="text-2xl font-bold">
+            {{ t('auth.verification.failed') }}
+          </h1>
+        </div>
 
         <div class="space-y-4 text-center">
           <p class="text-gray-600 dark:text-gray-400">
