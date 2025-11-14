@@ -50,7 +50,7 @@ export const createPersonalSignUpSchema = (t: (key: string, options?: any) => st
     firstName: createNameValidation(1, t('auth.errors.firstNameRequired', { default: 'First name is required' })),
     lastName: createNameValidation(1, t('auth.errors.lastNameRequired', { default: 'Last name is required' })),
     email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' })),
-    phone: z.string().optional(),
+    phone: optionalNullableString(),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
     confirmPassword: z.string({ 
       error: (issue) => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input` 
@@ -79,7 +79,7 @@ export const createBusinessSignUpSchema = (t: (key: string, options?: any) => st
     firstName: createNameValidation(1, t('auth.errors.firstNameRequired', { default: 'First name is required' })),
     lastName: createNameValidation(1, t('auth.errors.lastNameRequired', { default: 'Last name is required' })),
     email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' })),
-    phone: z.string().optional(),
+    phone: optionalNullableString(),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
     confirmPassword: z.string({ 
       error: (issue) => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input` 

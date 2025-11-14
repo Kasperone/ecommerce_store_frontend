@@ -7,7 +7,7 @@ export interface UserResponse {
   email: string
   first_name: string
   last_name: string
-  phone: string
+  phone?: string | null
   is_active: boolean
   is_verified: boolean
   role: 'CUSTOMER' | 'ADMIN'
