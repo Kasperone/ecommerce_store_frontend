@@ -52,6 +52,9 @@
     "signUp": "Sign up",
     "termsOfService": "Terms of Service",
     "welcome": "Welcome!",
+    "login": "Login",
+    "personal": "Personal Account",
+    "business": "Business Account",
     "firstName": "First name",
     "enterYourFirstName": "Enter your first name",
     "lastName": "Last name",
@@ -96,6 +99,7 @@
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
       "confirmPasswordRequired": "Confirm password is required",
+      "companyNameRequired": "Company name is required",
       "passwordsDontMatch": "Passwords do not match",
       "default": "Invalid input"
     }
