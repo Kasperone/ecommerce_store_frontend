@@ -1,17 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed, readonly } from 'vue'
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
-import type { 
-  PersonalSignUpFormData, 
-  BusinessSignUpFormData 
-} from '#shared/validators/auth'
-import type { 
-  UserResponse, 
-  TokenResponse, 
-  ApiError,
-  ApiResponse
-} from '#shared/types/api'
-
+import type { PersonalSignUpFormData, BusinessSignUpFormData } from '#shared/validators/auth'
+import type { UserResponse, TokenResponse, ApiError, ApiResponse } from '#shared/types/api'
 /**
  * Auth Store
  * Manages user authentication, registration, and session state
@@ -19,10 +10,11 @@ import type {
 export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref<UserResponse | null>(null)
+
   const authToken = useCookie('auth_token', {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
+    secure: !import.meta.env.DEV  // Secure only in production (when NOT in dev mode)
   })
 
   // Getters

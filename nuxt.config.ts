@@ -115,9 +115,10 @@ export default defineNuxtConfig({
   },
   
   // Runtime config for API base URL
+  // Environment variables prefixed with NUXT_PUBLIC_ are automatically available
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000'
+      apiBase: 'http://localhost:8000'
     }
   },
   
