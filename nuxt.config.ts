@@ -1,5 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import { fileURLToPath } from 'node:url'
+import { createResolver } from '@nuxt/kit'
+
+const { resolve } = createResolver(import.meta.url)
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -35,14 +37,14 @@ export default defineNuxtConfig({
   
   // Alias configuration for shared directory
   alias: {
-    '#shared': fileURLToPath(new URL('./shared', import.meta.url))
+    '#shared': resolve('./shared')
   },
   
   // Vite configuration
   vite: {
     resolve: {
       alias: {
-        '#shared': fileURLToPath(new URL('./shared', import.meta.url))
+        '#shared': resolve('./shared')
       }
     }
   },
@@ -65,52 +67,11 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'en',
     strategy: 'prefix_except_default',
-    lazy: true,
     langDir: 'locales',
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'i18n_redirected',
       redirectOn: 'root',
-    },
-    // Number formats for currency
-    numberFormats: {
-      en: {
-        currency: {
-          style: 'currency',
-          currency: 'USD',
-          notation: 'standard'
-        },
-        decimal: {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }
-      },
-      pl: {
-        currency: {
-          style: 'currency',
-          currency: 'PLN',
-          notation: 'standard'
-        },
-        decimal: {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }
-      },
-      // EUR support (can be used with any locale)
-      eur: {
-        currency: {
-          style: 'currency',
-          currency: 'EUR',
-          notation: 'standard'
-        },
-        decimal: {
-          style: 'decimal',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }
-      }
     }
   },
   
