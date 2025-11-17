@@ -10,13 +10,11 @@ import type { UserResponse, TokenResponse, ApiError, ApiResponse } from '#shared
 export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref<UserResponse | null>(null)
-  const config = useRuntimeConfig()
-  const isProduction = (config.public.isProduction as boolean) || false
 
   const authToken = useCookie('auth_token', {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     sameSite: 'lax',
-    secure: isProduction
+    secure: !import.meta.env.DEV  // Secure only in production (when NOT in dev mode)
   })
 
   // Getters
