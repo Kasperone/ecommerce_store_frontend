@@ -1,5 +1,3 @@
-import type { UseFetchOptions } from 'nuxt/app'
-
 export const useApi = () => {
   const config = useRuntimeConfig()
   const authToken = useCookie('auth_token')
@@ -9,10 +7,8 @@ export const useApi = () => {
     onRequest({ options }) {
       // Add auth token if available
       if (authToken.value) {
-        options.headers = {
-          ...options.headers,
-          Authorization: `Bearer ${authToken.value}`
-        }
+        options.headers = new Headers(options.headers || {})
+        options.headers.set('Authorization', `Bearer ${authToken.value}`)
       }
     },
     onResponseError({ response }) {
@@ -28,22 +24,4 @@ export const useApi = () => {
   return {
     apiFetch
   }
-}
-
-// Typed wrapper for useFetch with API base URL
-export const useApiFetch = <T>(
-  url: string,
-  options?: UseFetchOptions<T>
-) => {
-  const config = useRuntimeConfig()
-  const authToken = useCookie('auth_token')
-
-  return useFetch<T>(url, {
-    baseURL: config.public.apiBase,
-    ...options,
-    headers: {
-      ...options?.headers,
-      ...(authToken.value ? { Authorization: `Bearer ${authToken.value}` } : {})
-    }
-  })
 }

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
-import { createBusinessSignUpSchema, type BusinessSignUpFormData } from '#shared/validators/auth'
 import { useAuthStore } from '~/stores/auth'
+import { createBusinessSignUpSchema } from '#shared/validators/auth'
+import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
+import type { BusinessSignUpFormData } from '#shared/validators/auth'
 
 const { t, locale } = useI18n()
 const authStore = useAuthStore()

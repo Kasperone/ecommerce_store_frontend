@@ -16,7 +16,7 @@ const isResending = ref(false)
 const resendDisabled = ref(false)
 const countdown = ref(0)
 
-let countdownInterval: NodeJS.Timeout | null = null
+let countdownInterval: ReturnType<typeof setInterval> | null = null
 
 const handleResend = async () => {
   if (!email.value || resendDisabled.value) return
@@ -96,7 +96,7 @@ onUnmounted(() => {
         
         <UAlert
           icon="i-lucide-info"
-          color="blue"
+          color="info"
           variant="soft"
           :title="t('auth.verification.checkSpam')"
           class="text-left"
@@ -111,7 +111,7 @@ onUnmounted(() => {
             :label="resendDisabled ? `${t('auth.verification.resendButton')} (${countdown}s)` : t('auth.verification.resendButton')"
             :loading="isResending"
             :disabled="resendDisabled"
-            color="gray"
+            color="neutral"
             variant="outline"
             block
             @click="handleResend"
