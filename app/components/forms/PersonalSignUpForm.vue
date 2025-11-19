@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
-import { createPersonalSignUpSchema, type PersonalSignUpFormData } from '#shared/validators/auth'
 import { useAuthStore } from '~/stores/auth'
+import { createPersonalSignUpSchema } from '#shared/validators/auth'
+import type {  PersonalSignUpFormData } from '#shared/validators/auth'
+import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 
 const { t, locale } = useI18n()
 const authStore = useAuthStore()
@@ -40,22 +41,22 @@ const fields = computed<AuthFormField[]>(() => {
     },
     {
       name: 'phone',
-      label: t('auth.phone'),
       type: 'text',
+      label: t('auth.phone'),
       placeholder: t('auth.enterYourPhone'),
       required: false
     },
     {
       name: 'password',
-      label: t('auth.password'),
       type: 'password',
+      label: t('auth.password'),
       placeholder: t('auth.enterYourPassword'),
       required: true
     },
     {
       name: 'confirmPassword',
-      label: t('auth.confirmPassword'),
       type: 'password',
+      label: t('auth.confirmPassword'),
       placeholder: t('auth.confirmYourPassword'),
       required: true
     },

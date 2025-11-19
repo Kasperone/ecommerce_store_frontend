@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { createLoginSchema } from '#shared/validators/auth'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
-import { createLoginSchema, type LoginFormData } from '#shared/validators/auth'
+import type { LoginFormData } from '#shared/validators/auth'
 
 const { t, locale } = useI18n()
 
@@ -17,14 +18,14 @@ const fields = computed<AuthFormField[]>(() => {
   required: true
 }, {
   name: 'password',
-  label: t('auth.password'),
   type: 'password',
+  label: t('auth.password'),
   placeholder: t('auth.enterYourPassword'),
   required: true
 }, {
   name: 'remember',
-  label: t('auth.rememberMe'),
-  type: 'checkbox'
+  type: 'checkbox',
+  label: t('auth.rememberMe')
  }]
 })
 

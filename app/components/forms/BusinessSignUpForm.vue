@@ -41,22 +41,22 @@ const fields = computed<AuthFormField[]>(() => {
     },
     {
       name: 'phone',
-      label: t('auth.phone'),
       type: 'text',
+      label: t('auth.phone'),
       placeholder: t('auth.enterYourPhone'),
       required: false
     },
     {
       name: 'password',
-      label: t('auth.password'),
       type: 'password',
+      label: t('auth.password'),
       placeholder: t('auth.enterYourPassword'),
       required: true
     },
     {
       name: 'confirmPassword',
-      label: t('auth.confirmPassword'),
       type: 'password',
+      label: t('auth.confirmPassword'),
       placeholder: t('auth.confirmYourPassword'),
       required: true
     },
