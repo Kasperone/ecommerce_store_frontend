@@ -31,3 +31,8 @@ logs
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+
+# Claude Code
+CLAUDE.md
+CLAUDE.local.md
+.claude/
