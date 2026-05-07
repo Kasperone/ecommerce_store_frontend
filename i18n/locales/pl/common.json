@@ -1,6 +1,7 @@
 {
   "header": {
     "account": "Konto",
+    "admin": "Admin",
     "cart": "Koszyk",
     "colorMode": "Przełącz tryb kolorów",
     "login": "Zaloguj",
@@ -8,6 +9,12 @@
     "search": "Szukaj produktów...",
     "signUp": "Zarejestruj się",
     "toggleLang": "Zmień język"
+  },
+  "admin": {
+    "dashboard": "Panel administratora",
+    "signedInAs": "Zalogowano jako",
+    "placeholderTitle": "Witaj",
+    "placeholderBody": "Funkcje administracyjne pojawią się tutaj (produkty, kategorie, zamówienia, użytkownicy)."
   },
   "footer": {
     "aboutUs": "O Nas",
