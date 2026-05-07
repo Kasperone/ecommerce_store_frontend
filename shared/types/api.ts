@@ -37,6 +37,13 @@ export interface TokenResponse {
   token_type: string
 }
 
+// Generic single-message response (e.g. /auth/register, /auth/resend-verification).
+// The backend returns the same shape regardless of whether the email is new,
+// already registered, or already verified — to prevent account enumeration.
+export interface MessageResponse {
+  message: string
+}
+
 // Error types
 export interface ApiError {
   detail: string
