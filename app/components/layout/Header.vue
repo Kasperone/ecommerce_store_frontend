@@ -4,7 +4,14 @@ import { useI18n } from 'vue-i18n'
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const route = useRoute()
+const router = useRouter()
 const { locale, setLocale, t } = useI18n()
+const authStore = useAuthStore()
+
+async function handleLogout() {
+  authStore.logout()
+  await router.push('/login')
+}
 
 function toggleLocale() {
   setLocale(locale.value === 'pl' ? 'en' : 'pl')
@@ -56,23 +63,44 @@ const items = computed<NavigationMenuItem[]>(() => [{
           </UButton>
       </UTooltip>
 
-      <UTooltip :text="t('header.login')">
-        <UButton color="neutral"
-                        variant="ghost"
-                        class="ml-2 px-2"
-                        aria-label="Login"
-                        to="/login"
-                        icon="i-lucide-log-in" />
+      <UTooltip v-if="authStore.isAdmin" :text="t('header.admin')">
+        <UButton color="primary"
+                 variant="soft"
+                 class="ml-2 px-2"
+                 aria-label="Admin"
+                 to="/admin"
+                 icon="i-lucide-shield" />
       </UTooltip>
 
-      <UTooltip :text="t('header.signUp')">
-        <UButton color="neutral" 
-                 variant="ghost"
-                 class="ml-2 px-2"
-                 aria-label="Sign up"
-                 to="/sign-up"
-                 icon="i-lucide-user-plus" />
-      </UTooltip>
+      <template v-if="authStore.isAuthenticated">
+        <UTooltip :text="t('header.logout')">
+          <UButton color="neutral"
+                   variant="ghost"
+                   class="ml-2 px-2 cursor-pointer"
+                   aria-label="Logout"
+                   icon="i-lucide-log-out"
+                   @click="handleLogout" />
+        </UTooltip>
+      </template>
+      <template v-else>
+        <UTooltip :text="t('header.login')">
+          <UButton color="neutral"
+                          variant="ghost"
+                          class="ml-2 px-2"
+                          aria-label="Login"
+                          to="/login"
+                          icon="i-lucide-log-in" />
+        </UTooltip>
+
+        <UTooltip :text="t('header.signUp')">
+          <UButton color="neutral"
+                   variant="ghost"
+                   class="ml-2 px-2"
+                   aria-label="Sign up"
+                   to="/sign-up"
+                   icon="i-lucide-user-plus" />
+        </UTooltip>
+      </template>
     </template>
 
     <template #body>

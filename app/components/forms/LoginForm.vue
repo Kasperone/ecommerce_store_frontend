@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '~/stores/auth'
 import { createLoginSchema } from '#shared/validators/auth'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import type { LoginFormData } from '#shared/validators/auth'
 
 const { t, locale } = useI18n()
+const authStore = useAuthStore()
+const toast = useToast()
+const router = useRouter()
+const route = useRoute()
+
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const fields = computed<AuthFormField[]>(() => {
   // ensure computed re-runs when locale changes
@@ -35,8 +43,33 @@ const schema = computed(() => {
   return createLoginSchema(t)
 })
 
-const submit = (payload: FormSubmitEvent<LoginFormData>) => {
-  console.log('Submitted', payload)
+const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  const result = await authStore.login(payload.data.email, payload.data.password)
+
+  isLoading.value = false
+
+  if (result.success) {
+    toast.add({
+      title: t('auth.welcome'),
+      color: 'success',
+      icon: 'i-lucide-check-circle'
+    })
+
+    const redirectQuery = typeof route.query.redirect === 'string' ? route.query.redirect : null
+    const redirect = redirectQuery ?? (authStore.isAdmin ? '/admin' : '/')
+    router.push(redirect)
+  } else {
+    errorMessage.value = result.error || t('auth.errorSigningIn')
+    toast.add({
+      title: t('auth.errorSigningIn'),
+      description: errorMessage.value,
+      color: 'error',
+      icon: 'i-lucide-circle-x'
+    })
+  }
 }
 </script>
 

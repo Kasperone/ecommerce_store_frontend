@@ -1,6 +1,7 @@
 {
   "header": {
     "account": "Account",
+    "admin": "Admin",
     "cart": "Cart",
     "colorMode": "Toggle color mode",
     "login": "Login",
@@ -8,6 +9,12 @@
     "search": "Search products...",
     "signUp": "Sign up",
     "toggleLang": "Switch language"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "signedInAs": "Signed in as",
+    "placeholderTitle": "Welcome",
+    "placeholderBody": "Admin features will be added here (products, categories, orders, users)."
   },
   "footer": {
     "aboutUs": "About Us",
