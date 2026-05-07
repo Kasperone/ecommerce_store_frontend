@@ -1,21 +1,19 @@
 export const useApi = () => {
   const config = useRuntimeConfig()
-  const authToken = useCookie('auth_token')
+  const authStore = useAuthStore()
 
   const apiFetch = $fetch.create({
     baseURL: config.public.apiBase,
     onRequest({ options }) {
-      // Add auth token if available
-      if (authToken.value) {
+      const token = authStore.authToken
+      if (token) {
         options.headers = new Headers(options.headers || {})
-        options.headers.set('Authorization', `Bearer ${authToken.value}`)
+        options.headers.set('Authorization', `Bearer ${token}`)
       }
     },
     onResponseError({ response }) {
-      // Handle common errors
       if (response.status === 401) {
-        // Clear auth token on unauthorized
-        authToken.value = null
+        authStore.logout()
         navigateTo('/login')
       }
     }
