@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, readonly } from 'vue'
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
 import type { PersonalSignUpFormData, BusinessSignUpFormData } from '#shared/validators/auth'
-import type { UserResponse, TokenResponse, ApiError, ApiResponse } from '#shared/types/api'
+import type { UserResponse, TokenResponse, MessageResponse, ApiError, ApiResponse } from '#shared/types/api'
 /**
  * Auth Store
  * Manages user authentication, registration, and session state
@@ -31,8 +31,12 @@ export const useAuthStore = defineStore('auth', () => {
   const register = async (data: PersonalSignUpFormData | BusinessSignUpFormData) => {
     try {
       const { apiFetch } = useApi()
-      
-      const response = await apiFetch<UserResponse>(AUTH_ENDPOINTS.REGISTER, {
+
+      // Backend always returns 200 with a generic { message } body, regardless
+      // of whether the email is new or already registered (anti-enumeration).
+      // We don't get back a user object — the user must verify their email
+      // before they can log in.
+      const response = await apiFetch<MessageResponse>(AUTH_ENDPOINTS.REGISTER, {
         method: 'POST',
         body: {
           email: data.email,
@@ -40,7 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
           first_name: data.firstName,
           last_name: data.lastName,
           phone: data.phone,
-          
+
           // Personal account - shipping address
           ...('shippingStreet' in data && data.shippingStreet ? {
             shipping_street: data.shippingStreet,
@@ -49,7 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
             shipping_country: data.shippingCountry,
             shipping_state: data.shippingState || null
           } : {}),
-          
+
           // Business account - company data
           ...('companyName' in data && data.companyName ? {
             company_name: data.companyName,
@@ -63,14 +67,13 @@ export const useAuthStore = defineStore('auth', () => {
         }
       })
 
-      user.value = response
-      return { success: true, data: response } as ApiResponse<UserResponse>
+      return { success: true, data: response } as ApiResponse<MessageResponse>
     } catch (error: any) {
       const apiError = error?.data as ApiError
-      return { 
-        success: false, 
-        error: apiError?.detail || 'Registration failed. Please try again.' 
-      } as ApiResponse<UserResponse>
+      return {
+        success: false,
+        error: apiError?.detail || 'Registration failed. Please try again.'
+      } as ApiResponse<MessageResponse>
     }
   }
 
