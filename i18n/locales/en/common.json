@@ -110,6 +110,21 @@
       "passwordsDontMatch": "Passwords do not match",
       "default": "Invalid input"
     },
+    "passwordStrength": {
+      "weak": "Weak",
+      "fair": "Fair",
+      "medium": "Medium",
+      "strong": "Strong",
+      "veryStrong": "Very strong",
+      "notReady": "Strengthen your password before submitting.",
+      "rules": {
+        "length": "At least {count} characters",
+        "lowercase": "A lowercase letter (a–z)",
+        "uppercase": "An uppercase letter (A–Z)",
+        "number": "A number (0–9)",
+        "symbol": "A symbol (e.g. !{'@'}#$)"
+      }
+    },
     "registrationSuccess": "Registration successful!",
     "registrationSuccessDescription": "Your account has been created. Welcome!",
     "registrationError": "Registration failed",
