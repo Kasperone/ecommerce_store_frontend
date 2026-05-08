@@ -9,7 +9,7 @@ const { locale, setLocale, t } = useI18n()
 const authStore = useAuthStore()
 
 async function handleLogout() {
-  authStore.logout()
+  await authStore.logout()
   await router.push('/login')
 }
 
