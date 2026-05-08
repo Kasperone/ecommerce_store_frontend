@@ -74,7 +74,7 @@ const submit = async (payload: FormSubmitEvent<ForgotPasswordFormData>) => {
         :description="t('auth.passwordReset.requestDescription')"
         :submit="{ label: t('auth.passwordReset.requestSubmit'), loading: isLoading }"
         icon="i-lucide-key-round"
-        :validate-on="['blur', 'submit']"
+        :validate-on="['submit']"
         @submit="submit"
       >
         <template #footer>

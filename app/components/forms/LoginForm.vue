@@ -104,7 +104,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
         :fields="fields"
         :title="t('auth.welcome')"
         icon="i-lucide-lock"
-        :validate-on="['blur', 'submit']"
+        :validate-on="['submit']"
         :loading="isLoading"
         @submit="submit"
       >
