@@ -100,7 +100,7 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
       :fields="fields"
       :title="t('auth.business')"
       icon="i-lucide-building"
-      :validate-on="['blur', 'submit']"
+      :validate-on="['submit']"
       :loading="isLoading"
       @submit="submit"
     >

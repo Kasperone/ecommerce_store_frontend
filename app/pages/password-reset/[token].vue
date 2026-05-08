@@ -114,7 +114,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
         :description="t('auth.passwordReset.confirmDescription')"
         :submit="{ label: t('auth.passwordReset.confirmSubmit'), loading: isLoading }"
         icon="i-lucide-key-round"
-        :validate-on="['blur', 'submit']"
+        :validate-on="['submit']"
         @submit="submit"
       >
         <template #password-field="{ state, field }">

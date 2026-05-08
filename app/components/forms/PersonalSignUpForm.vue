@@ -98,7 +98,7 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
       :fields="fields"
       :title="t('auth.personal')"
       icon="i-lucide-user"
-      :validate-on="['blur', 'submit']"
+      :validate-on="['submit']"
       :loading="isLoading"
       @submit="submit"
     >
