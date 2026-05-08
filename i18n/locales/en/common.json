@@ -131,6 +131,23 @@
       "invalidMessage": "This verification link is invalid or has already been used.",
       "alreadyVerified": "Email already verified",
       "checkSpam": "Please check your spam folder if you don't see the email."
+    },
+    "passwordReset": {
+      "requestTitle": "Reset your password",
+      "requestDescription": "Enter your email and we'll send you a link to reset your password.",
+      "requestSubmit": "Send reset link",
+      "requestSent": "If an account exists for this email, a reset link has been sent.",
+      "confirmTitle": "Choose a new password",
+      "confirmDescription": "Enter and confirm your new password.",
+      "confirmSubmit": "Update password",
+      "confirmSuccess": "Password updated. You can now sign in with your new password.",
+      "confirmError": "This reset link is invalid or expired. Please request a new one.",
+      "requestNew": "Request a new link",
+      "goToLogin": "Go to login",
+      "newPassword": "New password",
+      "enterNewPassword": "Enter your new password",
+      "confirmNewPassword": "Confirm new password",
+      "tokenMissing": "Reset link is missing or malformed."
     }
   },
   "authExtra": {

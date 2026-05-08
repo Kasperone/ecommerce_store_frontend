@@ -9,11 +9,14 @@ export const API_ENDPOINTS = {
   // Authentication endpoints
   AUTH: {
     BASE: '/api/v1/auth',
-    LOGIN: '/api/v1/auth/login',      // POST - OAuth2 token login
-    REGISTER: '/api/v1/auth/register', // POST - Register new user
-    ME: '/api/v1/auth/me',            // GET - Get current user
-    UPDATE_ME: '/api/v1/auth/me',     // PUT - Update current user
-    REFRESH: '/api/v1/auth/refresh'   // POST - Refresh token
+    LOGIN: '/api/v1/auth/login',                    // POST - OAuth2 token login
+    REGISTER: '/api/v1/auth/register',              // POST - Register new user
+    ME: '/api/v1/auth/me',                          // GET - Get current user
+    UPDATE_ME: '/api/v1/auth/me',                   // PUT - Update current user
+    REFRESH: '/api/v1/auth/refresh',                // POST - Refresh token
+    PASSWORD_RESET_REQUEST: '/api/v1/auth/password-reset/request', // POST - Request reset email
+    PASSWORD_RESET_CONFIRM: '/api/v1/auth/password-reset/confirm', // POST - Confirm reset with token
+    CHANGE_PASSWORD: '/api/v1/auth/change-password' // POST - Authenticated password change
   },
   
   // Products endpoints
