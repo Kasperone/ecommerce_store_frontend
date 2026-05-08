@@ -3,23 +3,34 @@ import { ref, computed, readonly } from 'vue'
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
 import type { PersonalSignUpFormData, BusinessSignUpFormData } from '#shared/validators/auth'
 import type { UserResponse, TokenResponse, MessageResponse, ApiError, ApiResponse } from '#shared/types/api'
+
 /**
  * Auth Store
- * Manages user authentication, registration, and session state
+ *
+ * The access token lives in memory only — the refresh cookie (HttpOnly,
+ * SameSite=Strict, path=/api/v1/auth) is the only piece of credential
+ * material that survives a tab close. On boot, the auth plugin calls
+ * `tryRestoreSession()` which posts to /auth/refresh; the browser sends
+ * the cookie automatically and we either get a fresh access token back
+ * or a 401 (still logged out).
+ *
+ * Concurrent refresh attempts share a single in-flight promise so a
+ * burst of simultaneous 401s only triggers one /refresh call.
  */
 export const useAuthStore = defineStore('auth', () => {
-  // State
+  // State — everything is in-memory; nothing persists across reloads.
   const user = ref<UserResponse | null>(null)
+  const accessToken = ref<string | null>(null)
+  const accessExpiresAt = ref<number | null>(null) // epoch ms
 
-  const authToken = useCookie('auth_token', {
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    sameSite: 'lax',
-    secure: !import.meta.env.DEV  // Secure only in production (when NOT in dev mode)
-  })
+  let refreshTimer: ReturnType<typeof setTimeout> | null = null
+  let refreshInFlight: Promise<boolean> | null = null
+
+  const PROACTIVE_REFRESH_MS = 60_000 // refresh 60s before exp
 
   // Getters
-  const isAuthenticated = computed(() => !!authToken.value && !!user.value)
-  
+  const isAuthenticated = computed(() => !!accessToken.value && !!user.value)
+
   const fullName = computed(() => {
     if (!user.value) return null
     return `${user.value.first_name} ${user.value.last_name}`
@@ -27,15 +38,68 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAdmin = computed(() => user.value?.role === 'ADMIN')
 
-  // Actions
+  // ---- internal helpers ----
+
+  function decodeJwtExpMs(token: string): number | null {
+    try {
+      const parts = token.split('.')
+      if (parts.length < 2 || !parts[1]) return null
+      // base64url → base64
+      const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+      const json = JSON.parse(atob(b64))
+      return typeof json.exp === 'number' ? json.exp * 1000 : null
+    } catch {
+      return null
+    }
+  }
+
+  function clearRefreshTimer() {
+    if (refreshTimer) {
+      clearTimeout(refreshTimer)
+      refreshTimer = null
+    }
+  }
+
+  function scheduleProactiveRefresh() {
+    clearRefreshTimer()
+    if (!import.meta.client || !accessExpiresAt.value) return
+    const delay = accessExpiresAt.value - Date.now() - PROACTIVE_REFRESH_MS
+    if (delay <= 0) {
+      // Already past the proactive window; refresh on next tick.
+      refreshTimer = setTimeout(() => { void refreshAccessToken() }, 0)
+      return
+    }
+    refreshTimer = setTimeout(() => { void refreshAccessToken() }, delay)
+  }
+
+  function setAccessToken(token: string | null) {
+    accessToken.value = token
+    accessExpiresAt.value = token ? decodeJwtExpMs(token) : null
+    if (token) scheduleProactiveRefresh()
+    else clearRefreshTimer()
+  }
+
+  function clearSession() {
+    setAccessToken(null)
+    user.value = null
+  }
+
+  // Direct $fetch (NOT useApi) for /auth/refresh and /auth/logout — those
+  // endpoints rely on the HttpOnly cookie, not the bearer token, and routing
+  // them through useApi would re-enter the 401-retry loop.
+  function authBaseFetch() {
+    const config = useRuntimeConfig()
+    return $fetch.create({
+      baseURL: config.public.apiBase as string,
+      credentials: 'include',
+    })
+  }
+
+  // ---- actions ----
+
   const register = async (data: PersonalSignUpFormData | BusinessSignUpFormData) => {
     try {
       const { apiFetch } = useApi()
-
-      // Backend always returns 200 with a generic { message } body, regardless
-      // of whether the email is new or already registered (anti-enumeration).
-      // We don't get back a user object — the user must verify their email
-      // before they can log in.
       const response = await apiFetch<MessageResponse>(AUTH_ENDPOINTS.REGISTER, {
         method: 'POST',
         body: {
@@ -44,8 +108,6 @@ export const useAuthStore = defineStore('auth', () => {
           first_name: data.firstName,
           last_name: data.lastName,
           phone: data.phone,
-
-          // Personal account - shipping address
           ...('shippingStreet' in data && data.shippingStreet ? {
             shipping_street: data.shippingStreet,
             shipping_city: data.shippingCity,
@@ -53,8 +115,6 @@ export const useAuthStore = defineStore('auth', () => {
             shipping_country: data.shippingCountry,
             shipping_state: data.shippingState || null
           } : {}),
-
-          // Business account - company data
           ...('companyName' in data && data.companyName ? {
             company_name: data.companyName,
             company_tax_id: data.companyTaxId,
@@ -81,21 +141,19 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (email: string, password: string) => {
     try {
-      const { apiFetch } = useApi()
-
-      // FastAPI uses OAuth2PasswordRequestForm which expects form data
+      const fetcher = authBaseFetch()
       const formData = new FormData()
-      formData.append('username', email) // OAuth2 uses 'username' field
+      formData.append('username', email)
       formData.append('password', password)
 
-      const response = await apiFetch<TokenResponse>(AUTH_ENDPOINTS.LOGIN, {
+      // The login response sets the HttpOnly refresh cookie via Set-Cookie.
+      // credentials: 'include' tells the browser to *accept* and *send* it.
+      const response = await fetcher<TokenResponse>(AUTH_ENDPOINTS.LOGIN, {
         method: 'POST',
-        body: formData
+        body: formData,
       })
 
-      authToken.value = response.access_token
-
-      // Fetch user info after successful login
+      setAccessToken(response.access_token)
       await fetchUser()
 
       return { success: true, data: response } as ApiResponse<TokenResponse>
@@ -110,46 +168,71 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const logout = () => {
-    authToken.value = null
-    user.value = null
+  const logout = async () => {
+    // Best-effort: revoke the refresh row server-side. We don't await any
+    // failure — local state is cleared regardless so the UI can move on.
+    try {
+      await authBaseFetch()(AUTH_ENDPOINTS.LOGOUT, { method: 'POST' })
+    } catch {
+      // ignore — server may be unreachable; we still tear down locally
+    }
+    clearSession()
   }
 
   const fetchUser = async () => {
-    if (!authToken.value) {
+    if (!accessToken.value) {
       user.value = null
       return
     }
-
     try {
       const { apiFetch } = useApi()
-      
-      const response = await apiFetch<UserResponse>(AUTH_ENDPOINTS.ME, {
-        method: 'GET'
-      })
-      user.value = response
-    } catch (error) {
-      // Token might be invalid
-      authToken.value = null
-      user.value = null
+      user.value = await apiFetch<UserResponse>(AUTH_ENDPOINTS.ME, { method: 'GET' })
+    } catch {
+      // useApi already triggered the 401 → refresh → retry path; if we land
+      // here it means even the retry failed. Tear down so the UI shows the
+      // logged-out state.
+      clearSession()
     }
   }
 
-  const refreshToken = async () => {
-    if (!authToken.value) return
-
+  /**
+   * Hit /auth/refresh once. Concurrent callers share the same promise so a
+   * burst of 401s only triggers one network round-trip.
+   *
+   * Returns true on success (access token + user are populated), false on
+   * failure (session cleared).
+   */
+  const refreshAccessToken = async (): Promise<boolean> => {
+    if (refreshInFlight) return refreshInFlight
+    refreshInFlight = (async () => {
+      try {
+        const response = await authBaseFetch()<TokenResponse>(
+          AUTH_ENDPOINTS.REFRESH,
+          { method: 'POST' },
+        )
+        setAccessToken(response.access_token)
+        if (!user.value) await fetchUser()
+        return true
+      } catch {
+        clearSession()
+        return false
+      }
+    })()
     try {
-      const { apiFetch } = useApi()
-      
-      const response = await apiFetch<TokenResponse>(AUTH_ENDPOINTS.REFRESH, {
-        method: 'POST'
-      })
-      authToken.value = response.access_token
-    } catch (error) {
-      // Refresh failed, user needs to login again
-      authToken.value = null
-      user.value = null
+      return await refreshInFlight
+    } finally {
+      refreshInFlight = null
     }
+  }
+
+  /**
+   * Called by the auth plugin on app boot. Tries to recover the session via
+   * the refresh cookie. Quietly fails if there isn't one — that's just the
+   * "not logged in" state.
+   */
+  const tryRestoreSession = async (): Promise<boolean> => {
+    if (!import.meta.client) return false
+    return refreshAccessToken()
   }
 
   const updateUser = (userData: Partial<UserResponse>) => {
@@ -161,18 +244,16 @@ export const useAuthStore = defineStore('auth', () => {
   const verifyEmail = async (token: string) => {
     try {
       const { apiFetch } = useApi()
-      
       const response = await apiFetch<{ message: string }>(`${AUTH_ENDPOINTS.BASE}/verify-email`, {
         method: 'POST',
         body: { token }
       })
-      
       return { success: true, message: response.message }
     } catch (error: any) {
       const apiError = error?.data as ApiError
-      return { 
-        success: false, 
-        error: apiError?.detail || 'Email verification failed.' 
+      return {
+        success: false,
+        error: apiError?.detail || 'Email verification failed.'
       }
     }
   }
@@ -180,18 +261,16 @@ export const useAuthStore = defineStore('auth', () => {
   const resendVerification = async (email: string) => {
     try {
       const { apiFetch } = useApi()
-      
       const response = await apiFetch<{ message: string }>(`${AUTH_ENDPOINTS.BASE}/resend-verification`, {
         method: 'POST',
         body: { email }
       })
-      
       return { success: true, message: response.message }
     } catch (error: any) {
       const apiError = error?.data as ApiError
-      return { 
-        success: false, 
-        error: apiError?.detail || 'Failed to resend verification email.' 
+      return {
+        success: false,
+        error: apiError?.detail || 'Failed to resend verification email.'
       }
     }
   }
@@ -203,7 +282,6 @@ export const useAuthStore = defineStore('auth', () => {
         AUTH_ENDPOINTS.PASSWORD_RESET_REQUEST,
         { method: 'POST', body: { email } }
       )
-      // Backend always returns a generic 200; surface that to the UI as success.
       return { success: true, message: response.message } as { success: true; message: string }
     } catch (error: any) {
       const apiError = error?.data as ApiError
@@ -254,7 +332,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     // State
     user: readonly(user),
-    authToken: readonly(authToken),
+    accessToken: readonly(accessToken),
 
     // Getters
     isAuthenticated,
@@ -266,7 +344,9 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     logout,
     fetchUser,
-    refreshToken,
+    refreshAccessToken,
+    tryRestoreSession,
+    clearSession,
     updateUser,
     verifyEmail,
     resendVerification,
