@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '~/stores/auth'
 import { createForgotPasswordSchema } from '#shared/validators/auth'
@@ -12,6 +12,9 @@ const toast = useToast()
 
 const isLoading = ref(false)
 const submitted = ref(false)
+const authFormRef = useTemplateRef<any>('authFormRef')
+
+useFormErrorClearing(authFormRef)
 
 useHead({
   titleTemplate: '%s | Password Recovery'
@@ -21,10 +24,9 @@ const fields = computed<AuthFormField[]>(() => {
   void locale.value
   return [{
     name: 'email',
-    type: 'email',
+    type: 'text',
     label: t('auth.email'),
-    placeholder: t('auth.enterYourEmail'),
-    required: true
+    placeholder: t('auth.enterYourEmail')
   }]
 })
 
@@ -65,12 +67,14 @@ const submit = async (payload: FormSubmitEvent<ForgotPasswordFormData>) => {
     <UPageCard class="w-full max-w-md">
       <UAuthForm
         v-if="!submitted"
+        ref="authFormRef"
         :schema="schema"
         :fields="fields"
         :title="t('auth.passwordReset.requestTitle')"
         :description="t('auth.passwordReset.requestDescription')"
         :submit="{ label: t('auth.passwordReset.requestSubmit'), loading: isLoading }"
         icon="i-lucide-key-round"
+        :validate-on="['blur', 'submit']"
         @submit="submit"
       >
         <template #footer>

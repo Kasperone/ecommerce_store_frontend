@@ -1,2 +1,34 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+/* Global cursor: clickable elements (buttons, links, checkboxes, radios,
+ * select triggers, summary, role=button) get a pointer hover so users can
+ * see what is interactive. Disabled elements keep `not-allowed`. */
+@layer base {
+  button:not(:disabled),
+  a[href],
+  summary,
+  label[for],
+  select,
+  [role="button"]:not([aria-disabled="true"]),
+  [role="link"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="switch"],
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"],
+  input:disabled {
+    cursor: not-allowed;
+  }
+}
