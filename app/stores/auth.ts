@@ -70,9 +70,11 @@ export const useAuthStore = defineStore('auth', () => {
       return { success: true, data: response } as ApiResponse<MessageResponse>
     } catch (error: any) {
       const apiError = error?.data as ApiError
+      const detail = apiError?.detail
       return {
         success: false,
-        error: apiError?.detail || 'Registration failed. Please try again.'
+        error: typeof detail === 'string' ? detail : 'Registration failed. Please try again.',
+        raw: error
       } as ApiResponse<MessageResponse>
     }
   }
@@ -80,7 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (email: string, password: string) => {
     try {
       const { apiFetch } = useApi()
-      
+
       // FastAPI uses OAuth2PasswordRequestForm which expects form data
       const formData = new FormData()
       formData.append('username', email) // OAuth2 uses 'username' field
@@ -92,16 +94,18 @@ export const useAuthStore = defineStore('auth', () => {
       })
 
       authToken.value = response.access_token
-      
+
       // Fetch user info after successful login
       await fetchUser()
-      
+
       return { success: true, data: response } as ApiResponse<TokenResponse>
     } catch (error: any) {
       const apiError = error?.data as ApiError
-      return { 
-        success: false, 
-        error: apiError?.detail || 'Login failed. Please check your credentials.' 
+      const detail = apiError?.detail
+      return {
+        success: false,
+        error: typeof detail === 'string' ? detail : 'Login failed. Please check your credentials.',
+        raw: error
       } as ApiResponse<TokenResponse>
     }
   }

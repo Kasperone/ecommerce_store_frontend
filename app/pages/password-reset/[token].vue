@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '~/stores/auth'
 import { createResetPasswordSchema } from '#shared/validators/auth'
@@ -17,6 +17,9 @@ const token = computed(() => String(route.params.token ?? ''))
 const isLoading = ref(false)
 const isSuccess = ref(false)
 const errorMessage = ref('')
+const authFormRef = useTemplateRef<any>('authFormRef')
+
+useFormErrorClearing(authFormRef, errorMessage)
 
 useHead({
   titleTemplate: '%s | Reset Password'
@@ -28,14 +31,12 @@ const fields = computed<AuthFormField[]>(() => {
     name: 'password',
     type: 'password',
     label: t('auth.passwordReset.newPassword'),
-    placeholder: t('auth.passwordReset.enterNewPassword'),
-    required: true
+    placeholder: t('auth.passwordReset.enterNewPassword')
   }, {
     name: 'confirmPassword',
     type: 'password',
     label: t('auth.passwordReset.confirmNewPassword'),
-    placeholder: t('auth.confirmYourPassword'),
-    required: true
+    placeholder: t('auth.confirmYourPassword')
   }]
 })
 
@@ -105,6 +106,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
 
       <UAuthForm
         v-else
+        ref="authFormRef"
         :schema="schema"
         :fields="fields"
         :state="initial"
@@ -112,10 +114,26 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
         :description="t('auth.passwordReset.confirmDescription')"
         :submit="{ label: t('auth.passwordReset.confirmSubmit'), loading: isLoading }"
         icon="i-lucide-key-round"
+        :validate-on="['blur', 'submit']"
         @submit="submit"
       >
+        <template #password-field="{ state, field }">
+          <UInput
+            v-model="state[field.name]"
+            v-bind="{ name: field.name, placeholder: field.placeholder, autocomplete: 'new-password', class: 'w-full' }"
+            type="password"
+          />
+          <FormsPasswordStrengthMeter v-if="field.name === 'password'" :password="state[field.name]" />
+        </template>
         <template v-if="errorMessage" #validation>
-          <UAlert color="error" icon="i-lucide-info" :title="errorMessage" />
+          <UAlert
+            color="error"
+            variant="soft"
+            :title="t('auth.passwordReset.confirmError')"
+            :description="errorMessage"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="errorMessage = ''"
+          />
         </template>
 
         <template #footer>

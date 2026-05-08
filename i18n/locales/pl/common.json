@@ -110,6 +110,21 @@
       "passwordsDontMatch": "Hasła nie są identyczne",
       "default": "Nieprawidłowe dane"
     },
+    "passwordStrength": {
+      "weak": "Słabe",
+      "fair": "Dostateczne",
+      "medium": "Średnie",
+      "strong": "Mocne",
+      "veryStrong": "Bardzo mocne",
+      "notReady": "Wzmocnij hasło, zanim wyślesz formularz.",
+      "rules": {
+        "length": "Co najmniej {count} znaków",
+        "lowercase": "Mała litera (a–z)",
+        "uppercase": "Wielka litera (A–Z)",
+        "number": "Cyfra (0–9)",
+        "symbol": "Znak specjalny (np. !{'@'}#$)"
+      }
+    },
     "registrationSuccess": "Rejestracja zakończona sukcesem!",
     "registrationSuccessDescription": "Twoje konto zostało utworzone. Witamy!",
     "registrationError": "Rejestracja nie powiodła się",

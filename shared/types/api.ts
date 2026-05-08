@@ -54,4 +54,10 @@ export interface ApiResponse<T> {
   success: boolean
   data?: T
   error?: string
+  /**
+   * Raw error from `$fetch` (FetchError-like). Present only on failure.
+   * Forms can pass this to `normalizeApiError()` to extract per-field errors
+   * from FastAPI 422 responses.
+   */
+  raw?: unknown
 }
