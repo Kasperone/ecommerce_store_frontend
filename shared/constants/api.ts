@@ -13,7 +13,9 @@ export const API_ENDPOINTS = {
     REGISTER: '/api/v1/auth/register',              // POST - Register new user
     ME: '/api/v1/auth/me',                          // GET - Get current user
     UPDATE_ME: '/api/v1/auth/me',                   // PUT - Update current user
-    REFRESH: '/api/v1/auth/refresh',                // POST - Refresh token
+    REFRESH: '/api/v1/auth/refresh',                // POST - Rotate refresh cookie + new access token
+    LOGOUT: '/api/v1/auth/logout',                  // POST - Revoke current refresh + clear cookie
+    LOGOUT_ALL: '/api/v1/auth/logout-all',          // POST - Revoke every session for current user
     PASSWORD_RESET_REQUEST: '/api/v1/auth/password-reset/request', // POST - Request reset email
     PASSWORD_RESET_CONFIRM: '/api/v1/auth/password-reset/confirm', // POST - Confirm reset with token
     CHANGE_PASSWORD: '/api/v1/auth/change-password' // POST - Authenticated password change

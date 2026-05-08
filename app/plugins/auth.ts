@@ -1,20 +1,13 @@
 /**
  * Auth Plugin
- * Initializes user session on app startup if auth token exists
+ *
+ * On boot (client only), try to recover a session via the refresh cookie.
+ * The cookie is HttpOnly, so we can't read it directly — we just POST to
+ * /auth/refresh and let the browser send it. On 200 we get a fresh access
+ * token in memory and load the user. On 401 we stay logged out silently.
  */
-export default defineNuxtPlugin(async (nuxtApp) => {
+export default defineNuxtPlugin(async () => {
+  if (!import.meta.client) return
   const authStore = useAuthStore()
-
-  // Only fetch user on client side after hydration
-  if (import.meta.client) {
-    // If we have a token, try to fetch user info
-    if (authStore.authToken) {
-      try {
-        await authStore.fetchUser()
-      } catch (error) {
-        // Silent fail - user will be logged out if token is invalid
-        console.error('Failed to restore user session:', error)
-      }
-    }
-  }
+  await authStore.tryRestoreSession()
 })
