@@ -192,16 +192,71 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const requestPasswordReset = async (email: string) => {
+    try {
+      const { apiFetch } = useApi()
+      const response = await apiFetch<MessageResponse>(
+        AUTH_ENDPOINTS.PASSWORD_RESET_REQUEST,
+        { method: 'POST', body: { email } }
+      )
+      // Backend always returns a generic 200; surface that to the UI as success.
+      return { success: true, message: response.message } as { success: true; message: string }
+    } catch (error: any) {
+      const apiError = error?.data as ApiError
+      return {
+        success: false,
+        error: apiError?.detail || 'Failed to send password reset email.'
+      }
+    }
+  }
+
+  const confirmPasswordReset = async (token: string, newPassword: string) => {
+    try {
+      const { apiFetch } = useApi()
+      const response = await apiFetch<MessageResponse>(
+        AUTH_ENDPOINTS.PASSWORD_RESET_CONFIRM,
+        { method: 'POST', body: { token, new_password: newPassword } }
+      )
+      return { success: true, message: response.message } as { success: true; message: string }
+    } catch (error: any) {
+      const apiError = error?.data as ApiError
+      return {
+        success: false,
+        error: apiError?.detail || 'Failed to reset password.'
+      }
+    }
+  }
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      const { apiFetch } = useApi()
+      const response = await apiFetch<MessageResponse>(
+        AUTH_ENDPOINTS.CHANGE_PASSWORD,
+        {
+          method: 'POST',
+          body: { current_password: currentPassword, new_password: newPassword }
+        }
+      )
+      return { success: true, message: response.message } as { success: true; message: string }
+    } catch (error: any) {
+      const apiError = error?.data as ApiError
+      return {
+        success: false,
+        error: apiError?.detail || 'Failed to update password.'
+      }
+    }
+  }
+
   return {
     // State
     user: readonly(user),
     authToken: readonly(authToken),
-    
+
     // Getters
     isAuthenticated,
     fullName,
     isAdmin,
-    
+
     // Actions
     register,
     login,
@@ -210,6 +265,9 @@ export const useAuthStore = defineStore('auth', () => {
     refreshToken,
     updateUser,
     verifyEmail,
-    resendVerification
+    resendVerification,
+    requestPasswordReset,
+    confirmPasswordReset,
+    changePassword
   }
 })

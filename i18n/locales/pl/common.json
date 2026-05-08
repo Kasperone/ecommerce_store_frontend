@@ -131,9 +131,25 @@
       "invalidMessage": "Ten link weryfikacyjny jest nieprawidłowy lub został już użyty.",
       "alreadyVerified": "Email już zweryfikowany",
       "checkSpam": "Sprawdź folder spam, jeśli nie widzisz emaila."
+    },
+    "passwordReset": {
+      "requestTitle": "Zresetuj hasło",
+      "requestDescription": "Podaj swój adres email, a wyślemy Ci link do zresetowania hasła.",
+      "requestSubmit": "Wyślij link do resetu",
+      "requestSent": "Jeśli konto o tym adresie istnieje, wysłaliśmy link do resetowania hasła.",
+      "confirmTitle": "Wybierz nowe hasło",
+      "confirmDescription": "Wpisz i potwierdź nowe hasło.",
+      "confirmSubmit": "Zmień hasło",
+      "confirmSuccess": "Hasło zostało zaktualizowane. Możesz się teraz zalogować przy użyciu nowego hasła.",
+      "confirmError": "Ten link do resetowania hasła jest nieprawidłowy lub wygasł. Poproś o nowy.",
+      "requestNew": "Poproś o nowy link",
+      "goToLogin": "Przejdź do logowania",
+      "newPassword": "Nowe hasło",
+      "enterNewPassword": "Podaj nowe hasło",
+      "confirmNewPassword": "Potwierdź nowe hasło",
+      "tokenMissing": "Link do resetowania jest niepoprawny lub niekompletny."
     }
-  }
-  ,
+  },
   "authExtra": {
     "agreeTo": "Logując się, zgadzasz się z naszym",
     "noAccount": "Nie masz konta?"
