@@ -1,0 +1,146 @@
+import { request as playwrightRequest, type APIRequestContext } from '@playwright/test'
+import { Client as PgClient } from 'pg'
+import type { TestUser } from './testUser'
+
+const BACKEND_URL = process.env.E2E_BACKEND_URL ?? 'http://localhost:8000'
+const DB_URL = process.env.E2E_DB_URL
+
+if (!DB_URL) {
+  throw new Error('E2E_DB_URL must be set (Postgres connection string for ecommerce_e2e)')
+}
+
+export class ApiClient {
+  private constructor(
+    private http: APIRequestContext,
+    private pg: PgClient,
+  ) {}
+
+  static async create(): Promise<ApiClient> {
+    const http = await playwrightRequest.newContext({ baseURL: BACKEND_URL })
+    const pg = new PgClient({ connectionString: DB_URL })
+    await pg.connect()
+    return new ApiClient(http, pg)
+  }
+
+  async dispose(): Promise<void> {
+    await this.http.dispose()
+    await this.pg.end()
+  }
+
+  async register(user: TestUser): Promise<void> {
+    const res = await this.http.post('/api/v1/auth/register', {
+      data: {
+        email: user.email,
+        password: user.password,
+        first_name: user.firstName,
+        last_name: user.lastName,
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`register failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  async loginViaApi(email: string, password: string): Promise<{
+    accessToken: string
+    refreshCookie: { name: string; value: string; domain: string; path: string; expires: number; httpOnly: boolean; secure: boolean; sameSite: 'Strict' | 'Lax' | 'None' }
+  }> {
+    const form = new URLSearchParams({ username: email, password })
+    const res = await this.http.post('/api/v1/auth/login', {
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      data: form.toString(),
+    })
+    if (!res.ok()) {
+      throw new Error(`login failed: ${res.status()} ${await res.text()}`)
+    }
+    const body = await res.json() as { access_token: string; token_type: string }
+    const setCookie = res.headers()['set-cookie'] ?? ''
+    const refreshCookie = parseRefreshCookie(setCookie)
+    return { accessToken: body.access_token, refreshCookie }
+  }
+
+  async markVerified(email: string): Promise<void> {
+    await this.pg.query(
+      `UPDATE users
+         SET is_verified = true, failed_login_attempts = 0, locked_until = NULL
+       WHERE email = $1`,
+      [email],
+    )
+  }
+
+  async promoteAdmin(email: string): Promise<void> {
+    await this.pg.query(`UPDATE users SET role = 'ADMIN' WHERE email = $1`, [email])
+  }
+
+  async truncateAuthTables(): Promise<void> {
+    await this.pg.query('TRUNCATE TABLE users, refresh_tokens, verification_tokens RESTART IDENTITY CASCADE')
+  }
+
+  async truncateEphemeralAuthState(): Promise<void> {
+    // Wipe per-run state without touching the seeded users — keeps the
+    // /auth/register rate-limit budget intact across local runs.
+    await this.pg.query('TRUNCATE TABLE refresh_tokens, verification_tokens RESTART IDENTITY CASCADE')
+  }
+
+  async userExists(email: string): Promise<boolean> {
+    const res = await this.pg.query<{ exists: boolean }>(
+      'SELECT EXISTS(SELECT 1 FROM users WHERE email = $1) AS exists',
+      [email],
+    )
+    return res.rows[0]?.exists ?? false
+  }
+
+  async tripLockout(email: string): Promise<void> {
+    const form = new URLSearchParams({ username: email, password: 'WrongPass!1' })
+    for (let i = 0; i < 10; i++) {
+      await this.http.post('/api/v1/auth/login', {
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        data: form.toString(),
+      })
+    }
+  }
+
+  async getPasswordResetTokenHash(email: string): Promise<string | null> {
+    const res = await this.pg.query<{ password_reset_token_hash: string | null }>(
+      'SELECT password_reset_token_hash FROM users WHERE email = $1',
+      [email],
+    )
+    return res.rows[0]?.password_reset_token_hash ?? null
+  }
+}
+
+function parseRefreshCookie(setCookie: string): {
+  name: string
+  value: string
+  domain: string
+  path: string
+  expires: number
+  httpOnly: boolean
+  secure: boolean
+  sameSite: 'Strict' | 'Lax' | 'None'
+} {
+  const parts = setCookie.split(/,\s*(?=[^;,\s]+=)/).find(p => p.startsWith('refresh_token='))
+  if (!parts) {
+    throw new Error(`refresh_token cookie not found in Set-Cookie: ${setCookie}`)
+  }
+  const segments = parts.split(';').map(s => s.trim())
+  const [name, value] = segments[0].split('=')
+  const attrs: Record<string, string> = {}
+  for (const seg of segments.slice(1)) {
+    const [k, v] = seg.split('=')
+    attrs[k.toLowerCase()] = v ?? 'true'
+  }
+  const rawSameSite = (attrs.samesite ?? 'lax').toLowerCase()
+  const sameSite: 'Strict' | 'Lax' | 'None' =
+    rawSameSite === 'strict' ? 'Strict' : rawSameSite === 'none' ? 'None' : 'Lax'
+  return {
+    name,
+    value,
+    domain: 'localhost',
+    path: attrs.path ?? '/',
+    expires: -1,
+    httpOnly: 'httponly' in attrs,
+    secure: 'secure' in attrs,
+    sameSite,
+  }
+}
