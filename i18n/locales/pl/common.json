@@ -16,6 +16,12 @@
     "placeholderTitle": "Witaj",
     "placeholderBody": "Funkcje administracyjne pojawią się tutaj (produkty, kategorie, zamówienia, użytkownicy)."
   },
+  "account": {
+    "dashboard": "Moje konto",
+    "signedInAs": "Zalogowano jako",
+    "placeholderTitle": "Witaj",
+    "placeholderBody": "Funkcje konta pojawią się tutaj (zamówienia, profil, adresy, metody płatności)."
+  },
   "footer": {
     "aboutUs": "O Nas",
     "contact": "Kontakt",

@@ -73,6 +73,15 @@ const items = computed<NavigationMenuItem[]>(() => [{
       </UTooltip>
 
       <template v-if="authStore.isAuthenticated">
+        <UTooltip :text="t('header.account')">
+          <UButton color="neutral"
+                   variant="ghost"
+                   class="ml-2 px-2 cursor-pointer"
+                   aria-label="Account"
+                   to="/account"
+                   icon="i-lucide-user" />
+        </UTooltip>
+
         <UTooltip :text="t('header.logout')">
           <UButton color="neutral"
                    variant="ghost"
