@@ -90,14 +90,19 @@ export class ApiClient {
     return res.rows[0]?.exists ?? false
   }
 
-  async tripLockout(email: string): Promise<void> {
-    const form = new URLSearchParams({ username: email, password: 'WrongPass!1' })
-    for (let i = 0; i < 10; i++) {
-      await this.http.post('/api/v1/auth/login', {
-        headers: { 'content-type': 'application/x-www-form-urlencoded' },
-        data: form.toString(),
-      })
-    }
+  async lockUser(email: string): Promise<void> {
+    // Direct SQL — bypassing /auth/login because slowapi caps that endpoint
+    // at 5/15min per IP-and-email, so the API path can't reach the threshold
+    // of 10 failed attempts. The lockout test cares about the locked-out
+    // *behavior* (correct password also fails when locked), not the counter
+    // mechanism, which is covered by backend integration tests.
+    await this.pg.query(
+      `UPDATE users
+         SET failed_login_attempts = 10,
+             locked_until = (NOW() AT TIME ZONE 'UTC') + INTERVAL '30 minutes'
+       WHERE email = $1`,
+      [email],
+    )
   }
 
   async getPasswordResetTokenHash(email: string): Promise<string | null> {

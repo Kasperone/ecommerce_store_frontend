@@ -21,6 +21,24 @@ export const KNOWN_ADMIN: TestUser = {
   lastName: 'Admin',
 }
 
+export const LOCKOUT_USER: TestUser = {
+  email: 'e2e-lockout@e2e.example.com',
+  password: 'E2ELockoutPass!1',
+  firstName: 'E2E',
+  lastName: 'Lockout',
+}
+
+// Dedicated user for refresh.spec — keeps the slowapi 5/15min-per-email
+// budget on KNOWN_USER intact. The per-IP 5/15min budget still applies, so
+// running the suite back-to-back without restarting uvicorn can still trip
+// the IP limiter; the README calls this out.
+export const REFRESH_USER: TestUser = {
+  email: 'e2e-refresh@e2e.example.com',
+  password: 'E2ERefreshPass!1',
+  firstName: 'E2E',
+  lastName: 'Refresh',
+}
+
 export function randomEphemeralUser(): TestUser {
   const id = randomBytes(4).toString('hex')
   return {
