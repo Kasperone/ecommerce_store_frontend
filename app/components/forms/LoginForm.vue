@@ -3,6 +3,7 @@ import { computed, ref, useTemplateRef, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '~/stores/auth'
 import { createLoginSchema } from '#shared/validators/auth'
+import { safeRedirect } from '#shared/utils/safeRedirect'
 import { normalizeApiError, scrollToFirstFormError } from '~/utils/apiError'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import type { LoginFormData } from '#shared/validators/auth'
@@ -68,8 +69,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
       icon: 'i-lucide-check-circle'
     })
 
-    const redirectQuery = typeof route.query.redirect === 'string' ? route.query.redirect : null
-    const redirect = redirectQuery ?? (authStore.isAdmin ? '/admin' : '/')
+    const redirect = safeRedirect(route.query.redirect, authStore.isAdmin ? '/admin' : '/')
     router.push(redirect)
   } else {
     const fallback = t('auth.errorSigningIn')
