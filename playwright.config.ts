@@ -22,18 +22,16 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'setup',
-      testMatch: /auth\.setup\.ts/,
+      name: 'chromium',
+      testIgnore: /auth\.setup\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'chromium',
-      dependencies: ['setup'],
-      testIgnore: /auth\.setup\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/user.json',
-      },
-    },
+    // The `setup` project (auth.setup.ts) is intentionally NOT a default
+    // project: every current spec brings its own fresh context via
+    // `test.use({ storageState: empty })`. Re-enable it (and add a chromium
+    // project that consumes its storageState) when an admin/account spec
+    // actually needs the pre-authed user — until then, keeping it active
+    // would burn a KNOWN_USER login on every run and hit slowapi's
+    // 5/15min-per-email limit faster than necessary.
   ],
 })

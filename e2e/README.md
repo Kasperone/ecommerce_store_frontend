@@ -15,7 +15,7 @@ The backend uvicorn process needs:
 |---|---|---|
 | `DATABASE_URL` | `postgresql://postgres:...@192.168.1.14:5433/ecommerce_e2e` | Separate DB so E2E doesn't fight pytest's `ecommerce_test` |
 | `RESEND_API_KEY` | `""` | Empty → email sends fail silently; E2E asserts on API responses, not email contents |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | `1` (PR2 only) | Lets `refresh.spec.ts` exercise silent refresh without a 15-min wait |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `2` | Required by `refresh.spec.ts` (PR2). Field is `int` in `app/core/config.py`. TTL=1 collides with the auth store's proactive-refresh window (60s) and hammers `/auth/refresh` until the 30/hour rate limit trips; TTL=2 spaces refreshes 60s apart. The refresh test waits 130s. |
 
 ## Local prep (one-time)
 
@@ -63,7 +63,10 @@ e2e/
 │   └── global-setup.ts   # truncates auth tables + seeds known users (runs once before all tests)
 ├── auth.setup.ts         # logs in KNOWN_USER via API, stashes refresh cookie to playwright/.auth/user.json
 └── auth/
-    └── login.spec.ts     # 3.1.c happy path (PR1)
+    ├── login.spec.ts            # 3.1.c happy path (PR1) + 3.2.b lockout (PR2)
+    ├── register.spec.ts         # 3.2.a (PR2)
+    ├── password-reset.spec.ts   # 3.2.c (PR2)
+    └── refresh.spec.ts          # 3.2.d (PR2)
 ```
 
 ## Trace + report
@@ -77,3 +80,41 @@ e2e/
 - Click-the-link email flows (covered by backend integration tests)
 - Polish-locale assertions (English `/login` only for bring-up)
 - Shopping flows (not in the 3.x checklist)
+
+## Flags / known issues
+
+### refresh.spec.ts skipped — auth-plugin fix needed
+
+`refresh.spec.ts` is currently `test.skip` pending a frontend fix. The
+spec's intent (session continuity past `ACCESS_TOKEN_EXPIRE_MINUTES`)
+exposed two real production bugs during bring-up:
+
+1. **Middleware-vs-plugin race on hard reload.** `app/middleware/user.ts`
+   reads Pinia synchronously while `app/plugins/auth.ts`'s
+   `tryRestoreSession()` is still awaiting `/auth/refresh + /auth/me`.
+   Hard-reloading `/account` with a valid refresh cookie redirects to
+   `/login` even though both API calls return 200 — the middleware just
+   fires too early. Fix: have the route middleware itself await
+   `tryRestoreSession()` when auth state isn't loaded yet.
+
+2. **Header SSR/hydration mismatch on `/`.** After the plugin completes,
+   the header DOM contains BOTH the unauthenticated `Login` link and the
+   authenticated `Logout` button — the `Account` button never renders.
+   Fix: switch the header's auth-conditional block to client-only or
+   give SSR a cookie-readable auth hint.
+
+Both are user-visible regressions worth fixing in a dedicated PR. Once
+fixed, drop the `test.skip` and the spec should pass. See
+`e2e/auth/refresh.spec.ts` for the full reproduction.
+
+### Rate-limit accumulation across local runs
+
+`/auth/login` is rate-limited at 5/15min per IP **and** per email. Each
+`npm run e2e` does ~3 logins (login happy + lockout + refresh, on
+distinct emails). Running the suite 2× back-to-back can trip the per-IP
+limit; restart `uvicorn` to reset the in-memory limiter (`memory://`).
+
+A future improvement: a backend env flag to disable rate limiting in E2E
+(or a separate Redis store the suite can flush). For now, restart
+between iterations and don't be surprised by the `Rate limit exceeded:
+5 per 15 minute` message.
