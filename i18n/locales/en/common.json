@@ -16,6 +16,12 @@
     "placeholderTitle": "Welcome",
     "placeholderBody": "Admin features will be added here (products, categories, orders, users)."
   },
+  "account": {
+    "dashboard": "My Account",
+    "signedInAs": "Signed in as",
+    "placeholderTitle": "Welcome",
+    "placeholderBody": "Your account features will appear here (orders, profile, addresses, payment methods)."
+  },
   "footer": {
     "aboutUs": "About Us",
     "contact": "Contact",
