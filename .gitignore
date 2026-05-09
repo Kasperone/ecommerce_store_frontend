@@ -31,6 +31,12 @@ logs
 /coverage
 .nuxtrc
 
+# Playwright
+/playwright/.auth/
+/playwright/.test-results/
+/playwright-report/
+/test-results/
+
 # IDE
 .vscode/*
 !.vscode/extensions.json
