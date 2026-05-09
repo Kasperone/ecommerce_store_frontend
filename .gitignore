@@ -27,6 +27,10 @@ logs
 .vercel
 .netlify
 
+# Test artefacts
+/coverage
+.nuxtrc
+
 # IDE
 .vscode/*
 !.vscode/extensions.json

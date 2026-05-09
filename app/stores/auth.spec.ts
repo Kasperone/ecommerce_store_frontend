@@ -1,0 +1,470 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { setupTestPinia } from '../../test/helpers/createTestPinia'
+
+/**
+ * Auth store tests — pure unit tests against a stubbed network.
+ *
+ * Strategy: let `useApi` run for real (it's just `$fetch` + bearer + 401-retry)
+ * and mock the `$fetch` global at the network boundary. That keeps the bearer
+ * + retry logic exercised in store flows that go through it.
+ *
+ * `useApi` calls `$fetch.create(...)` is NOT used — that path is only inside
+ * `authBaseFetch()` (login/refresh/logout, which sidestep the 401 retry).
+ *
+ *   - $fetch(url, opts)        → store actions that go via useApi (e.g. /me, /register, …)
+ *   - $fetch.create()(url, opts) → /login, /refresh, /logout
+ *
+ * `useRuntimeConfig` and `navigateTo` are auto-imports that aren't available in
+ * a plain Vitest env; we shim them via `mockNuxtImport`.
+ */
+
+const { mockAuthFetcher, mockFetch, mockNavigate } = vi.hoisted(() => {
+  const mockAuthFetcher = vi.fn()
+  const mockFetch: any = vi.fn()
+  mockFetch.create = vi.fn(() => mockAuthFetcher)
+  const mockNavigate = vi.fn()
+  return { mockAuthFetcher, mockFetch, mockNavigate }
+})
+
+mockNuxtImport(
+  'useRuntimeConfig',
+  () => () => ({ public: { apiBase: 'http://test' } }),
+)
+mockNuxtImport('navigateTo', () => mockNavigate)
+
+;(globalThis as any).$fetch = mockFetch
+
+const ME_USER = {
+  email: 'ada@example.com',
+  first_name: 'Ada',
+  last_name: 'Lovelace',
+  is_active: true,
+  is_verified: true,
+  role: 'CUSTOMER' as const,
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
+}
+
+const ADMIN_USER = { ...ME_USER, role: 'ADMIN' as const }
+
+function buildJwt(exp: number): string {
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
+  const payload = btoa(JSON.stringify({ exp, sub: 1 }))
+  return `${header}.${payload}.signature`
+}
+
+const FUTURE_EXP = () => Math.floor(Date.now() / 1000) + 3600
+
+async function loadStore() {
+  const mod = await import('./auth')
+  return mod.useAuthStore()
+}
+
+/**
+ * Helper: dispatch URL-routed responses through `$fetch`.
+ *
+ * `useApi.apiFetch` calls `$fetch(url, opts)`. We let tests pre-register a map
+ * of "URL substring → handler" so each test reads naturally instead of
+ * counting mockResolvedValueOnce slots.
+ */
+function routeFetch(routes: Record<string, (opts: any) => any>) {
+  mockFetch.mockImplementation(async (url: string, opts: any) => {
+    for (const key of Object.keys(routes)) {
+      if (String(url).includes(key)) return routes[key]!(opts)
+    }
+    throw new Error(`Unrouted $fetch URL in test: ${url}`)
+  })
+}
+
+describe('useAuthStore', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // `clearAllMocks` wipes `.create` (it's a vi.fn), so reattach it.
+    mockFetch.create = vi.fn(() => mockAuthFetcher)
+    // Default: every request the test doesn't route is an explicit failure —
+    // tests must opt in to a request happening.
+    mockFetch.mockImplementation((url: string) => {
+      throw new Error(`Unrouted $fetch URL in test: ${url}`)
+    })
+    mockAuthFetcher.mockImplementation((url: string) => {
+      throw new Error(`Unrouted authFetcher URL in test: ${url}`)
+    })
+
+    // Use fake timers so the proactive-refresh setTimeout doesn't leak between
+    // tests. We never advance — the timer is captured but not fired unless a
+    // test opts in.
+    vi.useFakeTimers()
+    setupTestPinia()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  describe('initial state', () => {
+    it('starts logged-out with empty getters', async () => {
+      const store = await loadStore()
+      expect(store.user).toBeNull()
+      expect(store.accessToken).toBeNull()
+      expect(store.isAuthenticated).toBe(false)
+      expect(store.fullName).toBeNull()
+      expect(store.isAdmin).toBe(false)
+    })
+  })
+
+  describe('login', () => {
+    it('posts FormData credentials, stores the access token, and fetches /me', async () => {
+      const accessToken = buildJwt(FUTURE_EXP())
+      mockAuthFetcher.mockResolvedValueOnce({
+        access_token: accessToken,
+        token_type: 'bearer',
+      })
+      routeFetch({
+        '/auth/me': () => ME_USER,
+      })
+
+      const store = await loadStore()
+      const result = await store.login('ada@example.com', 'password')
+
+      expect(result.success).toBe(true)
+      expect(store.accessToken).toBe(accessToken)
+      expect(store.user).toEqual(ME_USER)
+      expect(store.isAuthenticated).toBe(true)
+      expect(store.fullName).toBe('Ada Lovelace')
+
+      // OAuth2 password-grant FormData payload
+      const [, opts] = mockAuthFetcher.mock.calls[0]
+      expect(opts.method).toBe('POST')
+      expect(opts.body).toBeInstanceOf(FormData)
+      expect((opts.body as FormData).get('username')).toBe('ada@example.com')
+      expect((opts.body as FormData).get('password')).toBe('password')
+
+      // /me should be called with the bearer header from the freshly stored token.
+      const meCall = mockFetch.mock.calls.find(([url]: any[]) =>
+        String(url).includes('/auth/me'),
+      )
+      expect(meCall).toBeDefined()
+      const meHeaders = meCall![1].headers as Headers
+      expect(meHeaders.get('Authorization')).toBe(`Bearer ${accessToken}`)
+    })
+
+    it('returns the backend detail on auth failure', async () => {
+      mockAuthFetcher.mockRejectedValueOnce({
+        data: { detail: 'Invalid credentials' },
+      })
+      const store = await loadStore()
+
+      const result = await store.login('ada@example.com', 'wrong')
+
+      expect(result.success).toBe(false)
+      if (!result.success) expect(result.error).toBe('Invalid credentials')
+      expect(store.accessToken).toBeNull()
+      expect(store.user).toBeNull()
+    })
+
+    it('falls back to a generic message when the response shape is unexpected', async () => {
+      mockAuthFetcher.mockRejectedValueOnce(new Error('network down'))
+      const store = await loadStore()
+
+      const result = await store.login('a@b.com', 'pw')
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('Login failed. Please check your credentials.')
+      }
+    })
+  })
+
+  describe('isAdmin getter', () => {
+    it('is true when the user role is ADMIN', async () => {
+      mockAuthFetcher.mockResolvedValueOnce({
+        access_token: buildJwt(FUTURE_EXP()),
+        token_type: 'bearer',
+      })
+      routeFetch({ '/auth/me': () => ADMIN_USER })
+
+      const store = await loadStore()
+      await store.login('admin@example.com', 'pw')
+      expect(store.isAdmin).toBe(true)
+    })
+
+    it('is false for a non-admin user', async () => {
+      mockAuthFetcher.mockResolvedValueOnce({
+        access_token: buildJwt(FUTURE_EXP()),
+        token_type: 'bearer',
+      })
+      routeFetch({ '/auth/me': () => ME_USER })
+
+      const store = await loadStore()
+      await store.login('ada@example.com', 'pw')
+      expect(store.isAdmin).toBe(false)
+    })
+  })
+
+  describe('logout', () => {
+    it('hits /auth/logout, clears local state, and swallows network errors', async () => {
+      mockAuthFetcher.mockResolvedValueOnce({
+        access_token: buildJwt(FUTURE_EXP()),
+        token_type: 'bearer',
+      })
+      routeFetch({ '/auth/me': () => ME_USER })
+
+      const store = await loadStore()
+      await store.login('ada@example.com', 'pw')
+      expect(store.isAuthenticated).toBe(true)
+
+      // Logout — server unreachable, but local state should still clear.
+      mockAuthFetcher.mockRejectedValueOnce(new Error('boom'))
+      await store.logout()
+
+      expect(store.accessToken).toBeNull()
+      expect(store.user).toBeNull()
+      expect(store.isAuthenticated).toBe(false)
+
+      const logoutCall = mockAuthFetcher.mock.calls.find(([url]) =>
+        String(url).endsWith('/logout'),
+      )
+      expect(logoutCall).toBeDefined()
+    })
+  })
+
+  describe('refreshAccessToken', () => {
+    it('rotates the access token and fetches /me when user is missing', async () => {
+      const accessToken = buildJwt(FUTURE_EXP())
+      mockAuthFetcher.mockResolvedValueOnce({
+        access_token: accessToken,
+        token_type: 'bearer',
+      })
+      routeFetch({ '/auth/me': () => ME_USER })
+
+      const store = await loadStore()
+      const ok = await store.refreshAccessToken()
+
+      expect(ok).toBe(true)
+      expect(store.accessToken).toBe(accessToken)
+      expect(store.user).toEqual(ME_USER)
+    })
+
+    it('returns false and clears the session when /refresh fails', async () => {
+      mockAuthFetcher.mockRejectedValueOnce(new Error('401'))
+      const store = await loadStore()
+
+      const ok = await store.refreshAccessToken()
+
+      expect(ok).toBe(false)
+      expect(store.accessToken).toBeNull()
+      expect(store.user).toBeNull()
+    })
+
+    it('shares a single in-flight promise for parallel callers', async () => {
+      const accessToken = buildJwt(FUTURE_EXP())
+
+      let resolveRefresh!: (val: any) => void
+      mockAuthFetcher.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveRefresh = resolve
+          }),
+      )
+      // /me will be hit after the refresh resolves.
+      routeFetch({ '/auth/me': () => ME_USER })
+
+      const store = await loadStore()
+      const a = store.refreshAccessToken()
+      const b = store.refreshAccessToken()
+      const c = store.refreshAccessToken()
+
+      // Only one refresh hit despite three concurrent callers.
+      expect(mockAuthFetcher).toHaveBeenCalledTimes(1)
+
+      resolveRefresh({ access_token: accessToken, token_type: 'bearer' })
+      const results = await Promise.all([a, b, c])
+      expect(results).toEqual([true, true, true])
+    })
+  })
+
+  describe('clearSession', () => {
+    it('wipes user + token regardless of refresh-cookie state', async () => {
+      mockAuthFetcher.mockResolvedValueOnce({
+        access_token: buildJwt(FUTURE_EXP()),
+        token_type: 'bearer',
+      })
+      routeFetch({ '/auth/me': () => ME_USER })
+
+      const store = await loadStore()
+      await store.login('ada@example.com', 'pw')
+      expect(store.isAuthenticated).toBe(true)
+
+      store.clearSession()
+
+      expect(store.accessToken).toBeNull()
+      expect(store.user).toBeNull()
+      expect(store.isAuthenticated).toBe(false)
+    })
+  })
+
+  describe('register', () => {
+    it('flattens the personal sign-up payload to snake_case for the API', async () => {
+      routeFetch({
+        '/auth/register': () => ({ message: 'check your email' }),
+      })
+
+      const store = await loadStore()
+      const result = await store.register({
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        email: 'ada@example.com',
+        phone: '+1234',
+        password: 'Sup3rSecret!',
+        confirmPassword: 'Sup3rSecret!',
+        shippingStreet: 'Main 1',
+        shippingCity: 'London',
+        shippingPostalCode: 'SW1',
+        shippingCountry: 'UK',
+        shippingState: null,
+      } as any)
+
+      expect(result.success).toBe(true)
+      const registerCall = mockFetch.mock.calls.find(([url]: any[]) =>
+        String(url).includes('/auth/register'),
+      )
+      expect(registerCall).toBeDefined()
+      const opts = registerCall![1]
+      expect(opts.body).toMatchObject({
+        email: 'ada@example.com',
+        first_name: 'Ada',
+        last_name: 'Lovelace',
+        password: 'Sup3rSecret!',
+        shipping_street: 'Main 1',
+        shipping_city: 'London',
+        shipping_postal_code: 'SW1',
+        shipping_country: 'UK',
+        shipping_state: null,
+      })
+      expect(opts.body).not.toHaveProperty('company_name')
+    })
+
+    it('returns the backend error detail on failure', async () => {
+      mockFetch.mockImplementationOnce(() => {
+        return Promise.reject({ data: { detail: 'Email already registered' } })
+      })
+
+      const store = await loadStore()
+      const result = await store.register({
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        email: 'ada@example.com',
+        password: 'Sup3rSecret!',
+        confirmPassword: 'Sup3rSecret!',
+      } as any)
+
+      expect(result.success).toBe(false)
+      if (!result.success) expect(result.error).toBe('Email already registered')
+    })
+  })
+
+  describe('verifyEmail / resendVerification', () => {
+    it('verifyEmail returns the success message from the API', async () => {
+      routeFetch({
+        '/verify-email': () => ({ message: 'Email verified' }),
+      })
+
+      const store = await loadStore()
+      const result = await store.verifyEmail('token-123')
+
+      expect(result.success).toBe(true)
+      if (result.success) expect(result.message).toBe('Email verified')
+      const call = mockFetch.mock.calls.find(([url]: any[]) =>
+        String(url).includes('/verify-email'),
+      )
+      expect(call![1].body).toEqual({ token: 'token-123' })
+    })
+
+    it('resendVerification surfaces the backend detail on failure', async () => {
+      mockFetch.mockImplementationOnce(() => {
+        return Promise.reject({ data: { detail: 'Rate limited' } })
+      })
+
+      const store = await loadStore()
+      const result = await store.resendVerification('ada@example.com')
+
+      expect(result.success).toBe(false)
+      if (!result.success) expect(result.error).toBe('Rate limited')
+    })
+  })
+
+  describe('password reset / change', () => {
+    it('requestPasswordReset posts the email', async () => {
+      routeFetch({
+        '/password-reset/request': () => ({ message: 'sent' }),
+      })
+
+      const store = await loadStore()
+      const result = await store.requestPasswordReset('ada@example.com')
+
+      expect(result.success).toBe(true)
+      const call = mockFetch.mock.calls.find(([url]: any[]) =>
+        String(url).includes('/password-reset/request'),
+      )
+      expect(call![1].body).toEqual({ email: 'ada@example.com' })
+    })
+
+    it('confirmPasswordReset posts token + new_password', async () => {
+      routeFetch({
+        '/password-reset/confirm': () => ({ message: 'ok' }),
+      })
+
+      const store = await loadStore()
+      const result = await store.confirmPasswordReset('tok', 'NewPass1!')
+
+      expect(result.success).toBe(true)
+      const call = mockFetch.mock.calls.find(([url]: any[]) =>
+        String(url).includes('/password-reset/confirm'),
+      )
+      expect(call![1].body).toEqual({
+        token: 'tok',
+        new_password: 'NewPass1!',
+      })
+    })
+
+    it('changePassword posts current_password + new_password', async () => {
+      routeFetch({
+        '/change-password': () => ({ message: 'rotated' }),
+      })
+
+      const store = await loadStore()
+      const result = await store.changePassword('OldPass1!', 'NewPass1!')
+
+      expect(result.success).toBe(true)
+      const call = mockFetch.mock.calls.find(([url]: any[]) =>
+        String(url).includes('/change-password'),
+      )
+      expect(call![1].body).toEqual({
+        current_password: 'OldPass1!',
+        new_password: 'NewPass1!',
+      })
+    })
+  })
+
+  describe('updateUser', () => {
+    it('merges into existing user, no-op when logged out', async () => {
+      mockAuthFetcher.mockResolvedValueOnce({
+        access_token: buildJwt(FUTURE_EXP()),
+        token_type: 'bearer',
+      })
+      routeFetch({ '/auth/me': () => ME_USER })
+
+      const store = await loadStore()
+
+      // No-op while logged out — must not throw.
+      store.updateUser({ first_name: 'Grace' })
+      expect(store.user).toBeNull()
+
+      await store.login('ada@example.com', 'pw')
+      store.updateUser({ first_name: 'Grace' })
+      expect(store.user?.first_name).toBe('Grace')
+      expect(store.user?.last_name).toBe('Lovelace') // untouched
+    })
+  })
+})
