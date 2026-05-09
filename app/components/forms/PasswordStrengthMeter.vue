@@ -106,7 +106,10 @@ defineExpose({ isValid, score, strength })
           :name="rule.passed ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"
           class="h-3.5 w-3.5 shrink-0"
         />
-        <span>{{ rule.label }}</span>
+        <span>
+          {{ rule.label }}
+          <span v-if="rule.key === 'length'" class="text-red-500" aria-hidden="true">*</span>
+        </span>
       </li>
     </ul>
 

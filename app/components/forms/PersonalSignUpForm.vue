@@ -15,6 +15,7 @@ const router = useRouter()
 const isLoading = ref(false)
 const errorMessage = ref('')
 const authFormRef = useTemplateRef<any>('authFormRef')
+const confirmPasswordTouched = ref(false)
 
 const fields = computed<AuthFormField[]>(() => {
   void locale.value
@@ -125,6 +126,26 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
           type="password"
         />
         <FormsPasswordStrengthMeter :password="state[field.name]" />
+      </template>
+
+      <template #confirmPassword-field="{ state, field }">
+        <UInput
+          v-model="state[field.name]"
+          v-bind="{
+            name: field.name,
+            placeholder: field.placeholder,
+            autocomplete: 'new-password',
+            class: 'w-full'
+          }"
+          type="password"
+          @blur="confirmPasswordTouched = true"
+        />
+        <p
+          v-if="confirmPasswordTouched && state[field.name] && state.password && state[field.name] !== state.password"
+          class="mt-1 text-xs text-red-600 dark:text-red-400"
+        >
+          {{ t('auth.errors.passwordsDontMatch') }}
+        </p>
       </template>
 
       <template #footer>
