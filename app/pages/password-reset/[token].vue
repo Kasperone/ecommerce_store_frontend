@@ -104,22 +104,24 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
         <UButton :label="t('auth.passwordReset.goToLogin')" color="primary" block to="/login" />
       </div>
 
-      <UAuthForm
-        v-else
-        ref="authFormRef"
-        :schema="schema"
-        :fields="fields"
-        :state="initial"
-        :description="t('auth.passwordReset.confirmDescription')"
-        :submit="{ label: t('auth.passwordReset.confirmSubmit'), loading: isLoading }"
-        icon="i-lucide-key-round"
-        :validate-on="['submit']"
-        @submit="submit"
-      >
-        <template #title>
-          <h1 class="text-2xl font-bold">{{ t('auth.passwordReset.confirmTitle') }}</h1>
-        </template>
-        <template #password-field="{ state, field }">
+      <template v-else>
+        <div class="flex flex-col text-center mb-6">
+          <div class="mb-2">
+            <UIcon name="i-lucide-key-round" class="size-8 inline-block" />
+          </div>
+          <h1 class="text-xl text-pretty font-semibold text-highlighted">{{ t('auth.passwordReset.confirmTitle') }}</h1>
+          <p class="mt-1 text-base text-pretty text-muted">{{ t('auth.passwordReset.confirmDescription') }}</p>
+        </div>
+        <UAuthForm
+          ref="authFormRef"
+          :schema="schema"
+          :fields="fields"
+          :state="initial"
+          :submit="{ label: t('auth.passwordReset.confirmSubmit'), loading: isLoading }"
+          :validate-on="['submit']"
+          @submit="submit"
+        >
+          <template #password-field="{ state, field }">
           <UInput
             v-model="state[field.name]"
             v-bind="{ name: field.name, placeholder: field.placeholder, autocomplete: 'new-password', class: 'w-full' }"
@@ -142,6 +144,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
           <ULink to="/password-recovery" class="text-primary font-medium">{{ t('auth.passwordReset.requestNew') }}</ULink>
         </template>
       </UAuthForm>
+      </template>
     </UPageCard>
   </div>
 </template>
