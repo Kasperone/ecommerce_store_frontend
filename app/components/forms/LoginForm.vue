@@ -102,12 +102,15 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
         ref="authFormRef"
         :schema="schema"
         :fields="fields"
-        :title="t('auth.welcome')"
         icon="i-lucide-lock"
         :validate-on="['submit']"
         :loading="isLoading"
         @submit="submit"
       >
+        <template #title>
+          <h1 class="text-2xl font-bold">{{ t('auth.welcome') }}</h1>
+        </template>
+
         <template #description>
           {{ t('authExtra.noAccount') }} <ULink to="/sign-up" class="text-primary font-medium">{{ t('auth.signUp') }}</ULink>
         </template>
