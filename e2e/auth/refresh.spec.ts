@@ -14,34 +14,13 @@ test.use({ storageState: { cookies: [], origins: [] } })
 // test, well under the rate-limit budget.
 test.setTimeout(180_000)
 
-// Skipped pending an auth-plugin fix. The intent of this spec is to verify
-// session continuity past `ACCESS_TOKEN_EXPIRE_MINUTES`. The bring-up
-// surfaced two distinct bugs that block a clean assertion:
-//
-// 1. `app/middleware/user.ts` runs synchronously against Pinia state while
-//    `app/plugins/auth.ts`'s `tryRestoreSession()` is still awaiting
-//    /auth/refresh + /auth/me. On any hard-reload of `/account` (or any
-//    middleware-gated page) with a valid refresh cookie, the user is
-//    briefly redirected to `/login` before the session is restored. Network
-//    log confirms /auth/refresh + /auth/me both return 200 — the middleware
-//    just fires too early.
-//
-// 2. After the plugin completes on `/`, the header DOM ends up with both
-//    the unauthenticated `Login` link and the authenticated `Logout` button
-//    rendered simultaneously — likely an SSR/hydration mismatch where the
-//    server-rendered logged-out template isn't fully replaced when the
-//    client-side store updates. The `Account` button (the assertion target)
-//    is missing.
-//
-// Both are real production issues, not E2E quirks. They warrant a separate
-// frontend fix PR — candidates:
-// - User middleware itself awaits `tryRestoreSession()` when auth state
-//   isn't loaded yet (fixes #1).
-// - Switch to client-only rendering on the header, OR ensure SSR knows
-//   the auth state via a cookie-readable hint (fixes #2).
-//
-// See `e2e/README.md` flags section.
-test.skip('silent refresh → session survives access-token expiry', async ({ page }) => {
+// Verifies session continuity past `ACCESS_TOKEN_EXPIRE_MINUTES`. The auth
+// store schedules a proactive refresh at `exp - 60s` (PROACTIVE_REFRESH_MS);
+// with TTL=2min that fires once around T=60s. The hard reload at the end
+// exercises the boot-time restore: middleware awaits tryRestoreSession via
+// the new sessionRestoreAttempted flag (fix for the prior race), and the
+// header renders client-only so the Account button shows after hydration.
+test('silent refresh → session survives access-token expiry', async ({ page }) => {
   await page.goto('/login')
   await page.waitForLoadState('networkidle')
   await page.getByLabel(/email/i).fill(REFRESH_USER.email)

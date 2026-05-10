@@ -21,10 +21,27 @@ mockNuxtImport(
   () => (fn: any) => fn,
 )
 
-const stubStore = (state: { isAuthenticated: boolean; isAdmin: boolean }) => {
+type StoreStub = {
+  isAuthenticated: boolean
+  isAdmin: boolean
+  sessionRestoreAttempted: boolean
+  tryRestoreSession: ReturnType<typeof vi.fn>
+}
+
+const stubStore = (state: Partial<StoreStub>) => {
+  const merged: StoreStub = {
+    isAuthenticated: false,
+    isAdmin: false,
+    // Default: assume the boot-time restore has already resolved so existing
+    // tests don't have to think about the await-restore branch.
+    sessionRestoreAttempted: true,
+    tryRestoreSession: vi.fn(),
+    ...state,
+  }
   vi.doMock('../stores/auth', () => ({
-    useAuthStore: () => state,
+    useAuthStore: () => merged,
   }))
+  return merged
 }
 
 async function loadMiddleware() {
@@ -47,7 +64,7 @@ describe('admin middleware', () => {
   it('lets through an authenticated admin user', async () => {
     stubStore({ isAuthenticated: true, isAdmin: true })
     const middleware = await loadMiddleware()
-    const result = middleware(ROUTE, ROUTE)
+    const result = await middleware(ROUTE, ROUTE)
 
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(result).toBeUndefined()
@@ -56,7 +73,7 @@ describe('admin middleware', () => {
   it('redirects an authenticated non-admin to /', async () => {
     stubStore({ isAuthenticated: true, isAdmin: false })
     const middleware = await loadMiddleware()
-    middleware(ROUTE, ROUTE)
+    await middleware(ROUTE, ROUTE)
 
     expect(mockNavigate).toHaveBeenCalledTimes(1)
     expect(mockNavigate).toHaveBeenCalledWith('/')
@@ -65,7 +82,7 @@ describe('admin middleware', () => {
   it('redirects an unauthenticated visitor to /login, preserving the original path in ?redirect', async () => {
     stubStore({ isAuthenticated: false, isAdmin: false })
     const middleware = await loadMiddleware()
-    middleware({ fullPath: '/admin/orders' } as any, ROUTE)
+    await middleware({ fullPath: '/admin/orders' } as any, ROUTE)
 
     expect(mockNavigate).toHaveBeenCalledTimes(1)
     expect(mockNavigate).toHaveBeenCalledWith(
@@ -76,10 +93,57 @@ describe('admin middleware', () => {
   it('URL-encodes the redirect path so query strings round-trip safely', async () => {
     stubStore({ isAuthenticated: false, isAdmin: false })
     const middleware = await loadMiddleware()
-    middleware({ fullPath: '/admin/orders?status=open&q=foo bar' } as any, ROUTE)
+    await middleware({ fullPath: '/admin/orders?status=open&q=foo bar' } as any, ROUTE)
 
     expect(mockNavigate).toHaveBeenCalledWith(
       `/login?redirect=${encodeURIComponent('/admin/orders?status=open&q=foo bar')}`,
     )
+  })
+
+  // Plugin's tryRestoreSession may still be in flight on hard reload. The
+  // middleware must wait for the first attempt before deciding to redirect.
+  it('awaits tryRestoreSession when the boot restore has not yet resolved', async () => {
+    const store = stubStore({ sessionRestoreAttempted: false })
+    store.tryRestoreSession = vi.fn(async () => {
+      store.isAuthenticated = true
+      store.isAdmin = true
+      return true
+    })
+
+    const middleware = await loadMiddleware()
+    const result = await middleware(ROUTE, ROUTE)
+
+    expect(store.tryRestoreSession).toHaveBeenCalledTimes(1)
+    expect(mockNavigate).not.toHaveBeenCalled()
+    expect(result).toBeUndefined()
+  })
+
+  it('redirects after restore when the cookie was missing or invalid', async () => {
+    const store = stubStore({
+      sessionRestoreAttempted: false,
+    })
+    store.tryRestoreSession = vi.fn(async () => false)
+
+    const middleware = await loadMiddleware()
+    await middleware(ROUTE, ROUTE)
+
+    expect(store.tryRestoreSession).toHaveBeenCalledTimes(1)
+    expect(mockNavigate).toHaveBeenCalledWith(
+      `/login?redirect=${encodeURIComponent('/admin/products')}`,
+    )
+  })
+
+  it('skips tryRestoreSession when the boot restore has already resolved', async () => {
+    const store = stubStore({
+      isAuthenticated: true,
+      isAdmin: true,
+      sessionRestoreAttempted: true,
+    })
+
+    const middleware = await loadMiddleware()
+    await middleware(ROUTE, ROUTE)
+
+    expect(store.tryRestoreSession).not.toHaveBeenCalled()
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 })
