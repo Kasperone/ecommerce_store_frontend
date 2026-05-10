@@ -63,7 +63,11 @@ jobs:
           --health-retries 10
 
     env:
-      BACKEND_IMAGE: ghcr.io/${{ github.repository_owner }}/ecommerce_store_backend:main
+      # GHCR repo names must be lowercase. `metadata-action` lowercases on publish,
+      # so the image lives at ghcr.io/kasperone/... regardless of the GitHub
+      # owner casing. Hardcoded here because ${{ github.repository_owner }}
+      # preserves the original case and docker pull rejects it.
+      BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
       E2E_BACKEND_URL: http://localhost:8000
       E2E_DB_URL: postgresql://postgres:postgres@localhost:5432/ecommerce_e2e
       NUXT_PUBLIC_API_BASE: http://localhost:8000
