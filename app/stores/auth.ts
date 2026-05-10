@@ -22,6 +22,10 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserResponse | null>(null)
   const accessToken = ref<string | null>(null)
   const accessExpiresAt = ref<number | null>(null) // epoch ms
+  // True once tryRestoreSession (or login) has resolved the auth state at
+  // least once. Route middleware reads this to decide whether it must await
+  // the boot-time restore before redirecting an apparently-logged-out user.
+  const sessionRestoreAttempted = ref(false)
 
   let refreshTimer: ReturnType<typeof setTimeout> | null = null
   let refreshInFlight: Promise<boolean> | null = null
@@ -155,6 +159,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       setAccessToken(response.access_token)
       await fetchUser()
+      sessionRestoreAttempted.value = true
 
       return { success: true, data: response } as ApiResponse<TokenResponse>
     } catch (error: any) {
@@ -229,10 +234,20 @@ export const useAuthStore = defineStore('auth', () => {
    * Called by the auth plugin on app boot. Tries to recover the session via
    * the refresh cookie. Quietly fails if there isn't one — that's just the
    * "not logged in" state.
+   *
+   * After the first attempt completes (success or fail) sets
+   * `sessionRestoreAttempted` so route middleware can short-circuit on
+   * subsequent calls. Concurrent callers (plugin + middleware on hard
+   * reload) share the in-flight promise via `refreshAccessToken`.
    */
   const tryRestoreSession = async (): Promise<boolean> => {
     if (!import.meta.client) return false
-    return refreshAccessToken()
+    if (sessionRestoreAttempted.value) return isAuthenticated.value
+    try {
+      return await refreshAccessToken()
+    } finally {
+      sessionRestoreAttempted.value = true
+    }
   }
 
   const updateUser = (userData: Partial<UserResponse>) => {
@@ -333,6 +348,7 @@ export const useAuthStore = defineStore('auth', () => {
     // State
     user: readonly(user),
     accessToken: readonly(accessToken),
+    sessionRestoreAttempted: readonly(sessionRestoreAttempted),
 
     // Getters
     isAuthenticated,

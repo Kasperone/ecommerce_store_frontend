@@ -83,30 +83,6 @@ e2e/
 
 ## Flags / known issues
 
-### refresh.spec.ts skipped — auth-plugin fix needed
-
-`refresh.spec.ts` is currently `test.skip` pending a frontend fix. The
-spec's intent (session continuity past `ACCESS_TOKEN_EXPIRE_MINUTES`)
-exposed two real production bugs during bring-up:
-
-1. **Middleware-vs-plugin race on hard reload.** `app/middleware/user.ts`
-   reads Pinia synchronously while `app/plugins/auth.ts`'s
-   `tryRestoreSession()` is still awaiting `/auth/refresh + /auth/me`.
-   Hard-reloading `/account` with a valid refresh cookie redirects to
-   `/login` even though both API calls return 200 — the middleware just
-   fires too early. Fix: have the route middleware itself await
-   `tryRestoreSession()` when auth state isn't loaded yet.
-
-2. **Header SSR/hydration mismatch on `/`.** After the plugin completes,
-   the header DOM contains BOTH the unauthenticated `Login` link and the
-   authenticated `Logout` button — the `Account` button never renders.
-   Fix: switch the header's auth-conditional block to client-only or
-   give SSR a cookie-readable auth hint.
-
-Both are user-visible regressions worth fixing in a dedicated PR. Once
-fixed, drop the `test.skip` and the spec should pass. See
-`e2e/auth/refresh.spec.ts` for the full reproduction.
-
 ### Rate-limit accumulation across local runs
 
 `/auth/login` is rate-limited at 5/15min per IP **and** per email. Each
