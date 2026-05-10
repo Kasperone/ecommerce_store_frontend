@@ -110,13 +110,15 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
         :schema="schema"
         :fields="fields"
         :state="initial"
-        :title="t('auth.passwordReset.confirmTitle')"
         :description="t('auth.passwordReset.confirmDescription')"
         :submit="{ label: t('auth.passwordReset.confirmSubmit'), loading: isLoading }"
         icon="i-lucide-key-round"
         :validate-on="['submit']"
         @submit="submit"
       >
+        <template #title>
+          <h1 class="text-2xl font-bold">{{ t('auth.passwordReset.confirmTitle') }}</h1>
+        </template>
         <template #password-field="{ state, field }">
           <UInput
             v-model="state[field.name]"

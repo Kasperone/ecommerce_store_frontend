@@ -97,12 +97,15 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
       ref="authFormRef"
       :schema="schema"
       :fields="fields"
-      :title="t('auth.personal')"
       icon="i-lucide-user"
       :validate-on="['submit']"
       :loading="isLoading"
       @submit="submit"
     >
+      <template #title>
+        <h2 class="text-xl font-semibold">{{ t('auth.personal') }}</h2>
+      </template>
+
       <template v-if="errorMessage" #validation>
         <UAlert
           color="error"
