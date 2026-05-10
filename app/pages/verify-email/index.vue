@@ -9,6 +9,10 @@ const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
+useHead({
+  titleTemplate: '%s | Verify Email'
+})
+
 const isVerifying = ref(true)
 const isSuccess = ref(false)
 const errorMessage = ref('')
