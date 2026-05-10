@@ -95,19 +95,20 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
 
 <template>
   <div class="c-business-sign-up">
+    <div class="flex flex-col text-center mb-6">
+      <div class="mb-2">
+        <UIcon name="i-lucide-building" class="size-8 inline-block" />
+      </div>
+      <h2 class="text-xl text-pretty font-semibold text-highlighted">{{ t('auth.business') }}</h2>
+    </div>
     <UAuthForm
       ref="authFormRef"
       :schema="schema"
       :fields="fields"
-      icon="i-lucide-building"
       :validate-on="['submit']"
       :loading="isLoading"
       @submit="submit"
     >
-      <template #title>
-        <h2 class="text-xl font-semibold">{{ t('auth.business') }}</h2>
-      </template>
-
       <template v-if="errorMessage" #validation>
         <UAlert
           color="error"
