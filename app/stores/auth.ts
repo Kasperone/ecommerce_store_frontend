@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, readonly } from 'vue'
+import { ref, computed } from 'vue'
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
 import type { PersonalSignUpFormData, BusinessSignUpFormData } from '#shared/validators/auth'
 import type { UserResponse, TokenResponse, MessageResponse, ApiError, ApiResponse } from '#shared/types/api'
@@ -345,10 +345,16 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
-    // State
-    user: readonly(user),
-    accessToken: readonly(accessToken),
-    sessionRestoreAttempted: readonly(sessionRestoreAttempted),
+    // State — exposed as computed getters rather than `readonly(ref)` because
+    // Pinia treats setup-store `readonly(ref)` returns as state and tries to
+    // assign during hydration, which the readonly proxy rejects with a
+    // `Set operation on key "value" failed: target is readonly. RefImpl`
+    // warning at every navigation. Computed refs are exposed as getters
+    // (auto-unwrapped on access, no setter), preserving the read-only contract
+    // without the hydration write.
+    user: computed(() => user.value),
+    accessToken: computed(() => accessToken.value),
+    sessionRestoreAttempted: computed(() => sessionRestoreAttempted.value),
 
     // Getters
     isAuthenticated,
