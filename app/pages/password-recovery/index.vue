@@ -70,13 +70,15 @@ const submit = async (payload: FormSubmitEvent<ForgotPasswordFormData>) => {
         ref="authFormRef"
         :schema="schema"
         :fields="fields"
-        :title="t('auth.passwordReset.requestTitle')"
         :description="t('auth.passwordReset.requestDescription')"
         :submit="{ label: t('auth.passwordReset.requestSubmit'), loading: isLoading }"
         icon="i-lucide-key-round"
         :validate-on="['submit']"
         @submit="submit"
       >
+        <template #title>
+          <h1 class="text-2xl font-bold">{{ t('auth.passwordReset.requestTitle') }}</h1>
+        </template>
         <template #footer>
           <ULink to="/login" class="text-primary font-medium">{{ t('auth.passwordReset.goToLogin') }}</ULink>
         </template>
