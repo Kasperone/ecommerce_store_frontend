@@ -94,3 +94,65 @@ A future improvement: a backend env flag to disable rate limiting in E2E
 (or a separate Redis store the suite can flush). For now, restart
 between iterations and don't be surprised by the `Rate limit exceeded:
 5 per 15 minute` message.
+
+## Authoring with Playwright MCP
+
+Playwright MCP (`@playwright/mcp@latest`, v0.0.75) is wired into Claude
+Code at the project root (`.mcp.json`) for snapshot-driven spec
+authoring against the same dev stack used here. **MCP is for authoring +
+debugging; the runner stays the source of truth.** When MCP and
+`npm run e2e` disagree (timing, isolation, storage state), trust the
+runner.
+
+### Bring-up
+
+1. Stack up per [Run](#run). `globalSetup` is idempotent — running any
+   spec once seeds `KNOWN_USER` / `KNOWN_ADMIN` / `LOCKOUT_USER` /
+   `REFRESH_USER` for the session.
+2. In a Claude Code session at project root, the first message must name
+   **"Playwright MCP"** explicitly (otherwise Claude has a documented
+   fallback to `npx playwright` via Bash, which neither shares state nor
+   benefits from the snapshot flow).
+
+### Loop per flow
+
+`browser_navigate` → `browser_wait_for { text }` to clear hydration →
+`browser_snapshot` for refs → `browser_fill_form` / `browser_click`
+keyed by `eN` ref → `browser_wait_for` post-action → assert via
+`browser_verify_*`. Cross-check via `browser_network_requests`. Snapshot
+once per material DOM change — chains of clicks/types should reuse refs
+from the prior snapshot, not re-snapshot.
+
+### Locator-style adaptation
+
+MCP defaults to `getByRole('textbox', { name: 'Email' })` for inputs;
+the codebase prefers `getByLabel(/email/i)` (more resilient to copy
+edits). When porting an MCP-authored spec into the suite:
+
+- inputs: `getByRole('textbox', { name: 'Email' })` → `getByLabel(/email/i)`
+- disambiguation: `name: 'Password', exact: true` → `getByLabel(/^password$/i)`
+- buttons: keep `getByRole('button', { name: /continue/i })` — just lowercase the regex
+
+### Authenticated state
+
+Log in via the form within the MCP session. `browser_cookie_list` then
+shows `refresh_token` at `path=/api/v1/auth` (matches the auth-flow
+contract). `playwright/.auth/user.json` from a prior run may be stale
+(rotation/revocation since save) and the auth-plugin's boot
+`/auth/refresh` will 401 — log in fresh instead of fighting it.
+
+### Caveats
+
+- `.mcp.json` uses `--allowed-origins=http://localhost:3000;http://localhost:8000`
+  alone — allowlist mode means anything else is denied. **Do not pair
+  with `--blocked-origins=*`**: per `npx @playwright/mcp@latest --help`,
+  *"Blocklist is evaluated before allowlist"*, so the wildcard nukes the
+  allowlist and every navigate fails with `ERR_BLOCKED_BY_CLIENT`.
+- Page/console/network content surfaced through MCP flows to Anthropic's
+  API — the allowlist keeps that to local fixtures.
+- End every session with `browser_close`. `--isolated` profile is
+  in-memory but a hung Chromium can pin port 9222.
+- Long-form setup + retro-validation findings live at
+  `<project-root>/.claude/notes/plans/tooling/` and
+  `<project-root>/.claude/notes/research/2026-05-10-playwright-mcp-setup.md`
+  (project root is local-only; not in this repo).
