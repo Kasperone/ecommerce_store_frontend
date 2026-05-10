@@ -63,53 +63,63 @@ const items = computed<NavigationMenuItem[]>(() => [{
           </UButton>
       </UTooltip>
 
-      <UTooltip v-if="authStore.isAdmin" :text="t('header.admin')">
-        <UButton color="primary"
-                 variant="soft"
-                 class="ml-2 px-2"
-                 aria-label="Admin"
-                 to="/admin"
-                 icon="i-lucide-shield" />
-      </UTooltip>
-
-      <template v-if="authStore.isAuthenticated">
-        <UTooltip :text="t('header.account')">
-          <UButton color="neutral"
-                   variant="ghost"
-                   class="ml-2 px-2 cursor-pointer"
-                   aria-label="Account"
-                   to="/account"
-                   icon="i-lucide-user" />
-        </UTooltip>
-
-        <UTooltip :text="t('header.logout')">
-          <UButton color="neutral"
-                   variant="ghost"
-                   class="ml-2 px-2 cursor-pointer"
-                   aria-label="Logout"
-                   icon="i-lucide-log-out"
-                   @click="handleLogout" />
-        </UTooltip>
-      </template>
-      <template v-else>
-        <UTooltip :text="t('header.login')">
-          <UButton color="neutral"
-                          variant="ghost"
-                          class="ml-2 px-2"
-                          aria-label="Login"
-                          to="/login"
-                          icon="i-lucide-log-in" />
-        </UTooltip>
-
-        <UTooltip :text="t('header.signUp')">
-          <UButton color="neutral"
-                   variant="ghost"
+      <ClientOnly>
+        <UTooltip v-if="authStore.isAdmin" :text="t('header.admin')">
+          <UButton color="primary"
+                   variant="soft"
                    class="ml-2 px-2"
-                   aria-label="Sign up"
-                   to="/sign-up"
-                   icon="i-lucide-user-plus" />
+                   aria-label="Admin"
+                   to="/admin"
+                   icon="i-lucide-shield" />
         </UTooltip>
-      </template>
+      </ClientOnly>
+
+      <!--
+        Auth state is unknowable on the server (refresh cookie is path-scoped
+        to /api/v1/auth). Render this block client-only so the SSR template
+        never disagrees with the post-hydration store and we don't end up
+        with both Login and Logout in the DOM at once.
+      -->
+      <ClientOnly>
+        <template v-if="authStore.isAuthenticated">
+          <UTooltip :text="t('header.account')">
+            <UButton color="neutral"
+                     variant="ghost"
+                     class="ml-2 px-2 cursor-pointer"
+                     aria-label="Account"
+                     to="/account"
+                     icon="i-lucide-user" />
+          </UTooltip>
+
+          <UTooltip :text="t('header.logout')">
+            <UButton color="neutral"
+                     variant="ghost"
+                     class="ml-2 px-2 cursor-pointer"
+                     aria-label="Logout"
+                     icon="i-lucide-log-out"
+                     @click="handleLogout" />
+          </UTooltip>
+        </template>
+        <template v-else>
+          <UTooltip :text="t('header.login')">
+            <UButton color="neutral"
+                            variant="ghost"
+                            class="ml-2 px-2"
+                            aria-label="Login"
+                            to="/login"
+                            icon="i-lucide-log-in" />
+          </UTooltip>
+
+          <UTooltip :text="t('header.signUp')">
+            <UButton color="neutral"
+                     variant="ghost"
+                     class="ml-2 px-2"
+                     aria-label="Sign up"
+                     to="/sign-up"
+                     icon="i-lucide-user-plus" />
+          </UTooltip>
+        </template>
+      </ClientOnly>
     </template>
 
     <template #body>
