@@ -96,25 +96,27 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
 </script>
 
 <template>
+  <!-- Heading + intro live OUTSIDE <UAuthForm> because its #title slot
+       doesn't SSR (Nuxt UI 4 quirk); see plan/notes/tooling. -->
   <div class="c-login-form flex flex-col items-center justify-center gap-4 p-4">
     <UPageCard class="w-full max-w-md">
+      <div class="flex flex-col text-center mb-6">
+        <div class="mb-2">
+          <UIcon name="i-lucide-lock" class="size-8 inline-block" />
+        </div>
+        <h1 class="text-xl text-pretty font-semibold text-highlighted">{{ t('auth.welcome') }}</h1>
+        <p class="mt-1 text-base text-pretty text-muted">
+          {{ t('authExtra.noAccount') }} <ULink to="/sign-up" class="text-primary font-medium">{{ t('auth.signUp') }}</ULink>
+        </p>
+      </div>
       <UAuthForm
         ref="authFormRef"
         :schema="schema"
         :fields="fields"
-        icon="i-lucide-lock"
         :validate-on="['submit']"
         :loading="isLoading"
         @submit="submit"
       >
-        <template #title>
-          <h1 class="text-2xl font-bold">{{ t('auth.welcome') }}</h1>
-        </template>
-
-        <template #description>
-          {{ t('authExtra.noAccount') }} <ULink to="/sign-up" class="text-primary font-medium">{{ t('auth.signUp') }}</ULink>
-        </template>
-
         <template v-if="errorMessage" #validation>
           <UAlert
             color="error"

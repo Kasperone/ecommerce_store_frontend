@@ -65,24 +65,27 @@ const submit = async (payload: FormSubmitEvent<ForgotPasswordFormData>) => {
 <template>
   <div class="p-password-recovery flex flex-col items-center justify-center gap-4 p-4">
     <UPageCard class="w-full max-w-md">
-      <UAuthForm
-        v-if="!submitted"
-        ref="authFormRef"
-        :schema="schema"
-        :fields="fields"
-        :description="t('auth.passwordReset.requestDescription')"
-        :submit="{ label: t('auth.passwordReset.requestSubmit'), loading: isLoading }"
-        icon="i-lucide-key-round"
-        :validate-on="['submit']"
-        @submit="submit"
-      >
-        <template #title>
-          <h1 class="text-2xl font-bold">{{ t('auth.passwordReset.requestTitle') }}</h1>
-        </template>
-        <template #footer>
-          <ULink to="/login" class="text-primary font-medium">{{ t('auth.passwordReset.goToLogin') }}</ULink>
-        </template>
-      </UAuthForm>
+      <template v-if="!submitted">
+        <div class="flex flex-col text-center mb-6">
+          <div class="mb-2">
+            <UIcon name="i-lucide-key-round" class="size-8 inline-block" />
+          </div>
+          <h1 class="text-xl text-pretty font-semibold text-highlighted">{{ t('auth.passwordReset.requestTitle') }}</h1>
+          <p class="mt-1 text-base text-pretty text-muted">{{ t('auth.passwordReset.requestDescription') }}</p>
+        </div>
+        <UAuthForm
+          ref="authFormRef"
+          :schema="schema"
+          :fields="fields"
+          :submit="{ label: t('auth.passwordReset.requestSubmit'), loading: isLoading }"
+          :validate-on="['submit']"
+          @submit="submit"
+        >
+          <template #footer>
+            <ULink to="/login" class="text-primary font-medium">{{ t('auth.passwordReset.goToLogin') }}</ULink>
+          </template>
+        </UAuthForm>
+      </template>
 
       <div v-else class="py-8 text-center space-y-4">
         <div class="flex justify-center mb-2">
