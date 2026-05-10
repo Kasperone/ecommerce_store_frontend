@@ -64,7 +64,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
 
   if (result.success) {
     toast.add({
-      title: t('auth.welcome'),
+      title: t('auth.welcomeBack'),
       color: 'success',
       icon: 'i-lucide-check-circle'
     })
@@ -104,7 +104,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
         <div class="mb-2">
           <UIcon name="i-lucide-lock" class="size-8 inline-block" />
         </div>
-        <h1 class="text-xl text-pretty font-semibold text-highlighted">{{ t('auth.welcome') }}</h1>
+        <h1 class="text-xl text-pretty font-semibold text-highlighted">{{ t('auth.welcomeBack') }}</h1>
         <p class="mt-1 text-base text-pretty text-muted">
           {{ t('authExtra.noAccount') }} <ULink to="/sign-up" class="text-primary font-medium">{{ t('auth.signUp') }}</ULink>
         </p>

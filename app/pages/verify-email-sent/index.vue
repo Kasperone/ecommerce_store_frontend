@@ -9,6 +9,10 @@ const authStore = useAuthStore()
 const route = useRoute()
 const toast = useToast()
 
+useHead({
+  titleTemplate: '%s | Verify Email'
+})
+
 // Get email from query params
 const email = computed(() => route.query.email as string || '')
 

@@ -65,6 +65,7 @@
     "signUp": "Zarejestruj się",
     "termsOfService": "Regulamin",
     "welcome": "Witamy!",
+    "welcomeBack": "Witamy ponownie!",
     "login": "Zaloguj",
     "personal": "Konto Osobiste",
     "business": "Konto Firmowe",
@@ -131,8 +132,8 @@
         "symbol": "Znak specjalny (np. !{'@'}#$)"
       }
     },
-    "registrationSuccess": "Rejestracja zakończona sukcesem!",
-    "registrationSuccessDescription": "Twoje konto zostało utworzone. Witamy!",
+    "registrationSuccess": "Sprawdź skrzynkę e-mail",
+    "registrationSuccessDescription": "Jeśli ten adres jest nowy, wysłaliśmy link weryfikacyjny. Sprawdź swoją skrzynkę odbiorczą.",
     "registrationError": "Rejestracja nie powiodła się",
     "verification": {
       "title": "Sprawdź swoją skrzynkę email",
@@ -172,7 +173,7 @@
     }
   },
   "authExtra": {
-    "agreeTo": "Logując się, zgadzasz się z naszym",
+    "agreeTo": "Kontynuując, zgadzasz się z naszym",
     "noAccount": "Nie masz konta?"
   }
 }
