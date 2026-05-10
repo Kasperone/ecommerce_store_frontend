@@ -65,6 +65,7 @@
     "signUp": "Sign up",
     "termsOfService": "Terms of Service",
     "welcome": "Welcome!",
+    "welcomeBack": "Welcome back!",
     "login": "Login",
     "personal": "Personal Account",
     "business": "Business Account",
@@ -131,8 +132,8 @@
         "symbol": "A symbol (e.g. !{'@'}#$)"
       }
     },
-    "registrationSuccess": "Registration successful!",
-    "registrationSuccessDescription": "Your account has been created. Welcome!",
+    "registrationSuccess": "Check your email",
+    "registrationSuccessDescription": "If this email is new, we've sent a verification link. Please check your inbox.",
     "registrationError": "Registration failed",
     "verification": {
       "title": "Check Your Email",
@@ -172,7 +173,7 @@
     }
   },
   "authExtra": {
-    "agreeTo": "By signing in, you agree to our",
+    "agreeTo": "By continuing, you agree to our",
     "noAccount": "Don't have an account?"
   }
 }
