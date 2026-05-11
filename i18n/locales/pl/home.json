@@ -3,6 +3,28 @@
     "welcome": "Witamy w Naszym Sklepie",
     "subtitle": "Nowoczesna platforma e-commerce zbudowana z Nuxt 4 i FastAPI"
   },
+  "slider": {
+    "slides": {
+      "growingSeason": {
+        "headline": "Sezon 2026",
+        "title": "Wszystko, czego potrzebują Twoje pola",
+        "description": "Od wiosennego siewu po jesienne zbiory — certyfikowane nasiona, środki ochrony i narzędzia dla europejskich gospodarstw, z wysyłką w 48 h.",
+        "cta": "Zobacz katalog"
+      },
+      "cropProtection": {
+        "headline": "Ochrona upraw",
+        "title": "Skuteczna ochrona, mocniejszy plon",
+        "description": "Profesjonalne nawozy, biostymulatory i sprawdzone środki ochrony roślin w jednym miejscu — z fachowym wsparciem agronomicznym.",
+        "cta": "Zobacz ofertę"
+      },
+      "harvest": {
+        "headline": "Prosto z pola",
+        "title": "Z pola na Twój stół",
+        "description": "Sezonowe warzywa i owoce zbierane w pełni dojrzałości — krótkie łańcuchy dostaw, prawdziwy smak, bez magazynowych pośredników.",
+        "cta": "Kup świeże produkty"
+      }
+    }
+  },
   "features": {
     "fastModern": {
       "title": "Szybki i Nowoczesny",
