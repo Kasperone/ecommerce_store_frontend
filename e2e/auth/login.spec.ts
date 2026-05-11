@@ -13,7 +13,7 @@ test('login happy path → redirects home and shows welcome toast', async ({ pag
   await page.getByRole('button', { name: /continue/i }).click()
 
   await expect(page).toHaveURL('/')
-  await expect(page.getByText('Welcome!', { exact: true })).toBeVisible()
+  await expect(page.getByText('Welcome back!', { exact: true })).toBeVisible()
 })
 
 test('login while account is locked → stays on /login with error', async ({ page }) => {
