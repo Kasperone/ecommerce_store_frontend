@@ -2,7 +2,8 @@
 import { useI18n } from 'vue-i18n'
 
 definePageMeta({
-  middleware: 'admin'
+  middleware: ['admin'],
+  layout: 'admin',
 })
 
 const { t } = useI18n()
