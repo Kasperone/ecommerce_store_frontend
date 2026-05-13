@@ -14,7 +14,55 @@
     "dashboard": "Admin Dashboard",
     "signedInAs": "Signed in as",
     "placeholderTitle": "Welcome",
-    "placeholderBody": "Admin features will be added here (products, categories, orders, users)."
+    "placeholderBody": "Admin features will be added here (products, categories, orders, users).",
+    "menu": {
+      "exit": "Back to store",
+      "groups": {
+        "overview": "Overview",
+        "catalog": "Catalog",
+        "sales": "Sales",
+        "marketing": "Marketing",
+        "operations": "Operations",
+        "configuration": "Configuration"
+      },
+      "items": {
+        "dashboard": "Dashboard",
+        "products": "Products",
+        "categories": "Categories",
+        "inventory": "Inventory",
+        "reviews": "Reviews",
+        "orders": "Orders",
+        "customers": "Customers",
+        "companies": "Companies (B2B)",
+        "quotes": "Quotes (B2B)",
+        "coupons": "Coupons",
+        "banners": "Banners",
+        "campaigns": "Campaigns",
+        "shipping": "Shipping",
+        "reports": "Reports",
+        "auditLog": "Audit Log",
+        "settings": "Settings",
+        "staff": "Staff & Roles"
+      }
+    },
+    "pages": {
+      "products":   { "title": "Products",         "placeholder": "Product catalog management will live here. Coming soon." },
+      "categories": { "title": "Categories",       "placeholder": "Category tree and per-category SEO will live here. Coming soon." },
+      "inventory":  { "title": "Inventory",        "placeholder": "Per-product stock, thresholds, and movement log will live here. Coming soon." },
+      "reviews":    { "title": "Reviews",          "placeholder": "Review moderation queue will live here. Coming soon." },
+      "orders":     { "title": "Orders",           "placeholder": "Order list, detail, status transitions, refunds will live here. Coming soon." },
+      "customers":  { "title": "Customers",        "placeholder": "Customer list, detail, impersonation, lock controls will live here. Coming soon." },
+      "companies":  { "title": "Companies (B2B)",  "placeholder": "B2B company directory, approvals, account managers will live here. Coming soon." },
+      "quotes":     { "title": "Quotes (B2B)",     "placeholder": "B2B quote requests, negotiation, conversion to order will live here. Coming soon." },
+      "coupons":    { "title": "Coupons",          "placeholder": "Discount codes, conditions, and usage caps will live here. Coming soon." },
+      "banners":    { "title": "Banners",          "placeholder": "Homepage hero and promo-block CMS will live here. Coming soon." },
+      "campaigns":  { "title": "Campaigns",        "placeholder": "Email campaign segmentation and abandoned-cart recovery will live here. Coming soon." },
+      "shipping":   { "title": "Shipping",         "placeholder": "Shipping zones, rate rules, and carrier integrations will live here. Coming soon." },
+      "reports":    { "title": "Reports",          "placeholder": "Sales, VAT, inventory, and cohort reports will live here. Coming soon." },
+      "auditLog":   { "title": "Audit Log",        "placeholder": "Admin action audit trail (filter by actor, entity, action) will live here. Coming soon." },
+      "settings":   { "title": "Settings",         "placeholder": "Store info, currencies, tax / VAT, payment methods, email templates will live here. Coming soon." },
+      "staff":      { "title": "Staff & Roles",    "placeholder": "Admin user list and role management will live here. Coming soon." }
+    }
   },
   "account": {
     "dashboard": "My Account",

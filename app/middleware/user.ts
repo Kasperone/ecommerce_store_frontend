@@ -3,11 +3,9 @@
 // (`get_current_user` dependency). Never rely on this middleware as the
 // security boundary.
 export default defineNuxtRouteMiddleware(async (to) => {
-  // SSR cannot know auth state: the refresh cookie is path-scoped to
-  // /api/v1/auth and is not sent for app routes. Defer the decision to the
-  // client where the auth plugin's tryRestoreSession runs.
-  if (import.meta.server) return
-
+  // Runs on both server and client now that the refresh cookie is Path=/
+  // and the SSR auth plugin populates the store before middleware fires.
+  // See app/plugins/auth.ts.
   const authStore = useAuthStore()
 
   // On hard reload the plugin's tryRestoreSession may still be in flight;
@@ -19,5 +17,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   if (!authStore.isAuthenticated) {
     return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
+  }
+
+  // Admins live under /admin — keep customer and staff surfaces disjoint so a
+  // staff account never lands on the buyer self-service portal.
+  if (authStore.isAdmin) {
+    return navigateTo('/admin')
   }
 })

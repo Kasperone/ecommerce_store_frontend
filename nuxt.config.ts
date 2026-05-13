@@ -75,11 +75,23 @@ export default defineNuxtConfig({
     }
   },
   
-  // Runtime config for API base URL
-  // Environment variables prefixed with NUXT_PUBLIC_ are automatically available
+  // Nitro proxy: every /api/** request hitting the frontend gets forwarded to
+  // the backend so the auth cookie becomes first-party on localhost:3000. This
+  // is what lets the SSR auth plugin validate the session on every page load
+  // (the cookie is now Path=/ and rides on requests to the frontend domain,
+  // so Nuxt server can read it via useRequestHeaders and forward to /auth/refresh).
+  routeRules: {
+    '/api/**': {
+      proxy: `${process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000'}/api/**`,
+    },
+  },
+
+  // Runtime config for API base URL.
+  // Empty default → useApi() calls relative URLs that traverse the proxy above.
+  // The proxy still reads NUXT_PUBLIC_API_BASE at startup for the upstream target.
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:8000'
+      apiBase: ''
     }
   },
   

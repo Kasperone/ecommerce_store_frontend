@@ -1,13 +1,18 @@
 /**
  * Auth Plugin
  *
- * On boot (client only), try to recover a session via the refresh cookie.
- * The cookie is HttpOnly, so we can't read it directly — we just POST to
- * /auth/refresh and let the browser send it. On 200 we get a fresh access
- * token in memory and load the user. On 401 we stay logged out silently.
+ * Runs on both server and client. On SSR it forwards the incoming Cookie
+ * header to /auth/refresh and replays the rotated Set-Cookie back to the
+ * browser — that's what lets route middleware know who the visitor is
+ * before the page renders, eliminating the flash-of-forbidden-content
+ * problem on hard reloads.
+ *
+ * On client (after hydration) tryRestoreSession is a no-op because the
+ * SSR pass already flipped sessionRestoreAttempted; we just re-arm the
+ * proactive-refresh setTimeout that can't run on the server.
  */
 export default defineNuxtPlugin(async () => {
-  if (!import.meta.client) return
   const authStore = useAuthStore()
   await authStore.tryRestoreSession()
+  if (import.meta.client) authStore.armClientTimer()
 })
