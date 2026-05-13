@@ -91,6 +91,10 @@ export const useAuthStore = defineStore('auth', () => {
   // Direct $fetch (NOT useApi) for /auth/refresh and /auth/logout — those
   // endpoints rely on the HttpOnly cookie, not the bearer token, and routing
   // them through useApi would re-enter the 401-retry loop.
+  //
+  // baseURL comes from runtime config; in dev/prod it's empty so the call
+  // hits the Nitro proxy at /api/v1/auth/...; tests stub the config to point
+  // at an explicit URL.
   function authBaseFetch() {
     const config = useRuntimeConfig()
     return $fetch.create({
@@ -204,6 +208,13 @@ export const useAuthStore = defineStore('auth', () => {
    * Hit /auth/refresh once. Concurrent callers share the same promise so a
    * burst of 401s only triggers one network round-trip.
    *
+   * Server vs client paths differ because the browser cookie jar isn't
+   * available on SSR — we forward the incoming Cookie header to the upstream
+   * and replay the upstream's Set-Cookie back onto our outgoing response so
+   * the rotated cookie reaches the browser. Without this two-way relay the
+   * rotation would silently land on the Nuxt server and the browser would
+   * keep replaying the old token.
+   *
    * Returns true on success (access token + user are populated), false on
    * failure (session cleared).
    */
@@ -211,6 +222,41 @@ export const useAuthStore = defineStore('auth', () => {
     if (refreshInFlight) return refreshInFlight
     refreshInFlight = (async () => {
       try {
+        if (import.meta.server) {
+          const incomingCookie = useRequestHeaders(['cookie']).cookie
+          if (!incomingCookie || !incomingCookie.includes('refresh_token=')) {
+            return false
+          }
+          const config = useRuntimeConfig()
+          const response = await $fetch.raw<TokenResponse>(
+            AUTH_ENDPOINTS.REFRESH,
+            {
+              method: 'POST',
+              baseURL: config.public.apiBase as string,
+              headers: { cookie: incomingCookie },
+            },
+          )
+
+          const event = useRequestEvent()
+          const setCookies = response.headers.getSetCookie?.() ?? []
+          if (event) {
+            for (const cookie of setCookies) {
+              appendResponseHeader(event, 'set-cookie', cookie)
+            }
+          }
+
+          const body = response._data as TokenResponse | undefined
+          if (!body?.access_token) {
+            clearSession()
+            return false
+          }
+          setAccessToken(body.access_token)
+          if (!user.value) await fetchUser()
+          return true
+        }
+
+        // Client: browser handles cookies; the existing authBaseFetch
+        // (credentials: 'include') is all we need.
         const response = await authBaseFetch()<TokenResponse>(
           AUTH_ENDPOINTS.REFRESH,
           { method: 'POST' },
@@ -235,19 +281,31 @@ export const useAuthStore = defineStore('auth', () => {
    * the refresh cookie. Quietly fails if there isn't one — that's just the
    * "not logged in" state.
    *
-   * After the first attempt completes (success or fail) sets
-   * `sessionRestoreAttempted` so route middleware can short-circuit on
-   * subsequent calls. Concurrent callers (plugin + middleware on hard
-   * reload) share the in-flight promise via `refreshAccessToken`.
+   * Runs on both server and client so middleware can decide before SSR
+   * paints the wrong surface. After the first attempt completes (success
+   * or fail) sets `sessionRestoreAttempted` so route middleware can
+   * short-circuit on subsequent calls. Concurrent callers (plugin +
+   * middleware on hard reload) share the in-flight promise via
+   * `refreshAccessToken`.
    */
   const tryRestoreSession = async (): Promise<boolean> => {
-    if (!import.meta.client) return false
     if (sessionRestoreAttempted.value) return isAuthenticated.value
     try {
       return await refreshAccessToken()
     } finally {
       sessionRestoreAttempted.value = true
     }
+  }
+
+  /**
+   * Re-arm the proactive-refresh timer on client mount after SSR hydration.
+   * The server-side restore populates `accessExpiresAt` but never schedules
+   * setTimeout (client-only); this is the hook the auth plugin calls once
+   * to bridge that gap.
+   */
+  const armClientTimer = () => {
+    if (!import.meta.client) return
+    if (accessExpiresAt.value !== null) scheduleProactiveRefresh()
   }
 
   const updateUser = (userData: Partial<UserResponse>) => {
@@ -368,6 +426,7 @@ export const useAuthStore = defineStore('auth', () => {
     fetchUser,
     refreshAccessToken,
     tryRestoreSession,
+    armClientTimer,
     clearSession,
     updateUser,
     verifyEmail,

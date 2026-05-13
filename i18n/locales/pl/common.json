@@ -14,7 +14,55 @@
     "dashboard": "Panel administratora",
     "signedInAs": "Zalogowano jako",
     "placeholderTitle": "Witaj",
-    "placeholderBody": "Funkcje administracyjne pojawią się tutaj (produkty, kategorie, zamówienia, użytkownicy)."
+    "placeholderBody": "Funkcje administracyjne pojawią się tutaj (produkty, kategorie, zamówienia, użytkownicy).",
+    "menu": {
+      "exit": "Powrót do sklepu",
+      "groups": {
+        "overview": "Przegląd",
+        "catalog": "Katalog",
+        "sales": "Sprzedaż",
+        "marketing": "Marketing",
+        "operations": "Operacje",
+        "configuration": "Konfiguracja"
+      },
+      "items": {
+        "dashboard": "Pulpit",
+        "products": "Produkty",
+        "categories": "Kategorie",
+        "inventory": "Magazyn",
+        "reviews": "Opinie",
+        "orders": "Zamówienia",
+        "customers": "Klienci",
+        "companies": "Firmy (B2B)",
+        "quotes": "Oferty (B2B)",
+        "coupons": "Kupony",
+        "banners": "Banery",
+        "campaigns": "Kampanie",
+        "shipping": "Wysyłka",
+        "reports": "Raporty",
+        "auditLog": "Dziennik zdarzeń",
+        "settings": "Ustawienia",
+        "staff": "Personel i role"
+      }
+    },
+    "pages": {
+      "products":   { "title": "Produkty",         "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce." },
+      "categories": { "title": "Kategorie",        "placeholder": "Tutaj znajdzie się drzewo kategorii i SEO dla kategorii. Wkrótce." },
+      "inventory":  { "title": "Magazyn",          "placeholder": "Tutaj znajdzie się stan magazynowy, progi i historia ruchów. Wkrótce." },
+      "reviews":    { "title": "Opinie",           "placeholder": "Tutaj znajdzie się moderacja opinii klientów. Wkrótce." },
+      "orders":     { "title": "Zamówienia",       "placeholder": "Tutaj znajdzie się lista zamówień, szczegóły, statusy i zwroty. Wkrótce." },
+      "customers":  { "title": "Klienci",          "placeholder": "Tutaj znajdzie się lista klientów, szczegóły i kontrola kont. Wkrótce." },
+      "companies":  { "title": "Firmy (B2B)",      "placeholder": "Tutaj znajdzie się katalog firm B2B, akceptacja kont i opiekunowie. Wkrótce." },
+      "quotes":     { "title": "Oferty (B2B)",     "placeholder": "Tutaj znajdzie się obsługa zapytań ofertowych i konwersja w zamówienia. Wkrótce." },
+      "coupons":    { "title": "Kupony",           "placeholder": "Tutaj znajdą się kody rabatowe, warunki i limity użycia. Wkrótce." },
+      "banners":    { "title": "Banery",           "placeholder": "Tutaj znajdzie się zarządzanie banerami i blokami promocyjnymi. Wkrótce." },
+      "campaigns":  { "title": "Kampanie",         "placeholder": "Tutaj znajdzie się segmentacja kampanii i odzyskiwanie porzuconych koszyków. Wkrótce." },
+      "shipping":   { "title": "Wysyłka",          "placeholder": "Tutaj znajdą się strefy wysyłki, taryfy i integracje z przewoźnikami. Wkrótce." },
+      "reports":    { "title": "Raporty",          "placeholder": "Tutaj znajdą się raporty sprzedaży, VAT, magazynu i kohort. Wkrótce." },
+      "auditLog":   { "title": "Dziennik zdarzeń", "placeholder": "Tutaj znajdzie się rejestr działań administratorów. Wkrótce." },
+      "settings":   { "title": "Ustawienia",       "placeholder": "Tutaj znajdą się dane sklepu, waluty, VAT, płatności i szablony e-maili. Wkrótce." },
+      "staff":      { "title": "Personel i role",  "placeholder": "Tutaj znajdzie się lista administratorów i zarządzanie rolami. Wkrótce." }
+    }
   },
   "account": {
     "dashboard": "Moje konto",

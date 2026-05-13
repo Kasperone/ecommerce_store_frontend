@@ -82,7 +82,7 @@ const items = computed<NavigationMenuItem[]>(() => [{
       -->
       <ClientOnly>
         <template v-if="authStore.isAuthenticated">
-          <UTooltip :text="t('header.account')">
+          <UTooltip v-if="!authStore.isAdmin" :text="t('header.account')">
             <UButton color="neutral"
                      variant="ghost"
                      class="ml-2 px-2 cursor-pointer"
