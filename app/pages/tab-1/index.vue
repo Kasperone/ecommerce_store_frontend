@@ -5,7 +5,9 @@ useHead({
 </script>
 
 <template>
-  <div>
-    <h1>Tab-1 PAGE CONTENT</h1>
-  </div>
+  <NuxtLayout>
+    <div>
+      <h1>Tab-1 PAGE CONTENT</h1>
+    </div>
+  </NuxtLayout>
 </template>
