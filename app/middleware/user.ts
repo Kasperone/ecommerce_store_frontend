@@ -20,4 +20,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!authStore.isAuthenticated) {
     return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
   }
+
+  // Admins live under /admin — keep customer and staff surfaces disjoint so a
+  // staff account never lands on the buyer self-service portal.
+  if (authStore.isAdmin) {
+    return navigateTo('/admin')
+  }
 })
