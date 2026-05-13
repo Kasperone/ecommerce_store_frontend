@@ -75,28 +75,23 @@ export default defineNuxtConfig({
     }
   },
   
-  // Auth-gated routes render client-only: the refresh cookie is path-scoped to
-  // /api/v1/auth, so SSR cannot know whether the visitor is logged in. Rendering
-  // these pages on the server would briefly paint protected content before the
-  // client-side middleware runs and redirects (the "flash of forbidden content"
-  // problem). Switching them to client-only means the page mounts only after the
-  // middleware has decided.
+  // Nitro proxy: every /api/** request hitting the frontend gets forwarded to
+  // the backend so the auth cookie becomes first-party on localhost:3000. This
+  // is what lets the SSR auth plugin validate the session on every page load
+  // (the cookie is now Path=/ and rides on requests to the frontend domain,
+  // so Nuxt server can read it via useRequestHeaders and forward to /auth/refresh).
   routeRules: {
-    '/admin': { ssr: false },
-    '/admin/**': { ssr: false },
-    '/account': { ssr: false },
-    '/account/**': { ssr: false },
-    '/pl/admin': { ssr: false },
-    '/pl/admin/**': { ssr: false },
-    '/pl/account': { ssr: false },
-    '/pl/account/**': { ssr: false },
+    '/api/**': {
+      proxy: `${process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000'}/api/**`,
+    },
   },
 
-  // Runtime config for API base URL
-  // Environment variables prefixed with NUXT_PUBLIC_ are automatically available
+  // Runtime config for API base URL.
+  // Empty default → useApi() calls relative URLs that traverse the proxy above.
+  // The proxy still reads NUXT_PUBLIC_API_BASE at startup for the upstream target.
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:8000'
+      apiBase: ''
     }
   },
   
