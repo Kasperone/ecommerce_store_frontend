@@ -75,6 +75,23 @@ export default defineNuxtConfig({
     }
   },
   
+  // Auth-gated routes render client-only: the refresh cookie is path-scoped to
+  // /api/v1/auth, so SSR cannot know whether the visitor is logged in. Rendering
+  // these pages on the server would briefly paint protected content before the
+  // client-side middleware runs and redirects (the "flash of forbidden content"
+  // problem). Switching them to client-only means the page mounts only after the
+  // middleware has decided.
+  routeRules: {
+    '/admin': { ssr: false },
+    '/admin/**': { ssr: false },
+    '/account': { ssr: false },
+    '/account/**': { ssr: false },
+    '/pl/admin': { ssr: false },
+    '/pl/admin/**': { ssr: false },
+    '/pl/account': { ssr: false },
+    '/pl/account/**': { ssr: false },
+  },
+
   // Runtime config for API base URL
   // Environment variables prefixed with NUXT_PUBLIC_ are automatically available
   runtimeConfig: {
