@@ -26,6 +26,8 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.107",
+    "@iconify-json/simple-icons": "^1.2.82",
     "@nuxt/test-utils": "^4.0.3",
     "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.9.1",
