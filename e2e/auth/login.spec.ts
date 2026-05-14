@@ -8,7 +8,7 @@ test('login happy path → redirects home and shows welcome toast', async ({ pag
   await page.goto('/login')
   await page.waitForLoadState('networkidle')
 
-  await page.getByLabel(/email/i).fill(KNOWN_USER.email)
+  await page.getByLabel('Email', { exact: true }).fill(KNOWN_USER.email)
   await page.getByLabel(/^password$/i).fill(KNOWN_USER.password)
   await page.getByRole('button', { name: /continue/i }).click()
 
@@ -32,7 +32,7 @@ test('login while account is locked → stays on /login with error', async ({ pa
   await page.goto('/login')
   await page.waitForLoadState('networkidle')
 
-  await page.getByLabel(/email/i).fill(LOCKOUT_USER.email)
+  await page.getByLabel('Email', { exact: true }).fill(LOCKOUT_USER.email)
   await page.getByLabel(/^password$/i).fill(LOCKOUT_USER.password)
   await page.getByRole('button', { name: /continue/i }).click()
 

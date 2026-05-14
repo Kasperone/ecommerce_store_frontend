@@ -70,19 +70,74 @@
     "placeholderTitle": "Witaj",
     "placeholderBody": "Funkcje konta pojawią się tutaj (zamówienia, profil, adresy, metody płatności)."
   },
-  "footer": {
-    "aboutUs": "O Nas",
-    "contact": "Kontakt",
-    "terms": "Regulamin",
-    "privacy": "Polityka Prywatności",
-    "followUs": "Śledź Nas"
-  },
   "navigation": {
     "home": "Strona Główna",
     "products": "Produkty",
     "categories": "Kategorie",
     "orders": "Moje Zamówienia",
     "wishlist": "Lista Życzeń"
+  },
+  "footer": {
+    "brand": {
+      "tagline": "Sprawdzone produkty, dostawa w USD, PLN i EUR.",
+      "newsletter": {
+        "heading": "Bądź na bieżąco",
+        "description": "Nowości i oferty tylko dla subskrybentów — żadnego spamu.",
+        "emailLabel": "Adres e-mail",
+        "emailPlaceholder": "ty{'@'}example.com",
+        "submit": "Zapisz się",
+        "success": "Dzięki — jesteś na liście.",
+        "invalidEmail": "Podaj prawidłowy adres e-mail."
+      }
+    },
+    "columns": {
+      "shop": {
+        "heading": "Sklep",
+        "newArrivals": "Nowości",
+        "bestsellers": "Bestsellery",
+        "deals": "Okazje"
+      },
+      "help": {
+        "heading": "Pomoc i informacje",
+        "contact": "Kontakt",
+        "shippingReturns": "Wysyłka i zwroty",
+        "faq": "FAQ"
+      },
+      "company": {
+        "heading": "Firma",
+        "about": "O nas",
+        "careers": "Kariera",
+        "press": "Prasa"
+      },
+      "legal": {
+        "heading": "Informacje prawne",
+        "terms": "Regulamin",
+        "privacy": "Polityka prywatności",
+        "cookies": "Polityka cookies"
+      },
+      "account": {
+        "heading": "Moje konto",
+        "signIn": "Zaloguj się",
+        "register": "Załóż konto",
+        "myAccount": "Moje konto"
+      }
+    },
+    "social": {
+      "heading": "Obserwuj nas",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "tiktok": "TikTok",
+      "youtube": "YouTube"
+    },
+    "payment": {
+      "heading": "Akceptujemy"
+    },
+    "copyright": "© {year} E-commerce Store. Wszelkie prawa zastrzeżone.",
+    "madeIn": "Tworzone z troską w Polsce.",
+    "stubPage": {
+      "comingSoon": "Ta strona jest w przygotowaniu.",
+      "backHome": "Wróć na stronę główną"
+    }
   },
   "actions": {
     "save": "Zapisz",

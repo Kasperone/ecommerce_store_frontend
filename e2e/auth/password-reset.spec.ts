@@ -9,7 +9,7 @@ test('password recovery → submits and shows success card', async ({ page }) =>
   await page.goto('/password-recovery')
   await page.waitForLoadState('networkidle')
 
-  await page.getByLabel(/email/i).fill('does-not-exist@e2e.example.com')
+  await page.getByLabel('Email', { exact: true }).fill('does-not-exist@e2e.example.com')
   await page.getByRole('button', { name: /send|reset|continue/i }).click()
 
   // Success state renders the "Reset your password" heading with the
