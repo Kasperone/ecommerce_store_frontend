@@ -11,7 +11,7 @@ test('register happy path → redirects to /verify-email-sent', async ({ page })
 
   await page.getByLabel(/first name/i).fill(user.firstName)
   await page.getByLabel(/last name/i).fill(user.lastName)
-  await page.getByLabel(/email/i).fill(user.email)
+  await page.getByLabel('Email', { exact: true }).fill(user.email)
   await page.getByLabel(/^password$/i).fill(user.password)
   await page.getByLabel(/confirm password/i).fill(user.password)
 

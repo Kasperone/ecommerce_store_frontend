@@ -70,19 +70,74 @@
     "placeholderTitle": "Welcome",
     "placeholderBody": "Your account features will appear here (orders, profile, addresses, payment methods)."
   },
-  "footer": {
-    "aboutUs": "About Us",
-    "contact": "Contact",
-    "terms": "Terms & Conditions",
-    "privacy": "Privacy Policy",
-    "followUs": "Follow Us"
-  },
   "navigation": {
     "home": "Home",
     "products": "Products",
     "categories": "Categories",
     "orders": "My Orders",
     "wishlist": "Wishlist"
+  },
+  "footer": {
+    "brand": {
+      "tagline": "Quality goods, delivered in USD, PLN and EUR.",
+      "newsletter": {
+        "heading": "Stay in the loop",
+        "description": "New arrivals and exclusive offers — no spam.",
+        "emailLabel": "Email address",
+        "emailPlaceholder": "you{'@'}example.com",
+        "submit": "Subscribe",
+        "success": "Thanks — you're on the list.",
+        "invalidEmail": "Please enter a valid email."
+      }
+    },
+    "columns": {
+      "shop": {
+        "heading": "Shop",
+        "newArrivals": "New Arrivals",
+        "bestsellers": "Bestsellers",
+        "deals": "Deals"
+      },
+      "help": {
+        "heading": "Help & Info",
+        "contact": "Contact Us",
+        "shippingReturns": "Shipping & Returns",
+        "faq": "FAQ"
+      },
+      "company": {
+        "heading": "Company",
+        "about": "About Us",
+        "careers": "Careers",
+        "press": "Press"
+      },
+      "legal": {
+        "heading": "Legal",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "cookies": "Cookie Policy"
+      },
+      "account": {
+        "heading": "My Account",
+        "signIn": "Sign In",
+        "register": "Create Account",
+        "myAccount": "My Account"
+      }
+    },
+    "social": {
+      "heading": "Follow us",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "tiktok": "TikTok",
+      "youtube": "YouTube"
+    },
+    "payment": {
+      "heading": "We accept"
+    },
+    "copyright": "© {year} E-commerce Store. All rights reserved.",
+    "madeIn": "Made with care in Poland.",
+    "stubPage": {
+      "comingSoon": "This page is coming soon.",
+      "backHome": "Back to home"
+    }
   },
   "actions": {
     "save": "Save",
