@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { appendResponseHeader } from 'h3'
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
 import type { PersonalSignUpFormData, BusinessSignUpFormData } from '#shared/validators/auth'
 import type { UserResponse, TokenResponse, MessageResponse, ApiError, ApiResponse } from '#shared/types/api'
@@ -223,21 +224,32 @@ export const useAuthStore = defineStore('auth', () => {
     refreshInFlight = (async () => {
       try {
         if (import.meta.server) {
+          // Capture Nuxt-context handles synchronously, BEFORE the first
+          // await. Nitro's unctx-driven async context can drop after
+          // `await $fetch.raw(...)`, after which `useRequestEvent`,
+          // `useRuntimeConfig`, and `useApi` (transitively via
+          // `useRuntimeConfig`) all throw "A composable that requires
+          // access to the Nuxt instance was called outside of a plugin, …".
+          // Without this hoist the outer catch silently swallows the throw
+          // and clears the session — exactly the symptom of the
+          // `refresh.spec.ts` post-130s hard-reload regression.
+          const event = useRequestEvent()
           const incomingCookie = useRequestHeaders(['cookie']).cookie
           if (!incomingCookie || !incomingCookie.includes('refresh_token=')) {
             return false
           }
           const config = useRuntimeConfig()
+          const apiBaseURL = config.public.apiBase as string
+
           const response = await $fetch.raw<TokenResponse>(
             AUTH_ENDPOINTS.REFRESH,
             {
               method: 'POST',
-              baseURL: config.public.apiBase as string,
+              baseURL: apiBaseURL,
               headers: { cookie: incomingCookie },
             },
           )
 
-          const event = useRequestEvent()
           const setCookies = response.headers.getSetCookie?.() ?? []
           if (event) {
             for (const cookie of setCookies) {
@@ -251,7 +263,23 @@ export const useAuthStore = defineStore('auth', () => {
             return false
           }
           setAccessToken(body.access_token)
-          if (!user.value) await fetchUser()
+          if (!user.value) {
+            // Inline /me fetch with the captured baseURL + freshly-issued
+            // bearer. We can't reuse the regular `fetchUser` → `useApi`
+            // codepath here because `useApi()` internally calls
+            // `useRuntimeConfig()`, which would throw post-await for the
+            // same reason `useRequestEvent` did before the hoist above.
+            try {
+              user.value = await $fetch<UserResponse>(AUTH_ENDPOINTS.ME, {
+                method: 'GET',
+                baseURL: apiBaseURL,
+                headers: { Authorization: `Bearer ${body.access_token}` },
+              })
+            } catch {
+              clearSession()
+              return false
+            }
+          }
           return true
         }
 
@@ -403,16 +431,24 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
-    // State — exposed as computed getters rather than `readonly(ref)` because
-    // Pinia treats setup-store `readonly(ref)` returns as state and tries to
-    // assign during hydration, which the readonly proxy rejects with a
-    // `Set operation on key "value" failed: target is readonly. RefImpl`
-    // warning at every navigation. Computed refs are exposed as getters
-    // (auto-unwrapped on access, no setter), preserving the read-only contract
-    // without the hydration write.
-    user: computed(() => user.value),
-    accessToken: computed(() => accessToken.value),
-    sessionRestoreAttempted: computed(() => sessionRestoreAttempted.value),
+    // State — exposed as raw refs (not `readonly()`, not `computed()`) so Pinia
+    // serializes the SSR-populated values into the hydration payload. The two
+    // previously-tried wrappers both silently broke hard-reload session restore:
+    //   - `readonly(ref)` → Pinia tracks as state, hydration writes are rejected
+    //     by the readonly proxy and state never lands on the client.
+    //   - `computed(() => ref.value)` → Pinia treats as a getter, not state, so
+    //     no hydration writes happen at all and state never lands on the client.
+    // The Vue warning that the earlier `readonly` → `computed` change silenced
+    // was the smoking gun for the first failure mode, not noise. Read-only
+    // intent is preserved by convention: consumers mutate auth state through
+    // actions (register/login/logout/etc.) only — never by direct assignment.
+    // `accessExpiresAt` is included here too so the proactive-refresh timer
+    // can re-arm with the correct expiry after a hard reload (its value also
+    // has to cross the SSR → client hydration boundary).
+    user,
+    accessToken,
+    accessExpiresAt,
+    sessionRestoreAttempted,
 
     // Getters
     isAuthenticated,
