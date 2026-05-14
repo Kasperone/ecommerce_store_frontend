@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { createPinia, setActivePinia } from 'pinia'
 import { setupTestPinia } from '../../test/helpers/createTestPinia'
 
 /**
@@ -465,6 +466,49 @@ describe('useAuthStore', () => {
       store.updateUser({ first_name: 'Grace' })
       expect(store.user?.first_name).toBe('Grace')
       expect(store.user?.last_name).toBe('Lovelace') // untouched
+    })
+  })
+
+  /**
+   * Regression guard for the bug fixed in `fix/auth-store-pinia-hydration`:
+   * Pinia setup-stores only serialize properties that are exposed as refs
+   * (state). When the return wraps state in `readonly(...)` (writes rejected)
+   * or `computed(...)` (treated as a getter, not state), the SSR-populated
+   * values never reach the client store after hydration. The visible symptom
+   * was `e2e/auth/refresh.spec.ts` failing — the post-130s hard reload
+   * rendered Login/Sign-up instead of the Account button because none of the
+   * SSR-refreshed auth state crossed the hydration boundary.
+   */
+  describe('Pinia SSR hydration', () => {
+    it('round-trip preserves user, accessToken, accessExpiresAt, sessionRestoreAttempted', async () => {
+      // --- SSR side: populate the server store and capture serialized state. ---
+      const ssrPinia = createPinia()
+      setActivePinia(ssrPinia)
+      const ssrStore = await loadStore()
+
+      const futureExpiry = Date.now() + 120_000
+      ssrStore.$patch({
+        user: ME_USER,
+        accessToken: 'ssr-access-token',
+        accessExpiresAt: futureExpiry,
+        sessionRestoreAttempted: true,
+      })
+
+      // This is what Nuxt serializes into __NUXT_DATA__ on the SSR pass.
+      const payload = JSON.parse(JSON.stringify(ssrPinia.state.value))
+
+      // --- Client side: brand-new Pinia, hydrate from payload, read store. ---
+      const clientPinia = createPinia()
+      clientPinia.state.value = payload
+      setActivePinia(clientPinia)
+
+      const clientStore = await loadStore()
+
+      expect(clientStore.user).toEqual(ME_USER)
+      expect(clientStore.accessToken).toBe('ssr-access-token')
+      expect(clientStore.accessExpiresAt).toBe(futureExpiry)
+      expect(clientStore.sessionRestoreAttempted).toBe(true)
+      expect(clientStore.isAuthenticated).toBe(true)
     })
   })
 })
