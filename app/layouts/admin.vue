@@ -17,8 +17,14 @@ const groups = useAdminSidebarGroups()
       :default-size="16"
     >
       <template #header="{ collapsed }">
-        <NuxtLink to="/admin" class="flex items-center gap-2">
-          <UIcon name="i-lucide-shield" class="text-primary text-xl" />
+        <NuxtLink
+          to="/admin"
+          class="flex items-center gap-2"
+        >
+          <UIcon
+            name="i-lucide-shield"
+            class="text-primary text-xl"
+          />
           <span
             v-if="!collapsed"
             class="text-lg font-semibold truncate"

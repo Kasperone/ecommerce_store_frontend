@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  titleTemplate: '%s | TAB-1 PAGE'
+  titleTemplate: '%s | TAB-1 PAGE',
 })
 </script>
 

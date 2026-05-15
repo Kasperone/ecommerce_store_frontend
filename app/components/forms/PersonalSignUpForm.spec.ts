@@ -55,7 +55,7 @@ async function fillForm(wrapper: any, values: Record<string, string>) {
 async function submitForm(wrapper: any) {
   await wrapper.find('form').trigger('submit')
   // Let microtasks settle (validation runs async, then submit handler resolves)
-  await new Promise((r) => setTimeout(r, 0))
+  await new Promise(r => setTimeout(r, 0))
   await wrapper.vm.$nextTick()
 }
 

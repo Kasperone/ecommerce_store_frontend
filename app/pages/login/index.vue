@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  titleTemplate: '%s | LOGIN PAGE'
+  titleTemplate: '%s | LOGIN PAGE',
 })
 </script>
 

@@ -8,23 +8,23 @@ import { z } from 'zod'
 /**
  * Email validation - reusable across all forms
  */
-export const createEmailValidation = (errorMessage = 'Invalid email address') => 
+export const createEmailValidation = (errorMessage = 'Invalid email address') =>
   z.email({ message: errorMessage })
 
 /**
  * Password validation - reusable with configurable minimum length
  */
-export const createPasswordValidation = (minLength = 8, errorMessage = `Must be at least ${minLength} characters`) => 
-  z.string({ 
-    error: (issue) => issue.input === undefined ? 'Password is required' : `Invalid input` 
+export const createPasswordValidation = (minLength = 8, errorMessage = `Must be at least ${minLength} characters`) =>
+  z.string({
+    error: issue => issue.input === undefined ? 'Password is required' : `Invalid input`,
   }).min(minLength, { error: errorMessage }).max(100)
 
 /**
  * Name validation - reusable for firstName/lastName
  */
-export const createNameValidation = (minLength = 1, errorMessage = 'This field is required') => 
-  z.string({ 
-    error: (issue) => issue.input === undefined ? errorMessage : `Invalid input` 
+export const createNameValidation = (minLength = 1, errorMessage = 'This field is required') =>
+  z.string({
+    error: issue => issue.input === undefined ? errorMessage : `Invalid input`,
   }).min(minLength, { error: errorMessage })
 
 /**
@@ -35,38 +35,38 @@ export const optionalNullableString = () => z.string().optional().nullable()
 /**
  * Creates login schema with i18n support
  */
-export const createLoginSchema = (t: (key: string, options?: any) => string) => 
+export const createLoginSchema = (t: (key: string, options?: any) => string) =>
   z.object({
     email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' })),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
-    remember: z.boolean().optional()
+    remember: z.boolean().optional(),
   })
 
 /**
  * Creates personal signup schema with i18n support
  */
-export const createPersonalSignUpSchema = (t: (key: string, options?: any) => string) => 
+export const createPersonalSignUpSchema = (t: (key: string, options?: any) => string) =>
   z.object({
     firstName: createNameValidation(1, t('auth.errors.firstNameRequired', { default: 'First name is required' })),
     lastName: createNameValidation(1, t('auth.errors.lastNameRequired', { default: 'Last name is required' })),
     email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' })),
     phone: optionalNullableString(),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
-    confirmPassword: z.string({ 
-      error: (issue) => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input` 
+    confirmPassword: z.string({
+      error: issue => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input`,
     }),
     // Shipping fields
     shippingStreet: optionalNullableString(),
     shippingCity: optionalNullableString(),
     shippingPostalCode: optionalNullableString(),
     shippingCountry: optionalNullableString(),
-    shippingState: optionalNullableString()
+    shippingState: optionalNullableString(),
   }).superRefine((val, ctx) => {
     if (val.password !== val.confirmPassword) {
       ctx.addIssue({
         code: 'custom',
         message: t('auth.errors.passwordsDontMatch', { default: 'Passwords do not match' }),
-        path: ['confirmPassword']
+        path: ['confirmPassword'],
       })
     }
   })
@@ -74,15 +74,15 @@ export const createPersonalSignUpSchema = (t: (key: string, options?: any) => st
 /**
  * Creates business signup schema with i18n support
  */
-export const createBusinessSignUpSchema = (t: (key: string, options?: any) => string) => 
+export const createBusinessSignUpSchema = (t: (key: string, options?: any) => string) =>
   z.object({
     firstName: createNameValidation(1, t('auth.errors.firstNameRequired', { default: 'First name is required' })),
     lastName: createNameValidation(1, t('auth.errors.lastNameRequired', { default: 'Last name is required' })),
     email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' })),
     phone: optionalNullableString(),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
-    confirmPassword: z.string({ 
-      error: (issue) => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input` 
+    confirmPassword: z.string({
+      error: issue => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input`,
     }),
     // Company fields
     companyName: createNameValidation(1, t('auth.errors.companyNameRequired', { default: 'Company name is required' })),
@@ -91,13 +91,13 @@ export const createBusinessSignUpSchema = (t: (key: string, options?: any) => st
     companyAddressCity: optionalNullableString(),
     companyAddressPostalCode: optionalNullableString(),
     companyAddressCountry: optionalNullableString(),
-    companyAddressState: optionalNullableString()
+    companyAddressState: optionalNullableString(),
   }).superRefine((val, ctx) => {
     if (val.password !== val.confirmPassword) {
       ctx.addIssue({
         code: 'custom',
         message: t('auth.errors.passwordsDontMatch', { default: 'Passwords do not match' }),
-        path: ['confirmPassword']
+        path: ['confirmPassword'],
       })
     }
   })
@@ -105,22 +105,22 @@ export const createBusinessSignUpSchema = (t: (key: string, options?: any) => st
 /**
  * Creates forgot password schema with i18n support
  */
-export const createForgotPasswordSchema = (t: (key: string, options?: any) => string) => 
+export const createForgotPasswordSchema = (t: (key: string, options?: any) => string) =>
   z.object({
-    email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' }))
+    email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' })),
   })
 
 /**
  * Creates reset password schema with i18n support
  */
-export const createResetPasswordSchema = (t: (key: string, options?: any) => string) => 
+export const createResetPasswordSchema = (t: (key: string, options?: any) => string) =>
   z.object({
     token: z.string().min(1, 'Reset token is required'),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
-    confirmPassword: z.string()
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: t('auth.errors.passwordsDontMatch', { default: "Passwords don't match" }),
-    path: ["confirmPassword"]
+    confirmPassword: z.string(),
+  }).refine(data => data.password === data.confirmPassword, {
+    message: t('auth.errors.passwordsDontMatch', { default: 'Passwords don\'t match' }),
+    path: ['confirmPassword'],
   })
 
 /**

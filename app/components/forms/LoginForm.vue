@@ -24,16 +24,16 @@ const fields = computed<AuthFormField[]>(() => {
     name: 'email',
     type: 'text',
     label: t('auth.email'),
-    placeholder: t('auth.enterYourEmail')
+    placeholder: t('auth.enterYourEmail'),
   }, {
     name: 'password',
     type: 'password',
     label: t('auth.password'),
-    placeholder: t('auth.enterYourPassword')
+    placeholder: t('auth.enterYourPassword'),
   }, {
     name: 'remember',
     type: 'checkbox',
-    label: t('auth.rememberMe')
+    label: t('auth.rememberMe'),
   }]
 })
 
@@ -49,7 +49,7 @@ watch(
       nextTick(() => scrollToFirstFormError(errs))
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 useFormErrorClearing(authFormRef, errorMessage)
@@ -66,12 +66,13 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
     toast.add({
       title: t('auth.welcomeBack'),
       color: 'success',
-      icon: 'i-lucide-check-circle'
+      icon: 'i-lucide-check-circle',
     })
 
     const redirect = safeRedirect(route.query.redirect, authStore.isAdmin ? '/admin' : '/')
     router.push(redirect)
-  } else {
+  }
+  else {
     const fallback = t('auth.errorSigningIn')
     const normalized = normalizeApiError(result.raw, result.error || fallback)
     errorMessage.value = normalized.message
@@ -80,7 +81,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
     const formApi = authFormRef.value?.formRef
     if (formApi && Object.keys(normalized.fieldErrors).length > 0) {
       formApi.setErrors(
-        Object.entries(normalized.fieldErrors).map(([name, message]) => ({ name, message }))
+        Object.entries(normalized.fieldErrors).map(([name, message]) => ({ name, message })),
       )
       nextTick(() => scrollToFirstFormError(formApi.errors))
     }
@@ -89,7 +90,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
       title: t('auth.errorSigningIn'),
       description: errorMessage.value,
       color: 'error',
-      icon: 'i-lucide-circle-x'
+      icon: 'i-lucide-circle-x',
     })
   }
 }
@@ -102,11 +103,19 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
     <UPageCard class="w-full max-w-md">
       <div class="flex flex-col text-center mb-6">
         <div class="mb-2">
-          <UIcon name="i-lucide-lock" class="size-8 inline-block" />
+          <UIcon
+            name="i-lucide-lock"
+            class="size-8 inline-block"
+          />
         </div>
-        <h1 class="text-xl text-pretty font-semibold text-highlighted">{{ t('auth.welcomeBack') }}</h1>
+        <h1 class="text-xl text-pretty font-semibold text-highlighted">
+          {{ t('auth.welcomeBack') }}
+        </h1>
         <p class="mt-1 text-base text-pretty text-muted">
-          {{ t('authExtra.noAccount') }} <ULink to="/sign-up" class="text-primary font-medium">{{ t('auth.signUp') }}</ULink>
+          {{ t('authExtra.noAccount') }} <ULink
+            to="/sign-up"
+            class="text-primary font-medium"
+          >{{ t('auth.signUp') }}</ULink>
         </p>
       </div>
       <UAuthForm
@@ -117,7 +126,10 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
         :loading="isLoading"
         @submit="submit"
       >
-        <template v-if="errorMessage" #validation>
+        <template
+          v-if="errorMessage"
+          #validation
+        >
           <UAlert
             color="error"
             variant="soft"
@@ -129,11 +141,18 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
         </template>
 
         <template #password-hint>
-          <ULink to="/password-recovery" class="text-primary font-medium" tabindex="-1">{{ t('auth.forgotPassword') }}</ULink>
+          <ULink
+            to="/password-recovery"
+            class="text-primary font-medium"
+            tabindex="-1"
+          >{{ t('auth.forgotPassword') }}</ULink>
         </template>
 
         <template #footer>
-          {{ t('authExtra.agreeTo') }} <ULink to="/terms-of-service" class="text-primary font-medium">{{ t('auth.termsOfService') }}</ULink>
+          {{ t('authExtra.agreeTo') }} <ULink
+            to="/terms-of-service"
+            class="text-primary font-medium"
+          >{{ t('auth.termsOfService') }}</ULink>
         </template>
       </UAuthForm>
     </UPageCard>

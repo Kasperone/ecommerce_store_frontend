@@ -42,7 +42,8 @@ export const useApi = () => {
 
     try {
       return await $fetch<T>(url, opts)
-    } catch (error: any) {
+    }
+    catch (error: any) {
       const status: number | undefined = error?.response?.status ?? error?.status
       const targetsAuthCookie = url === AUTH_ENDPOINTS.REFRESH || url === AUTH_ENDPOINTS.LOGOUT
 
@@ -69,6 +70,6 @@ export const useApi = () => {
   }
 
   return {
-    apiFetch
+    apiFetch,
   }
 }

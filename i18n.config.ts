@@ -10,39 +10,39 @@ export default defineI18nConfig(() => {
         currency: {
           style: 'currency',
           currency: 'USD',
-          notation: 'standard'
+          notation: 'standard',
         },
         decimal: {
           style: 'decimal',
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }
+          maximumFractionDigits: 2,
+        },
       },
       pl: {
         currency: {
           style: 'currency',
           currency: 'PLN',
-          notation: 'standard'
+          notation: 'standard',
         },
         decimal: {
           style: 'decimal',
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }
+          maximumFractionDigits: 2,
+        },
       },
       // EUR support (can be used with any locale)
       eur: {
         currency: {
           style: 'currency',
           currency: 'EUR',
-          notation: 'standard'
+          notation: 'standard',
         },
         decimal: {
           style: 'decimal',
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }
-      }
-    }
+          maximumFractionDigits: 2,
+        },
+      },
+    },
   }
 })

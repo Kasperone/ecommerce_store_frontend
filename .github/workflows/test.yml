@@ -16,6 +16,28 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
+  lint:
+    name: Lint (ESLint + Stylistic)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Nuxt eslint config
+        run: npx nuxi prepare
+
+      - name: Run ESLint
+        run: npm run lint
+
   unit:
     name: Unit (Vitest)
     runs-on: ubuntu-latest

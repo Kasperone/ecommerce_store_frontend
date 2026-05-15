@@ -69,7 +69,7 @@ export function useAdminSidebarGroups(): ComputedRef<NavigationMenuItem[][]> {
   const route = useRoute()
 
   return computed(() =>
-    GROUPS.map((group) => [
+    GROUPS.map(group => [
       { label: t(`admin.menu.groups.${group.key}`), type: 'label' as const },
       ...group.items.map((item): NavigationMenuItem => ({
         label: t(`admin.menu.items.${item.key}`),

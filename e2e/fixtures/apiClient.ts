@@ -43,7 +43,7 @@ export class ApiClient {
 
   async loginViaApi(email: string, password: string): Promise<{
     accessToken: string
-    refreshCookie: { name: string; value: string; domain: string; path: string; expires: number; httpOnly: boolean; secure: boolean; sameSite: 'Strict' | 'Lax' | 'None' }
+    refreshCookie: { name: string, value: string, domain: string, path: string, expires: number, httpOnly: boolean, secure: boolean, sameSite: 'Strict' | 'Lax' | 'None' }
   }> {
     const form = new URLSearchParams({ username: email, password })
     const res = await this.http.post('/api/v1/auth/login', {
@@ -53,7 +53,7 @@ export class ApiClient {
     if (!res.ok()) {
       throw new Error(`login failed: ${res.status()} ${await res.text()}`)
     }
-    const body = await res.json() as { access_token: string; token_type: string }
+    const body = await res.json() as { access_token: string, token_type: string }
     const setCookie = res.headers()['set-cookie'] ?? ''
     const refreshCookie = parseRefreshCookie(setCookie)
     return { accessToken: body.access_token, refreshCookie }
@@ -136,8 +136,8 @@ function parseRefreshCookie(setCookie: string): {
     attrs[k.toLowerCase()] = v ?? 'true'
   }
   const rawSameSite = (attrs.samesite ?? 'lax').toLowerCase()
-  const sameSite: 'Strict' | 'Lax' | 'None' =
-    rawSameSite === 'strict' ? 'Strict' : rawSameSite === 'none' ? 'None' : 'Lax'
+  const sameSite: 'Strict' | 'Lax' | 'None'
+    = rawSameSite === 'strict' ? 'Strict' : rawSameSite === 'none' ? 'None' : 'Lax'
   return {
     name,
     value,

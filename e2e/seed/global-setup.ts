@@ -22,7 +22,8 @@ export default async function globalSetup(): Promise<void> {
     await api.markVerified(LOCKOUT_USER.email)
     await api.markVerified(REFRESH_USER.email)
     await api.promoteAdmin(KNOWN_ADMIN.email)
-  } finally {
+  }
+  finally {
     await api.dispose()
   }
 }

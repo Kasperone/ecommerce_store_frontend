@@ -155,7 +155,7 @@ describe('createLoginSchema', () => {
     })
     expect(result.success).toBe(false)
     if (!result.success) {
-      const fields = result.error.issues.map((i) => i.path[0])
+      const fields = result.error.issues.map(i => i.path[0])
       expect(fields).toContain('email')
     }
   })
@@ -167,7 +167,7 @@ describe('createLoginSchema', () => {
     })
     expect(result.success).toBe(false)
     if (!result.success) {
-      const fields = result.error.issues.map((i) => i.path[0])
+      const fields = result.error.issues.map(i => i.path[0])
       expect(fields).toContain('password')
     }
   })
@@ -188,7 +188,7 @@ describe('createPersonalSignUpSchema', () => {
     expect(result.success).toBe(false)
     if (!result.success) {
       const issue = result.error.issues.find(
-        (i) => i.path[0] === 'confirmPassword',
+        i => i.path[0] === 'confirmPassword',
       )
       expect(issue).toBeDefined()
       expect(issue?.message).toBe('Passwords do not match')
@@ -199,7 +199,7 @@ describe('createPersonalSignUpSchema', () => {
     const result = schema.safeParse({})
     expect(result.success).toBe(false)
     if (!result.success) {
-      const fields = new Set(result.error.issues.map((i) => i.path[0]))
+      const fields = new Set(result.error.issues.map(i => i.path[0]))
       expect(fields.has('firstName')).toBe(true)
       expect(fields.has('lastName')).toBe(true)
       expect(fields.has('email')).toBe(true)
@@ -223,7 +223,7 @@ describe('createBusinessSignUpSchema', () => {
     })
     expect(result.success).toBe(false)
     if (!result.success) {
-      const issue = result.error.issues.find((i) => i.path[0] === 'companyName')
+      const issue = result.error.issues.find(i => i.path[0] === 'companyName')
       expect(issue).toBeDefined()
       expect(issue?.message).toBe('Company name is required')
     }
@@ -237,7 +237,7 @@ describe('createBusinessSignUpSchema', () => {
     expect(result.success).toBe(false)
     if (!result.success) {
       const issue = result.error.issues.find(
-        (i) => i.path[0] === 'confirmPassword',
+        i => i.path[0] === 'confirmPassword',
       )
       expect(issue).toBeDefined()
       expect(issue?.message).toBe('Passwords do not match')
@@ -280,13 +280,13 @@ describe('createResetPasswordSchema', () => {
     expect(result.success).toBe(false)
     if (!result.success) {
       const issue = result.error.issues.find(
-        (i) => i.path[0] === 'confirmPassword',
+        i => i.path[0] === 'confirmPassword',
       )
       expect(issue).toBeDefined()
       // Note: this schema uses the apostrophe variant of the default copy
       // ("don't match"), unlike the sign-up schemas ("do not match"). The
       // i18n translation key is the same and tests both via tStub fallback.
-      expect(issue?.message).toBe("Passwords don't match")
+      expect(issue?.message).toBe('Passwords don\'t match')
     }
   })
 })

@@ -1,7 +1,6 @@
 // @vitest-environment nuxt
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import LoginForm from './LoginForm.vue'
 
 /**
@@ -69,7 +68,7 @@ describe('LoginForm', () => {
     await wrapper.find('input[name="password"]').setValue('Sup3rSecret!')
     await wrapper.find('form').trigger('submit')
     // Vue form submission is async; let microtasks settle.
-    await new Promise((r) => setTimeout(r, 0))
+    await new Promise(r => setTimeout(r, 0))
     await wrapper.vm.$nextTick()
 
     expect(mockLogin).toHaveBeenCalledWith('ada@example.com', 'Sup3rSecret!')
@@ -84,7 +83,7 @@ describe('LoginForm', () => {
     await wrapper.find('input[name="email"]').setValue('ada@example.com')
     await wrapper.find('input[name="password"]').setValue('Sup3rSecret!')
     await wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 0))
+    await new Promise(r => setTimeout(r, 0))
     await wrapper.vm.$nextTick()
 
     expect(mockPush).toHaveBeenCalledWith('/account/profile')
@@ -100,7 +99,7 @@ describe('LoginForm', () => {
     await wrapper.find('input[name="email"]').setValue('ada@example.com')
     await wrapper.find('input[name="password"]').setValue('wrongpw1')
     await wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 0))
+    await new Promise(r => setTimeout(r, 0))
     await wrapper.vm.$nextTick()
 
     expect(mockLogin).toHaveBeenCalled()
@@ -114,7 +113,7 @@ describe('LoginForm', () => {
 
     // Submit without filling anything — Zod schema runs on submit.
     await wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 0))
+    await new Promise(r => setTimeout(r, 0))
     await wrapper.vm.$nextTick()
 
     expect(mockLogin).not.toHaveBeenCalled()

@@ -1,48 +1,48 @@
 export const API_ENDPOINTS = {
   // Base API URL
   BASE: '/api/v1',
-  
+
   // Health endpoints
   HEALTH: '/health',
   ROOT: '/',
-  
+
   // Authentication endpoints
   AUTH: {
     BASE: '/api/v1/auth',
-    LOGIN: '/api/v1/auth/login',                    // POST - OAuth2 token login
-    REGISTER: '/api/v1/auth/register',              // POST - Register new user
-    ME: '/api/v1/auth/me',                          // GET - Get current user
-    UPDATE_ME: '/api/v1/auth/me',                   // PUT - Update current user
-    REFRESH: '/api/v1/auth/refresh',                // POST - Rotate refresh cookie + new access token
-    LOGOUT: '/api/v1/auth/logout',                  // POST - Revoke current refresh + clear cookie
-    LOGOUT_ALL: '/api/v1/auth/logout-all',          // POST - Revoke every session for current user
+    LOGIN: '/api/v1/auth/login', // POST - OAuth2 token login
+    REGISTER: '/api/v1/auth/register', // POST - Register new user
+    ME: '/api/v1/auth/me', // GET - Get current user
+    UPDATE_ME: '/api/v1/auth/me', // PUT - Update current user
+    REFRESH: '/api/v1/auth/refresh', // POST - Rotate refresh cookie + new access token
+    LOGOUT: '/api/v1/auth/logout', // POST - Revoke current refresh + clear cookie
+    LOGOUT_ALL: '/api/v1/auth/logout-all', // POST - Revoke every session for current user
     PASSWORD_RESET_REQUEST: '/api/v1/auth/password-reset/request', // POST - Request reset email
     PASSWORD_RESET_CONFIRM: '/api/v1/auth/password-reset/confirm', // POST - Confirm reset with token
-    CHANGE_PASSWORD: '/api/v1/auth/change-password' // POST - Authenticated password change
+    CHANGE_PASSWORD: '/api/v1/auth/change-password', // POST - Authenticated password change
   },
-  
+
   // Products endpoints
   PRODUCTS: {
     BASE: '/api/v1/products',
-    LIST: '/api/v1/products/',        // GET - List products with filters & pagination
+    LIST: '/api/v1/products/', // GET - List products with filters & pagination
     FEATURED: '/api/v1/products/featured', // GET - Get featured products
-    BY_ID: '/api/v1/products/{id}',   // GET - Get product by ID
+    BY_ID: '/api/v1/products/{id}', // GET - Get product by ID
     BY_SLUG: '/api/v1/products/slug/{slug}', // GET - Get product by slug
-    CREATE: '/api/v1/products/',      // POST - Create product (admin)
-    UPDATE: '/api/v1/products/{id}',  // PUT - Update product (admin)
-    DELETE: '/api/v1/products/{id}'   // DELETE - Delete product (admin)
+    CREATE: '/api/v1/products/', // POST - Create product (admin)
+    UPDATE: '/api/v1/products/{id}', // PUT - Update product (admin)
+    DELETE: '/api/v1/products/{id}', // DELETE - Delete product (admin)
   },
-  
+
   // Categories endpoints
   CATEGORIES: {
     BASE: '/api/v1/categories',
-    LIST: '/api/v1/categories/',      // GET - List categories with product counts
+    LIST: '/api/v1/categories/', // GET - List categories with product counts
     BY_ID: '/api/v1/categories/{id}', // GET - Get category by ID
     BY_SLUG: '/api/v1/categories/slug/{slug}', // GET - Get category by slug
-    CREATE: '/api/v1/categories/',    // POST - Create category (admin)
+    CREATE: '/api/v1/categories/', // POST - Create category (admin)
     UPDATE: '/api/v1/categories/{id}', // PUT - Update category (admin)
-    DELETE: '/api/v1/categories/{id}' // DELETE - Delete category (admin)
-  }
+    DELETE: '/api/v1/categories/{id}', // DELETE - Delete category (admin)
+  },
 } as const
 
 export const HTTP_STATUS = {
@@ -53,7 +53,7 @@ export const HTTP_STATUS = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
-  INTERNAL_SERVER_ERROR: 500
+  INTERNAL_SERVER_ERROR: 500,
 } as const
 
 /**
@@ -64,57 +64,57 @@ export const buildApiUrl = {
    * Build product URL by ID
    * @param id Product ID
    */
-  productById: (id: number | string) => 
+  productById: (id: number | string) =>
     API_ENDPOINTS.PRODUCTS.BY_ID.replace('{id}', String(id)),
-  
+
   /**
    * Build product URL by slug
    * @param slug Product slug
    */
-  productBySlug: (slug: string) => 
+  productBySlug: (slug: string) =>
     API_ENDPOINTS.PRODUCTS.BY_SLUG.replace('{slug}', slug),
-  
+
   /**
    * Build category URL by ID
    * @param id Category ID
    */
-  categoryById: (id: number | string) => 
+  categoryById: (id: number | string) =>
     API_ENDPOINTS.CATEGORIES.BY_ID.replace('{id}', String(id)),
-  
+
   /**
    * Build category URL by slug
    * @param slug Category slug
    */
-  categoryBySlug: (slug: string) => 
+  categoryBySlug: (slug: string) =>
     API_ENDPOINTS.CATEGORIES.BY_SLUG.replace('{slug}', slug),
-  
+
   /**
    * Build update product URL
    * @param id Product ID
    */
-  updateProduct: (id: number | string) => 
+  updateProduct: (id: number | string) =>
     API_ENDPOINTS.PRODUCTS.UPDATE.replace('{id}', String(id)),
-  
+
   /**
    * Build delete product URL
    * @param id Product ID
    */
-  deleteProduct: (id: number | string) => 
+  deleteProduct: (id: number | string) =>
     API_ENDPOINTS.PRODUCTS.DELETE.replace('{id}', String(id)),
-  
+
   /**
    * Build update category URL
    * @param id Category ID
    */
-  updateCategory: (id: number | string) => 
+  updateCategory: (id: number | string) =>
     API_ENDPOINTS.CATEGORIES.UPDATE.replace('{id}', String(id)),
-  
+
   /**
    * Build delete category URL
    * @param id Category ID
    */
-  deleteCategory: (id: number | string) => 
-    API_ENDPOINTS.CATEGORIES.DELETE.replace('{id}', String(id))
+  deleteCategory: (id: number | string) =>
+    API_ENDPOINTS.CATEGORIES.DELETE.replace('{id}', String(id)),
 } as const
 
 /**
