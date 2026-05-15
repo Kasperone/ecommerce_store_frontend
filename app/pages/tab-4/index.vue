@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  titleTemplate: '%s | TAB-4 PAGE'
+  titleTemplate: '%s | TAB-4 PAGE',
 })
 </script>
 
@@ -11,4 +11,3 @@ useHead({
     </div>
   </NuxtLayout>
 </template>
-

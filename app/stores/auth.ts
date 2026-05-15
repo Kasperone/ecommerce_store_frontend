@@ -53,7 +53,8 @@ export const useAuthStore = defineStore('auth', () => {
       const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
       const json = JSON.parse(atob(b64))
       return typeof json.exp === 'number' ? json.exp * 1000 : null
-    } catch {
+    }
+    catch {
       return null
     }
   }
@@ -71,10 +72,14 @@ export const useAuthStore = defineStore('auth', () => {
     const delay = accessExpiresAt.value - Date.now() - PROACTIVE_REFRESH_MS
     if (delay <= 0) {
       // Already past the proactive window; refresh on next tick.
-      refreshTimer = setTimeout(() => { void refreshAccessToken() }, 0)
+      refreshTimer = setTimeout(() => {
+        void refreshAccessToken()
+      }, 0)
       return
     }
-    refreshTimer = setTimeout(() => { void refreshAccessToken() }, delay)
+    refreshTimer = setTimeout(() => {
+      void refreshAccessToken()
+    }, delay)
   }
 
   function setAccessToken(token: string | null) {
@@ -117,33 +122,38 @@ export const useAuthStore = defineStore('auth', () => {
           first_name: data.firstName,
           last_name: data.lastName,
           phone: data.phone,
-          ...('shippingStreet' in data && data.shippingStreet ? {
-            shipping_street: data.shippingStreet,
-            shipping_city: data.shippingCity,
-            shipping_postal_code: data.shippingPostalCode,
-            shipping_country: data.shippingCountry,
-            shipping_state: data.shippingState || null
-          } : {}),
-          ...('companyName' in data && data.companyName ? {
-            company_name: data.companyName,
-            company_tax_id: data.companyTaxId,
-            company_address_street: data.companyAddressStreet,
-            company_address_city: data.companyAddressCity,
-            company_address_postal_code: data.companyAddressPostalCode,
-            company_address_country: data.companyAddressCountry,
-            company_address_state: data.companyAddressState || null
-          } : {})
-        }
+          ...('shippingStreet' in data && data.shippingStreet
+            ? {
+                shipping_street: data.shippingStreet,
+                shipping_city: data.shippingCity,
+                shipping_postal_code: data.shippingPostalCode,
+                shipping_country: data.shippingCountry,
+                shipping_state: data.shippingState || null,
+              }
+            : {}),
+          ...('companyName' in data && data.companyName
+            ? {
+                company_name: data.companyName,
+                company_tax_id: data.companyTaxId,
+                company_address_street: data.companyAddressStreet,
+                company_address_city: data.companyAddressCity,
+                company_address_postal_code: data.companyAddressPostalCode,
+                company_address_country: data.companyAddressCountry,
+                company_address_state: data.companyAddressState || null,
+              }
+            : {}),
+        },
       })
 
       return { success: true, data: response } as ApiResponse<MessageResponse>
-    } catch (error: any) {
+    }
+    catch (error: any) {
       const apiError = error?.data as ApiError
       const detail = apiError?.detail
       return {
         success: false,
         error: typeof detail === 'string' ? detail : 'Registration failed. Please try again.',
-        raw: error
+        raw: error,
       } as ApiResponse<MessageResponse>
     }
   }
@@ -167,13 +177,14 @@ export const useAuthStore = defineStore('auth', () => {
       sessionRestoreAttempted.value = true
 
       return { success: true, data: response } as ApiResponse<TokenResponse>
-    } catch (error: any) {
+    }
+    catch (error: any) {
       const apiError = error?.data as ApiError
       const detail = apiError?.detail
       return {
         success: false,
         error: typeof detail === 'string' ? detail : 'Login failed. Please check your credentials.',
-        raw: error
+        raw: error,
       } as ApiResponse<TokenResponse>
     }
   }
@@ -183,7 +194,8 @@ export const useAuthStore = defineStore('auth', () => {
     // failure — local state is cleared regardless so the UI can move on.
     try {
       await authBaseFetch()(AUTH_ENDPOINTS.LOGOUT, { method: 'POST' })
-    } catch {
+    }
+    catch {
       // ignore — server may be unreachable; we still tear down locally
     }
     clearSession()
@@ -197,7 +209,8 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const { apiFetch } = useApi()
       user.value = await apiFetch<UserResponse>(AUTH_ENDPOINTS.ME, { method: 'GET' })
-    } catch {
+    }
+    catch {
       // useApi already triggered the 401 → refresh → retry path; if we land
       // here it means even the retry failed. Tear down so the UI shows the
       // logged-out state.
@@ -275,7 +288,8 @@ export const useAuthStore = defineStore('auth', () => {
                 baseURL: apiBaseURL,
                 headers: { Authorization: `Bearer ${body.access_token}` },
               })
-            } catch {
+            }
+            catch {
               clearSession()
               return false
             }
@@ -292,14 +306,16 @@ export const useAuthStore = defineStore('auth', () => {
         setAccessToken(response.access_token)
         if (!user.value) await fetchUser()
         return true
-      } catch {
+      }
+      catch {
         clearSession()
         return false
       }
     })()
     try {
       return await refreshInFlight
-    } finally {
+    }
+    finally {
       refreshInFlight = null
     }
   }
@@ -320,7 +336,8 @@ export const useAuthStore = defineStore('auth', () => {
     if (sessionRestoreAttempted.value) return isAuthenticated.value
     try {
       return await refreshAccessToken()
-    } finally {
+    }
+    finally {
       sessionRestoreAttempted.value = true
     }
   }
@@ -347,14 +364,15 @@ export const useAuthStore = defineStore('auth', () => {
       const { apiFetch } = useApi()
       const response = await apiFetch<{ message: string }>(`${AUTH_ENDPOINTS.BASE}/verify-email`, {
         method: 'POST',
-        body: { token }
+        body: { token },
       })
       return { success: true, message: response.message }
-    } catch (error: any) {
+    }
+    catch (error: any) {
       const apiError = error?.data as ApiError
       return {
         success: false,
-        error: apiError?.detail || 'Email verification failed.'
+        error: apiError?.detail || 'Email verification failed.',
       }
     }
   }
@@ -364,14 +382,15 @@ export const useAuthStore = defineStore('auth', () => {
       const { apiFetch } = useApi()
       const response = await apiFetch<{ message: string }>(`${AUTH_ENDPOINTS.BASE}/resend-verification`, {
         method: 'POST',
-        body: { email }
+        body: { email },
       })
       return { success: true, message: response.message }
-    } catch (error: any) {
+    }
+    catch (error: any) {
       const apiError = error?.data as ApiError
       return {
         success: false,
-        error: apiError?.detail || 'Failed to resend verification email.'
+        error: apiError?.detail || 'Failed to resend verification email.',
       }
     }
   }
@@ -381,14 +400,15 @@ export const useAuthStore = defineStore('auth', () => {
       const { apiFetch } = useApi()
       const response = await apiFetch<MessageResponse>(
         AUTH_ENDPOINTS.PASSWORD_RESET_REQUEST,
-        { method: 'POST', body: { email } }
+        { method: 'POST', body: { email } },
       )
-      return { success: true, message: response.message } as { success: true; message: string }
-    } catch (error: any) {
+      return { success: true, message: response.message } as { success: true, message: string }
+    }
+    catch (error: any) {
       const apiError = error?.data as ApiError
       return {
         success: false,
-        error: apiError?.detail || 'Failed to send password reset email.'
+        error: apiError?.detail || 'Failed to send password reset email.',
       }
     }
   }
@@ -398,14 +418,15 @@ export const useAuthStore = defineStore('auth', () => {
       const { apiFetch } = useApi()
       const response = await apiFetch<MessageResponse>(
         AUTH_ENDPOINTS.PASSWORD_RESET_CONFIRM,
-        { method: 'POST', body: { token, new_password: newPassword } }
+        { method: 'POST', body: { token, new_password: newPassword } },
       )
-      return { success: true, message: response.message } as { success: true; message: string }
-    } catch (error: any) {
+      return { success: true, message: response.message } as { success: true, message: string }
+    }
+    catch (error: any) {
       const apiError = error?.data as ApiError
       return {
         success: false,
-        error: apiError?.detail || 'Failed to reset password.'
+        error: apiError?.detail || 'Failed to reset password.',
       }
     }
   }
@@ -417,15 +438,16 @@ export const useAuthStore = defineStore('auth', () => {
         AUTH_ENDPOINTS.CHANGE_PASSWORD,
         {
           method: 'POST',
-          body: { current_password: currentPassword, new_password: newPassword }
-        }
+          body: { current_password: currentPassword, new_password: newPassword },
+        },
       )
-      return { success: true, message: response.message } as { success: true; message: string }
-    } catch (error: any) {
+      return { success: true, message: response.message } as { success: true, message: string }
+    }
+    catch (error: any) {
       const apiError = error?.data as ApiError
       return {
         success: false,
-        error: apiError?.detail || 'Failed to update password.'
+        error: apiError?.detail || 'Failed to update password.',
       }
     }
   }
@@ -469,6 +491,6 @@ export const useAuthStore = defineStore('auth', () => {
     resendVerification,
     requestPasswordReset,
     confirmPasswordReset,
-    changePassword
+    changePassword,
   }
 })

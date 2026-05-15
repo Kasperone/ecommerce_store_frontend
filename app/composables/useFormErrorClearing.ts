@@ -6,7 +6,7 @@ import { watch, type Ref } from 'vue'
  */
 export function useFormErrorClearing(
   authFormRef: Ref<any>,
-  errorMessage?: Ref<string>
+  errorMessage?: Ref<string>,
 ) {
   let prev: Record<string, unknown> = {}
 
@@ -26,6 +26,6 @@ export function useFormErrorClearing(
       }
       prev = newState
     },
-    { deep: true }
+    { deep: true },
   )
 }

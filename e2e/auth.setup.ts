@@ -10,7 +10,8 @@ setup('authenticate as known user', async ({ page }) => {
     const { refreshCookie } = await api.loginViaApi(KNOWN_USER.email, KNOWN_USER.password)
     await page.context().addCookies([refreshCookie])
     await page.context().storageState({ path: STORAGE_PATH })
-  } finally {
+  }
+  finally {
     await api.dispose()
   }
 })

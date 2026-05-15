@@ -114,20 +114,29 @@ const paymentMethods: PaymentMethod[] = [
       <UContainer class="py-12">
         <div class="grid grid-cols-2 lg:grid-cols-12 gap-8">
           <div class="col-span-2 lg:col-span-4 flex flex-col gap-5">
-            <p class="text-lg font-semibold">LOGO</p>
+            <p class="text-lg font-semibold">
+              LOGO
+            </p>
             <p class="text-muted text-sm max-w-xs">
               {{ t('footer.brand.tagline') }}
             </p>
 
             <div class="flex flex-col gap-2">
-              <h3 class="text-sm font-semibold">{{ t('footer.brand.newsletter.heading') }}</h3>
-              <p class="text-muted text-xs">{{ t('footer.brand.newsletter.description') }}</p>
+              <h3 class="text-sm font-semibold">
+                {{ t('footer.brand.newsletter.heading') }}
+              </h3>
+              <p class="text-muted text-xs">
+                {{ t('footer.brand.newsletter.description') }}
+              </p>
               <form
                 class="flex flex-col gap-1.5 mt-1 max-w-sm"
                 novalidate
                 @submit.prevent="onNewsletterSubmit"
               >
-                <label for="footer-newsletter-email" class="sr-only">
+                <label
+                  for="footer-newsletter-email"
+                  class="sr-only"
+                >
                   {{ t('footer.brand.newsletter.emailLabel') }}
                 </label>
                 <div class="flex gap-2">
@@ -140,16 +149,27 @@ const paymentMethods: PaymentMethod[] = [
                     class="flex-1"
                     autocomplete="email"
                   />
-                  <UButton type="submit" color="primary">
+                  <UButton
+                    type="submit"
+                    color="primary"
+                  >
                     {{ t('footer.brand.newsletter.submit') }}
                   </UButton>
                 </div>
-                <p v-if="error" class="text-error text-xs" role="alert">{{ error }}</p>
+                <p
+                  v-if="error"
+                  class="text-error text-xs"
+                  role="alert"
+                >
+                  {{ error }}
+                </p>
               </form>
             </div>
 
             <div class="flex flex-col gap-2 mt-2">
-              <h3 class="text-sm font-semibold">{{ t('footer.social.heading') }}</h3>
+              <h3 class="text-sm font-semibold">
+                {{ t('footer.social.heading') }}
+              </h3>
               <div class="flex gap-1">
                 <UButton
                   v-for="s in socials"
@@ -172,10 +192,18 @@ const paymentMethods: PaymentMethod[] = [
             :aria-label="t(col.ariaKey)"
             class="col-span-1 lg:col-span-2 flex flex-col gap-3"
           >
-            <h3 class="text-sm font-semibold">{{ t(col.headingKey) }}</h3>
+            <h3 class="text-sm font-semibold">
+              {{ t(col.headingKey) }}
+            </h3>
             <ul class="flex flex-col gap-2">
-              <li v-for="item in col.items" :key="item.labelKey + item.to">
-                <ULink :to="item.to" class="text-muted hover:text-primary text-sm">
+              <li
+                v-for="item in col.items"
+                :key="item.labelKey + item.to"
+              >
+                <ULink
+                  :to="item.to"
+                  class="text-muted hover:text-primary text-sm"
+                >
                   {{ t(item.labelKey) }}
                 </ULink>
               </li>
@@ -188,14 +216,19 @@ const paymentMethods: PaymentMethod[] = [
     </template>
 
     <template #left>
-      <p class="text-muted text-sm">{{ t('footer.copyright', { year }) }}</p>
+      <p class="text-muted text-sm">
+        {{ t('footer.copyright', { year }) }}
+      </p>
     </template>
 
     <div
       :aria-label="t('footer.payment.heading')"
       class="flex flex-wrap items-center justify-center gap-2 text-muted"
     >
-      <template v-for="p in paymentMethods" :key="p.name">
+      <template
+        v-for="p in paymentMethods"
+        :key="p.name"
+      >
         <UIcon
           v-if="p.icon"
           :name="p.icon"
@@ -215,7 +248,9 @@ const paymentMethods: PaymentMethod[] = [
     </div>
 
     <template #right>
-      <p class="text-muted text-xs">{{ t('footer.madeIn') }}</p>
+      <p class="text-muted text-xs">
+        {{ t('footer.madeIn') }}
+      </p>
     </template>
   </UFooter>
 </template>

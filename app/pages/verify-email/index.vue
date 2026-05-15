@@ -10,7 +10,7 @@ const route = useRoute()
 const router = useRouter()
 
 useHead({
-  titleTemplate: '%s | Verify Email'
+  titleTemplate: '%s | Verify Email',
 })
 
 const isVerifying = ref(true)
@@ -22,12 +22,12 @@ let countdownInterval: ReturnType<typeof setInterval> | null = null
 
 const verifyToken = async (token: string) => {
   const result = await authStore.verifyEmail(token)
-  
+
   isVerifying.value = false
-  
+
   if (result.success) {
     isSuccess.value = true
-    
+
     // Start countdown and redirect to login
     countdownInterval = setInterval(() => {
       countdown.value--
@@ -38,7 +38,8 @@ const verifyToken = async (token: string) => {
         router.push('/login')
       }
     }, 1000)
-  } else {
+  }
+  else {
     isSuccess.value = false
     errorMessage.value = result.error || t('auth.verification.invalidToken')
   }
@@ -46,14 +47,14 @@ const verifyToken = async (token: string) => {
 
 onMounted(() => {
   const token = route.query.token as string
-  
+
   if (!token) {
     isVerifying.value = false
     isSuccess.value = false
     errorMessage.value = t('auth.verification.invalidToken')
     return
   }
-  
+
   verifyToken(token)
 })
 
@@ -76,10 +77,16 @@ const goToLogin = () => {
   <div class="min-h-screen flex items-center justify-center p-4">
     <UCard class="max-w-md w-full">
       <!-- Loading State -->
-      <div v-if="isVerifying" class="py-8 text-center space-y-4">
+      <div
+        v-if="isVerifying"
+        class="py-8 text-center space-y-4"
+      >
         <div class="flex justify-center mb-4">
           <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <UIcon name="i-lucide-loader" class="w-8 h-8 text-primary animate-spin" />
+            <UIcon
+              name="i-lucide-loader"
+              class="w-8 h-8 text-primary animate-spin"
+            />
           </div>
         </div>
         <h1 class="text-2xl font-bold">
@@ -91,11 +98,17 @@ const goToLogin = () => {
       </div>
 
       <!-- Success State -->
-      <div v-else-if="isSuccess" class="py-8">
+      <div
+        v-else-if="isSuccess"
+        class="py-8"
+      >
         <div class="text-center mb-6">
           <div class="flex justify-center mb-4">
             <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center">
-              <UIcon name="i-lucide-check-circle" class="w-8 h-8 text-success" />
+              <UIcon
+                name="i-lucide-check-circle"
+                class="w-8 h-8 text-success"
+              />
             </div>
           </div>
           <h1 class="text-2xl font-bold">
@@ -107,7 +120,7 @@ const goToLogin = () => {
           <p class="text-gray-600 dark:text-gray-400">
             {{ t('auth.verification.successMessage') }}
           </p>
-          
+
           <UAlert
             icon="i-lucide-info"
             color="success"
@@ -130,11 +143,17 @@ const goToLogin = () => {
       </div>
 
       <!-- Error State -->
-      <div v-else class="py-8">
+      <div
+        v-else
+        class="py-8"
+      >
         <div class="text-center mb-6">
           <div class="flex justify-center mb-4">
             <div class="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center">
-              <UIcon name="i-lucide-circle-x" class="w-8 h-8 text-error" />
+              <UIcon
+                name="i-lucide-circle-x"
+                class="w-8 h-8 text-error"
+              />
             </div>
           </div>
           <h1 class="text-2xl font-bold">
@@ -146,7 +165,7 @@ const goToLogin = () => {
           <p class="text-gray-600 dark:text-gray-400">
             {{ errorMessage }}
           </p>
-          
+
           <UAlert
             icon="i-lucide-alert-triangle"
             color="error"
@@ -164,7 +183,7 @@ const goToLogin = () => {
               block
               @click="router.push('/login')"
             />
-            
+
             <UButton
               :label="t('common.goHome')"
               color="neutral"

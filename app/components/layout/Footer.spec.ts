@@ -21,7 +21,7 @@ describe('LayoutFooter', () => {
 
   it('renders links to all existing public routes', async () => {
     const wrapper = await mountSuspended(Footer)
-    const hrefs = wrapper.findAll('a').map((a) => a.attributes('href'))
+    const hrefs = wrapper.findAll('a').map(a => a.attributes('href'))
     expect(hrefs).toContain('/terms-of-service')
     expect(hrefs).toContain('/privacy-policy')
     expect(hrefs).toContain('/login')
@@ -36,7 +36,7 @@ describe('LayoutFooter', () => {
     const wrapper = await mountSuspended(Footer)
     await wrapper.find('input[type="email"]').setValue('not-an-email')
     await wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 0))
+    await new Promise(r => setTimeout(r, 0))
     await wrapper.vm.$nextTick()
     expect(wrapper.text().toLowerCase()).toMatch(/valid email/)
     expect(mockToastAdd).not.toHaveBeenCalled()
@@ -47,7 +47,7 @@ describe('LayoutFooter', () => {
     const input = wrapper.find('input[type="email"]')
     await input.setValue('user@example.com')
     await wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 0))
+    await new Promise(r => setTimeout(r, 0))
     await wrapper.vm.$nextTick()
     expect(mockToastAdd).toHaveBeenCalledTimes(1)
     expect((input.element as HTMLInputElement).value).toBe('')

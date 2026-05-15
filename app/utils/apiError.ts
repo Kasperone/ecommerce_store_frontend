@@ -23,7 +23,7 @@ const SNAKE_TO_CAMEL_FIELDS: Record<string, string> = {
   company_address_state: 'companyAddressState',
   new_password: 'password',
   current_password: 'currentPassword',
-  username: 'email'
+  username: 'email',
 }
 
 const mapField = (raw: string): string => SNAKE_TO_CAMEL_FIELDS[raw] ?? raw
@@ -40,7 +40,7 @@ const isObject = (val: unknown): val is Record<string, unknown> =>
  */
 export function normalizeApiError(
   error: any,
-  fallback: string
+  fallback: string,
 ): NormalizedApiError {
   const fieldErrors: Record<string, string> = {}
   const data: unknown = error?.data ?? error?.response?._data
@@ -70,7 +70,7 @@ export function normalizeApiError(
     }
     return {
       message: messages[0] ?? fallback,
-      fieldErrors
+      fieldErrors,
     }
   }
 
@@ -96,10 +96,12 @@ export function readableAuthStoreError(raw: string | undefined, fallback: string
           .map((p: any) => (p && typeof p.msg === 'string' ? p.msg : null))
           .filter(Boolean)
         if (msgs.length) return msgs.join('. ')
-      } else if (parsed && typeof parsed.detail === 'string') {
+      }
+      else if (parsed && typeof parsed.detail === 'string') {
         return parsed.detail
       }
-    } catch {
+    }
+    catch {
       // fall through
     }
   }
@@ -110,13 +112,13 @@ export function readableAuthStoreError(raw: string | undefined, fallback: string
  * Scroll the first invalid field into view and focus it.
  * Pass the array of UForm errors (each with an `id`).
  */
-export function scrollToFirstFormError(errors: Array<{ id?: string; name?: string }> | undefined) {
+export function scrollToFirstFormError(errors: Array<{ id?: string, name?: string }> | undefined) {
   if (!errors?.length || typeof document === 'undefined') return
   const first = errors[0]
   if (!first) return
-  const el =
-    (first.id && document.getElementById(first.id)) ||
-    (first.name && document.querySelector<HTMLElement>(`[name="${first.name}"]`))
+  const el
+    = (first.id && document.getElementById(first.id))
+      || (first.name && document.querySelector<HTMLElement>(`[name="${first.name}"]`))
   if (!el) return
   el.scrollIntoView({ behavior: 'smooth', block: 'center' })
   // Focus after scroll settles
@@ -126,4 +128,3 @@ export function scrollToFirstFormError(errors: Array<{ id?: string; name?: strin
     }
   }, 250)
 }
-

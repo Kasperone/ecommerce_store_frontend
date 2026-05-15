@@ -22,37 +22,37 @@ const rules = computed<Rule[]>(() => {
     {
       key: 'length',
       label: t('auth.passwordStrength.rules.length', { count: min }),
-      passed: pwd.length >= min
+      passed: pwd.length >= min,
     },
     {
       key: 'lowercase',
       label: t('auth.passwordStrength.rules.lowercase'),
-      passed: /[a-z]/.test(pwd)
+      passed: /[a-z]/.test(pwd),
     },
     {
       key: 'uppercase',
       label: t('auth.passwordStrength.rules.uppercase'),
-      passed: /[A-Z]/.test(pwd)
+      passed: /[A-Z]/.test(pwd),
     },
     {
       key: 'number',
       label: t('auth.passwordStrength.rules.number'),
-      passed: /\d/.test(pwd)
+      passed: /\d/.test(pwd),
     },
     {
       key: 'symbol',
       label: t('auth.passwordStrength.rules.symbol'),
-      passed: /[^A-Za-z0-9]/.test(pwd)
-    }
+      passed: /[^A-Za-z0-9]/.test(pwd),
+    },
   ]
 })
 
-const score = computed(() => rules.value.filter((r) => r.passed).length)
+const score = computed(() => rules.value.filter(r => r.passed).length)
 
 const isValid = computed(() => {
   // Required to submit: length + at least 3 of the other 4 categories
   const lengthOk = rules.value[0]?.passed ?? false
-  const others = rules.value.slice(1).filter((r) => r.passed).length
+  const others = rules.value.slice(1).filter(r => r.passed).length
   return lengthOk && others >= 3
 })
 
@@ -70,7 +70,10 @@ defineExpose({ isValid, score, strength })
 </script>
 
 <template>
-  <div v-if="password && password.length > 0" class="c-password-strength mt-2 flex flex-col gap-2">
+  <div
+    v-if="password && password.length > 0"
+    class="c-password-strength mt-2 flex flex-col gap-2"
+  >
     <div class="flex items-center gap-2">
       <div class="flex h-1.5 flex-1 gap-1">
         <div
@@ -88,7 +91,7 @@ defineExpose({ isValid, score, strength })
           'text-orange-600 dark:text-orange-400': strength.level === 2,
           'text-yellow-700 dark:text-yellow-400': strength.level === 3,
           'text-lime-700 dark:text-lime-400': strength.level === 4,
-          'text-green-700 dark:text-green-400': strength.level === 5
+          'text-green-700 dark:text-green-400': strength.level === 5,
         }"
       >
         {{ strength.label }}
@@ -108,7 +111,11 @@ defineExpose({ isValid, score, strength })
         />
         <span>
           {{ rule.label }}
-          <span v-if="rule.key === 'length'" class="text-red-500" aria-hidden="true">*</span>
+          <span
+            v-if="rule.key === 'length'"
+            class="text-red-500"
+            aria-hidden="true"
+          >*</span>
         </span>
       </li>
     </ul>
