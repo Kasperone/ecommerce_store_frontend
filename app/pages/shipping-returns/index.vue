@@ -5,8 +5,15 @@ useHead({ title: t('footer.columns.help.shippingReturns') })
 
 <template>
   <UContainer class="py-16">
-    <h1 class="text-3xl font-semibold mb-4">{{ t('footer.columns.help.shippingReturns') }}</h1>
-    <p class="text-muted">{{ t('footer.stubPage.comingSoon') }}</p>
-    <ULink to="/" class="mt-6 inline-block text-primary">← {{ t('footer.stubPage.backHome') }}</ULink>
+    <h1 class="text-3xl font-semibold mb-4">
+      {{ t('footer.columns.help.shippingReturns') }}
+    </h1>
+    <p class="text-muted">
+      {{ t('footer.stubPage.comingSoon') }}
+    </p>
+    <ULink
+      to="/"
+      class="mt-6 inline-block text-primary"
+    >← {{ t('footer.stubPage.backHome') }}</ULink>
   </UContainer>
 </template>

@@ -32,7 +32,7 @@ const fields = computed<AuthFormField[]>(() => {
     { name: 'companyAddressCity', type: 'text', label: t('auth.company.address.city'), placeholder: t('auth.company.address.enterCity'), required: false },
     { name: 'companyAddressPostalCode', type: 'text', label: t('auth.company.address.postalCode'), placeholder: t('auth.company.address.enterPostalCode'), required: false },
     { name: 'companyAddressCountry', type: 'text', label: t('auth.company.address.country'), placeholder: t('auth.company.address.enterCountry'), required: false },
-    { name: 'companyAddressState', type: 'text', label: t('auth.company.address.state'), placeholder: t('auth.company.address.enterState'), required: false }
+    { name: 'companyAddressState', type: 'text', label: t('auth.company.address.state'), placeholder: t('auth.company.address.enterState'), required: false },
   ]
 })
 
@@ -48,7 +48,7 @@ watch(
       nextTick(() => scrollToFirstFormError(errs))
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 useFormErrorClearing(authFormRef, errorMessage)
@@ -66,11 +66,12 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
       title: t('auth.registrationSuccess'),
       description: t('auth.registrationSuccessDescription'),
       color: 'success',
-      icon: 'i-lucide-check-circle'
+      icon: 'i-lucide-check-circle',
     })
 
     router.push(`/verify-email-sent?email=${encodeURIComponent(payload.data.email)}`)
-  } else {
+  }
+  else {
     const fallback = t('auth.registrationError')
     const normalized = normalizeApiError(result.raw, result.error || fallback)
     errorMessage.value = normalized.message
@@ -78,7 +79,7 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
     const formApi = authFormRef.value?.formRef
     if (formApi && Object.keys(normalized.fieldErrors).length > 0) {
       formApi.setErrors(
-        Object.entries(normalized.fieldErrors).map(([name, message]) => ({ name, message }))
+        Object.entries(normalized.fieldErrors).map(([name, message]) => ({ name, message })),
       )
       nextTick(() => scrollToFirstFormError(formApi.errors))
     }
@@ -87,7 +88,7 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
       title: t('auth.registrationError'),
       description: errorMessage.value,
       color: 'error',
-      icon: 'i-lucide-circle-x'
+      icon: 'i-lucide-circle-x',
     })
   }
 }
@@ -97,9 +98,14 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
   <div class="c-business-sign-up">
     <div class="flex flex-col text-center mb-6">
       <div class="mb-2">
-        <UIcon name="i-lucide-building" class="size-8 inline-block" />
+        <UIcon
+          name="i-lucide-building"
+          class="size-8 inline-block"
+        />
       </div>
-      <h2 class="text-xl text-pretty font-semibold text-highlighted">{{ t('auth.business') }}</h2>
+      <h2 class="text-xl text-pretty font-semibold text-highlighted">
+        {{ t('auth.business') }}
+      </h2>
     </div>
     <UAuthForm
       ref="authFormRef"
@@ -109,7 +115,10 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
       :loading="isLoading"
       @submit="submit"
     >
-      <template v-if="errorMessage" #validation>
+      <template
+        v-if="errorMessage"
+        #validation
+      >
         <UAlert
           color="error"
           variant="soft"
@@ -127,7 +136,7 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
             name: field.name,
             placeholder: field.placeholder,
             autocomplete: 'new-password',
-            class: 'w-full'
+            class: 'w-full',
           }"
           type="password"
         />
@@ -141,7 +150,7 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
             name: field.name,
             placeholder: field.placeholder,
             autocomplete: 'new-password',
-            class: 'w-full'
+            class: 'w-full',
           }"
           type="password"
           @blur="confirmPasswordTouched = true"
@@ -155,7 +164,10 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
       </template>
 
       <template #footer>
-        {{ t('authExtra.agreeTo') }} <ULink to="/terms-of-service" class="text-primary font-medium">{{ t('auth.termsOfService') }}</ULink>
+        {{ t('authExtra.agreeTo') }} <ULink
+          to="/terms-of-service"
+          class="text-primary font-medium"
+        >{{ t('auth.termsOfService') }}</ULink>
       </template>
     </UAuthForm>
   </div>

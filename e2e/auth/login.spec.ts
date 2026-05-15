@@ -25,7 +25,8 @@ test('login while account is locked → stays on /login with error', async ({ pa
   const api = await ApiClient.create()
   try {
     await api.lockUser(LOCKOUT_USER.email)
-  } finally {
+  }
+  finally {
     await api.dispose()
   }
 

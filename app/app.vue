@@ -25,7 +25,7 @@ useHead({
   titleTemplate: '%s | E-commerce Store',
   htmlAttrs: {
     lang,
-    dir
-  }
+    dir,
+  },
 })
 </script>

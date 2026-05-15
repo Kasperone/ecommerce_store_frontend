@@ -10,7 +10,7 @@ const route = useRoute()
 const toast = useToast()
 
 useHead({
-  titleTemplate: '%s | Verify Email'
+  titleTemplate: '%s | Verify Email',
 })
 
 // Get email from query params
@@ -24,24 +24,24 @@ let countdownInterval: ReturnType<typeof setInterval> | null = null
 
 const handleResend = async () => {
   if (!email.value || resendDisabled.value) return
-  
+
   isResending.value = true
-  
+
   const result = await authStore.resendVerification(email.value)
-  
+
   isResending.value = false
-  
+
   if (result.success) {
     toast.add({
       title: t('auth.verification.resendSuccess'),
       color: 'success',
-      icon: 'i-lucide-check-circle'
+      icon: 'i-lucide-check-circle',
     })
-    
+
     // Disable resend button for 60 seconds
     resendDisabled.value = true
     countdown.value = 60
-    
+
     countdownInterval = setInterval(() => {
       countdown.value--
       if (countdown.value <= 0) {
@@ -51,12 +51,13 @@ const handleResend = async () => {
         }
       }
     }, 1000)
-  } else {
+  }
+  else {
     toast.add({
       title: t('auth.verification.resendError'),
       description: result.error,
       color: 'error',
-      icon: 'i-lucide-circle-x'
+      icon: 'i-lucide-circle-x',
     })
   }
 }
@@ -76,7 +77,10 @@ onUnmounted(() => {
         <div class="text-center">
           <div class="flex justify-center mb-4">
             <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <UIcon name="i-lucide-mail" class="w-8 h-8 text-primary" />
+              <UIcon
+                name="i-lucide-mail"
+                class="w-8 h-8 text-primary"
+              />
             </div>
           </div>
           <h1 class="text-2xl font-bold">
@@ -89,15 +93,18 @@ onUnmounted(() => {
         <p class="text-gray-600 dark:text-gray-400">
           {{ t('auth.verification.message') }}
         </p>
-        
-        <p v-if="email" class="font-semibold text-primary">
+
+        <p
+          v-if="email"
+          class="font-semibold text-primary"
+        >
           {{ email }}
         </p>
-        
+
         <p class="text-gray-600 dark:text-gray-400">
           {{ t('auth.verification.instruction') }}
         </p>
-        
+
         <UAlert
           icon="i-lucide-info"
           color="info"
@@ -110,7 +117,7 @@ onUnmounted(() => {
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
             {{ t('auth.verification.didNotReceive') }}
           </p>
-          
+
           <UButton
             :label="resendDisabled ? `${t('auth.verification.resendButton')} (${countdown}s)` : t('auth.verification.resendButton')"
             :loading="isResending"
@@ -125,7 +132,10 @@ onUnmounted(() => {
 
       <template #footer>
         <div class="text-center text-sm text-gray-500 dark:text-gray-400">
-          <NuxtLink to="/login" class="text-primary hover:underline">
+          <NuxtLink
+            to="/login"
+            class="text-primary hover:underline"
+          >
             {{ t('auth.verification.goToLogin') }}
           </NuxtLink>
         </div>

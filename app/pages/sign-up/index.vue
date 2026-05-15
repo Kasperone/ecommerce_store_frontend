@@ -1,13 +1,13 @@
 <script setup lang="ts">
 useHead({
-  titleTemplate: '%s | SIGN-UP PAGE'
+  titleTemplate: '%s | SIGN-UP PAGE',
 })
 </script>
 
 <template>
   <NuxtLayout>
     <div class="p-sign-up">
-        <FormsSignUpForm />
+      <FormsSignUpForm />
     </div>
   </NuxtLayout>
 </template>

@@ -13,14 +13,14 @@ export interface UserResponse {
   role: 'CUSTOMER' | 'ADMIN'
   created_at: string
   updated_at: string
-  
+
   // Shipping address (optional)
   shipping_street?: string | null
   shipping_city?: string | null
   shipping_postal_code?: string | null
   shipping_country?: string | null
   shipping_state?: string | null
-  
+
   // Company data (optional)
   company_name?: string | null
   company_tax_id?: string | null

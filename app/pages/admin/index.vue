@@ -10,7 +10,7 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 
 useHead({
-  titleTemplate: '%s | Admin'
+  titleTemplate: '%s | Admin',
 })
 </script>
 
@@ -18,7 +18,9 @@ useHead({
   <NuxtLayout>
     <div class="c-admin-dashboard max-w-5xl">
       <div class="mb-6">
-        <h1 class="text-2xl font-bold">{{ t('admin.dashboard') }}</h1>
+        <h1 class="text-2xl font-bold">
+          {{ t('admin.dashboard') }}
+        </h1>
         <p class="text-gray-600 dark:text-gray-400">
           {{ t('admin.signedInAs') }} <span class="font-medium">{{ authStore.user?.email }}</span>
         </p>
@@ -26,7 +28,9 @@ useHead({
 
       <UCard>
         <template #header>
-          <h2 class="font-semibold">{{ t('admin.placeholderTitle') }}</h2>
+          <h2 class="font-semibold">
+            {{ t('admin.placeholderTitle') }}
+          </h2>
         </template>
         <p class="text-gray-600 dark:text-gray-400">
           {{ t('admin.placeholderBody') }}

@@ -11,13 +11,13 @@ const tabItems = computed(() => {
     {
       label: t('auth.personal'),
       icon: 'i-lucide-user',
-      slot: 'personal'
+      slot: 'personal',
     },
     {
-      label: t('auth.business'), 
+      label: t('auth.business'),
       icon: 'i-lucide-building',
-      slot: 'business'
-    }
+      slot: 'business',
+    },
   ]
 })
 </script>
@@ -31,10 +31,13 @@ const tabItems = computed(() => {
             {{ t('auth.welcome') }}
           </h1>
           <p class="text-gray-600 dark:text-gray-400">
-            {{ t('authExtra.noAccount') }} <ULink to="/login" class="text-primary font-medium">{{ t('auth.login') }}</ULink>
+            {{ t('authExtra.noAccount') }} <ULink
+              to="/login"
+              class="text-primary font-medium"
+            >{{ t('auth.login') }}</ULink>
           </p>
         </div>
-        
+
         <UTabs
           :items="tabItems"
           class="w-full"
@@ -51,4 +54,3 @@ const tabItems = computed(() => {
     </UPageCard>
   </div>
 </template>
-
