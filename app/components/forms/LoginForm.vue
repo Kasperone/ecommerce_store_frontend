@@ -69,7 +69,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
       icon: 'i-lucide-check-circle',
     })
 
-    const redirect = safeRedirect(route.query.redirect, authStore.isAdmin ? '/admin' : '/')
+    const redirect = safeRedirect(route.query.redirect, authStore.isAdmin ? '/admin' : '/account')
     router.push(redirect)
   }
   else {
