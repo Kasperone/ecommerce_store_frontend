@@ -148,7 +148,8 @@
     "close": "Zamknij",
     "submit": "Wyślij",
     "loading": "Ładowanie...",
-    "confirm": "Potwierdź"
+    "confirm": "Potwierdź",
+    "goHome": "Strona główna"
   },
   "messages": {
     "success": "Sukces!",
@@ -247,9 +248,13 @@
       "resendSuccess": "Email weryfikacyjny został wysłany!",
       "resendError": "Nie udało się wysłać emaila",
       "verifying": "Weryfikujemy Twój email...",
+      "pleaseWait": "Proszę czekać, weryfikujemy Twój email.",
       "success": "Email zweryfikowany!",
       "successMessage": "Twój email został pomyślnie zweryfikowany. Możesz się teraz zalogować.",
+      "canLogin": "Możesz się teraz zalogować",
+      "redirecting": "Przekierowanie za {seconds} sekund...",
       "goToLogin": "Przejdź do logowania",
+      "failed": "Weryfikacja nie powiodła się",
       "expired": "Link wygasł",
       "expiredMessage": "Ten link weryfikacyjny wygasł. Poproś o nowy.",
       "invalid": "Nieprawidłowy link",
