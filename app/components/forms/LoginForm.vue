@@ -5,6 +5,7 @@ import { useAuthStore } from '~/stores/auth'
 import { createLoginSchema } from '#shared/validators/auth'
 import { safeRedirect } from '#shared/utils/safeRedirect'
 import { normalizeApiError, scrollToFirstFormError } from '~/utils/apiError'
+import type { AuthFormPublicInstance } from '~/composables/useFormErrorClearing'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import type { LoginFormData } from '#shared/validators/auth'
 
@@ -16,7 +17,7 @@ const route = useRoute()
 
 const isLoading = ref(false)
 const errorMessage = ref('')
-const authFormRef = useTemplateRef<any>('authFormRef')
+const authFormRef = useTemplateRef<AuthFormPublicInstance>('authFormRef')
 
 const fields = computed<AuthFormField[]>(() => {
   void locale.value

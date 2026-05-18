@@ -14,7 +14,8 @@ const { locale } = useI18n()
 
 const uiLocale = computed(() => {
   // map string locale (e.g. 'en' or 'pl') to the nuxt ui locale object; fallback to en
-  return (uiLocales as any)[locale.value] ?? (uiLocales as any).en
+  const key = locale.value as keyof typeof uiLocales
+  return uiLocales[key] ?? uiLocales.en
 })
 
 // Update html lang/dir based on nuxt ui locale
