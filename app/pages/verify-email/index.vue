@@ -41,7 +41,7 @@ const verifyToken = async (token: string) => {
   }
   else {
     isSuccess.value = false
-    errorMessage.value = result.error || t('auth.verification.invalidToken')
+    errorMessage.value = result.error || t('auth.verification.invalidMessage')
   }
 }
 
@@ -51,7 +51,7 @@ onMounted(() => {
   if (!token) {
     isVerifying.value = false
     isSuccess.value = false
-    errorMessage.value = t('auth.verification.invalidToken')
+    errorMessage.value = t('auth.verification.invalidMessage')
     return
   }
 
@@ -170,8 +170,8 @@ const goToLogin = () => {
             icon="i-lucide-alert-triangle"
             color="error"
             variant="soft"
-            :title="t('auth.verification.tokenExpired')"
-            :description="t('auth.verification.requestNew')"
+            :title="t('auth.verification.expired')"
+            :description="t('auth.verification.expiredMessage')"
             class="text-left"
           />
 
@@ -185,7 +185,7 @@ const goToLogin = () => {
             />
 
             <UButton
-              :label="t('common.goHome')"
+              :label="t('actions.goHome')"
               color="neutral"
               variant="ghost"
               block

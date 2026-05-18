@@ -148,7 +148,8 @@
     "close": "Close",
     "submit": "Submit",
     "loading": "Loading...",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "goHome": "Go to Home"
   },
   "messages": {
     "success": "Success!",
@@ -247,9 +248,13 @@
       "resendSuccess": "Verification email sent!",
       "resendError": "Failed to resend email",
       "verifying": "Verifying your email...",
+      "pleaseWait": "Please wait while we verify your email.",
       "success": "Email Verified!",
       "successMessage": "Your email has been successfully verified. You can now log in.",
+      "canLogin": "You can now log in",
+      "redirecting": "Redirecting in {seconds} seconds...",
       "goToLogin": "Go to Login",
+      "failed": "Verification Failed",
       "expired": "Link Expired",
       "expiredMessage": "This verification link has expired. Please request a new one.",
       "invalid": "Invalid Link",
