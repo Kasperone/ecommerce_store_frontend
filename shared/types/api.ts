@@ -1,6 +1,22 @@
 /**
- * Shared TypeScript types for API requests and responses
+ * Shared TypeScript types for API requests and responses.
+ *
+ * Catalog types are re-exported from the auto-generated `api.gen.ts`
+ * (`npm run gen:types` against a running local backend regenerates it).
+ * Auth types remain hand-rolled here until a follow-up migrates them.
  */
+
+import type { components } from './api.gen'
+
+// Catalog — generated; do not edit shapes here.
+export type CategoryResponse = components['schemas']['CategoryResponse']
+export type CategoryWithProductCount = components['schemas']['CategoryWithProductCount']
+export type CategoryCreate = components['schemas']['CategoryCreate']
+export type CategoryUpdate = components['schemas']['CategoryUpdate']
+export type ProductResponse = components['schemas']['ProductResponse']
+export type ProductWithCategory = components['schemas']['ProductWithCategory']
+export type ProductCreate = components['schemas']['ProductCreate']
+export type ProductUpdate = components['schemas']['ProductUpdate']
 
 // User-related types
 export interface UserResponse {

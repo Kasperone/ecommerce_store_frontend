@@ -59,6 +59,97 @@ jobs:
           path: coverage/
           if-no-files-found: warn
 
+  codegen-check:
+    name: OpenAPI codegen drift
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ecommerce_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
+      BACKEND_URL: http://localhost:8000
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull backend image
+        run: docker pull "$BACKEND_IMAGE"
+
+      - name: Start backend container
+        run: |
+          docker run -d --name backend \
+            --network host \
+            -e ENVIRONMENT=development \
+            -e DEBUG=False \
+            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/ecommerce_e2e" \
+            -e SECRET_KEY="codegen-secret-not-for-prod--padding-x" \
+            -e JWT_SECRET_KEY="codegen-jwt-secret-not-for-prod--pad-x" \
+            -e RESEND_API_KEY="" \
+            -e EMAIL_FROM=codegen@example.com \
+            -e EMAIL_FROM_NAME="Codegen" \
+            -e FRONTEND_URL=http://localhost:3000 \
+            -e RATE_LIMIT_STORAGE_URL=memory:// \
+            "$BACKEND_IMAGE"
+
+      - name: Wait for backend /openapi.json
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS "$BACKEND_URL/openapi.json" >/dev/null; then
+              echo "backend ready after ${i} attempts"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "backend never came up"
+          docker logs backend || true
+          exit 1
+
+      - name: Check api.gen.ts is in sync
+        run: bash scripts/check-openapi-types.sh
+
+      - name: Capture backend logs (on failure)
+        if: failure()
+        run: docker logs backend > backend.log 2>&1 || true
+
+      - name: Upload api.gen.ts diff (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: codegen-drift
+          path: |
+            shared/types/api.gen.ts
+            backend.log
+          if-no-files-found: ignore
+
   e2e:
     name: E2E (Playwright + backend image)
     runs-on: ubuntu-latest
