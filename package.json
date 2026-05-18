@@ -16,6 +16,7 @@
     "e2e:ui": "playwright test --ui",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "gen:types": "openapi-typescript http://localhost:8000/openapi.json -o shared/types/api.gen.ts",
     "prepare": "husky"
   },
   "dependencies": {
@@ -45,6 +46,7 @@
     "happy-dom": "^20.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.4",
+    "openapi-typescript": "~7.13.0",
     "pg": "^8.13.1",
     "playwright-core": "^1.59.1",
     "tsx": "^4.20.6",

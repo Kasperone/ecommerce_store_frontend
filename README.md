@@ -131,6 +131,21 @@ npm run preview
 npm run generate
 ```
 
+### Regenerate API types from backend OpenAPI
+
+`shared/types/api.gen.ts` is generated from the backend's `/openapi.json`
+and committed. Whenever the backend changes a request/response schema:
+
+```bash
+# Backend must be reachable at http://localhost:8000
+npm run gen:types
+git add shared/types/api.gen.ts && git commit
+```
+
+CI (`codegen-check` job) boots the backend image and fails the PR if the
+checked-in `api.gen.ts` doesn't match. The local drift detector script is
+`scripts/check-openapi-types.sh`.
+
 ## 🔐 Environment Variables
 
 Create `.env.local` file in the frontend root:

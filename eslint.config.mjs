@@ -17,6 +17,7 @@ export default withNuxt(
       'playwright/.mcp-output/**',
       'playwright/.test-results/**',
       'i18n/.cache/**',
+      'shared/types/api.gen.ts',
     ],
   },
 
