@@ -1,4 +1,5 @@
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
+import { narrowFetchError } from '~/utils/apiError'
 
 /**
  * Authenticated fetch wrapper.
@@ -43,8 +44,8 @@ export const useApi = () => {
     try {
       return await $fetch<T>(url, opts)
     }
-    catch (error: any) {
-      const status: number | undefined = error?.response?.status ?? error?.status
+    catch (error) {
+      const { status } = narrowFetchError(error)
       const targetsAuthCookie = url === AUTH_ENDPOINTS.REFRESH || url === AUTH_ENDPOINTS.LOGOUT
 
       if (status !== 401 || targetsAuthCookie) {

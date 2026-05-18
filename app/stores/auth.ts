@@ -3,7 +3,8 @@ import { ref, computed } from 'vue'
 import { appendResponseHeader } from 'h3'
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
 import type { PersonalSignUpFormData, BusinessSignUpFormData } from '#shared/validators/auth'
-import type { UserResponse, TokenResponse, MessageResponse, ApiError, ApiResponse } from '#shared/types/api'
+import type { UserResponse, TokenResponse, MessageResponse, ApiResponse } from '#shared/types/api'
+import { narrowFetchError } from '~/utils/apiError'
 
 /**
  * Auth Store
@@ -147,12 +148,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       return { success: true, data: response } as ApiResponse<MessageResponse>
     }
-    catch (error: any) {
-      const apiError = error?.data as ApiError
-      const detail = apiError?.detail
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
       return {
         success: false,
-        error: typeof detail === 'string' ? detail : 'Registration failed. Please try again.',
+        error: detail ?? 'Registration failed. Please try again.',
         raw: error,
       } as ApiResponse<MessageResponse>
     }
@@ -178,12 +179,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       return { success: true, data: response } as ApiResponse<TokenResponse>
     }
-    catch (error: any) {
-      const apiError = error?.data as ApiError
-      const detail = apiError?.detail
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
       return {
         success: false,
-        error: typeof detail === 'string' ? detail : 'Login failed. Please check your credentials.',
+        error: detail ?? 'Login failed. Please check your credentials.',
         raw: error,
       } as ApiResponse<TokenResponse>
     }
@@ -368,11 +369,12 @@ export const useAuthStore = defineStore('auth', () => {
       })
       return { success: true, message: response.message }
     }
-    catch (error: any) {
-      const apiError = error?.data as ApiError
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
       return {
         success: false,
-        error: apiError?.detail || 'Email verification failed.',
+        error: detail || 'Email verification failed.',
       }
     }
   }
@@ -386,11 +388,12 @@ export const useAuthStore = defineStore('auth', () => {
       })
       return { success: true, message: response.message }
     }
-    catch (error: any) {
-      const apiError = error?.data as ApiError
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
       return {
         success: false,
-        error: apiError?.detail || 'Failed to resend verification email.',
+        error: detail || 'Failed to resend verification email.',
       }
     }
   }
@@ -404,11 +407,12 @@ export const useAuthStore = defineStore('auth', () => {
       )
       return { success: true, message: response.message } as { success: true, message: string }
     }
-    catch (error: any) {
-      const apiError = error?.data as ApiError
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
       return {
         success: false,
-        error: apiError?.detail || 'Failed to send password reset email.',
+        error: detail || 'Failed to send password reset email.',
       }
     }
   }
@@ -422,11 +426,12 @@ export const useAuthStore = defineStore('auth', () => {
       )
       return { success: true, message: response.message } as { success: true, message: string }
     }
-    catch (error: any) {
-      const apiError = error?.data as ApiError
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
       return {
         success: false,
-        error: apiError?.detail || 'Failed to reset password.',
+        error: detail || 'Failed to reset password.',
       }
     }
   }
@@ -443,11 +448,12 @@ export const useAuthStore = defineStore('auth', () => {
       )
       return { success: true, message: response.message } as { success: true, message: string }
     }
-    catch (error: any) {
-      const apiError = error?.data as ApiError
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
       return {
         success: false,
-        error: apiError?.detail || 'Failed to update password.',
+        error: detail || 'Failed to update password.',
       }
     }
   }
