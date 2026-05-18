@@ -60,7 +60,7 @@ describe('LoginForm', () => {
     expect(html.toLowerCase()).toContain('password')
   })
 
-  it('on a successful submit, calls authStore.login and navigates home for non-admins', async () => {
+  it('on a successful submit, calls authStore.login and navigates to /account for non-admins', async () => {
     mockLogin.mockResolvedValueOnce({ success: true, data: {} })
     const wrapper = await mountSuspended(LoginForm)
 
@@ -72,7 +72,7 @@ describe('LoginForm', () => {
     await wrapper.vm.$nextTick()
 
     expect(mockLogin).toHaveBeenCalledWith('ada@example.com', 'Sup3rSecret!')
-    expect(mockPush).toHaveBeenCalledWith('/')
+    expect(mockPush).toHaveBeenCalledWith('/account')
   })
 
   it('honors a ?redirect= query param when present, even for non-admins', async () => {
