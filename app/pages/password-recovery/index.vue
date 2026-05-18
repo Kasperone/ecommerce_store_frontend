@@ -3,6 +3,7 @@ import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '~/stores/auth'
 import { createForgotPasswordSchema } from '#shared/validators/auth'
+import type { AuthFormPublicInstance } from '~/composables/useFormErrorClearing'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import type { ForgotPasswordFormData } from '#shared/validators/auth'
 
@@ -12,7 +13,7 @@ const toast = useToast()
 
 const isLoading = ref(false)
 const submitted = ref(false)
-const authFormRef = useTemplateRef<any>('authFormRef')
+const authFormRef = useTemplateRef<AuthFormPublicInstance>('authFormRef')
 
 useFormErrorClearing(authFormRef)
 

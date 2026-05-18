@@ -5,6 +5,18 @@ export interface NormalizedApiError {
   fieldErrors: Record<string, string>
 }
 
+/**
+ * Caught-error shape we extract from `$fetch` (`ofetch`) failures.
+ * `data` is `unknown` because FastAPI's `detail` is either a string or
+ * an array of `{loc, msg, type}` validation entries depending on the
+ * response code.
+ */
+export interface FetchErrorShape {
+  status?: number
+  data?: { detail?: unknown }
+  message?: string
+}
+
 const SNAKE_TO_CAMEL_FIELDS: Record<string, string> = {
   first_name: 'firstName',
   last_name: 'lastName',
@@ -32,6 +44,36 @@ const isObject = (val: unknown): val is Record<string, unknown> =>
   typeof val === 'object' && val !== null
 
 /**
+ * Normalize an `unknown` caught from `$fetch` into the fields we actually
+ * read across the codebase. `error?.response?.status` and `error?.status`
+ * both appear in the wild (the first is what ofetch sets, the second is
+ * what older retry wrappers surface), so we fall back across both.
+ *
+ * Returns an empty object when the input isn't an object — callers can
+ * destructure without null checks.
+ */
+export function narrowFetchError(err: unknown): FetchErrorShape {
+  if (!isObject(err)) return {}
+
+  const response = isObject(err.response) ? err.response : null
+  const statusFromResponse
+    = response && typeof response.status === 'number' ? response.status : undefined
+  const statusFromTop = typeof err.status === 'number' ? err.status : undefined
+
+  const dataFromTop = isObject(err.data) ? (err.data as { detail?: unknown }) : undefined
+  const dataFromResponse
+    = response && isObject(response._data)
+      ? (response._data as { detail?: unknown })
+      : undefined
+
+  return {
+    status: statusFromResponse ?? statusFromTop,
+    data: dataFromTop ?? dataFromResponse,
+    message: typeof err.message === 'string' ? err.message : undefined,
+  }
+}
+
+/**
  * Normalize a thrown error from `useApi()` / `$fetch` into a readable message
  * and a per-field error map. Handles:
  *  - FastAPI validation errors (`detail` is an array of `{loc, msg, type}`)
@@ -39,11 +81,11 @@ const isObject = (val: unknown): val is Record<string, unknown> =>
  *  - Network / unexpected errors
  */
 export function normalizeApiError(
-  error: any,
+  error: unknown,
   fallback: string,
 ): NormalizedApiError {
   const fieldErrors: Record<string, string> = {}
-  const data: unknown = error?.data ?? error?.response?._data
+  const { data, message } = narrowFetchError(error)
 
   let detail: unknown
   if (isObject(data) && 'detail' in data) {
@@ -74,8 +116,8 @@ export function normalizeApiError(
     }
   }
 
-  if (typeof error?.message === 'string' && error.message.trim().length > 0) {
-    return { message: error.message, fieldErrors }
+  if (typeof message === 'string' && message.trim().length > 0) {
+    return { message, fieldErrors }
   }
 
   return { message: fallback, fieldErrors }
@@ -90,14 +132,14 @@ export function readableAuthStoreError(raw: string | undefined, fallback: string
   const trimmed = raw.trim()
   if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
     try {
-      const parsed = JSON.parse(trimmed)
+      const parsed: unknown = JSON.parse(trimmed)
       if (Array.isArray(parsed)) {
         const msgs = parsed
-          .map((p: any) => (p && typeof p.msg === 'string' ? p.msg : null))
+          .map((p: unknown) => (isObject(p) && typeof p.msg === 'string' ? p.msg : null))
           .filter(Boolean)
         if (msgs.length) return msgs.join('. ')
       }
-      else if (parsed && typeof parsed.detail === 'string') {
+      else if (isObject(parsed) && typeof parsed.detail === 'string') {
         return parsed.detail
       }
     }
