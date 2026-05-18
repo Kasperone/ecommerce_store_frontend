@@ -3,6 +3,7 @@ import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '~/stores/auth'
 import { createResetPasswordSchema } from '#shared/validators/auth'
+import type { AuthFormPublicInstance } from '~/composables/useFormErrorClearing'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import type { ResetPasswordFormData } from '#shared/validators/auth'
 
@@ -17,7 +18,7 @@ const token = computed(() => String(route.params.token ?? ''))
 const isLoading = ref(false)
 const isSuccess = ref(false)
 const errorMessage = ref('')
-const authFormRef = useTemplateRef<any>('authFormRef')
+const authFormRef = useTemplateRef<AuthFormPublicInstance>('authFormRef')
 
 useFormErrorClearing(authFormRef, errorMessage)
 
