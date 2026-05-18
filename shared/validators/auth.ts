@@ -6,6 +6,15 @@ import { z } from 'zod'
  */
 
 /**
+ * Helper type for the vue-i18n translate function.
+ *
+ * `Record<string, unknown>` covers every call shape we use today:
+ * - `{ default: '...' }` fallback copy
+ * - `{ count: N, default: '...' }` for pluralized keys
+ */
+export type TranslateFunction = (key: string, options?: Record<string, unknown>) => string
+
+/**
  * Email validation - reusable across all forms
  */
 export const createEmailValidation = (errorMessage = 'Invalid email address') =>
@@ -35,7 +44,7 @@ export const optionalNullableString = () => z.string().optional().nullable()
 /**
  * Creates login schema with i18n support
  */
-export const createLoginSchema = (t: (key: string, options?: any) => string) =>
+export const createLoginSchema = (t: TranslateFunction) =>
   z.object({
     email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' })),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
@@ -45,7 +54,7 @@ export const createLoginSchema = (t: (key: string, options?: any) => string) =>
 /**
  * Creates personal signup schema with i18n support
  */
-export const createPersonalSignUpSchema = (t: (key: string, options?: any) => string) =>
+export const createPersonalSignUpSchema = (t: TranslateFunction) =>
   z.object({
     firstName: createNameValidation(1, t('auth.errors.firstNameRequired', { default: 'First name is required' })),
     lastName: createNameValidation(1, t('auth.errors.lastNameRequired', { default: 'Last name is required' })),
@@ -74,7 +83,7 @@ export const createPersonalSignUpSchema = (t: (key: string, options?: any) => st
 /**
  * Creates business signup schema with i18n support
  */
-export const createBusinessSignUpSchema = (t: (key: string, options?: any) => string) =>
+export const createBusinessSignUpSchema = (t: TranslateFunction) =>
   z.object({
     firstName: createNameValidation(1, t('auth.errors.firstNameRequired', { default: 'First name is required' })),
     lastName: createNameValidation(1, t('auth.errors.lastNameRequired', { default: 'Last name is required' })),
@@ -105,7 +114,7 @@ export const createBusinessSignUpSchema = (t: (key: string, options?: any) => st
 /**
  * Creates forgot password schema with i18n support
  */
-export const createForgotPasswordSchema = (t: (key: string, options?: any) => string) =>
+export const createForgotPasswordSchema = (t: TranslateFunction) =>
   z.object({
     email: createEmailValidation(t('auth.errors.invalidEmail', { default: 'Invalid email' })),
   })
@@ -113,7 +122,7 @@ export const createForgotPasswordSchema = (t: (key: string, options?: any) => st
 /**
  * Creates reset password schema with i18n support
  */
-export const createResetPasswordSchema = (t: (key: string, options?: any) => string) =>
+export const createResetPasswordSchema = (t: TranslateFunction) =>
   z.object({
     token: z.string().min(1, 'Reset token is required'),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
@@ -132,8 +141,3 @@ export type PersonalSignUpFormData = z.infer<ReturnType<typeof createPersonalSig
 export type BusinessSignUpFormData = z.infer<ReturnType<typeof createBusinessSignUpSchema>>
 export type ForgotPasswordFormData = z.infer<ReturnType<typeof createForgotPasswordSchema>>
 export type ResetPasswordFormData = z.infer<ReturnType<typeof createResetPasswordSchema>>
-
-/**
- * Helper type for i18n translate function
- */
-export type TranslateFunction = (key: string, options?: any) => string
