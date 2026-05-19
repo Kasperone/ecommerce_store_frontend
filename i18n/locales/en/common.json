@@ -46,7 +46,6 @@
       }
     },
     "pages": {
-      "products":   { "title": "Products",         "placeholder": "Product catalog management will live here. Coming soon." },
       "inventory":  { "title": "Inventory",        "placeholder": "Per-product stock, thresholds, and movement log will live here. Coming soon." },
       "reviews":    { "title": "Reviews",          "placeholder": "Review moderation queue will live here. Coming soon." },
       "orders":     { "title": "Orders",           "placeholder": "Order list, detail, status transitions, refunds will live here. Coming soon." },
@@ -110,6 +109,67 @@
         "slugTooLong": "Slug must be 100 characters or fewer",
         "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
         "descriptionTooLong": "Description must be 500 characters or fewer"
+      }
+    },
+    "products": {
+      "title": "Products",
+      "subtitle": "Manage the product catalog",
+      "actions": {
+        "create": "New product",
+        "edit": "Edit product",
+        "delete": "Delete",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "fields": {
+        "thumbnail": "",
+        "name": "Name",
+        "slug": "Slug",
+        "sku": "SKU",
+        "category": "Category",
+        "priceUsd": "USD",
+        "pricePln": "PLN",
+        "priceEur": "EUR",
+        "stock": "Stock",
+        "isActive": "Active",
+        "isFeatured": "Featured",
+        "status": "Status",
+        "actions": ""
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "featured": "Featured",
+        "inStock": "In stock",
+        "outOfStock": "Out of stock"
+      },
+      "confirm": {
+        "deleteTitle": "Delete product",
+        "deleteBody": "This product will be permanently removed."
+      },
+      "empty": {
+        "noResults": "No products match the current filter.",
+        "noProducts": "No products yet. Create the first one."
+      },
+      "errors": {
+        "fallback": "Could not save the product.",
+        "duplicateSlug": "A product with this slug already exists.",
+        "duplicateSku": "A product with this SKU already exists.",
+        "nameRequired": "Name is required",
+        "nameTooLong": "Name must be 200 characters or fewer",
+        "slugRequired": "Slug is required",
+        "slugTooLong": "Slug must be 200 characters or fewer",
+        "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
+        "descriptionTooLong": "Description must be 5000 characters or fewer",
+        "skuTooLong": "SKU must be 100 characters or fewer",
+        "priceRequired": "Price is required",
+        "priceInvalid": "Price must be a number",
+        "priceGtZero": "Price must be greater than zero",
+        "priceCentPrecision": "Price can have at most two decimal places",
+        "stockRequired": "Stock is required",
+        "stockInvalid": "Stock must be a number",
+        "stockInteger": "Stock must be a whole number",
+        "stockNegative": "Stock cannot be negative"
       }
     }
   },

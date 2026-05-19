@@ -111,6 +111,67 @@
         "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
         "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków"
       }
+    },
+    "products": {
+      "title": "Produkty",
+      "subtitle": "Zarządzaj katalogiem produktów",
+      "actions": {
+        "create": "Nowy produkt",
+        "edit": "Edytuj produkt",
+        "delete": "Usuń",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "fields": {
+        "thumbnail": "",
+        "name": "Nazwa",
+        "slug": "Slug",
+        "sku": "SKU",
+        "category": "Kategoria",
+        "priceUsd": "USD",
+        "pricePln": "PLN",
+        "priceEur": "EUR",
+        "stock": "Stan",
+        "isActive": "Aktywny",
+        "isFeatured": "Wyróżniony",
+        "status": "Status",
+        "actions": ""
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny",
+        "featured": "Wyróżniony",
+        "inStock": "Na stanie",
+        "outOfStock": "Brak na stanie"
+      },
+      "confirm": {
+        "deleteTitle": "Usuń produkt",
+        "deleteBody": "Produkt zostanie trwale usunięty."
+      },
+      "empty": {
+        "noResults": "Brak produktów spełniających warunki filtra.",
+        "noProducts": "Brak produktów. Utwórz pierwszy."
+      },
+      "errors": {
+        "fallback": "Nie udało się zapisać produktu.",
+        "duplicateSlug": "Produkt z tym slugiem już istnieje.",
+        "duplicateSku": "Produkt z tym SKU już istnieje.",
+        "nameRequired": "Nazwa jest wymagana",
+        "nameTooLong": "Nazwa nie może mieć więcej niż 200 znaków",
+        "slugRequired": "Slug jest wymagany",
+        "slugTooLong": "Slug nie może mieć więcej niż 200 znaków",
+        "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
+        "descriptionTooLong": "Opis nie może mieć więcej niż 5000 znaków",
+        "skuTooLong": "SKU nie może mieć więcej niż 100 znaków",
+        "priceRequired": "Cena jest wymagana",
+        "priceInvalid": "Cena musi być liczbą",
+        "priceGtZero": "Cena musi być większa od zera",
+        "priceCentPrecision": "Cena może mieć maksymalnie dwa miejsca po przecinku",
+        "stockRequired": "Stan jest wymagany",
+        "stockInvalid": "Stan musi być liczbą",
+        "stockInteger": "Stan musi być liczbą całkowitą",
+        "stockNegative": "Stan nie może być ujemny"
+      }
     }
   },
   "account": {
