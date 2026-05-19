@@ -730,10 +730,54 @@ export interface components {
              * @default false
              */
             is_featured: boolean;
-            /** Images */
-            images?: string[];
             /** Category Id */
             category_id?: number | null;
+        };
+        /**
+         * ProductImageResponse
+         * @description One image attached to a product.
+         *
+         *     Read-only on this endpoint set — image creation, mutation, and deletion
+         *     happen via the dedicated admin upload endpoints (PR1). ``id``,
+         *     ``created_at``, ``updated_at`` come from ``TimestampSchema``.
+         */
+        ProductImageResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Product Id */
+            product_id: number;
+            /** Url */
+            url: string;
+            /** Alt Text */
+            alt_text?: string | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Is Primary
+             * @default false
+             */
+            is_primary: boolean;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Bytes */
+            bytes: number;
+            /** Mime */
+            mime: string;
         };
         /**
          * ProductListResponse
@@ -797,10 +841,10 @@ export interface components {
              * @default false
              */
             is_featured: boolean;
-            /** Images */
-            images?: string[];
             /** Category Id */
             category_id?: number | null;
+            /** Images */
+            images?: components["schemas"]["ProductImageResponse"][];
             /**
              * In Stock
              * @description True when stock > 0.
@@ -832,8 +876,6 @@ export interface components {
             is_active?: boolean | null;
             /** Is Featured */
             is_featured?: boolean | null;
-            /** Images */
-            images?: string[] | null;
             /** Category Id */
             category_id?: number | null;
         };
@@ -883,10 +925,10 @@ export interface components {
              * @default false
              */
             is_featured: boolean;
-            /** Images */
-            images?: string[];
             /** Category Id */
             category_id?: number | null;
+            /** Images */
+            images?: components["schemas"]["ProductImageResponse"][];
             category?: components["schemas"]["CategoryResponse"] | null;
             /**
              * In Stock
