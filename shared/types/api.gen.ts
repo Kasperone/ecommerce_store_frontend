@@ -514,6 +514,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/products/{product_id}/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Product Image
+         * @description Upload an image and attach it to a product (Admin only).
+         */
+        post: operations["upload_product_image_api_v1_products__product_id__images_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/images/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Product Image
+         * @description Remove an image row and its R2 object.
+         */
+        delete: operations["delete_product_image_api_v1_products__product_id__images__image_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Product Image
+         * @description Edit metadata (alt text, sort order, primary flag) on an existing image.
+         */
+        patch: operations["update_product_image_api_v1_products__product_id__images__image_id__patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -541,6 +585,14 @@ export interface components {
              * Format: password
              */
             client_secret?: string | null;
+        };
+        /** Body_upload_product_image_api_v1_products__product_id__images_post */
+        Body_upload_product_image_api_v1_products__product_id__images_post: {
+            /**
+             * File
+             * Format: binary
+             */
+            file: string;
         };
         /**
          * CategoryCreate
@@ -778,6 +830,22 @@ export interface components {
             bytes: number;
             /** Mime */
             mime: string;
+        };
+        /**
+         * ProductImageUpdate
+         * @description Admin-side PATCH body for an existing image row.
+         *
+         *     Image bytes are immutable — to change the file, delete and re-upload.
+         *     Promoting to ``is_primary=True`` triggers atomic sibling demotion in
+         *     ``CRUDProductImage.set_primary``.
+         */
+        ProductImageUpdate: {
+            /** Alt Text */
+            alt_text?: string | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Is Primary */
+            is_primary?: boolean | null;
         };
         /**
          * ProductListResponse
@@ -1937,6 +2005,107 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CategoryWithProductCount"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_product_image_api_v1_products__product_id__images_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_product_image_api_v1_products__product_id__images_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductImageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_product_image_api_v1_products__product_id__images__image_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+                image_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_product_image_api_v1_products__product_id__images__image_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+                image_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductImageUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductImageResponse"];
                 };
             };
             /** @description Validation Error */
