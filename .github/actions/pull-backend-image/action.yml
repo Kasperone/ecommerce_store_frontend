@@ -10,10 +10,10 @@ inputs:
     description: Full image reference, e.g. ghcr.io/org/repo:tag.
     required: true
   username:
-    description: GHCR username, typically ${{ github.actor }}.
+    description: GHCR username, typically github.actor.
     required: true
   github_token:
-    description: Token with packages:read scope, typically ${{ secrets.GITHUB_TOKEN }}.
+    description: Token with packages:read scope, typically secrets.GITHUB_TOKEN.
     required: true
 
 runs:
