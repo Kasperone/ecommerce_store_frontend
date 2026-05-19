@@ -134,180 +134,182 @@ const columns: TableColumn<ProductWithCategory>[] = [
 </script>
 
 <template>
-  <div class="space-y-6">
-    <header class="flex items-start justify-between gap-4 flex-wrap">
-      <div>
-        <h1 class="text-2xl font-bold">
-          {{ $t('admin.products.title') }}
-        </h1>
-        <p class="text-muted text-sm mt-1">
-          {{ $t('admin.products.subtitle') }}
-        </p>
-      </div>
-      <UButton
-        color="primary"
-        icon="i-lucide-plus"
-        @click="navigateTo('/admin/products/new')"
-      >
-        {{ $t('admin.products.actions.create') }}
-      </UButton>
-    </header>
-
-    <AdminProductFilters
-      :values="filterValues"
-      :categories="categories"
-      @update:filters="onFiltersUpdate"
-      @reset="reset()"
-    />
-
-    <ErrorAlert
-      v-if="listError"
-      :problem="parseProblem(listError)"
-    />
-
-    <div
-      v-if="items.length === 0"
-      class="text-muted text-sm py-12 text-center"
-    >
-      <template v-if="hasActiveFilters">
-        {{ $t('admin.products.empty.noResults') }}
-      </template>
-      <template v-else>
-        {{ $t('admin.products.empty.noProducts') }}
-      </template>
-    </div>
-
-    <UTable
-      v-else
-      :data="items"
-      :columns="columns"
-      :ui="{ td: 'align-middle' }"
-    >
-      <template #thumbnail-cell="{ row }">
-        <div
-          class="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-800
-            flex items-center justify-center text-muted"
-        >
-          <img
-            v-if="primaryThumbnail(row.original)"
-            :src="primaryThumbnail(row.original)!.url"
-            class="w-12 h-12 object-cover"
-            :alt="primaryThumbnail(row.original)!.alt_text ?? ''"
-          >
-          <svg
-            v-else
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-            class="w-6 h-6"
-          >
-            <path
-              d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2
-                0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"
-            />
-            <circle
-              cx="12"
-              cy="13"
-              r="3"
-            />
-          </svg>
-        </div>
-      </template>
-      <template #name-cell="{ row }">
+  <NuxtLayout>
+    <div class="space-y-6">
+      <header class="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <div class="font-medium">
-            {{ row.original.name }}
-          </div>
-          <div class="text-xs text-muted">
-            {{ row.original.slug }}
-          </div>
+          <h1 class="text-2xl font-bold">
+            {{ $t('admin.products.title') }}
+          </h1>
+          <p class="text-muted text-sm mt-1">
+            {{ $t('admin.products.subtitle') }}
+          </p>
         </div>
-      </template>
-      <template #sku-cell="{ row }">
-        <span class="text-sm text-muted font-mono">{{ row.original.sku ?? '—' }}</span>
-      </template>
-      <template #category-cell="{ row }">
-        {{ row.original.category?.name ?? '—' }}
-      </template>
-      <template #price_usd-cell="{ row }">
-        {{ usdFmt.format(row.original.price_usd) }}
-      </template>
-      <template #price_pln-cell="{ row }">
-        {{ plnFmt.format(row.original.price_pln) }}
-      </template>
-      <template #price_eur-cell="{ row }">
-        {{ eurFmt.format(row.original.price_eur) }}
-      </template>
-      <template #is_active-cell="{ row }">
-        <div class="flex flex-wrap gap-1">
-          <UBadge
-            :color="row.original.is_active ? 'success' : 'neutral'"
-            variant="subtle"
-          >
-            {{ row.original.is_active
-              ? $t('admin.products.status.active')
-              : $t('admin.products.status.inactive') }}
-          </UBadge>
-          <UBadge
-            v-if="row.original.is_featured"
-            color="primary"
-            variant="subtle"
-          >
-            {{ $t('admin.products.status.featured') }}
-          </UBadge>
-          <UBadge
-            v-if="row.original.stock === 0"
-            color="warning"
-            variant="subtle"
-          >
-            {{ $t('admin.products.status.outOfStock') }}
-          </UBadge>
-        </div>
-      </template>
-      <template #actions-cell="{ row }">
-        <div class="flex justify-end gap-1">
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-pencil"
-            size="sm"
-            :aria-label="$t('admin.products.actions.edit')"
-            @click="navigateTo(`/admin/products/${row.original.id}/edit`)"
-          />
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-trash-2"
-            size="sm"
-            :aria-label="$t('admin.products.actions.delete')"
-            @click="deleting = row.original; modalError = null"
-          />
-        </div>
-      </template>
-    </UTable>
+        <UButton
+          color="primary"
+          icon="i-lucide-plus"
+          @click="navigateTo('/admin/products/new')"
+        >
+          {{ $t('admin.products.actions.create') }}
+        </UButton>
+      </header>
 
-    <UPagination
-      v-if="total > queryParams.pageSize"
-      :total="total"
-      :items-per-page="queryParams.pageSize"
-      :page="queryParams.page"
-      class="mt-4"
-      @update:page="(p) => set({ page: p })"
-    />
+      <AdminProductFilters
+        :values="filterValues"
+        :categories="categories"
+        @update:filters="onFiltersUpdate"
+        @reset="reset()"
+      />
 
-    <AdminProductDeleteConfirm
-      :open="deleting !== null"
-      :product="deleting"
-      :loading="deleteMutation.isLoading.value"
-      :error="modalError"
-      @update:open="(v) => { if (!v) deleting = null; modalError = null }"
-      @confirm="onDelete"
-      @cancel="deleting = null"
-    />
-  </div>
+      <ErrorAlert
+        v-if="listError"
+        :problem="parseProblem(listError)"
+      />
+
+      <div
+        v-if="items.length === 0"
+        class="text-muted text-sm py-12 text-center"
+      >
+        <template v-if="hasActiveFilters">
+          {{ $t('admin.products.empty.noResults') }}
+        </template>
+        <template v-else>
+          {{ $t('admin.products.empty.noProducts') }}
+        </template>
+      </div>
+
+      <UTable
+        v-else
+        :data="items"
+        :columns="columns"
+        :ui="{ td: 'align-middle' }"
+      >
+        <template #thumbnail-cell="{ row }">
+          <div
+            class="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-800
+            flex items-center justify-center text-muted"
+          >
+            <img
+              v-if="primaryThumbnail(row.original)"
+              :src="primaryThumbnail(row.original)!.url"
+              class="w-12 h-12 object-cover"
+              :alt="primaryThumbnail(row.original)!.alt_text ?? ''"
+            >
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              class="w-6 h-6"
+            >
+              <path
+                d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2
+                0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"
+              />
+              <circle
+                cx="12"
+                cy="13"
+                r="3"
+              />
+            </svg>
+          </div>
+        </template>
+        <template #name-cell="{ row }">
+          <div>
+            <div class="font-medium">
+              {{ row.original.name }}
+            </div>
+            <div class="text-xs text-muted">
+              {{ row.original.slug }}
+            </div>
+          </div>
+        </template>
+        <template #sku-cell="{ row }">
+          <span class="text-sm text-muted font-mono">{{ row.original.sku ?? '—' }}</span>
+        </template>
+        <template #category-cell="{ row }">
+          {{ row.original.category?.name ?? '—' }}
+        </template>
+        <template #price_usd-cell="{ row }">
+          {{ usdFmt.format(row.original.price_usd) }}
+        </template>
+        <template #price_pln-cell="{ row }">
+          {{ plnFmt.format(row.original.price_pln) }}
+        </template>
+        <template #price_eur-cell="{ row }">
+          {{ eurFmt.format(row.original.price_eur) }}
+        </template>
+        <template #is_active-cell="{ row }">
+          <div class="flex flex-wrap gap-1">
+            <UBadge
+              :color="row.original.is_active ? 'success' : 'neutral'"
+              variant="subtle"
+            >
+              {{ row.original.is_active
+                ? $t('admin.products.status.active')
+                : $t('admin.products.status.inactive') }}
+            </UBadge>
+            <UBadge
+              v-if="row.original.is_featured"
+              color="primary"
+              variant="subtle"
+            >
+              {{ $t('admin.products.status.featured') }}
+            </UBadge>
+            <UBadge
+              v-if="row.original.stock === 0"
+              color="warning"
+              variant="subtle"
+            >
+              {{ $t('admin.products.status.outOfStock') }}
+            </UBadge>
+          </div>
+        </template>
+        <template #actions-cell="{ row }">
+          <div class="flex justify-end gap-1">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-pencil"
+              size="sm"
+              :aria-label="$t('admin.products.actions.edit')"
+              @click="navigateTo(`/admin/products/${row.original.id}/edit`)"
+            />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-trash-2"
+              size="sm"
+              :aria-label="$t('admin.products.actions.delete')"
+              @click="deleting = row.original; modalError = null"
+            />
+          </div>
+        </template>
+      </UTable>
+
+      <UPagination
+        v-if="total > queryParams.pageSize"
+        :total="total"
+        :items-per-page="queryParams.pageSize"
+        :page="queryParams.page"
+        class="mt-4"
+        @update:page="(p) => set({ page: p })"
+      />
+
+      <AdminProductDeleteConfirm
+        :open="deleting !== null"
+        :product="deleting"
+        :loading="deleteMutation.isLoading.value"
+        :error="modalError"
+        @update:open="(v) => { if (!v) deleting = null; modalError = null }"
+        @confirm="onDelete"
+        @cancel="deleting = null"
+      />
+    </div>
+  </NuxtLayout>
 </template>
