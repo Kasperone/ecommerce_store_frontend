@@ -4,7 +4,9 @@
  * Pass a Zod schema describing the filter shape plus default values. The
  * returned object is reactive: reads parse the URL query through the schema
  * (falling back to defaults on invalid input), writes serialise back via
- * `router.replace` (avoiding history pollution on every keystroke).
+ * `router.push` so back/forward navigation restores the previous filter
+ * combination. Search inputs are debounced upstream by callers (e.g. 300 ms
+ * `useDebounceFn`), which keeps the history clean.
  *
  * Empty strings serialise to `undefined` so URLs stay clean (no trailing
  * `?search=` after the user clears a filter).
@@ -64,6 +66,10 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(
     return parsed.success ? parsed.data : defaults
   })
 
+  // `push` (not `replace`) so back/forward navigation restores the previous
+  // filter combination. Search input is upstream-debounced by the caller, so
+  // we don't get one history entry per keystroke; selects update per-click
+  // which is the desired granularity.
   const set = (patch: Partial<T>) => {
     const merged = { ...filters.value, ...patch }
     const query: Record<string, string | undefined> = {}
@@ -73,7 +79,7 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(
       // Strip when value equals default to keep URLs short.
       query[k] = v === toQueryValue(defaults[key]) ? undefined : v
     }
-    void router.replace({
+    void router.push({
       query: { ...route.query, ...query },
     })
   }
@@ -83,7 +89,7 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(
     for (const key of Object.keys(defaults)) {
       cleared[key] = undefined
     }
-    void router.replace({ query: { ...route.query, ...cleared } })
+    void router.push({ query: { ...route.query, ...cleared } })
   }
 
   return { filters, set, reset }
