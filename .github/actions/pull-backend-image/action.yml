@@ -1,0 +1,66 @@
+name: Pull backend image
+description: >
+  Authenticate to GHCR and pull a backend image with retry + linear backoff.
+  Wraps both steps because GHCR's token endpoint is the actual flake source:
+  when it stalls, both `docker login` and `docker pull` time out at the same
+  layer.
+
+inputs:
+  image:
+    description: Full image reference, e.g. ghcr.io/org/repo:tag.
+    required: true
+  username:
+    description: GHCR username, typically ${{ github.actor }}.
+    required: true
+  github_token:
+    description: Token with packages:read scope, typically ${{ secrets.GITHUB_TOKEN }}.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: GHCR login (with retry)
+      shell: bash
+      env:
+        USERNAME: ${{ inputs.username }}
+        TOKEN: ${{ inputs.github_token }}
+      run: |
+        # GHCR's token endpoint can stall during regional incidents (observed
+        # 2026-05-19, runs #26089212322 and #26091110842 — both timed out
+        # on Get https://ghcr.io/token?...). Retry with linear backoff before
+        # declaring a hard failure. Worst case: ~6 min on sustained flake;
+        # typical case: succeeds on first attempt in <2s.
+        for attempt in 1 2 3 4 5; do
+          if echo "$TOKEN" | docker login ghcr.io -u "$USERNAME" --password-stdin; then
+            echo "::notice::GHCR login succeeded on attempt ${attempt}"
+            exit 0
+          fi
+          if [ "$attempt" -lt 5 ]; then
+            wait=$((attempt * 15))
+            echo "GHCR login attempt ${attempt} failed; retrying in ${wait}s..."
+            sleep "$wait"
+          fi
+        done
+        echo "::error::GHCR login failed after 5 attempts (token endpoint unresponsive)"
+        exit 1
+
+    - name: Pull image (with retry)
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+      run: |
+        # `docker pull` issues its own token request even after login, so it
+        # hits the same flake surface. Same retry policy as login.
+        for attempt in 1 2 3 4 5; do
+          if docker pull "$IMAGE"; then
+            echo "::notice::Pulled ${IMAGE} on attempt ${attempt}"
+            exit 0
+          fi
+          if [ "$attempt" -lt 5 ]; then
+            wait=$((attempt * 15))
+            echo "Pull attempt ${attempt} failed; retrying in ${wait}s..."
+            sleep "$wait"
+          fi
+        done
+        echo "::error::Failed to pull ${IMAGE} after 5 attempts"
+        exit 1
