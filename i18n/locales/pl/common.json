@@ -144,6 +144,26 @@
         "inStock": "Na stanie",
         "outOfStock": "Brak na stanie"
       },
+      "filters": {
+        "statusLabel": "Status",
+        "activeAll": "Wszystkie",
+        "activeOnly": "Tylko aktywne",
+        "inactiveOnly": "Tylko nieaktywne",
+        "featuredLabel": "Wyróżnione",
+        "featuredAll": "Wszystkie",
+        "featuredOnly": "Tylko wyróżnione",
+        "notFeatured": "Niewyróżnione",
+        "stockLabel": "Stan",
+        "stockAll": "Wszystkie",
+        "inStockOnly": "Na stanie",
+        "outOfStockOnly": "Brak na stanie",
+        "categoryLabel": "Kategoria",
+        "categoryAll": "Dowolna kategoria",
+        "minPrice": "Cena od (USD)",
+        "maxPrice": "Cena do (USD)",
+        "searchPlaceholder": "Szukaj produktów",
+        "reset": "Wyczyść filtry"
+      },
       "confirm": {
         "deleteTitle": "Usuń produkt",
         "deleteBody": "Produkt zostanie trwale usunięty."

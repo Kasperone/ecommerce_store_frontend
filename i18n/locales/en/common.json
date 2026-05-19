@@ -143,6 +143,26 @@
         "inStock": "In stock",
         "outOfStock": "Out of stock"
       },
+      "filters": {
+        "statusLabel": "Status",
+        "activeAll": "All",
+        "activeOnly": "Active only",
+        "inactiveOnly": "Inactive only",
+        "featuredLabel": "Featured",
+        "featuredAll": "All",
+        "featuredOnly": "Featured only",
+        "notFeatured": "Not featured",
+        "stockLabel": "Stock",
+        "stockAll": "All",
+        "inStockOnly": "In stock",
+        "outOfStockOnly": "Out of stock",
+        "categoryLabel": "Category",
+        "categoryAll": "Any category",
+        "minPrice": "Min price (USD)",
+        "maxPrice": "Max price (USD)",
+        "searchPlaceholder": "Search products",
+        "reset": "Reset filters"
+      },
       "confirm": {
         "deleteTitle": "Delete product",
         "deleteBody": "This product will be permanently removed."
