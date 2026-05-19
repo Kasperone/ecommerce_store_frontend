@@ -108,6 +108,11 @@ async function onDelete(id: number) {
 
 const { formatPrice } = useCurrency()
 
+function primaryThumbnail(product: ProductWithCategory) {
+  if (!product.images || product.images.length === 0) return null
+  return product.images.find(img => img.is_primary) ?? product.images[0] ?? null
+}
+
 const columns: TableColumn<ProductWithCategory>[] = [
   { id: 'thumbnail', header: () => t('admin.products.fields.thumbnail') },
   { accessorKey: 'name', header: () => t('admin.products.fields.name') },
@@ -175,14 +180,36 @@ const columns: TableColumn<ProductWithCategory>[] = [
       <template #thumbnail-cell="{ row }">
         <div
           class="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-800
-            flex items-center justify-center"
+            flex items-center justify-center text-muted"
         >
           <img
-            v-if="row.original.images?.[0]?.url"
-            :src="row.original.images[0].url"
+            v-if="primaryThumbnail(row.original)"
+            :src="primaryThumbnail(row.original)!.url"
             class="w-12 h-12 object-cover"
-            :alt="row.original.images[0].alt_text ?? ''"
+            :alt="primaryThumbnail(row.original)!.alt_text ?? ''"
           >
+          <svg
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            class="w-6 h-6"
+          >
+            <path
+              d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2
+                0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"
+            />
+            <circle
+              cx="12"
+              cy="13"
+              r="3"
+            />
+          </svg>
         </div>
       </template>
       <template #name-cell="{ row }">
