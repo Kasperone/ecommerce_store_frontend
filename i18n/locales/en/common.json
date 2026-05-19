@@ -114,19 +114,48 @@
     "products": {
       "title": "Products",
       "subtitle": "Manage the product catalog",
+      "titleNew": "New product",
+      "titleEdit": "Edit product",
       "actions": {
         "create": "New product",
         "edit": "Edit product",
         "delete": "Delete",
         "save": "Save",
-        "cancel": "Cancel"
+        "saveAndContinue": "Save & continue",
+        "cancel": "Cancel",
+        "backToList": "Back to products"
       },
+      "sections": {
+        "basics": "Basics",
+        "pricing": "Pricing & stock",
+        "media": "Media"
+      },
+      "hints": {
+        "slug": "Lowercase letters, numbers, and hyphens",
+        "sku": "Optional internal identifier",
+        "category": "Pick the catalog category this product belongs to",
+        "currency": "Set each currency independently — no auto-conversion"
+      },
+      "placeholders": {
+        "name": "Encyclopedia of Tea",
+        "slug": "encyclopedia-of-tea",
+        "description": "Optional description",
+        "sku": "ENCY-TEA-001"
+      },
+      "flashes": {
+        "created": "Product created — now upload images.",
+        "createdDismiss": "Dismiss"
+      },
+      "loading": "Loading…",
+      "mediaSoon": "Media management ships in the next commit.",
       "fields": {
         "thumbnail": "",
         "name": "Name",
         "slug": "Slug",
+        "description": "Description",
         "sku": "SKU",
         "category": "Category",
+        "noCategory": "No category",
         "priceUsd": "USD",
         "pricePln": "PLN",
         "priceEur": "EUR",

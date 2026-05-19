@@ -115,19 +115,48 @@
     "products": {
       "title": "Produkty",
       "subtitle": "Zarządzaj katalogiem produktów",
+      "titleNew": "Nowy produkt",
+      "titleEdit": "Edytuj produkt",
       "actions": {
         "create": "Nowy produkt",
         "edit": "Edytuj produkt",
         "delete": "Usuń",
         "save": "Zapisz",
-        "cancel": "Anuluj"
+        "saveAndContinue": "Zapisz i kontynuuj",
+        "cancel": "Anuluj",
+        "backToList": "Powrót do listy"
       },
+      "sections": {
+        "basics": "Podstawowe",
+        "pricing": "Ceny i stan",
+        "media": "Multimedia"
+      },
+      "hints": {
+        "slug": "Małe litery, cyfry i myślniki",
+        "sku": "Opcjonalny identyfikator wewnętrzny",
+        "category": "Wybierz kategorię katalogu, do której należy produkt",
+        "currency": "Każdą walutę ustawiasz niezależnie — bez automatycznego przeliczania"
+      },
+      "placeholders": {
+        "name": "Encyklopedia herbaty",
+        "slug": "encyklopedia-herbaty",
+        "description": "Opcjonalny opis",
+        "sku": "ENCY-TEA-001"
+      },
+      "flashes": {
+        "created": "Produkt utworzony — teraz dodaj zdjęcia.",
+        "createdDismiss": "Zamknij"
+      },
+      "loading": "Ładowanie…",
+      "mediaSoon": "Zarządzanie multimediami pojawi się w następnym commicie.",
       "fields": {
         "thumbnail": "",
         "name": "Nazwa",
         "slug": "Slug",
+        "description": "Opis",
         "sku": "SKU",
         "category": "Kategoria",
+        "noCategory": "Bez kategorii",
         "priceUsd": "USD",
         "pricePln": "PLN",
         "priceEur": "EUR",
