@@ -148,7 +148,35 @@
         "createdDismiss": "Zamknij"
       },
       "loading": "Ładowanie…",
-      "mediaSoon": "Zarządzanie multimediami pojawi się w następnym commicie.",
+      "media": {
+        "dropZone": "Upuść zdjęcia tutaj lub kliknij, aby wybrać",
+        "uploading": "Wgrywanie {filename}…",
+        "uploadedCount": "{count} wgranych",
+        "maxSize": "Do 5 MB na zdjęcie",
+        "allowedTypes": "JPEG, PNG, WebP",
+        "emptyGallery": "Brak zdjęć. Dodaj pierwsze.",
+        "primary": "Główne",
+        "setPrimary": "Ustaw jako główne",
+        "altText": "Tekst alternatywny",
+        "altTextPlaceholder": "Opisz zdjęcie",
+        "dimensions": "{width} × {height}",
+        "delete": "Usuń zdjęcie",
+        "deleteConfirm": {
+          "title": "Usunąć to zdjęcie?",
+          "body": "Plik zostanie usunięty z magazynu.",
+          "yes": "Tak, usuń",
+          "no": "Anuluj"
+        },
+        "errors": {
+          "sizeTooLarge": "{filename} przekracza limit 5 MB",
+          "unsupportedType": "{filename} nie jest obsługiwanym typem zdjęcia (JPEG, PNG, WebP)",
+          "uploadFailed": "Nie udało się wgrać {filename}",
+          "reorderFailed": "Nie udało się zapisać nowej kolejności zdjęć",
+          "primaryFailed": "Nie udało się ustawić zdjęcia głównego",
+          "altFailed": "Nie udało się zapisać tekstu alternatywnego",
+          "deleteFailed": "Nie udało się usunąć zdjęcia"
+        }
+      },
       "fields": {
         "thumbnail": "",
         "name": "Nazwa",

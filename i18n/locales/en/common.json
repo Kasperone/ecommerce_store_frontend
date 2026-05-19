@@ -147,7 +147,35 @@
         "createdDismiss": "Dismiss"
       },
       "loading": "Loading…",
-      "mediaSoon": "Media management ships in the next commit.",
+      "media": {
+        "dropZone": "Drop images here or click to choose",
+        "uploading": "Uploading {filename}…",
+        "uploadedCount": "{count} uploaded",
+        "maxSize": "Up to 5 MB per image",
+        "allowedTypes": "JPEG, PNG, WebP",
+        "emptyGallery": "No images yet. Upload the first one.",
+        "primary": "Primary",
+        "setPrimary": "Set as primary",
+        "altText": "Alt text",
+        "altTextPlaceholder": "Describe the image",
+        "dimensions": "{width} × {height}",
+        "delete": "Delete image",
+        "deleteConfirm": {
+          "title": "Delete this image?",
+          "body": "The file will be removed from storage.",
+          "yes": "Yes, delete",
+          "no": "Cancel"
+        },
+        "errors": {
+          "sizeTooLarge": "{filename} is larger than the 5 MB limit",
+          "unsupportedType": "{filename} is not a supported image type (JPEG, PNG, WebP)",
+          "uploadFailed": "{filename} failed to upload",
+          "reorderFailed": "Failed to save the new image order",
+          "primaryFailed": "Failed to set primary image",
+          "altFailed": "Failed to save alt text",
+          "deleteFailed": "Failed to delete image"
+        }
+      },
       "fields": {
         "thumbnail": "",
         "name": "Name",

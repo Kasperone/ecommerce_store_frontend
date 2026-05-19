@@ -104,10 +104,53 @@ async function onSubmit(payload: ProductFormPayload) {
         <h2 class="text-lg font-semibold">
           {{ $t('admin.products.sections.media') }}
         </h2>
-        <!-- Uploader + gallery land in c4 / c5. -->
-        <p class="text-muted text-sm">
-          {{ $t('admin.products.mediaSoon') }}
-        </p>
+
+        <ProductImageUploader :product-id="product.id" />
+
+        <!-- Drag-reorder + primary toggle + alt-text + delete land in c5. -->
+        <div
+          v-if="product.images.length === 0"
+          class="text-muted text-sm py-6 text-center"
+        >
+          {{ $t('admin.products.media.emptyGallery') }}
+        </div>
+        <ul
+          v-else
+          class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+        >
+          <li
+            v-for="image in product.images"
+            :key="image.id"
+            class="border border-default rounded-lg overflow-hidden"
+          >
+            <div
+              class="aspect-square bg-gray-100 dark:bg-gray-800
+                flex items-center justify-center"
+            >
+              <img
+                :src="image.url"
+                :alt="image.alt_text ?? ''"
+                class="w-full h-full object-contain"
+              >
+            </div>
+            <div class="p-2 text-xs space-y-1">
+              <div class="font-medium truncate">
+                {{ image.alt_text ?? '—' }}
+              </div>
+              <div class="text-muted">
+                {{ image.width }} × {{ image.height }}
+              </div>
+              <UBadge
+                v-if="image.is_primary"
+                color="primary"
+                variant="subtle"
+                size="xs"
+              >
+                {{ $t('admin.products.media.primary') }}
+              </UBadge>
+            </div>
+          </li>
+        </ul>
       </section>
     </template>
   </div>
