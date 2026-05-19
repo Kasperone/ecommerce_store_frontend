@@ -107,50 +107,17 @@ async function onSubmit(payload: ProductFormPayload) {
 
         <ProductImageUploader :product-id="product.id" />
 
-        <!-- Drag-reorder + primary toggle + alt-text + delete land in c5. -->
         <div
           v-if="product.images.length === 0"
           class="text-muted text-sm py-6 text-center"
         >
           {{ $t('admin.products.media.emptyGallery') }}
         </div>
-        <ul
+        <ProductImageGallery
           v-else
-          class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
-        >
-          <li
-            v-for="image in product.images"
-            :key="image.id"
-            class="border border-default rounded-lg overflow-hidden"
-          >
-            <div
-              class="aspect-square bg-gray-100 dark:bg-gray-800
-                flex items-center justify-center"
-            >
-              <img
-                :src="image.url"
-                :alt="image.alt_text ?? ''"
-                class="w-full h-full object-contain"
-              >
-            </div>
-            <div class="p-2 text-xs space-y-1">
-              <div class="font-medium truncate">
-                {{ image.alt_text ?? '—' }}
-              </div>
-              <div class="text-muted">
-                {{ image.width }} × {{ image.height }}
-              </div>
-              <UBadge
-                v-if="image.is_primary"
-                color="primary"
-                variant="subtle"
-                size="xs"
-              >
-                {{ $t('admin.products.media.primary') }}
-              </UBadge>
-            </div>
-          </li>
-        </ul>
+          :product-id="product.id"
+          :images="product.images"
+        />
       </section>
     </template>
   </div>
