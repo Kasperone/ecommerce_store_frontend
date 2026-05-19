@@ -47,7 +47,6 @@
     },
     "pages": {
       "products":   { "title": "Produkty",         "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce." },
-      "categories": { "title": "Kategorie",        "placeholder": "Tutaj znajdzie się drzewo kategorii i SEO dla kategorii. Wkrótce." },
       "inventory":  { "title": "Magazyn",          "placeholder": "Tutaj znajdzie się stan magazynowy, progi i historia ruchów. Wkrótce." },
       "reviews":    { "title": "Opinie",           "placeholder": "Tutaj znajdzie się moderacja opinii klientów. Wkrótce." },
       "orders":     { "title": "Zamówienia",       "placeholder": "Tutaj znajdzie się lista zamówień, szczegóły, statusy i zwroty. Wkrótce." },
@@ -62,6 +61,56 @@
       "auditLog":   { "title": "Dziennik zdarzeń", "placeholder": "Tutaj znajdzie się rejestr działań administratorów. Wkrótce." },
       "settings":   { "title": "Ustawienia",       "placeholder": "Tutaj znajdą się dane sklepu, waluty, VAT, płatności i szablony e-maili. Wkrótce." },
       "staff":      { "title": "Personel i role",  "placeholder": "Tutaj znajdzie się lista administratorów i zarządzanie rolami. Wkrótce." }
+    },
+    "categories": {
+      "title": "Kategorie",
+      "subtitle": "Zarządzaj drzewem kategorii katalogu",
+      "actions": {
+        "create": "Nowa kategoria",
+        "edit": "Edytuj kategorię",
+        "delete": "Usuń",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "slug": "Slug",
+        "slugHint": "Małe litery, cyfry i myślniki",
+        "description": "Opis",
+        "isActive": "Aktywna",
+        "productCount": "Produkty"
+      },
+      "placeholders": {
+        "search": "Szukaj kategorii",
+        "name": "Książki",
+        "slug": "ksiazki",
+        "description": "Opcjonalny opis"
+      },
+      "filters": {
+        "activeAll": "Wszystkie",
+        "activeOnly": "Tylko aktywne",
+        "inactiveOnly": "Tylko nieaktywne"
+      },
+      "confirm": {
+        "deleteTitle": "Usuń kategorię",
+        "deleteBodyEmpty": "Ta kategoria zostanie trwale usunięta.",
+        "deleteBodyWithProducts": "Do tej kategorii przypisanych jest {count} produktów. Przed usunięciem przenieś je do innej."
+      },
+      "empty": {
+        "noResults": "Brak kategorii spełniających warunki filtra.",
+        "noCategories": "Brak kategorii. Utwórz pierwszą."
+      },
+      "errors": {
+        "fallback": "Nie udało się zapisać kategorii.",
+        "duplicateSlug": "Kategoria z tym slugiem już istnieje.",
+        "hasProducts": "Nie można usunąć kategorii z przypisanymi produktami.",
+        "nameRequired": "Nazwa jest wymagana",
+        "nameTooLong": "Nazwa nie może mieć więcej niż 100 znaków",
+        "slugRequired": "Slug jest wymagany",
+        "slugTooLong": "Slug nie może mieć więcej niż 100 znaków",
+        "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
+        "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków"
+      }
     }
   },
   "account": {

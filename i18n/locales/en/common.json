@@ -47,7 +47,6 @@
     },
     "pages": {
       "products":   { "title": "Products",         "placeholder": "Product catalog management will live here. Coming soon." },
-      "categories": { "title": "Categories",       "placeholder": "Category tree and per-category SEO will live here. Coming soon." },
       "inventory":  { "title": "Inventory",        "placeholder": "Per-product stock, thresholds, and movement log will live here. Coming soon." },
       "reviews":    { "title": "Reviews",          "placeholder": "Review moderation queue will live here. Coming soon." },
       "orders":     { "title": "Orders",           "placeholder": "Order list, detail, status transitions, refunds will live here. Coming soon." },
@@ -62,6 +61,56 @@
       "auditLog":   { "title": "Audit Log",        "placeholder": "Admin action audit trail (filter by actor, entity, action) will live here. Coming soon." },
       "settings":   { "title": "Settings",         "placeholder": "Store info, currencies, tax / VAT, payment methods, email templates will live here. Coming soon." },
       "staff":      { "title": "Staff & Roles",    "placeholder": "Admin user list and role management will live here. Coming soon." }
+    },
+    "categories": {
+      "title": "Categories",
+      "subtitle": "Manage the catalog category tree",
+      "actions": {
+        "create": "New category",
+        "edit": "Edit category",
+        "delete": "Delete",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "fields": {
+        "name": "Name",
+        "slug": "Slug",
+        "slugHint": "Lowercase letters, numbers, and hyphens",
+        "description": "Description",
+        "isActive": "Active",
+        "productCount": "Products"
+      },
+      "placeholders": {
+        "search": "Search categories",
+        "name": "Books",
+        "slug": "books",
+        "description": "Optional summary"
+      },
+      "filters": {
+        "activeAll": "All",
+        "activeOnly": "Active only",
+        "inactiveOnly": "Inactive only"
+      },
+      "confirm": {
+        "deleteTitle": "Delete category",
+        "deleteBodyEmpty": "This category will be permanently removed.",
+        "deleteBodyWithProducts": "{count} products are assigned to this category. Reassign them before deleting."
+      },
+      "empty": {
+        "noResults": "No categories match the current filter.",
+        "noCategories": "No categories yet. Create the first one."
+      },
+      "errors": {
+        "fallback": "Could not save the category.",
+        "duplicateSlug": "A category with this slug already exists.",
+        "hasProducts": "Cannot delete a category with products assigned.",
+        "nameRequired": "Name is required",
+        "nameTooLong": "Name must be 100 characters or fewer",
+        "slugRequired": "Slug is required",
+        "slugTooLong": "Slug must be 100 characters or fewer",
+        "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
+        "descriptionTooLong": "Description must be 500 characters or fewer"
+      }
     }
   },
   "account": {
