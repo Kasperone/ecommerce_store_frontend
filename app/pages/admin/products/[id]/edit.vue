@@ -91,7 +91,7 @@ async function onSubmit(payload: ProductFormPayload) {
     </div>
 
     <template v-else-if="product">
-      <ProductForm
+      <AdminProductForm
         :categories="categories"
         :product="product"
         :loading="updateMutation.isLoading.value"
@@ -105,7 +105,7 @@ async function onSubmit(payload: ProductFormPayload) {
           {{ $t('admin.products.sections.media') }}
         </h2>
 
-        <ProductImageUploader :product-id="product.id" />
+        <AdminProductImageUploader :product-id="product.id" />
 
         <div
           v-if="product.images.length === 0"
@@ -113,7 +113,7 @@ async function onSubmit(payload: ProductFormPayload) {
         >
           {{ $t('admin.products.media.emptyGallery') }}
         </div>
-        <ProductImageGallery
+        <AdminProductImageGallery
           v-else
           :product-id="product.id"
           :images="product.images"

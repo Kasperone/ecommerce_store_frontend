@@ -52,7 +52,7 @@ async function onSubmit(payload: ProductFormPayload) {
       </div>
     </header>
 
-    <ProductForm
+    <AdminProductForm
       :categories="categories"
       :loading="createMutation.isLoading.value"
       :error="formError"

@@ -45,7 +45,10 @@ export function useProductsQuery(params: MaybeRefOrGetter<ProductListParams> = {
     key: () => [...PRODUCTS_NAMESPACE, 'list', toValue(params)],
     query: () => {
       const p = toValue(params)
-      return apiFetch<ProductListPage>('/api/v1/products', {
+      // Trailing slash matches FastAPI's `@router.post("/")` route. Without it,
+      // POSTs hit a 307 that the Nuxt nitro proxy refuses to follow (RFC-correct
+      // for POST) and surfaces as a 502 Bad Gateway from the proxy.
+      return apiFetch<ProductListPage>('/api/v1/products/', {
         query: {
           page: p.page ?? 1,
           page_size: p.pageSize ?? 20,
@@ -82,7 +85,7 @@ export function useCreateProduct() {
   const queryCache = useQueryCache()
   return useMutation({
     mutation: (input: ProductCreate) =>
-      apiFetch<ProductResponse>('/api/v1/products', {
+      apiFetch<ProductResponse>('/api/v1/products/', {
         method: 'POST',
         body: input,
       }),

@@ -106,7 +106,13 @@ async function onDelete(id: number) {
   }
 }
 
-const { formatPrice } = useCurrency()
+// useCurrency.formatPrice routes USD-when-locale-is-en through vue-i18n's
+// `n(price, 'currency')`, which renders empty when the project's i18n config
+// has no `currency` numberFormat. The admin table always shows all three
+// currencies side-by-side regardless of locale, so go straight to Intl.
+const usdFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'USD' })
+const plnFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'PLN' })
+const eurFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'EUR' })
 
 function primaryThumbnail(product: ProductWithCategory) {
   if (!product.images || product.images.length === 0) return null
@@ -147,7 +153,7 @@ const columns: TableColumn<ProductWithCategory>[] = [
       </UButton>
     </header>
 
-    <ProductFilters
+    <AdminProductFilters
       :values="filterValues"
       :categories="categories"
       @update:filters="onFiltersUpdate"
@@ -229,13 +235,13 @@ const columns: TableColumn<ProductWithCategory>[] = [
         {{ row.original.category?.name ?? '—' }}
       </template>
       <template #price_usd-cell="{ row }">
-        {{ formatPrice(row.original.price_usd, 'USD') }}
+        {{ usdFmt.format(row.original.price_usd) }}
       </template>
       <template #price_pln-cell="{ row }">
-        {{ formatPrice(row.original.price_pln, 'PLN') }}
+        {{ plnFmt.format(row.original.price_pln) }}
       </template>
       <template #price_eur-cell="{ row }">
-        {{ formatPrice(row.original.price_eur, 'EUR') }}
+        {{ eurFmt.format(row.original.price_eur) }}
       </template>
       <template #is_active-cell="{ row }">
         <div class="flex flex-wrap gap-1">
@@ -294,7 +300,7 @@ const columns: TableColumn<ProductWithCategory>[] = [
       @update:page="(p) => set({ page: p })"
     />
 
-    <ProductDeleteConfirm
+    <AdminProductDeleteConfirm
       :open="deleting !== null"
       :product="deleting"
       :loading="deleteMutation.isLoading.value"

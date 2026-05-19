@@ -64,7 +64,7 @@ describe('useProductsQuery', () => {
 
     expect(apiFetch).toHaveBeenCalled()
     const [url, options] = apiFetch.mock.calls[0]
-    expect(url).toBe('/api/v1/products')
+    expect(url).toBe('/api/v1/products/')
     expect(options.query).toMatchObject({
       page: 2,
       page_size: 50,
@@ -129,7 +129,7 @@ describe('useCreateProduct', () => {
     })
 
     const [url, options] = apiFetch.mock.calls[0]
-    expect(url).toBe('/api/v1/products')
+    expect(url).toBe('/api/v1/products/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'Book', slug: 'book' })
   })
