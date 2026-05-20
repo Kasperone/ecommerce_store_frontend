@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { parseProblem } from '#shared/utils/problemDetails'
+import {
+  IMAGE_ACCEPT_ATTR,
+  MAX_IMAGE_BYTES,
+  isAllowedImageType,
+} from '#shared/utils/productImageValidation'
 
 const props = defineProps<{
   productId: number
@@ -11,9 +16,6 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
-const MAX_BYTES = 5 * 1024 * 1024
 
 const uploadMutation = useUploadProductImage()
 const fileInputRef = ref<HTMLInputElement | null>(null)
@@ -31,11 +33,11 @@ function recordError(message: string) {
 }
 
 async function processFile(file: File) {
-  if (file.size > MAX_BYTES) {
+  if (file.size > MAX_IMAGE_BYTES) {
     recordError(t('admin.products.media.errors.sizeTooLarge', { filename: file.name }))
     return
   }
-  if (!ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {
+  if (!isAllowedImageType(file.type)) {
     recordError(t('admin.products.media.errors.unsupportedType', { filename: file.name }))
     return
   }
@@ -131,7 +133,7 @@ function openPicker() {
     <input
       ref="fileInputRef"
       type="file"
-      accept="image/jpeg,image/png,image/webp"
+      :accept="IMAGE_ACCEPT_ATTR"
       multiple
       class="sr-only"
       :disabled="disabled"

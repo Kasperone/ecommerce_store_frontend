@@ -167,6 +167,11 @@
           "yes": "Tak, usuń",
           "no": "Anuluj"
         },
+        "staging": {
+          "remove": "Usuń z wgrywania",
+          "removeAriaLabel": "Usuń {filename} z wgrywania",
+          "primaryHint": "Pierwsze zdjęcie będzie głównym zdjęciem produktu"
+        },
         "errors": {
           "sizeTooLarge": "{filename} przekracza limit 5 MB",
           "unsupportedType": "{filename} nie jest obsługiwanym typem zdjęcia (JPEG, PNG, WebP)",

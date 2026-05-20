@@ -15,19 +15,59 @@ const { data: categoriesData } = useCategoriesQuery({ isActive: true, limit: 100
 const categories = computed(() => categoriesData.value ?? [])
 
 const createMutation = useCreateProduct()
+const uploadMutation = useUploadProductImage()
+const setPrimaryMutation = useUpdateProductImage()
+const deleteMutation = useDeleteProduct()
+
+const stagedFiles = ref<File[]>([])
+const isSubmitting = ref(false)
 const formError = ref<ProblemDetails | null>(null)
 
 async function onSubmit(payload: ProductFormPayload) {
   formError.value = null
+  isSubmitting.value = true
+  let createdId: number | null = null
   try {
     const created = await createMutation.mutateAsync(payload)
+    createdId = created.id
+
+    let firstImageId: number | null = null
+    for (const file of stagedFiles.value) {
+      const formData = new FormData()
+      formData.append('file', file)
+      const uploaded = await uploadMutation.mutateAsync({
+        productId: created.id,
+        formData,
+      })
+      if (firstImageId === null) firstImageId = uploaded.id
+    }
+
+    if (firstImageId !== null) {
+      await setPrimaryMutation.mutateAsync({
+        productId: created.id,
+        imageId: firstImageId,
+        patch: { is_primary: true },
+      })
+    }
+
     await navigateTo({
       path: `/admin/products/${created.id}/edit`,
       query: { created: '1' },
     })
   }
   catch (err) {
+    if (createdId !== null) {
+      try {
+        await deleteMutation.mutateAsync(createdId)
+      }
+      catch {
+        // Best-effort cleanup; orphan product is recoverable from /admin/products.
+      }
+    }
     formError.value = parseProblem(err)
+  }
+  finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -55,12 +95,24 @@ async function onSubmit(payload: ProductFormPayload) {
 
       <AdminProductForm
         :categories="categories"
-        :loading="createMutation.isLoading.value"
+        :loading="isSubmitting"
         :error="formError"
         :submit-label="$t('admin.products.actions.saveAndContinue')"
         @submit="onSubmit"
         @cancel="navigateTo('/admin/products')"
-      />
+      >
+        <template #extra-sections>
+          <section class="space-y-4">
+            <h2 class="text-lg font-semibold">
+              {{ $t('admin.products.sections.media') }}
+            </h2>
+            <AdminProductImageStaging
+              :disabled="isSubmitting"
+              @update:files="(files: File[]) => stagedFiles = files"
+            />
+          </section>
+        </template>
+      </AdminProductForm>
     </div>
   </NuxtLayout>
 </template>
