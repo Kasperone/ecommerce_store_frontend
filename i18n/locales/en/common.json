@@ -46,7 +46,6 @@
       }
     },
     "pages": {
-      "products":   { "title": "Products",         "placeholder": "Product catalog management will live here. Coming soon." },
       "inventory":  { "title": "Inventory",        "placeholder": "Per-product stock, thresholds, and movement log will live here. Coming soon." },
       "reviews":    { "title": "Reviews",          "placeholder": "Review moderation queue will live here. Coming soon." },
       "orders":     { "title": "Orders",           "placeholder": "Order list, detail, status transitions, refunds will live here. Coming soon." },
@@ -110,6 +109,144 @@
         "slugTooLong": "Slug must be 100 characters or fewer",
         "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
         "descriptionTooLong": "Description must be 500 characters or fewer"
+      }
+    },
+    "products": {
+      "title": "Products",
+      "subtitle": "Manage the product catalog",
+      "titleNew": "New product",
+      "titleEdit": "Edit product",
+      "actions": {
+        "create": "New product",
+        "edit": "Edit product",
+        "delete": "Delete",
+        "save": "Save",
+        "saveAndContinue": "Save & continue",
+        "cancel": "Cancel",
+        "backToList": "Back to products"
+      },
+      "sections": {
+        "basics": "Basics",
+        "pricing": "Pricing & stock",
+        "media": "Media"
+      },
+      "hints": {
+        "slug": "Lowercase letters, numbers, and hyphens",
+        "sku": "Optional internal identifier",
+        "category": "Pick the catalog category this product belongs to",
+        "currency": "Set each currency independently — no auto-conversion"
+      },
+      "placeholders": {
+        "name": "Encyclopedia of Tea",
+        "slug": "encyclopedia-of-tea",
+        "description": "Optional description",
+        "sku": "ENCY-TEA-001"
+      },
+      "flashes": {
+        "created": "Product created — now upload images.",
+        "createdDismiss": "Dismiss"
+      },
+      "loading": "Loading…",
+      "media": {
+        "dropZone": "Drop images here or click to choose",
+        "uploading": "Uploading {filename}…",
+        "uploadedCount": "{count} uploaded",
+        "maxSize": "Up to 5 MB per image",
+        "allowedTypes": "JPEG, PNG, WebP",
+        "emptyGallery": "No images yet. Upload the first one.",
+        "primary": "Primary",
+        "setPrimary": "Set as primary",
+        "altText": "Alt text",
+        "altTextPlaceholder": "Describe the image",
+        "dimensions": "{width} × {height}",
+        "delete": "Delete image",
+        "deleteConfirm": {
+          "title": "Delete this image?",
+          "body": "The file will be removed from storage.",
+          "yes": "Yes, delete",
+          "no": "Cancel"
+        },
+        "errors": {
+          "sizeTooLarge": "{filename} is larger than the 5 MB limit",
+          "unsupportedType": "{filename} is not a supported image type (JPEG, PNG, WebP)",
+          "uploadFailed": "{filename} failed to upload",
+          "reorderFailed": "Failed to save the new image order",
+          "primaryFailed": "Failed to set primary image",
+          "altFailed": "Failed to save alt text",
+          "deleteFailed": "Failed to delete image"
+        }
+      },
+      "fields": {
+        "thumbnail": "",
+        "name": "Name",
+        "slug": "Slug",
+        "description": "Description",
+        "sku": "SKU",
+        "category": "Category",
+        "noCategory": "No category",
+        "priceUsd": "USD",
+        "pricePln": "PLN",
+        "priceEur": "EUR",
+        "stock": "Stock",
+        "isActive": "Active",
+        "isFeatured": "Featured",
+        "status": "Status",
+        "actions": ""
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "featured": "Featured",
+        "inStock": "In stock",
+        "outOfStock": "Out of stock"
+      },
+      "filters": {
+        "statusLabel": "Status",
+        "activeAll": "All",
+        "activeOnly": "Active only",
+        "inactiveOnly": "Inactive only",
+        "featuredLabel": "Featured",
+        "featuredAll": "All",
+        "featuredOnly": "Featured only",
+        "notFeatured": "Not featured",
+        "stockLabel": "Stock",
+        "stockAll": "All",
+        "inStockOnly": "In stock",
+        "outOfStockOnly": "Out of stock",
+        "categoryLabel": "Category",
+        "categoryAll": "Any category",
+        "minPrice": "Min price (USD)",
+        "maxPrice": "Max price (USD)",
+        "searchPlaceholder": "Search products",
+        "reset": "Reset filters"
+      },
+      "confirm": {
+        "deleteTitle": "Delete product",
+        "deleteBody": "This product will be permanently removed."
+      },
+      "empty": {
+        "noResults": "No products match the current filter.",
+        "noProducts": "No products yet. Create the first one."
+      },
+      "errors": {
+        "fallback": "Could not save the product.",
+        "duplicateSlug": "A product with this slug already exists.",
+        "duplicateSku": "A product with this SKU already exists.",
+        "nameRequired": "Name is required",
+        "nameTooLong": "Name must be 200 characters or fewer",
+        "slugRequired": "Slug is required",
+        "slugTooLong": "Slug must be 200 characters or fewer",
+        "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
+        "descriptionTooLong": "Description must be 5000 characters or fewer",
+        "skuTooLong": "SKU must be 100 characters or fewer",
+        "priceRequired": "Price is required",
+        "priceInvalid": "Price must be a number",
+        "priceGtZero": "Price must be greater than zero",
+        "priceCentPrecision": "Price can have at most two decimal places",
+        "stockRequired": "Stock is required",
+        "stockInvalid": "Stock must be a number",
+        "stockInteger": "Stock must be a whole number",
+        "stockNegative": "Stock cannot be negative"
       }
     }
   },

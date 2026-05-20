@@ -111,6 +111,144 @@
         "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
         "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków"
       }
+    },
+    "products": {
+      "title": "Produkty",
+      "subtitle": "Zarządzaj katalogiem produktów",
+      "titleNew": "Nowy produkt",
+      "titleEdit": "Edytuj produkt",
+      "actions": {
+        "create": "Nowy produkt",
+        "edit": "Edytuj produkt",
+        "delete": "Usuń",
+        "save": "Zapisz",
+        "saveAndContinue": "Zapisz i kontynuuj",
+        "cancel": "Anuluj",
+        "backToList": "Powrót do listy"
+      },
+      "sections": {
+        "basics": "Podstawowe",
+        "pricing": "Ceny i stan",
+        "media": "Multimedia"
+      },
+      "hints": {
+        "slug": "Małe litery, cyfry i myślniki",
+        "sku": "Opcjonalny identyfikator wewnętrzny",
+        "category": "Wybierz kategorię katalogu, do której należy produkt",
+        "currency": "Każdą walutę ustawiasz niezależnie — bez automatycznego przeliczania"
+      },
+      "placeholders": {
+        "name": "Encyklopedia herbaty",
+        "slug": "encyklopedia-herbaty",
+        "description": "Opcjonalny opis",
+        "sku": "ENCY-TEA-001"
+      },
+      "flashes": {
+        "created": "Produkt utworzony — teraz dodaj zdjęcia.",
+        "createdDismiss": "Zamknij"
+      },
+      "loading": "Ładowanie…",
+      "media": {
+        "dropZone": "Upuść zdjęcia tutaj lub kliknij, aby wybrać",
+        "uploading": "Wgrywanie {filename}…",
+        "uploadedCount": "{count} wgranych",
+        "maxSize": "Do 5 MB na zdjęcie",
+        "allowedTypes": "JPEG, PNG, WebP",
+        "emptyGallery": "Brak zdjęć. Dodaj pierwsze.",
+        "primary": "Główne",
+        "setPrimary": "Ustaw jako główne",
+        "altText": "Tekst alternatywny",
+        "altTextPlaceholder": "Opisz zdjęcie",
+        "dimensions": "{width} × {height}",
+        "delete": "Usuń zdjęcie",
+        "deleteConfirm": {
+          "title": "Usunąć to zdjęcie?",
+          "body": "Plik zostanie usunięty z magazynu.",
+          "yes": "Tak, usuń",
+          "no": "Anuluj"
+        },
+        "errors": {
+          "sizeTooLarge": "{filename} przekracza limit 5 MB",
+          "unsupportedType": "{filename} nie jest obsługiwanym typem zdjęcia (JPEG, PNG, WebP)",
+          "uploadFailed": "Nie udało się wgrać {filename}",
+          "reorderFailed": "Nie udało się zapisać nowej kolejności zdjęć",
+          "primaryFailed": "Nie udało się ustawić zdjęcia głównego",
+          "altFailed": "Nie udało się zapisać tekstu alternatywnego",
+          "deleteFailed": "Nie udało się usunąć zdjęcia"
+        }
+      },
+      "fields": {
+        "thumbnail": "",
+        "name": "Nazwa",
+        "slug": "Slug",
+        "description": "Opis",
+        "sku": "SKU",
+        "category": "Kategoria",
+        "noCategory": "Bez kategorii",
+        "priceUsd": "USD",
+        "pricePln": "PLN",
+        "priceEur": "EUR",
+        "stock": "Stan",
+        "isActive": "Aktywny",
+        "isFeatured": "Wyróżniony",
+        "status": "Status",
+        "actions": ""
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny",
+        "featured": "Wyróżniony",
+        "inStock": "Na stanie",
+        "outOfStock": "Brak na stanie"
+      },
+      "filters": {
+        "statusLabel": "Status",
+        "activeAll": "Wszystkie",
+        "activeOnly": "Tylko aktywne",
+        "inactiveOnly": "Tylko nieaktywne",
+        "featuredLabel": "Wyróżnione",
+        "featuredAll": "Wszystkie",
+        "featuredOnly": "Tylko wyróżnione",
+        "notFeatured": "Niewyróżnione",
+        "stockLabel": "Stan",
+        "stockAll": "Wszystkie",
+        "inStockOnly": "Na stanie",
+        "outOfStockOnly": "Brak na stanie",
+        "categoryLabel": "Kategoria",
+        "categoryAll": "Dowolna kategoria",
+        "minPrice": "Cena od (USD)",
+        "maxPrice": "Cena do (USD)",
+        "searchPlaceholder": "Szukaj produktów",
+        "reset": "Wyczyść filtry"
+      },
+      "confirm": {
+        "deleteTitle": "Usuń produkt",
+        "deleteBody": "Produkt zostanie trwale usunięty."
+      },
+      "empty": {
+        "noResults": "Brak produktów spełniających warunki filtra.",
+        "noProducts": "Brak produktów. Utwórz pierwszy."
+      },
+      "errors": {
+        "fallback": "Nie udało się zapisać produktu.",
+        "duplicateSlug": "Produkt z tym slugiem już istnieje.",
+        "duplicateSku": "Produkt z tym SKU już istnieje.",
+        "nameRequired": "Nazwa jest wymagana",
+        "nameTooLong": "Nazwa nie może mieć więcej niż 200 znaków",
+        "slugRequired": "Slug jest wymagany",
+        "slugTooLong": "Slug nie może mieć więcej niż 200 znaków",
+        "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
+        "descriptionTooLong": "Opis nie może mieć więcej niż 5000 znaków",
+        "skuTooLong": "SKU nie może mieć więcej niż 100 znaków",
+        "priceRequired": "Cena jest wymagana",
+        "priceInvalid": "Cena musi być liczbą",
+        "priceGtZero": "Cena musi być większa od zera",
+        "priceCentPrecision": "Cena może mieć maksymalnie dwa miejsca po przecinku",
+        "stockRequired": "Stan jest wymagany",
+        "stockInvalid": "Stan musi być liczbą",
+        "stockInteger": "Stan musi być liczbą całkowitą",
+        "stockNegative": "Stan nie może być ujemny"
+      }
     }
   },
   "account": {
