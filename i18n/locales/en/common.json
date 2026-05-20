@@ -166,6 +166,11 @@
           "yes": "Yes, delete",
           "no": "Cancel"
         },
+        "staging": {
+          "remove": "Remove from upload",
+          "removeAriaLabel": "Remove {filename} from upload",
+          "primaryHint": "First image will be the primary product image"
+        },
         "errors": {
           "sizeTooLarge": "{filename} is larger than the 5 MB limit",
           "unsupportedType": "{filename} is not a supported image type (JPEG, PNG, WebP)",
