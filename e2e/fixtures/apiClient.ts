@@ -112,6 +112,79 @@ export class ApiClient {
     )
     return res.rows[0]?.password_reset_token_hash ?? null
   }
+
+  async createProduct(
+    accessToken: string,
+    input: {
+      name: string
+      slug: string
+      price_usd: number
+      price_pln: number
+      price_eur: number
+      stock?: number
+      category_id?: number | null
+    },
+  ): Promise<{ id: number }> {
+    const body = {
+      stock: 0,
+      category_id: null,
+      ...input,
+    }
+    const res = await this.http.post('/api/v1/products/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: body,
+    })
+    if (!res.ok()) {
+      throw new Error(`createProduct failed: ${res.status()} ${await res.text()}`)
+    }
+    const product = await res.json() as { id: number }
+    return { id: product.id }
+  }
+
+  async deleteProduct(accessToken: string, productId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/products/${productId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteProduct failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  async deleteProductImage(
+    accessToken: string,
+    productId: number,
+    imageId: number,
+  ): Promise<void> {
+    const res = await this.http.delete(`/api/v1/products/${productId}/images/${imageId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteProductImage failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  async listProductImages(productId: number): Promise<Array<{
+    id: number
+    url: string
+    alt_text: string | null
+    is_primary: boolean
+    sort_order: number
+  }>> {
+    const res = await this.pg.query<{
+      id: number
+      url: string
+      alt_text: string | null
+      is_primary: boolean
+      sort_order: number
+    }>(
+      `SELECT id, url, alt_text, is_primary, sort_order
+         FROM product_images
+        WHERE product_id = $1
+        ORDER BY sort_order, id`,
+      [productId],
+    )
+    return res.rows
+  }
 }
 
 function parseRefreshCookie(setCookie: string): {
