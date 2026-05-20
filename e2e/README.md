@@ -57,16 +57,19 @@ E2E_DB_URL=... npm run e2e:ui
 ```
 e2e/
 ├── fixtures/
-│   ├── apiClient.ts      # Playwright request + pg wrapper (register, login, mark verified, trip lockout, ...)
+│   ├── apiClient.ts      # Playwright request + pg wrapper (register, login, mark verified, trip lockout, product+image CRUD ...)
+│   ├── images/           # tiny PNG fixtures committed to the repo for admin/product-gallery.spec.ts
 │   └── testUser.ts       # KNOWN_USER, KNOWN_ADMIN, randomEphemeralUser()
 ├── seed/
 │   └── global-setup.ts   # truncates auth tables + seeds known users (runs once before all tests)
 ├── auth.setup.ts         # logs in KNOWN_USER via API, stashes refresh cookie to playwright/.auth/user.json
-└── auth/
-    ├── login.spec.ts            # 3.1.c happy path (PR1) + 3.2.b lockout (PR2)
-    ├── register.spec.ts         # 3.2.a (PR2)
-    ├── password-reset.spec.ts   # 3.2.c (PR2)
-    └── refresh.spec.ts          # 3.2.d (PR2)
+├── auth/
+│   ├── login.spec.ts            # 3.1.c happy path (PR1) + 3.2.b lockout (PR2)
+│   ├── register.spec.ts         # 3.2.a (PR2)
+│   ├── password-reset.spec.ts   # 3.2.c (PR2)
+│   └── refresh.spec.ts          # 3.2.d (PR2)
+└── admin/
+    └── product-gallery.spec.ts  # real-R2 gallery lifecycle (opt-in via E2E_R2_ENABLED)
 ```
 
 ## Trace + report
@@ -94,6 +97,55 @@ A future improvement: a backend env flag to disable rate limiting in E2E
 (or a separate Redis store the suite can flush). For now, restart
 between iterations and don't be surprised by the `Rate limit exceeded:
 5 per 15 minute` message.
+
+### Real-R2 gallery spec
+
+`e2e/admin/product-gallery.spec.ts` drives the admin image gallery
+against a real Cloudflare R2 dev bucket. It is opt-in.
+
+**What's covered.** Upload via the drop-zone file input (two POSTs →
+real R2), set-primary via UI click (PATCH `is_primary`), and an
+API-driven delete that proves the gallery reactively re-renders when an
+image disappears server-side. Alt-text, drag-reorder, and the
+delete-popover *UI* flow are documented as known E2E gaps in the spec
+file — they're covered by Vitest specs against the same Vue source
+because driving Nuxt UI's UInput / `@formkit/drag-and-drop` /
+UPopover from headless Playwright is unreliable.
+
+**Opt-in flag.** `test.skip(!process.env.E2E_R2_ENABLED, ...)` gates the
+whole describe block. Without `E2E_R2_ENABLED=1` the spec reports
+skipped — CI runs the suite as-is and skips this file because R2 vars
+aren't wired in.
+
+**Required backend env.** The five `R2_*` vars must be set on the
+uvicorn process (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
+`R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`). Dev creds
+live in `ecommerce_store_backend/.env` (gitignored); bucket
+`ecommerce-store-dev` has CORS restricted to `http://localhost:3000`.
+
+**Fixtures.** Two 16×16 PNGs at `e2e/fixtures/images/gallery-{red,blue}.png`
+are committed (~80 B each). Different solid colours so each upload
+produces a distinct R2 key; 16×16 keeps Pillow's dimension-capture path
+honest while staying tiny.
+
+**Run only this spec.**
+
+```bash
+E2E_DB_URL=postgresql://postgres:postgres@192.168.1.14:5433/ecommerce_e2e \
+E2E_R2_ENABLED=1 \
+  npm run e2e -- e2e/admin/product-gallery.spec.ts
+```
+
+**Cleanup contract.** A `finally` block deletes every surviving image
+via the backend's `DELETE /products/{id}/images/{imageId}` route (which
+strips the R2 object) and then deletes the product. R2 keys live at
+`products/<product_id>/<uuid>.<ext>`; orphans after a hard crash
+(SIGKILL) are recoverable via the R2 dashboard. A scheduled scrubber
+script is future work.
+
+**CI.** Deferred. Wiring this in CI needs either a dedicated test
+bucket plus GitHub secrets, or a moto sidecar in the backend image.
+The env-flag skip is the contract until that decision lands.
 
 ## Authoring with Playwright MCP
 
