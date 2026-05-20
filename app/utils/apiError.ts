@@ -78,14 +78,20 @@ export function narrowFetchError(err: unknown): FetchErrorShape {
  * and a per-field error map. Handles:
  *  - FastAPI validation errors (`detail` is an array of `{loc, msg, type}`)
  *  - String `detail` errors
- *  - Network / unexpected errors
+ *
+ * Network/gateway failures (502/503/504, DNS, connection-refused, etc.) and
+ * other non-API errors fall through to `fallback` instead of `error.message`.
+ * ofetch's default `error.message` embeds the request method and URL
+ * (`[POST] "/api/v1/auth/login": 502 Bad Gateway`); rendering it verbatim
+ * in user-facing UI leaks the API surface and reads as a stack trace. The
+ * caller already supplies a human-readable fallback for that case.
  */
 export function normalizeApiError(
   error: unknown,
   fallback: string,
 ): NormalizedApiError {
   const fieldErrors: Record<string, string> = {}
-  const { data, message } = narrowFetchError(error)
+  const { data } = narrowFetchError(error)
 
   let detail: unknown
   if (isObject(data) && 'detail' in data) {
@@ -114,10 +120,6 @@ export function normalizeApiError(
       message: messages[0] ?? fallback,
       fieldErrors,
     }
-  }
-
-  if (typeof message === 'string' && message.trim().length > 0) {
-    return { message, fieldErrors }
   }
 
   return { message: fallback, fieldErrors }
