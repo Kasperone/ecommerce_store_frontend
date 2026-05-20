@@ -102,126 +102,128 @@ const columns: TableColumn<CategoryWithProductCount>[] = [
 </script>
 
 <template>
-  <div class="space-y-6">
-    <header class="flex items-start justify-between gap-4 flex-wrap">
-      <div>
-        <h1 class="text-2xl font-bold">
-          {{ $t('admin.categories.title') }}
-        </h1>
-        <p class="text-muted text-sm mt-1">
-          {{ $t('admin.categories.subtitle') }}
-        </p>
-      </div>
-      <UButton
-        color="primary"
-        icon="i-lucide-plus"
-        @click="creating = true; modalError = null"
-      >
-        {{ $t('admin.categories.actions.create') }}
-      </UButton>
-    </header>
-
-    <div class="flex flex-wrap items-center gap-3">
-      <USelectMenu
-        :model-value="filters.active"
-        :items="[
-          { label: $t('admin.categories.filters.activeAll'), value: 'all' },
-          { label: $t('admin.categories.filters.activeOnly'), value: 'true' },
-          { label: $t('admin.categories.filters.inactiveOnly'), value: 'false' },
-        ]"
-        value-key="value"
-        class="w-56"
-        @update:model-value="(v) => set({ active: v as 'all' | 'true' | 'false' })"
-      />
-      <UInput
-        v-model="searchInput"
-        icon="i-lucide-search"
-        :placeholder="$t('admin.categories.placeholders.search')"
-        class="flex-1 min-w-64"
-      />
-    </div>
-
-    <ErrorAlert
-      v-if="listError"
-      :problem="parseProblem(listError)"
-    />
-
-    <div
-      v-if="visibleCategories.length === 0"
-      class="text-muted text-sm py-12 text-center"
-    >
-      <template v-if="filters.search || filters.active !== 'all'">
-        {{ $t('admin.categories.empty.noResults') }}
-      </template>
-      <template v-else>
-        {{ $t('admin.categories.empty.noCategories') }}
-      </template>
-    </div>
-
-    <UTable
-      v-else
-      :data="visibleCategories"
-      :columns="columns"
-      :ui="{ td: 'align-middle' }"
-    >
-      <template #is_active-cell="{ row }">
-        <UBadge
-          :color="row.original.is_active ? 'success' : 'neutral'"
-          variant="subtle"
-        >
-          {{ row.original.is_active ? $t('admin.categories.filters.activeOnly') : $t('admin.categories.filters.inactiveOnly') }}
-        </UBadge>
-      </template>
-      <template #actions-cell="{ row }">
-        <div class="flex justify-end gap-1">
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-pencil"
-            size="sm"
-            :aria-label="$t('admin.categories.actions.edit')"
-            @click="editing = row.original; modalError = null"
-          />
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-trash-2"
-            size="sm"
-            :aria-label="$t('admin.categories.actions.delete')"
-            @click="deleting = row.original; modalError = null"
-          />
+  <NuxtLayout>
+    <div class="space-y-6">
+      <header class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 class="text-2xl font-bold">
+            {{ $t('admin.categories.title') }}
+          </h1>
+          <p class="text-muted text-sm mt-1">
+            {{ $t('admin.categories.subtitle') }}
+          </p>
         </div>
-      </template>
-    </UTable>
+        <UButton
+          color="primary"
+          icon="i-lucide-plus"
+          @click="creating = true; modalError = null"
+        >
+          {{ $t('admin.categories.actions.create') }}
+        </UButton>
+      </header>
 
-    <CategoryFormModal
-      :open="creating"
-      :category="null"
-      :loading="createMutation.isLoading.value"
-      :error="modalError"
-      @update:open="(v) => { creating = v; if (!v) modalError = null }"
-      @submit="onCreate"
-      @cancel="creating = false"
-    />
+      <div class="flex flex-wrap items-center gap-3">
+        <USelectMenu
+          :model-value="filters.active"
+          :items="[
+            { label: $t('admin.categories.filters.activeAll'), value: 'all' },
+            { label: $t('admin.categories.filters.activeOnly'), value: 'true' },
+            { label: $t('admin.categories.filters.inactiveOnly'), value: 'false' },
+          ]"
+          value-key="value"
+          class="w-56"
+          @update:model-value="(v) => set({ active: v as 'all' | 'true' | 'false' })"
+        />
+        <UInput
+          v-model="searchInput"
+          icon="i-lucide-search"
+          :placeholder="$t('admin.categories.placeholders.search')"
+          class="flex-1 min-w-64"
+        />
+      </div>
 
-    <CategoryFormModal
-      :open="editing !== null"
-      :category="editing"
-      :loading="updateMutation.isLoading.value"
-      :error="modalError"
-      @update:open="(v) => { if (!v) editing = null; modalError = null }"
-      @submit="onUpdate"
-      @cancel="editing = null"
-    />
+      <ErrorAlert
+        v-if="listError"
+        :problem="parseProblem(listError)"
+      />
 
-    <CategoryDeleteConfirm
-      :open="deleting !== null"
-      :category="deleting"
-      :loading="deleteMutation.isLoading.value"
-      :error="modalError"
-      @update:open="(v) => { if (!v) deleting = null; modalError = null }"
-      @confirm="onDelete"
-      @cancel="deleting = null"
-    />
-  </div>
+      <div
+        v-if="visibleCategories.length === 0"
+        class="text-muted text-sm py-12 text-center"
+      >
+        <template v-if="filters.search || filters.active !== 'all'">
+          {{ $t('admin.categories.empty.noResults') }}
+        </template>
+        <template v-else>
+          {{ $t('admin.categories.empty.noCategories') }}
+        </template>
+      </div>
+
+      <UTable
+        v-else
+        :data="visibleCategories"
+        :columns="columns"
+        :ui="{ td: 'align-middle' }"
+      >
+        <template #is_active-cell="{ row }">
+          <UBadge
+            :color="row.original.is_active ? 'success' : 'neutral'"
+            variant="subtle"
+          >
+            {{ row.original.is_active ? $t('admin.categories.filters.activeOnly') : $t('admin.categories.filters.inactiveOnly') }}
+          </UBadge>
+        </template>
+        <template #actions-cell="{ row }">
+          <div class="flex justify-end gap-1">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-pencil"
+              size="sm"
+              :aria-label="$t('admin.categories.actions.edit')"
+              @click="editing = row.original; modalError = null"
+            />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-trash-2"
+              size="sm"
+              :aria-label="$t('admin.categories.actions.delete')"
+              @click="deleting = row.original; modalError = null"
+            />
+          </div>
+        </template>
+      </UTable>
+
+      <CategoryFormModal
+        :open="creating"
+        :category="null"
+        :loading="createMutation.isLoading.value"
+        :error="modalError"
+        @update:open="(v) => { creating = v; if (!v) modalError = null }"
+        @submit="onCreate"
+        @cancel="creating = false"
+      />
+
+      <CategoryFormModal
+        :open="editing !== null"
+        :category="editing"
+        :loading="updateMutation.isLoading.value"
+        :error="modalError"
+        @update:open="(v) => { if (!v) editing = null; modalError = null }"
+        @submit="onUpdate"
+        @cancel="editing = null"
+      />
+
+      <CategoryDeleteConfirm
+        :open="deleting !== null"
+        :category="deleting"
+        :loading="deleteMutation.isLoading.value"
+        :error="modalError"
+        @update:open="(v) => { if (!v) deleting = null; modalError = null }"
+        @confirm="onDelete"
+        @cancel="deleting = null"
+      />
+    </div>
+  </NuxtLayout>
 </template>
