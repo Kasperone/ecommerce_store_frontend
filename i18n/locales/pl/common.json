@@ -84,7 +84,33 @@
         "search": "Szukaj kategorii",
         "name": "Książki",
         "slug": "ksiazki",
-        "description": "Opcjonalny opis"
+        "description": "Opcjonalny opis",
+        "namePl": "Książki",
+        "slugPl": "ksiazki",
+        "descriptionPl": "Opcjonalny opis"
+      },
+      "tabs": {
+        "en": "Angielski",
+        "pl": "Polski"
+      },
+      "seo": {
+        "section": "Meta SEO",
+        "hint": "Opcjonalne. Używane jako tytuł i opis meta dla strony kategorii w sklepie.",
+        "metaTitle": "Tytuł meta",
+        "metaDescription": "Opis meta"
+      },
+      "hero": {
+        "section": "Obraz nagłówkowy",
+        "dropZone": "Upuść obraz lub kliknij, aby przesłać",
+        "allowedTypes": "JPEG, PNG, WebP — do 5 MiB",
+        "replace": "Zamień",
+        "clearStaged": "Wyczyść",
+        "removeExisting": "Usuń",
+        "existingLabel": "Obecny obraz nagłówkowy",
+        "errors": {
+          "sizeTooLarge": "Obraz jest większy niż 5 MiB.",
+          "unsupportedType": "Nieobsługiwany format obrazu. Dozwolone: JPEG, PNG, WebP."
+        }
       },
       "filters": {
         "activeAll": "Wszystkie",
@@ -134,7 +160,9 @@
         "slugRequired": "Slug jest wymagany",
         "slugTooLong": "Slug nie może mieć więcej niż 100 znaków",
         "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
-        "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków"
+        "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków",
+        "metaTitleTooLong": "Tytuł meta nie może mieć więcej niż {max} znaków",
+        "metaDescriptionTooLong": "Opis meta nie może mieć więcej niż {max} znaków"
       }
     },
     "products": {
