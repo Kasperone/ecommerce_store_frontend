@@ -135,7 +135,7 @@
         "slug": "Małe litery, cyfry i myślniki",
         "sku": "Opcjonalny identyfikator wewnętrzny",
         "category": "Wybierz kategorię katalogu, do której należy produkt",
-        "currency": "Każdą walutę ustawiasz niezależnie — bez automatycznego przeliczania"
+        "currency": "Wymagana co najmniej jedna cena. Ustaw ceny dla rynków, na których produkt ma być sprzedawany."
       },
       "placeholders": {
         "name": "Encyklopedia herbaty",
@@ -249,6 +249,7 @@
         "priceInvalid": "Cena musi być liczbą",
         "priceGtZero": "Cena musi być większa od zera",
         "priceCentPrecision": "Cena może mieć maksymalnie dwa miejsca po przecinku",
+        "atLeastOneCurrency": "Wymagana jest co najmniej jedna cena (USD, PLN lub EUR).",
         "stockRequired": "Stan jest wymagany",
         "stockInvalid": "Stan musi być liczbą",
         "stockInteger": "Stan musi być liczbą całkowitą",

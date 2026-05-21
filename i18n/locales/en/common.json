@@ -134,7 +134,7 @@
         "slug": "Lowercase letters, numbers, and hyphens",
         "sku": "Optional internal identifier",
         "category": "Pick the catalog category this product belongs to",
-        "currency": "Set each currency independently — no auto-conversion"
+        "currency": "At least one currency price is required. Set the prices for the markets this product targets."
       },
       "placeholders": {
         "name": "Encyclopedia of Tea",
@@ -248,6 +248,7 @@
         "priceInvalid": "Price must be a number",
         "priceGtZero": "Price must be greater than zero",
         "priceCentPrecision": "Price can have at most two decimal places",
+        "atLeastOneCurrency": "At least one currency price is required (USD, PLN, or EUR).",
         "stockRequired": "Stock is required",
         "stockInvalid": "Stock must be a number",
         "stockInteger": "Stock must be a whole number",

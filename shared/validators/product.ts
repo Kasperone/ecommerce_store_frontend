@@ -35,9 +35,9 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
       .regex(SLUG_PATTERN, { error: t('admin.products.errors.slugFormat', { default: 'Slug must be lowercase letters, numbers, and hyphens' }) }),
     description: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
     sku: z.string().max(100, { error: t('admin.products.errors.skuTooLong', { default: 'SKU must be 100 characters or fewer' }) }).optional().nullable(),
-    price_usd: _price(t),
-    price_pln: _price(t),
-    price_eur: _price(t),
+    price_usd: _price(t).nullable().optional(),
+    price_pln: _price(t).nullable().optional(),
+    price_eur: _price(t).nullable().optional(),
     stock: z.number({
       error: issue => issue.input === undefined
         ? t('admin.products.errors.stockRequired', { default: 'Stock is required' })
@@ -49,6 +49,20 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
     is_active: z.boolean().default(true),
     is_featured: z.boolean().default(false),
     category_id: z.number().int().positive().optional().nullable(),
+  }).superRefine((data, ctx) => {
+    // At-least-one currency is the backend contract (CHECK constraint
+    // ck_products_at_least_one_price). `== null` covers both null and
+    // undefined — on create the form always sends all three (with `?? null`
+    // for empty inputs), so this catches "user filled none".
+    if (data.price_usd == null && data.price_pln == null && data.price_eur == null) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['price_pln'],
+        message: t('admin.products.errors.atLeastOneCurrency', {
+          default: 'At least one currency price is required',
+        }),
+      })
+    }
   })
 
 export const createProductUpdateSchema = (t: TranslateFunction) =>
@@ -64,9 +78,9 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
       .optional(),
     description: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
     sku: z.string().max(100, { error: t('admin.products.errors.skuTooLong', { default: 'SKU must be 100 characters or fewer' }) }).optional().nullable(),
-    price_usd: _price(t).optional(),
-    price_pln: _price(t).optional(),
-    price_eur: _price(t).optional(),
+    price_usd: _price(t).nullable().optional(),
+    price_pln: _price(t).nullable().optional(),
+    price_eur: _price(t).nullable().optional(),
     stock: z.number()
       .int({ error: t('admin.products.errors.stockInteger', { default: 'Stock must be a whole number' }) })
       .min(0, { error: t('admin.products.errors.stockNegative', { default: 'Stock cannot be negative' }) })
@@ -74,6 +88,19 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
     is_active: z.boolean().optional(),
     is_featured: z.boolean().optional(),
     category_id: z.number().int().positive().optional().nullable(),
+  }).superRefine((data, ctx) => {
+    // On update, distinguish "explicitly clear" from "leave alone": only
+    // fail when ALL THREE are explicitly null (admin tried to wipe pricing).
+    // Undefined means "don't touch" — a `{name: 'x'}` PATCH must succeed.
+    if (data.price_usd === null && data.price_pln === null && data.price_eur === null) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['price_pln'],
+        message: t('admin.products.errors.atLeastOneCurrency', {
+          default: 'At least one currency price is required',
+        }),
+      })
+    }
   })
 
 export type ProductCreateInput = z.infer<ReturnType<typeof createProductCreateSchema>>

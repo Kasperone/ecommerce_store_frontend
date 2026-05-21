@@ -91,6 +91,51 @@ describe('createProductCreateSchema', () => {
   it('rejects an sku over 100 chars', () => {
     expect(create.safeParse({ ...validProduct, sku: 'x'.repeat(101) }).success).toBe(false)
   })
+
+  it('accepts a PLN-only product (USD and EUR null)', () => {
+    const result = create.safeParse({
+      ...validProduct,
+      price_usd: null,
+      price_pln: 79.99,
+      price_eur: null,
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts a USD-only product (PLN and EUR null)', () => {
+    const result = create.safeParse({
+      ...validProduct,
+      price_usd: 19.99,
+      price_pln: null,
+      price_eur: null,
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts an EUR-only product (USD and PLN null)', () => {
+    const result = create.safeParse({
+      ...validProduct,
+      price_usd: null,
+      price_pln: null,
+      price_eur: 17.99,
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects an all-null currency product with the at-least-one issue on price_pln', () => {
+    const result = create.safeParse({
+      ...validProduct,
+      price_usd: null,
+      price_pln: null,
+      price_eur: null,
+    })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const issue = result.error.issues.find(i => i.path[0] === 'price_pln')
+      expect(issue).toBeDefined()
+      expect(issue!.message).toMatch(/at least one/i)
+    }
+  })
 })
 
 describe('createProductUpdateSchema', () => {
@@ -115,5 +160,31 @@ describe('createProductUpdateSchema', () => {
 
   it('still enforces non-negative stock when present', () => {
     expect(update.safeParse({ stock: -5 }).success).toBe(false)
+  })
+
+  it('accepts a partial patch that touches no currency fields', () => {
+    expect(update.safeParse({ name: 'Renamed' }).success).toBe(true)
+  })
+
+  it('accepts a patch that explicitly clears one currency but keeps another set', () => {
+    expect(update.safeParse({ price_usd: null, price_pln: 50 }).success).toBe(true)
+  })
+
+  it('rejects a patch that explicitly clears ALL three currencies', () => {
+    const result = update.safeParse({
+      price_usd: null,
+      price_pln: null,
+      price_eur: null,
+    })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const issue = result.error.issues.find(i => i.path[0] === 'price_pln')
+      expect(issue).toBeDefined()
+      expect(issue!.message).toMatch(/at least one/i)
+    }
+  })
+
+  it('accepts a single-currency PLN-only patch', () => {
+    expect(update.safeParse({ price_pln: 42 }).success).toBe(true)
   })
 })
