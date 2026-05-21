@@ -132,7 +132,9 @@ const title = computed(() =>
           :label="t('admin.categories.fields.slug', { default: 'Slug' })"
           name="slug"
           required
-          :hint="t('admin.categories.fields.slugHint', { default: 'Lowercase letters, numbers, and hyphens' })"
+          :hint="t('admin.categories.fields.slugHint', {
+            default: 'Lowercase letters, numbers, and hyphens',
+          })"
         >
           <UInput
             v-model="state.slug"
@@ -149,7 +151,9 @@ const title = computed(() =>
         >
           <UTextarea
             v-model="state.description"
-            :placeholder="t('admin.categories.placeholders.description', { default: 'Optional summary' })"
+            :placeholder="t('admin.categories.placeholders.description', {
+              default: 'Optional summary',
+            })"
             :disabled="loading"
             class="w-full"
             :rows="3"

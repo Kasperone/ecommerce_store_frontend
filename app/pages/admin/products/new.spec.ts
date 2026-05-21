@@ -3,7 +3,13 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 
-const { mockNavigateTo, createMutateAsync, uploadMutateAsync, setPrimaryMutateAsync, deleteMutateAsync } = vi.hoisted(() => ({
+const {
+  mockNavigateTo,
+  createMutateAsync,
+  uploadMutateAsync,
+  setPrimaryMutateAsync,
+  deleteMutateAsync,
+} = vi.hoisted(() => ({
   mockNavigateTo: vi.fn(),
   createMutateAsync: vi.fn(),
   uploadMutateAsync: vi.fn(),
@@ -20,7 +26,10 @@ vi.mock('~/composables/queries/useProductQueries', () => ({
 
 vi.mock('~/composables/queries/useProductImageQueries', () => ({
   useUploadProductImage: () => ({ isLoading: { value: false }, mutateAsync: uploadMutateAsync }),
-  useUpdateProductImage: () => ({ isLoading: { value: false }, mutateAsync: setPrimaryMutateAsync }),
+  useUpdateProductImage: () => ({
+    isLoading: { value: false },
+    mutateAsync: setPrimaryMutateAsync,
+  }),
 }))
 
 vi.mock('~/composables/queries/useCategoryQueries', () => ({
