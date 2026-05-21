@@ -2,9 +2,13 @@
 import { useI18n } from 'vue-i18n'
 import { useAdminSidebarGroups } from '~/components/admin/sidebarMenu'
 
-const { t } = useI18n()
+const { locale, setLocale, t } = useI18n()
 const authStore = useAuthStore()
 const groups = useAdminSidebarGroups()
+
+function toggleLocale() {
+  setLocale(locale.value === 'pl' ? 'en' : 'pl')
+}
 </script>
 
 <template>
@@ -57,6 +61,17 @@ const groups = useAdminSidebarGroups()
           <UDashboardSidebarToggle />
         </template>
         <template #right>
+          <UTooltip :text="t('header.toggleLang')">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              class="px-2 text-sm cursor-pointer"
+              :aria-label="t('header.toggleLang')"
+              @click="toggleLocale"
+            >
+              {{ locale === 'pl' ? 'PL' : 'EN' }}
+            </UButton>
+          </UTooltip>
           <UColorModeButton class="cursor-pointer" />
           <UButton
             color="neutral"

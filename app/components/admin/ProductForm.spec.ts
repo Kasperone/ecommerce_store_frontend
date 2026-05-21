@@ -127,4 +127,32 @@ describe('ProductForm', () => {
     expect(html).toContain('PLN')
     expect(html).toContain('EUR')
   })
+
+  it('does not surface validation errors before the first submit', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: { categories: baseCategories },
+    })
+    const nameInput = wrapper.find('input[name="name"]').element as HTMLInputElement
+    nameInput.value = ''
+    nameInput.dispatchEvent(new Event('input', { bubbles: true }))
+    nameInput.dispatchEvent(new Event('blur', { bubbles: true }))
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.html()).not.toContain('Name is required')
+    // Distinguish the error message from the pricing hint — both share a prefix.
+    expect(wrapper.html()).not.toMatch(/USD, PLN, or EUR/i)
+  })
+
+  it('surfaces both name-required and at-least-one-currency errors only on submit', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: { categories: baseCategories },
+    })
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    const html = wrapper.html()
+    expect(html).toContain('Name is required')
+    // The error-only suffix — the hint shares the prefix.
+    expect(html).toMatch(/USD, PLN, or EUR/i)
+  })
 })
