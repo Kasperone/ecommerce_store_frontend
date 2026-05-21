@@ -762,11 +762,11 @@ export interface components {
             /** Sku */
             sku?: string | null;
             /** Price Usd */
-            price_usd: number;
+            price_usd?: number | null;
             /** Price Pln */
-            price_pln: number;
+            price_pln?: number | null;
             /** Price Eur */
-            price_eur: number;
+            price_eur?: number | null;
             /**
              * Stock
              * @default 0
@@ -889,11 +889,11 @@ export interface components {
             /** Sku */
             sku?: string | null;
             /** Price Usd */
-            price_usd: number;
+            price_usd?: number | null;
             /** Price Pln */
-            price_pln: number;
+            price_pln?: number | null;
             /** Price Eur */
-            price_eur: number;
+            price_eur?: number | null;
             /**
              * Stock
              * @default 0
@@ -973,11 +973,11 @@ export interface components {
             /** Sku */
             sku?: string | null;
             /** Price Usd */
-            price_usd: number;
+            price_usd?: number | null;
             /** Price Pln */
-            price_pln: number;
+            price_pln?: number | null;
             /** Price Eur */
-            price_eur: number;
+            price_eur?: number | null;
             /**
              * Stock
              * @default 0

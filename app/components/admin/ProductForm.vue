@@ -16,9 +16,9 @@ export interface ProductFormPayload {
   slug: string
   description: string | null
   sku: string | null
-  price_usd: number
-  price_pln: number
-  price_eur: number
+  price_usd: number | null
+  price_pln: number | null
+  price_eur: number | null
   stock: number
   is_active: boolean
   is_featured: boolean
@@ -80,9 +80,9 @@ watch(
       state.slug = product.slug
       state.description = product.description ?? ''
       state.sku = product.sku ?? ''
-      state.price_usd = product.price_usd
-      state.price_pln = product.price_pln
-      state.price_eur = product.price_eur
+      state.price_usd = product.price_usd ?? undefined
+      state.price_pln = product.price_pln ?? undefined
+      state.price_eur = product.price_eur ?? undefined
       state.stock = product.stock
       state.is_active = product.is_active
       state.is_featured = product.is_featured
@@ -124,13 +124,18 @@ const schema = computed(() =>
 )
 
 async function validate(values: FormState): Promise<FormError[]> {
-  // Zod schema expects undefined → optional fields cleared; pass strings as-is
-  // and let Zod coerce nullables for optional fields.
+  // The form always renders all three currency fields, so an empty field maps
+  // to `undefined` in state. We coerce to `null` here so the schema's
+  // at-least-one check (which uses `=== null` on update to distinguish "user
+  // cleared" from "JS client omitted the key") matches in both modes.
   const candidate = {
     ...values,
     description: values.description.trim() || null,
     sku: values.sku.trim() || null,
     category_id: values.category_id ?? null,
+    price_usd: values.price_usd ?? null,
+    price_pln: values.price_pln ?? null,
+    price_eur: values.price_eur ?? null,
   }
   const result = schema.value.safeParse(candidate)
   if (result.success) return []
@@ -146,9 +151,9 @@ function buildPayload(): ProductFormPayload {
     slug: state.slug,
     description: state.description.trim() || null,
     sku: state.sku.trim() || null,
-    price_usd: state.price_usd ?? 0,
-    price_pln: state.price_pln ?? 0,
-    price_eur: state.price_eur ?? 0,
+    price_usd: state.price_usd ?? null,
+    price_pln: state.price_pln ?? null,
+    price_eur: state.price_eur ?? null,
     stock: state.stock,
     is_active: state.is_active,
     is_featured: state.is_featured,
@@ -180,6 +185,7 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
   <UForm
     :state="state"
     :validate="validate"
+    :validate-on="['submit']"
     class="space-y-8"
     @submit="onSubmit"
   >
@@ -295,7 +301,6 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         <UFormField
           :label="t('admin.products.fields.priceUsd')"
           name="price_usd"
-          required
         >
           <UInputNumber
             v-model="state.price_usd"
@@ -308,7 +313,6 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         <UFormField
           :label="t('admin.products.fields.pricePln')"
           name="price_pln"
-          required
         >
           <UInputNumber
             v-model="state.price_pln"
@@ -321,7 +325,6 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         <UFormField
           :label="t('admin.products.fields.priceEur')"
           name="price_eur"
-          required
         >
           <UInputNumber
             v-model="state.price_eur"
@@ -360,19 +363,12 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         {{ t('admin.products.actions.cancel') }}
       </UButton>
       <UButton
+        type="submit"
         color="primary"
         :loading="loading"
-        @click="onSubmit({ data: { ...state } } as FormSubmitEvent<FormState>)"
       >
         {{ submitLabel }}
       </UButton>
     </div>
-
-    <!-- Hidden submit so pressing Enter inside any input fires the form. -->
-    <button
-      type="submit"
-      class="hidden"
-      :disabled="loading"
-    />
   </UForm>
 </template>
