@@ -93,7 +93,32 @@
       "confirm": {
         "deleteTitle": "Delete category",
         "deleteBodyEmpty": "This category will be permanently removed.",
-        "deleteBodyWithProducts": "{count} products are assigned to this category. Reassign them before deleting."
+        "deleteBodyWithProducts": "{count} products are assigned to this category. Reassign them before deleting.",
+        "helpDirectProducts": "{count} products are attached directly. Reassign them first.",
+        "helpProductsAndChildren": "{count} products are attached directly. Remove them before deleting the subtree.",
+        "helpSubtreeProducts": "{count} products live in the subtree. Reassign them before cascading.",
+        "helpChildrenOnly": "{count} child categories exist. Pick a delete mode.",
+        "modes": {
+          "none": "Delete (leaf only)",
+          "noneHint": "Only available when this category has no children and no products.",
+          "cascade": "Delete subtree (+{count} descendants)",
+          "cascadeHint": "Recursively delete this category and every descendant. Products in the subtree must be removed first.",
+          "reparent": "Move children to root, then delete",
+          "reparentHint": "Direct children become roots. Products on this category must be removed first; products are never silently re-parented."
+        }
+      },
+      "tree": {
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "moveUnder": "Move under…",
+        "productBadge": "{count}",
+        "productBadgeTitle": "Active products directly on this category",
+        "moveDialog": {
+          "title": "Move under…",
+          "body": "Pick the new parent. Descendants of the moving category are filtered out.",
+          "rootLabel": "Root (no parent)",
+          "confirm": "Move"
+        }
       },
       "empty": {
         "noResults": "No categories match the current filter.",
