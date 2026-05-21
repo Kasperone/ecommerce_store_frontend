@@ -144,35 +144,91 @@ const createMutation = useCreateCategory()
 const updateMutation = useUpdateCategory()
 const deleteMutation = useDeleteCategory()
 const deleteWithModeMutation = useDeleteCategoryWithMode()
+const uploadHeroMutation = useUploadCategoryHero()
+const deleteHeroMutation = useDeleteCategoryHero()
 
 const deletePreviewQuery = useCategoryDeletePreviewQuery(() => deleting.value?.id)
 
-async function onCreate(payload: {
+interface CategoryFormSubmit {
   name: string
   slug: string
-  description?: string | null
+  description: string | null
   is_active: boolean
-}) {
+  name_pl: string | null
+  slug_pl: string | null
+  description_pl: string | null
+  meta_title: string | null
+  meta_description: string | null
+  meta_title_pl: string | null
+  meta_description_pl: string | null
+  heroFile: File | null
+  removeExistingHero: boolean
+}
+
+function buildPatchPayload(payload: CategoryFormSubmit) {
+  // Everything goes in the patch; nullable fields are emitted as null when the
+  // admin clears them so the backend persists the intent.
+  return {
+    name: payload.name,
+    slug: payload.slug,
+    description: payload.description,
+    is_active: payload.is_active,
+    name_pl: payload.name_pl,
+    slug_pl: payload.slug_pl,
+    description_pl: payload.description_pl,
+    meta_title: payload.meta_title,
+    meta_description: payload.meta_description,
+    meta_title_pl: payload.meta_title_pl,
+    meta_description_pl: payload.meta_description_pl,
+  }
+}
+
+async function uploadHeroIfStaged(
+  id: number,
+  heroFile: File | null,
+): Promise<void> {
+  if (!heroFile) return
+  const formData = new FormData()
+  formData.append('file', heroFile)
+  await uploadHeroMutation.mutateAsync({ id, formData })
+}
+
+async function onCreate(payload: CategoryFormSubmit) {
   modalError.value = null
+  let createdId: number | null = null
   try {
-    await createMutation.mutateAsync(payload)
+    const body = buildPatchPayload(payload)
+    const created = await createMutation.mutateAsync(body)
+    createdId = created.id
+    await uploadHeroIfStaged(created.id, payload.heroFile)
     creating.value = false
   }
   catch (err) {
     modalError.value = parseProblem(err)
+    // If the row landed but the hero upload failed, compensate by
+    // deleting the orphan category. Best-effort: a failure here is logged
+    // but doesn't replace the original error surfaced to the admin.
+    if (createdId !== null) {
+      try {
+        await deleteMutation.mutateAsync(createdId)
+      }
+      catch {
+        // Swallow — the user already sees the original error.
+      }
+    }
   }
 }
 
-async function onUpdate(payload: {
-  name: string
-  slug: string
-  description?: string | null
-  is_active: boolean
-}) {
+async function onUpdate(payload: CategoryFormSubmit) {
   if (!editing.value) return
+  const id = editing.value.id
   modalError.value = null
   try {
-    await updateMutation.mutateAsync({ id: editing.value.id, patch: payload })
+    await updateMutation.mutateAsync({ id, patch: buildPatchPayload(payload) })
+    if (payload.removeExistingHero && !payload.heroFile) {
+      await deleteHeroMutation.mutateAsync(id)
+    }
+    await uploadHeroIfStaged(id, payload.heroFile)
     editing.value = null
   }
   catch (err) {

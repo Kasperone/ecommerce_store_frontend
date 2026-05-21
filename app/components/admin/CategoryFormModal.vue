@@ -2,23 +2,55 @@
 import slugify from 'slugify'
 import type { FormError, FormSubmitEvent } from '@nuxt/ui'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
-import type { CategoryResponse, CategoryWithProductCount } from '#shared/types/api'
+import type {
+  CategoryResponse,
+  CategoryTreeNode,
+  CategoryWithProductCount,
+} from '#shared/types/api'
 import {
   createCategoryCreateSchema,
   createCategoryUpdateSchema,
 } from '#shared/validators/category'
 
+/**
+ * Per-locale tabs + SEO meta + hero staging.
+ *
+ * Submit payload includes every populated field — the page handles the
+ * multi-step orchestration (POST/PUT category, then POST hero on success
+ * with a compensating DELETE on hero failure for newly-created categories,
+ * mirroring the products one-step-create flow from PR #57).
+ */
+
+type LocaleTab = 'en' | 'pl'
+
+export interface CategoryFormSubmit {
+  name: string
+  slug: string
+  description: string | null
+  is_active: boolean
+  name_pl: string | null
+  slug_pl: string | null
+  description_pl: string | null
+  meta_title: string | null
+  meta_description: string | null
+  meta_title_pl: string | null
+  meta_description_pl: string | null
+  /** Local file the page should POST to /hero after the row lands. */
+  heroFile: File | null
+  /** True when the admin clicked Remove on an existing hero (edit mode). */
+  removeExistingHero: boolean
+}
+
 const props = defineProps<{
   open: boolean
-  /** Pass an existing category to edit; omit for create mode. */
-  category?: CategoryResponse | CategoryWithProductCount | null
+  category?: CategoryResponse | CategoryWithProductCount | CategoryTreeNode | null
   loading?: boolean
   error?: ProblemDetails | null
 }>()
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  'submit': [value: { name: string, slug: string, description?: string | null, is_active: boolean }]
+  'submit': [value: CategoryFormSubmit]
   'cancel': []
 }>()
 
@@ -28,47 +60,102 @@ const mode = computed<'create' | 'edit'>(() => (props.category ? 'edit' : 'creat
 const state = reactive({
   name: '',
   slug: '',
-  description: '' as string | null,
+  description: '' as string,
   is_active: true,
+  name_pl: '' as string,
+  slug_pl: '' as string,
+  description_pl: '' as string,
+  meta_title: '' as string,
+  meta_description: '' as string,
+  meta_title_pl: '' as string,
+  meta_description_pl: '' as string,
 })
 
-// Track whether the user has hand-edited the slug. If they have, we stop
-// auto-syncing it from the name — otherwise auto-slugify on name blur.
-const slugManuallyEdited = ref(false)
+const slugEnManuallyEdited = ref(false)
+const slugPlManuallyEdited = ref(false)
+const heroFile = ref<File | null>(null)
+const removeExistingHero = ref(false)
+const localeTab = ref<LocaleTab>('en')
+
+const existingHero = computed(() =>
+  removeExistingHero.value
+    ? null
+    : (props.category as CategoryResponse | undefined)?.hero_image_url ?? null,
+)
+const existingHeroAlt = computed(() =>
+  (props.category as CategoryResponse | undefined)?.hero_image_alt ?? null,
+)
 
 watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
+    localeTab.value = 'en'
+    heroFile.value = null
+    removeExistingHero.value = false
     if (props.category) {
-      state.name = props.category.name
-      state.slug = props.category.slug
-      state.description = props.category.description ?? ''
-      state.is_active = props.category.is_active
-      slugManuallyEdited.value = true // editing an existing slug should not be overwritten
+      const c = props.category as CategoryResponse & Partial<CategoryTreeNode>
+      state.name = c.name
+      state.slug = c.slug
+      state.description = c.description ?? ''
+      state.is_active = c.is_active
+      state.name_pl = c.name_pl ?? ''
+      state.slug_pl = c.slug_pl ?? ''
+      state.description_pl = c.description_pl ?? ''
+      state.meta_title = c.meta_title ?? ''
+      state.meta_description = c.meta_description ?? ''
+      state.meta_title_pl = c.meta_title_pl ?? ''
+      state.meta_description_pl = c.meta_description_pl ?? ''
+      // Existing slugs are user intent; do not silently overwrite.
+      slugEnManuallyEdited.value = true
+      slugPlManuallyEdited.value = state.slug_pl.length > 0
     }
     else {
       state.name = ''
       state.slug = ''
       state.description = ''
       state.is_active = true
-      slugManuallyEdited.value = false
+      state.name_pl = ''
+      state.slug_pl = ''
+      state.description_pl = ''
+      state.meta_title = ''
+      state.meta_description = ''
+      state.meta_title_pl = ''
+      state.meta_description_pl = ''
+      slugEnManuallyEdited.value = false
+      slugPlManuallyEdited.value = false
     }
   },
   { immediate: true },
 )
 
 function onNameBlur() {
-  if (!slugManuallyEdited.value && state.name) {
+  if (!slugEnManuallyEdited.value && state.name) {
     state.slug = slugify(state.name, { lower: true, strict: true })
   }
 }
 
-function onSlugInput() {
-  slugManuallyEdited.value = state.slug.length > 0
+function onSlugInput(value: string | number) {
+  // Read the emitted value directly — in happy-dom @input fires before
+  // v-model's @update:model-value lands on state. Same pattern as ProductForm.
+  slugEnManuallyEdited.value = String(value ?? '').length > 0
 }
 
-const schema = computed(() => (mode.value === 'create' ? createCategoryCreateSchema(t) : createCategoryUpdateSchema(t)))
+function onNamePlBlur() {
+  if (!slugPlManuallyEdited.value && state.name_pl) {
+    state.slug_pl = slugify(state.name_pl, { lower: true, strict: true })
+  }
+}
+
+function onSlugPlInput(value: string | number) {
+  slugPlManuallyEdited.value = String(value ?? '').length > 0
+}
+
+const schema = computed(() =>
+  mode.value === 'create'
+    ? createCategoryCreateSchema(t)
+    : createCategoryUpdateSchema(t),
+)
 
 async function validate(values: typeof state): Promise<FormError[]> {
   const result = schema.value.safeParse(values)
@@ -79,14 +166,41 @@ async function validate(values: typeof state): Promise<FormError[]> {
   }))
 }
 
-function onSubmit(event: FormSubmitEvent<typeof state>) {
+function nullable(s: string): string | null {
+  const trimmed = s.trim()
+  return trimmed.length === 0 ? null : trimmed
+}
+
+function onSubmit(_event: FormSubmitEvent<typeof state>) {
   emit('submit', {
-    name: event.data.name,
-    slug: event.data.slug,
-    description: event.data.description || null,
-    is_active: event.data.is_active,
+    name: state.name,
+    slug: state.slug,
+    description: nullable(state.description),
+    is_active: state.is_active,
+    name_pl: nullable(state.name_pl),
+    slug_pl: nullable(state.slug_pl),
+    description_pl: nullable(state.description_pl),
+    meta_title: nullable(state.meta_title),
+    meta_description: nullable(state.meta_description),
+    meta_title_pl: nullable(state.meta_title_pl),
+    meta_description_pl: nullable(state.meta_description_pl),
+    heroFile: heroFile.value,
+    removeExistingHero: removeExistingHero.value,
   })
 }
+
+function onHeroFile(file: File | null) {
+  heroFile.value = file
+}
+
+function onRemoveExistingHero() {
+  removeExistingHero.value = true
+}
+
+const tabs = computed(() => [
+  { value: 'en' as const, label: t('admin.categories.tabs.en', { default: 'English' }) },
+  { value: 'pl' as const, label: t('admin.categories.tabs.pl', { default: 'Polski' }) },
+])
 
 const title = computed(() =>
   mode.value === 'create'
@@ -100,6 +214,7 @@ const title = computed(() =>
     :open="open"
     :title="title"
     :dismissible="!loading"
+    :ui="{ content: 'max-w-2xl' }"
     @update:open="(v) => emit('update:open', v)"
   >
     <template #body>
@@ -111,54 +226,117 @@ const title = computed(() =>
       <UForm
         :state="state"
         :validate="validate"
-        class="space-y-4"
+        class="space-y-6"
         @submit="onSubmit"
       >
-        <UFormField
-          :label="t('admin.categories.fields.name', { default: 'Name' })"
-          name="name"
-          required
-        >
-          <UInput
-            v-model="state.name"
-            :placeholder="t('admin.categories.placeholders.name', { default: 'Books' })"
-            :disabled="loading"
-            class="w-full"
-            @blur="onNameBlur"
-          />
-        </UFormField>
+        <UTabs
+          v-model="localeTab"
+          :items="tabs"
+          value-key="value"
+          variant="link"
+        />
 
-        <UFormField
-          :label="t('admin.categories.fields.slug', { default: 'Slug' })"
-          name="slug"
-          required
-          :hint="t('admin.categories.fields.slugHint', {
-            default: 'Lowercase letters, numbers, and hyphens',
-          })"
+        <div
+          v-show="localeTab === 'en'"
+          class="space-y-4"
+          data-locale-pane="en"
         >
-          <UInput
-            v-model="state.slug"
-            :placeholder="t('admin.categories.placeholders.slug', { default: 'books' })"
-            :disabled="loading"
-            class="w-full"
-            @input="onSlugInput"
-          />
-        </UFormField>
+          <UFormField
+            :label="t('admin.categories.fields.name', { default: 'Name' })"
+            name="name"
+            required
+          >
+            <UInput
+              v-model="state.name"
+              :placeholder="t('admin.categories.placeholders.name', { default: 'Books' })"
+              :disabled="loading"
+              class="w-full"
+              @blur="onNameBlur"
+            />
+          </UFormField>
 
-        <UFormField
-          :label="t('admin.categories.fields.description', { default: 'Description' })"
-          name="description"
-        >
-          <UTextarea
-            v-model="state.description"
-            :placeholder="t('admin.categories.placeholders.description', {
-              default: 'Optional summary',
+          <UFormField
+            :label="t('admin.categories.fields.slug', { default: 'Slug' })"
+            name="slug"
+            required
+            :hint="t('admin.categories.fields.slugHint', {
+              default: 'Lowercase letters, numbers, and hyphens',
             })"
-            :disabled="loading"
-            class="w-full"
-            :rows="3"
-          />
-        </UFormField>
+          >
+            <UInput
+              v-model="state.slug"
+              :placeholder="t('admin.categories.placeholders.slug', { default: 'books' })"
+              :disabled="loading"
+              class="w-full"
+              @update:model-value="onSlugInput"
+            />
+          </UFormField>
+
+          <UFormField
+            :label="t('admin.categories.fields.description', { default: 'Description' })"
+            name="description"
+          >
+            <UTextarea
+              v-model="state.description"
+              :placeholder="t('admin.categories.placeholders.description', {
+                default: 'Optional summary',
+              })"
+              :disabled="loading"
+              class="w-full"
+              :rows="3"
+            />
+          </UFormField>
+        </div>
+
+        <div
+          v-show="localeTab === 'pl'"
+          class="space-y-4"
+          data-locale-pane="pl"
+        >
+          <UFormField
+            :label="t('admin.categories.fields.name', { default: 'Name' })"
+            name="name_pl"
+          >
+            <UInput
+              v-model="state.name_pl"
+              :placeholder="t('admin.categories.placeholders.namePl', { default: 'Książki' })"
+              :disabled="loading"
+              class="w-full"
+              @blur="onNamePlBlur"
+            />
+          </UFormField>
+
+          <UFormField
+            :label="t('admin.categories.fields.slug', { default: 'Slug' })"
+            name="slug_pl"
+            :hint="t('admin.categories.fields.slugHint', {
+              default: 'Lowercase letters, numbers, and hyphens',
+            })"
+          >
+            <UInput
+              v-model="state.slug_pl"
+              :placeholder="t('admin.categories.placeholders.slugPl', { default: 'ksiazki' })"
+              :disabled="loading"
+              class="w-full"
+              @update:model-value="onSlugPlInput"
+            />
+          </UFormField>
+
+          <UFormField
+            :label="t('admin.categories.fields.description', { default: 'Description' })"
+            name="description_pl"
+          >
+            <UTextarea
+              v-model="state.description_pl"
+              :placeholder="t('admin.categories.placeholders.descriptionPl', {
+                default: 'Opcjonalny opis',
+              })"
+              :disabled="loading"
+              class="w-full"
+              :rows="3"
+            />
+          </UFormField>
+        </div>
 
         <UFormField name="is_active">
           <UCheckbox
@@ -168,7 +346,86 @@ const title = computed(() =>
           />
         </UFormField>
 
-        <!-- Hidden submit so pressing Enter inside any input fires the form. -->
+        <details class="border border-default rounded-md">
+          <summary class="px-3 py-2 cursor-pointer text-sm font-medium select-none">
+            {{ t('admin.categories.seo.section', { default: 'SEO meta' }) }}
+          </summary>
+          <div class="p-3 pt-2 space-y-4">
+            <p class="text-xs text-muted">
+              {{ t('admin.categories.seo.hint', {
+                default: 'Optional. Used as the page title and meta description for the storefront category page.',
+              }) }}
+            </p>
+            <div
+              v-show="localeTab === 'en'"
+              class="space-y-4"
+              data-seo-pane="en"
+            >
+              <UFormField
+                :label="t('admin.categories.seo.metaTitle', { default: 'Meta title' })"
+                name="meta_title"
+              >
+                <UInput
+                  v-model="state.meta_title"
+                  :disabled="loading"
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField
+                :label="t('admin.categories.seo.metaDescription', { default: 'Meta description' })"
+                name="meta_description"
+              >
+                <UTextarea
+                  v-model="state.meta_description"
+                  :disabled="loading"
+                  class="w-full"
+                  :rows="2"
+                />
+              </UFormField>
+            </div>
+            <div
+              v-show="localeTab === 'pl'"
+              class="space-y-4"
+              data-seo-pane="pl"
+            >
+              <UFormField
+                :label="t('admin.categories.seo.metaTitle', { default: 'Meta title' })"
+                name="meta_title_pl"
+              >
+                <UInput
+                  v-model="state.meta_title_pl"
+                  :disabled="loading"
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField
+                :label="t('admin.categories.seo.metaDescription', { default: 'Meta description' })"
+                name="meta_description_pl"
+              >
+                <UTextarea
+                  v-model="state.meta_description_pl"
+                  :disabled="loading"
+                  class="w-full"
+                  :rows="2"
+                />
+              </UFormField>
+            </div>
+          </div>
+        </details>
+
+        <div class="space-y-2">
+          <p class="text-sm font-medium">
+            {{ t('admin.categories.hero.section', { default: 'Hero image' }) }}
+          </p>
+          <AdminCategoryHeroStaging
+            :existing-url="existingHero"
+            :existing-alt="existingHeroAlt"
+            :disabled="loading"
+            @update:file="onHeroFile"
+            @remove-existing="onRemoveExistingHero"
+          />
+        </div>
+
         <button
           type="submit"
           class="hidden"

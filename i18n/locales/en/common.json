@@ -83,7 +83,33 @@
         "search": "Search categories",
         "name": "Books",
         "slug": "books",
-        "description": "Optional summary"
+        "description": "Optional summary",
+        "namePl": "Książki",
+        "slugPl": "ksiazki",
+        "descriptionPl": "Opcjonalny opis"
+      },
+      "tabs": {
+        "en": "English",
+        "pl": "Polski"
+      },
+      "seo": {
+        "section": "SEO meta",
+        "hint": "Optional. Used as the page title and meta description on the storefront category page.",
+        "metaTitle": "Meta title",
+        "metaDescription": "Meta description"
+      },
+      "hero": {
+        "section": "Hero image",
+        "dropZone": "Drop image or click to upload",
+        "allowedTypes": "JPEG, PNG, WebP — up to 5 MiB",
+        "replace": "Replace",
+        "clearStaged": "Clear",
+        "removeExisting": "Remove",
+        "existingLabel": "Current hero image",
+        "errors": {
+          "sizeTooLarge": "Image is larger than 5 MiB.",
+          "unsupportedType": "Unsupported image format. Allowed: JPEG, PNG, WebP."
+        }
       },
       "filters": {
         "activeAll": "All",
@@ -133,7 +159,9 @@
         "slugRequired": "Slug is required",
         "slugTooLong": "Slug must be 100 characters or fewer",
         "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
-        "descriptionTooLong": "Description must be 500 characters or fewer"
+        "descriptionTooLong": "Description must be 500 characters or fewer",
+        "metaTitleTooLong": "Meta title must be {max} characters or fewer",
+        "metaDescriptionTooLong": "Meta description must be {max} characters or fewer"
       }
     },
     "products": {
