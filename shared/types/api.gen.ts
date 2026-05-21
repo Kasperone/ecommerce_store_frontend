@@ -432,6 +432,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/categories/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Category Tree
+         * @description Return the full category tree.
+         *
+         *     Sibling order is ``(sort_order, id)`` (set in :func:`get_all_ordered`).
+         *     Each node carries ``product_count`` (active products attached directly to
+         *     that node) — descendants are NOT summed in.
+         */
+        get: operations["get_category_tree_api_v1_categories_tree_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/categories/": {
         parameters: {
             query?: never;
@@ -486,9 +510,33 @@ export interface paths {
          * Delete Category
          * @description Delete category (Admin only)
          *
-         *     Requires admin authentication
+         *     Requires admin authentication. With no ``mode`` query param, a category
+         *     with children or products is rejected with a 400. ``mode=cascade``
+         *     recursively deletes; ``mode=reparent_to_root`` re-parents direct
+         *     children to the root first. Products on the deleted row still block —
+         *     products are never silently re-parented.
          */
         delete: operations["delete_category_api_v1_categories__category_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/categories/{category_id}/delete-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Category Delete Preview
+         * @description Counts the admin needs before picking ``cascade`` vs ``reparent_to_root``.
+         */
+        get: operations["category_delete_preview_api_v1_categories__category_id__delete_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -503,7 +551,12 @@ export interface paths {
         };
         /**
          * Get Category By Slug
-         * @description Get category by slug with product count
+         * @description Get category by slug with product count.
+         *
+         *     Searches both ``slug`` (EN) and ``slug_pl`` (PL). When the same value
+         *     exists across both columns on different rows, the EN row wins —
+         *     matches the default-locale convention so an English request that
+         *     accidentally collides with a Polish slug still resolves predictably.
          */
         get: operations["get_category_by_slug_api_v1_categories_slug__slug__get"];
         put?: never;
@@ -512,6 +565,73 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/categories/bulk-reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk Reorder Categories
+         * @description Apply a whole-tree reorder in a single transaction.
+         *
+         *     The server validates depth + cycle constraints over the *full proposed*
+         *     layout (existing rows the admin did not touch are included in the
+         *     walk), so a partial-tree request still cannot create a cycle through
+         *     rows the admin omitted. Returns the freshly-computed tree.
+         */
+        post: operations["bulk_reorder_categories_api_v1_categories_bulk_reorder_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/categories/{category_id}/hero": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Category Hero
+         * @description Upload (or replace) the hero image for ``category_id`` (Admin only).
+         *
+         *     Reuses the products upload pipeline (magic-byte sniff → size cap →
+         *     Pillow dimensions → R2 put) so the security posture stays consistent
+         *     across the catalog. ``get_r2_client()`` is called inline AFTER
+         *     validation so a spoofed extension surfaces as 400 even on dev
+         *     environments where R2 is unconfigured.
+         *
+         *     If a previous hero exists, the new upload overwrites the columns; the
+         *     old R2 object is best-effort deleted (a failure logs and proceeds —
+         *     the row already reflects the new key, an orphan object is a janitor's
+         *     problem, not a request-path one).
+         */
+        post: operations["upload_category_hero_api_v1_categories__category_id__hero_post"];
+        /**
+         * Delete Category Hero
+         * @description Clear the hero columns and best-effort delete the R2 object.
+         */
+        delete: operations["delete_category_hero_api_v1_categories__category_id__hero_delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Category Hero Alt
+         * @description Update only the alt text on the hero image (Admin only).
+         *
+         *     Re-upload uses ``POST /hero``. This endpoint exists so an admin can
+         *     type a description without re-sending the binary.
+         */
+        patch: operations["update_category_hero_alt_api_v1_categories__category_id__hero_patch"];
         trace?: never;
     };
     "/api/v1/products/{product_id}/images": {
@@ -586,6 +706,14 @@ export interface components {
              */
             client_secret?: string | null;
         };
+        /** Body_upload_category_hero_api_v1_categories__category_id__hero_post */
+        Body_upload_category_hero_api_v1_categories__category_id__hero_post: {
+            /**
+             * File
+             * Format: binary
+             */
+            file: string;
+        };
         /** Body_upload_product_image_api_v1_products__product_id__images_post */
         Body_upload_product_image_api_v1_products__product_id__images_post: {
             /**
@@ -593,6 +721,30 @@ export interface components {
              * Format: binary
              */
             file: string;
+        };
+        /**
+         * BulkReorderItem
+         * @description One row's new position in a bulk reorder request.
+         */
+        BulkReorderItem: {
+            /** Id */
+            id: number;
+            /** Parent Id */
+            parent_id?: number | null;
+            /** Sort Order */
+            sort_order: number;
+        };
+        /**
+         * BulkReorderRequest
+         * @description Body of ``POST /categories/bulk-reorder``.
+         *
+         *     Send every row whose position changed. The whole batch is validated
+         *     (depth, cycles, FK targets) before any row is mutated, so a single bad
+         *     item rolls the rest back.
+         */
+        BulkReorderRequest: {
+            /** Items */
+            items: components["schemas"]["BulkReorderItem"][];
         };
         /**
          * CategoryCreate
@@ -610,6 +762,70 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /** Parent Id */
+            parent_id?: number | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
+        };
+        /**
+         * CategoryDeletePreview
+         * @description Returned by ``GET /categories/{id}/delete-preview`` so the admin can
+         *     pick between cascade and reparent-to-root before issuing the DELETE.
+         */
+        CategoryDeletePreview: {
+            /** Descendant Count */
+            descendant_count: number;
+            /** Direct Product Count */
+            direct_product_count: number;
+            /** Subtree Product Count */
+            subtree_product_count: number;
+        };
+        /**
+         * CategoryHeroAltUpdate
+         * @description Body of ``PATCH /categories/{id}/hero`` (alt-text only).
+         *
+         *     Re-upload uses ``POST /hero``; ``PATCH`` is the cheap metadata path.
+         */
+        CategoryHeroAltUpdate: {
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+        };
+        /**
+         * CategoryHeroResponse
+         * @description Returned by the hero upload + alt-text PATCH endpoints.
+         */
+        CategoryHeroResponse: {
+            /** Hero Image Url */
+            hero_image_url?: string | null;
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+            /** Hero Width */
+            hero_width?: number | null;
+            /** Hero Height */
+            hero_height?: number | null;
+            /** Hero Bytes */
+            hero_bytes?: number | null;
+            /** Hero Mime */
+            hero_mime?: string | null;
+            /** Id */
+            id: number;
         };
         /**
          * CategoryResponse
@@ -628,6 +844,18 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Hero Image Url */
+            hero_image_url?: string | null;
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+            /** Hero Width */
+            hero_width?: number | null;
+            /** Hero Height */
+            hero_height?: number | null;
+            /** Hero Bytes */
+            hero_bytes?: number | null;
+            /** Hero Mime */
+            hero_mime?: string | null;
             /** Name */
             name: string;
             /** Slug */
@@ -639,10 +867,176 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /** Parent Id */
+            parent_id?: number | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
+        };
+        /**
+         * CategoryTreeNode
+         * @description Recursive tree node for ``GET /categories/tree``.
+         *
+         *     Children are pre-sorted by ``(sort_order, id)`` from the CRUD layer.
+         */
+        "CategoryTreeNode-Input": {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Hero Image Url */
+            hero_image_url?: string | null;
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+            /** Hero Width */
+            hero_width?: number | null;
+            /** Hero Height */
+            hero_height?: number | null;
+            /** Hero Bytes */
+            hero_bytes?: number | null;
+            /** Hero Mime */
+            hero_mime?: string | null;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Parent Id */
+            parent_id?: number | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
+            /**
+             * Product Count
+             * @default 0
+             */
+            product_count: number;
+            /** Children */
+            children?: components["schemas"]["CategoryTreeNode-Input"][];
+        };
+        /**
+         * CategoryTreeNode
+         * @description Recursive tree node for ``GET /categories/tree``.
+         *
+         *     Children are pre-sorted by ``(sort_order, id)`` from the CRUD layer.
+         */
+        "CategoryTreeNode-Output": {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Hero Image Url */
+            hero_image_url?: string | null;
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+            /** Hero Width */
+            hero_width?: number | null;
+            /** Hero Height */
+            hero_height?: number | null;
+            /** Hero Bytes */
+            hero_bytes?: number | null;
+            /** Hero Mime */
+            hero_mime?: string | null;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Parent Id */
+            parent_id?: number | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
+            /**
+             * Product Count
+             * @default 0
+             */
+            product_count: number;
+            /** Children */
+            children?: components["schemas"]["CategoryTreeNode-Output"][];
         };
         /**
          * CategoryUpdate
-         * @description Schema for updating a category
+         * @description Schema for updating a category.
+         *
+         *     Mirrors :class:`CategoryBase` but every field is optional so a PATCH can
+         *     touch a single locale without rewriting the whole row.
          */
         CategoryUpdate: {
             /** Name */
@@ -653,6 +1047,24 @@ export interface components {
             description?: string | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Parent Id */
+            parent_id?: number | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
         };
         /**
          * CategoryWithProductCount
@@ -671,6 +1083,18 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Hero Image Url */
+            hero_image_url?: string | null;
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+            /** Hero Width */
+            hero_width?: number | null;
+            /** Hero Height */
+            hero_height?: number | null;
+            /** Hero Bytes */
+            hero_bytes?: number | null;
+            /** Hero Mime */
+            hero_mime?: string | null;
             /** Name */
             name: string;
             /** Slug */
@@ -682,6 +1106,27 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /** Parent Id */
+            parent_id?: number | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
             /**
              * Product Count
              * @default 0
@@ -1823,6 +2268,38 @@ export interface operations {
             };
         };
     };
+    get_category_tree_api_v1_categories_tree_get: {
+        parameters: {
+            query?: {
+                /** @description Filter to active categories only; omit for the full tree */
+                is_active?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryTreeNode-Output"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_categories_api_v1_categories__get: {
         parameters: {
             query?: {
@@ -1960,7 +2437,10 @@ export interface operations {
     };
     delete_category_api_v1_categories__category_id__delete: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description `cascade` deletes the subtree; `reparent_to_root` lifts direct children to the root before deleting. Omit to require the category be empty. */
+                mode?: ("cascade" | "reparent_to_root") | null;
+            };
             header?: never;
             path: {
                 category_id: number;
@@ -1975,6 +2455,37 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    category_delete_preview_api_v1_categories__category_id__delete_preview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDeletePreview"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -2005,6 +2516,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CategoryWithProductCount"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_reorder_categories_api_v1_categories_bulk_reorder_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkReorderRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryTreeNode-Output"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_category_hero_api_v1_categories__category_id__hero_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_category_hero_api_v1_categories__category_id__hero_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryHeroResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_category_hero_api_v1_categories__category_id__hero_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_category_hero_alt_api_v1_categories__category_id__hero_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryHeroAltUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryHeroResponse"];
                 };
             };
             /** @description Validation Error */
