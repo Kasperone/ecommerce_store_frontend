@@ -60,6 +60,8 @@ e2e/
 │   ├── apiClient.ts      # Playwright request + pg wrapper (register, login, mark verified, trip lockout, product+image CRUD ...)
 │   ├── images/           # tiny PNG fixtures committed to the repo for admin/product-gallery.spec.ts
 │   └── testUser.ts       # KNOWN_USER, KNOWN_ADMIN, randomEphemeralUser()
+├── helpers/
+│   └── uinputnumber.ts   # clear/set wrappers for Nuxt UI UInputNumber (raw DOM mutation doesn't sync to v-model)
 ├── seed/
 │   └── global-setup.ts   # truncates auth tables + seeds known users (runs once before all tests)
 ├── auth.setup.ts         # logs in KNOWN_USER via API, stashes refresh cookie to playwright/.auth/user.json
@@ -70,6 +72,19 @@ e2e/
 │   └── refresh.spec.ts          # 3.2.d (PR2)
 └── admin/
     └── product-gallery.spec.ts  # real-R2 gallery lifecycle (opt-in via E2E_R2_ENABLED)
+```
+
+### Nuxt UI input helpers
+
+`UInputNumber` consumes keyboard events to manage its own state — driving it via `locator.fill('')` or DOM `.value = ''` mutation updates the displayed text but skips Vue's v-model. The form then submits the *stale* value. `e2e/helpers/uinputnumber.ts` wraps the focus + select-all + delete + tab sequence in `clearUInputNumber(locator)` and `setUInputNumber(locator, value)`; use them whenever a spec interacts with a price/stock/count field.
+
+```ts
+import { uInputNumberByLabel, setUInputNumber, clearUInputNumber } from '~/e2e/helpers/uinputnumber'
+
+const pln = uInputNumberByLabel(page, 'PLN')
+await setUInputNumber(pln, 42.5)
+// ...
+await clearUInputNumber(pln)
 ```
 
 ## Trace + report
