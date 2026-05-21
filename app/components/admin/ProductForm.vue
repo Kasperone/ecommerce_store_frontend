@@ -124,13 +124,18 @@ const schema = computed(() =>
 )
 
 async function validate(values: FormState): Promise<FormError[]> {
-  // Zod schema expects undefined → optional fields cleared; pass strings as-is
-  // and let Zod coerce nullables for optional fields.
+  // The form always renders all three currency fields, so an empty field maps
+  // to `undefined` in state. We coerce to `null` here so the schema's
+  // at-least-one check (which uses `=== null` on update to distinguish "user
+  // cleared" from "JS client omitted the key") matches in both modes.
   const candidate = {
     ...values,
     description: values.description.trim() || null,
     sku: values.sku.trim() || null,
     category_id: values.category_id ?? null,
+    price_usd: values.price_usd ?? null,
+    price_pln: values.price_pln ?? null,
+    price_eur: values.price_eur ?? null,
   }
   const result = schema.value.safeParse(candidate)
   if (result.success) return []
@@ -180,6 +185,7 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
   <UForm
     :state="state"
     :validate="validate"
+    :validate-on="['submit']"
     class="space-y-8"
     @submit="onSubmit"
   >
@@ -357,19 +363,12 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         {{ t('admin.products.actions.cancel') }}
       </UButton>
       <UButton
+        type="submit"
         color="primary"
         :loading="loading"
-        @click="onSubmit({ data: { ...state } } as FormSubmitEvent<FormState>)"
       >
         {{ submitLabel }}
       </UButton>
     </div>
-
-    <!-- Hidden submit so pressing Enter inside any input fires the form. -->
-    <button
-      type="submit"
-      class="hidden"
-      :disabled="loading"
-    />
   </UForm>
 </template>
