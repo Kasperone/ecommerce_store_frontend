@@ -275,11 +275,11 @@
       "tagline": "Sprawdzone produkty, dostawa w USD, PLN i EUR.",
       "newsletter": {
         "heading": "Bądź na bieżąco",
-        "description": "Nowości i oferty tylko dla subskrybentów — żadnego spamu.",
+        "description": "Nowości i oferty tylko dla subskrybentów - żadnego spamu.",
         "emailLabel": "Adres e-mail",
         "emailPlaceholder": "ty{'@'}example.com",
         "submit": "Zapisz się",
-        "success": "Dzięki — jesteś na liście.",
+        "success": "Dzięki - jesteś na liście.",
         "invalidEmail": "Podaj prawidłowy adres e-mail."
       }
     },

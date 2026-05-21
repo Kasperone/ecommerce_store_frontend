@@ -19,7 +19,7 @@ const categories = computed(() => categoriesData.value ?? [])
 
 useHead({
   title: () => product.value
-    ? t('admin.products.titleEdit') + ' — ' + product.value.name
+    ? t('admin.products.titleEdit') + ' - ' + product.value.name
     : t('admin.products.titleEdit'),
 })
 
