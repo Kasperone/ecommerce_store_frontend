@@ -28,7 +28,9 @@ function onConfirm() {
   <UModal
     :open="open"
     :title="product?.name ?? t('admin.products.confirm.deleteTitle', { default: 'Delete product' })"
-    :description="t('admin.products.confirm.deleteBody', { default: 'This product will be permanently removed.' })"
+    :description="t('admin.products.confirm.deleteBody', {
+      default: 'This product will be permanently removed.',
+    })"
     :dismissible="!loading"
     @update:open="(v) => emit('update:open', v)"
   >

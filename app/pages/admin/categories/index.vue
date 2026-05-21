@@ -58,7 +58,12 @@ const createMutation = useCreateCategory()
 const updateMutation = useUpdateCategory()
 const deleteMutation = useDeleteCategory()
 
-async function onCreate(payload: { name: string, slug: string, description?: string | null, is_active: boolean }) {
+async function onCreate(payload: {
+  name: string
+  slug: string
+  description?: string | null
+  is_active: boolean
+}) {
   modalError.value = null
   try {
     await createMutation.mutateAsync(payload)
@@ -69,7 +74,12 @@ async function onCreate(payload: { name: string, slug: string, description?: str
   }
 }
 
-async function onUpdate(payload: { name: string, slug: string, description?: string | null, is_active: boolean }) {
+async function onUpdate(payload: {
+  name: string
+  slug: string
+  description?: string | null
+  is_active: boolean
+}) {
   if (!editing.value) return
   modalError.value = null
   try {
@@ -170,7 +180,9 @@ const columns: TableColumn<CategoryWithProductCount>[] = [
             :color="row.original.is_active ? 'success' : 'neutral'"
             variant="subtle"
           >
-            {{ row.original.is_active ? $t('admin.categories.filters.activeOnly') : $t('admin.categories.filters.inactiveOnly') }}
+            {{ row.original.is_active
+              ? $t('admin.categories.filters.activeOnly')
+              : $t('admin.categories.filters.inactiveOnly') }}
           </UBadge>
         </template>
         <template #actions-cell="{ row }">

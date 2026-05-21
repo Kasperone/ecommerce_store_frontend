@@ -46,8 +46,10 @@ const heroUiOverlay = {
         root: 'group/slider',
         container: 'flex items-stretch flex-row -ms-4',
         item: 'basis-full',
-        prev: 'sm:start-4 opacity-0 group-hover/slider:opacity-100 group-focus-within/slider:opacity-100 transition-opacity duration-200',
-        next: 'sm:end-4 opacity-0 group-hover/slider:opacity-100 group-focus-within/slider:opacity-100 transition-opacity duration-200',
+        prev: 'sm:start-4 opacity-0 group-hover/slider:opacity-100 '
+          + 'group-focus-within/slider:opacity-100 transition-opacity duration-200',
+        next: 'sm:end-4 opacity-0 group-hover/slider:opacity-100 '
+          + 'group-focus-within/slider:opacity-100 transition-opacity duration-200',
       }"
       class="w-full"
     >

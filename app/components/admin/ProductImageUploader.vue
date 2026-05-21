@@ -101,7 +101,8 @@ function openPicker() {
   <div class="space-y-3">
     <div
       :class="[
-        'relative rounded-lg border-2 border-dashed transition-colors p-6 text-center cursor-pointer',
+        'relative rounded-lg border-2 border-dashed transition-colors',
+        'p-6 text-center cursor-pointer',
         isDragging
           ? 'border-primary bg-primary/5'
           : 'border-default hover:border-accented',

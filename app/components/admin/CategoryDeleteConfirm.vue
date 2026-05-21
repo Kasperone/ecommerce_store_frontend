@@ -36,7 +36,9 @@ function onConfirm() {
 <template>
   <UModal
     :open="open"
-    :title="category?.name ?? t('admin.categories.confirm.deleteTitle', { default: 'Delete category' })"
+    :title="category?.name ?? t('admin.categories.confirm.deleteTitle', {
+      default: 'Delete category',
+    })"
     :description="description"
     :dismissible="!loading"
     @update:open="(v) => emit('update:open', v)"
