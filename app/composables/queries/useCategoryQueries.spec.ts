@@ -115,3 +115,112 @@ describe('useDeleteCategory', () => {
     expect(options.method).toBe('DELETE')
   })
 })
+
+describe('useCategoryTreeQuery', () => {
+  it('fetches /api/v1/categories/tree with is_active param', async () => {
+    apiFetch.mockResolvedValue([])
+    const { useCategoryTreeQuery } = await import('./useCategoryQueries')
+
+    await runInComponent(() => useCategoryTreeQuery({ isActive: true }))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(apiFetch).toHaveBeenCalled()
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/categories/tree')
+    expect(options.query).toMatchObject({ is_active: true })
+  })
+
+  it('omits is_active when not supplied', async () => {
+    apiFetch.mockResolvedValue([])
+    const { useCategoryTreeQuery } = await import('./useCategoryQueries')
+
+    await runInComponent(() => useCategoryTreeQuery({}))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    const options = apiFetch.mock.calls[0]?.[1]
+    expect(options.query.is_active).toBeUndefined()
+  })
+})
+
+describe('useBulkReorderCategories', () => {
+  it('POSTs the items array to /api/v1/categories/bulk-reorder', async () => {
+    apiFetch.mockResolvedValue([])
+    const { useBulkReorderCategories } = await import('./useCategoryQueries')
+
+    const result = await runInComponent(() => useBulkReorderCategories()) as any
+    await result.mutateAsync({
+      items: [
+        { id: 1, parent_id: null, sort_order: 0 },
+        { id: 2, parent_id: null, sort_order: 1 },
+      ],
+    })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/categories/bulk-reorder')
+    expect(options.method).toBe('POST')
+    expect(options.body).toEqual({
+      items: [
+        { id: 1, parent_id: null, sort_order: 0 },
+        { id: 2, parent_id: null, sort_order: 1 },
+      ],
+    })
+  })
+})
+
+describe('useDeleteCategoryWithMode', () => {
+  it('passes mode=cascade as a query param', async () => {
+    apiFetch.mockResolvedValue(undefined)
+    const { useDeleteCategoryWithMode } = await import('./useCategoryQueries')
+
+    const result = await runInComponent(() => useDeleteCategoryWithMode()) as any
+    await result.mutateAsync({ id: 7, mode: 'cascade' })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/categories/7')
+    expect(options.method).toBe('DELETE')
+    expect(options.query).toEqual({ mode: 'cascade' })
+  })
+
+  it('passes mode=reparent_to_root for the reparent path', async () => {
+    apiFetch.mockResolvedValue(undefined)
+    const { useDeleteCategoryWithMode } = await import('./useCategoryQueries')
+
+    const result = await runInComponent(() => useDeleteCategoryWithMode()) as any
+    await result.mutateAsync({ id: 9, mode: 'reparent_to_root' })
+
+    const [, options] = apiFetch.mock.calls[0]
+    expect(options.query).toEqual({ mode: 'reparent_to_root' })
+  })
+})
+
+describe('useCategoryDeletePreviewQuery', () => {
+  it('fetches /api/v1/categories/{id}/delete-preview', async () => {
+    apiFetch.mockResolvedValue({
+      descendant_count: 0,
+      direct_product_count: 0,
+      subtree_product_count: 0,
+    })
+    const { useCategoryDeletePreviewQuery } = await import('./useCategoryQueries')
+
+    await runInComponent(() => useCategoryDeletePreviewQuery(5))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(apiFetch).toHaveBeenCalled()
+    const [url] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/categories/5/delete-preview')
+  })
+
+  it('stays disabled when id is undefined', async () => {
+    apiFetch.mockResolvedValue({})
+    const { useCategoryDeletePreviewQuery } = await import('./useCategoryQueries')
+
+    await runInComponent(() => useCategoryDeletePreviewQuery(undefined))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(apiFetch).not.toHaveBeenCalled()
+  })
+})

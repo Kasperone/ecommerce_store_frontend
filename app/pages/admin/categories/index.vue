@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import { useDebounceFn } from '@vueuse/core'
-import type { TableColumn } from '@nuxt/ui'
-import type { CategoryResponse, CategoryWithProductCount } from '#shared/types/api'
+import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
+import type {
+  CategoryResponse,
+  CategoryTreeNode,
+  CategoryWithProductCount,
+} from '#shared/types/api'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
 
@@ -31,32 +35,117 @@ const debouncedSetSearch = useDebounceFn((value: string) => {
 }, 300)
 watch(searchInput, value => debouncedSetSearch(value))
 
-// Query params derived from URL filters.
-const queryParams = computed(() => ({
+const treeParams = computed(() => ({
   isActive: filters.value.active === 'all' ? undefined : filters.value.active === 'true',
-  skip: 0,
-  limit: 100,
 }))
 
-const { data: categories, error: listError } = useCategoriesQuery(queryParams)
-const visibleCategories = computed<CategoryWithProductCount[]>(() => {
-  const rows = categories.value ?? []
-  const s = filters.value.search?.toLowerCase().trim()
-  if (!s) return rows
-  return rows.filter(c =>
-    c.name.toLowerCase().includes(s) || c.slug.toLowerCase().includes(s),
-  )
-})
+const { data: tree, error: listError } = useCategoryTreeQuery(treeParams)
 
-// Modals state.
+const treeData = computed<CategoryTreeNode[]>(() => tree.value ?? [])
+
+// Search filter walks the tree client-side, hiding subtrees that contain no
+// match (a parent with a matching descendant stays visible).
+function matches(node: CategoryTreeNode, q: string): boolean {
+  if (!q) return true
+  const haystack = `${node.name.toLowerCase()} ${node.slug.toLowerCase()}`
+  if (haystack.includes(q)) return true
+  return (node.children ?? []).some(c => matches(c, q))
+}
+
+function filterTree(nodes: CategoryTreeNode[], q: string): CategoryTreeNode[] {
+  if (!q) return nodes
+  return nodes
+    .filter(n => matches(n, q))
+    .map(n => ({ ...n, children: filterTree(n.children ?? [], q) }))
+}
+
+const visibleTree = computed<CategoryTreeNode[]>(() =>
+  filterTree(treeData.value, filters.value.search?.toLowerCase().trim() ?? ''),
+)
+
+// Expand/collapse state — start with all top-level nodes expanded so the
+// admin sees the first depth without an extra click. Deeper levels stay
+// collapsed by default.
+const expandedIds = ref<Set<number>>(new Set())
+watch(
+  treeData,
+  (incoming) => {
+    if (expandedIds.value.size > 0) return
+    expandedIds.value = new Set(incoming.map(n => n.id))
+  },
+  { immediate: true },
+)
+
+function toggleExpand(id: number) {
+  const next = new Set(expandedIds.value)
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  expandedIds.value = next
+}
+
+// Root-level drag-and-drop. Children handle their own list via CategoryTreeNode.
+const [rootListRef, rootList] = useDragAndDrop<CategoryTreeNode>(
+  [],
+  {
+    dragEffectAllowed: 'move',
+    dragDropEffect: 'move',
+    dragHandle: '.handle',
+    onSort: handleRootSort,
+  },
+)
+
+function snapshotIds(list: CategoryTreeNode[]) {
+  return list.map(n => n.id).join(',')
+}
+
+watch(
+  visibleTree,
+  (incoming) => {
+    if (snapshotIds(incoming) === snapshotIds(rootList.value)) return
+    rootList.value = [...incoming]
+  },
+  { immediate: true },
+)
+
+const bulkReorderMutation = useBulkReorderCategories()
+
+async function pushReorder(
+  parentId: number | null,
+  orderedIds: number[],
+) {
+  if (orderedIds.length === 0) return
+  await bulkReorderMutation.mutateAsync({
+    items: orderedIds.map((id, idx) => ({ id, parent_id: parentId, sort_order: idx })),
+  })
+}
+
+function handleRootSort(data: {
+  previousValues: CategoryTreeNode[]
+  values: CategoryTreeNode[]
+}) {
+  const prev = data.previousValues.map(n => n.id).join(',')
+  const next = data.values.map(n => n.id).join(',')
+  if (prev === next) return
+  void pushReorder(null, data.values.map(n => n.id))
+}
+
+function onChildReorder(payload: { parentId: number, orderedIds: number[] }) {
+  void pushReorder(payload.parentId, payload.orderedIds)
+}
+
+// Mutation modal state.
 const creating = ref(false)
-const editing = ref<CategoryResponse | CategoryWithProductCount | null>(null)
-const deleting = ref<CategoryWithProductCount | null>(null)
+const editing = ref<CategoryResponse | CategoryWithProductCount | CategoryTreeNode | null>(null)
+const moving = ref<CategoryTreeNode | null>(null)
+const deleting = ref<CategoryTreeNode | null>(null)
 const modalError = ref<ProblemDetails | null>(null)
 
 const createMutation = useCreateCategory()
 const updateMutation = useUpdateCategory()
 const deleteMutation = useDeleteCategory()
+const deleteWithModeMutation = useDeleteCategoryWithMode()
+
+const deletePreviewQuery = useCategoryDeletePreviewQuery(() => deleting.value?.id)
 
 async function onCreate(payload: {
   name: string
@@ -91,24 +180,35 @@ async function onUpdate(payload: {
   }
 }
 
-async function onDelete(id: number) {
+async function onMoveConfirm(payload: { id: number, parentId: number | null }) {
   modalError.value = null
   try {
-    await deleteMutation.mutateAsync(id)
-    deleting.value = null
+    await updateMutation.mutateAsync({
+      id: payload.id,
+      patch: { parent_id: payload.parentId },
+    })
+    moving.value = null
   }
   catch (err) {
     modalError.value = parseProblem(err)
   }
 }
 
-const columns: TableColumn<CategoryWithProductCount>[] = [
-  { accessorKey: 'name', header: () => t('admin.categories.fields.name') },
-  { accessorKey: 'slug', header: () => t('admin.categories.fields.slug') },
-  { accessorKey: 'is_active', header: () => t('admin.categories.fields.isActive') },
-  { accessorKey: 'product_count', header: () => t('admin.categories.fields.productCount') },
-  { id: 'actions', header: '' },
-]
+async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'reparent_to_root' }) {
+  modalError.value = null
+  try {
+    if (payload.mode === 'none') {
+      await deleteMutation.mutateAsync(payload.id)
+    }
+    else {
+      await deleteWithModeMutation.mutateAsync({ id: payload.id, mode: payload.mode })
+    }
+    deleting.value = null
+  }
+  catch (err) {
+    modalError.value = parseProblem(err)
+  }
+}
 </script>
 
 <template>
@@ -156,9 +256,13 @@ const columns: TableColumn<CategoryWithProductCount>[] = [
         v-if="listError"
         :problem="parseProblem(listError)"
       />
+      <ErrorAlert
+        v-if="bulkReorderMutation.error.value"
+        :problem="parseProblem(bulkReorderMutation.error.value)"
+      />
 
       <div
-        v-if="visibleCategories.length === 0"
+        v-if="visibleTree.length === 0"
         class="text-muted text-sm py-12 text-center"
       >
         <template v-if="filters.search || filters.active !== 'all'">
@@ -169,43 +273,25 @@ const columns: TableColumn<CategoryWithProductCount>[] = [
         </template>
       </div>
 
-      <UTable
+      <ul
         v-else
-        :data="visibleCategories"
-        :columns="columns"
-        :ui="{ td: 'align-middle' }"
+        ref="rootListRef"
+        class="flex flex-col gap-2"
+        data-root-list
       >
-        <template #is_active-cell="{ row }">
-          <UBadge
-            :color="row.original.is_active ? 'success' : 'neutral'"
-            variant="subtle"
-          >
-            {{ row.original.is_active
-              ? $t('admin.categories.filters.activeOnly')
-              : $t('admin.categories.filters.inactiveOnly') }}
-          </UBadge>
-        </template>
-        <template #actions-cell="{ row }">
-          <div class="flex justify-end gap-1">
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-lucide-pencil"
-              size="sm"
-              :aria-label="$t('admin.categories.actions.edit')"
-              @click="editing = row.original; modalError = null"
-            />
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-lucide-trash-2"
-              size="sm"
-              :aria-label="$t('admin.categories.actions.delete')"
-              @click="deleting = row.original; modalError = null"
-            />
-          </div>
-        </template>
-      </UTable>
+        <CategoryTreeNode
+          v-for="node in rootList"
+          :key="node.id"
+          :node="node"
+          :depth="0"
+          :expanded-ids="expandedIds"
+          @toggle-expand="toggleExpand"
+          @edit="(n) => { editing = n; modalError = null }"
+          @move="(n) => { moving = n; modalError = null }"
+          @delete="(n) => { deleting = n; modalError = null }"
+          @reorder="onChildReorder"
+        />
+      </ul>
 
       <CategoryFormModal
         :open="creating"
@@ -227,10 +313,21 @@ const columns: TableColumn<CategoryWithProductCount>[] = [
         @cancel="editing = null"
       />
 
+      <CategoryMoveDialog
+        :open="moving !== null"
+        :node="moving"
+        :tree="treeData"
+        :loading="updateMutation.isLoading.value"
+        @update:open="(v) => { if (!v) moving = null; modalError = null }"
+        @confirm="onMoveConfirm"
+        @cancel="moving = null"
+      />
+
       <CategoryDeleteConfirm
         :open="deleting !== null"
         :category="deleting"
-        :loading="deleteMutation.isLoading.value"
+        :preview="deletePreviewQuery.data.value ?? null"
+        :loading="deleteMutation.isLoading.value || deleteWithModeMutation.isLoading.value"
         :error="modalError"
         @update:open="(v) => { if (!v) deleting = null; modalError = null }"
         @confirm="onDelete"

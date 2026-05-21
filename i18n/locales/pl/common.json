@@ -94,7 +94,32 @@
       "confirm": {
         "deleteTitle": "Usuń kategorię",
         "deleteBodyEmpty": "Ta kategoria zostanie trwale usunięta.",
-        "deleteBodyWithProducts": "Do tej kategorii przypisanych jest {count} produktów. Przed usunięciem przenieś je do innej."
+        "deleteBodyWithProducts": "Do tej kategorii przypisanych jest {count} produktów. Przed usunięciem przenieś je do innej.",
+        "helpDirectProducts": "Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Najpierw je przenieś.",
+        "helpProductsAndChildren": "Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Usuń je, zanim usuniesz poddrzewo.",
+        "helpSubtreeProducts": "{count} produktów znajduje się w poddrzewie. Przenieś je przed kaskadowym usuwaniem.",
+        "helpChildrenOnly": "Istnieje {count} kategorii podrzędnych. Wybierz tryb usuwania.",
+        "modes": {
+          "none": "Usuń (tylko liść)",
+          "noneHint": "Dostępne tylko, gdy kategoria nie ma podkategorii ani produktów.",
+          "cascade": "Usuń poddrzewo (+{count} potomków)",
+          "cascadeHint": "Rekursywnie usuń tę kategorię i wszystkie jej potomne. Najpierw usuń produkty z poddrzewa.",
+          "reparent": "Przenieś podkategorie do korzenia i usuń",
+          "reparentHint": "Bezpośrednie podkategorie zostają korzeniami. Najpierw usuń produkty z tej kategorii; produkty nigdy nie są cicho przenoszone."
+        }
+      },
+      "tree": {
+        "expand": "Rozwiń",
+        "collapse": "Zwiń",
+        "moveUnder": "Przenieś pod…",
+        "productBadge": "{count}",
+        "productBadgeTitle": "Aktywne produkty bezpośrednio w tej kategorii",
+        "moveDialog": {
+          "title": "Przenieś pod…",
+          "body": "Wybierz nowego rodzica. Potomkowie przenoszonej kategorii są odfiltrowani.",
+          "rootLabel": "Korzeń (bez rodzica)",
+          "confirm": "Przenieś"
+        }
       },
       "empty": {
         "noResults": "Brak kategorii spełniających warunki filtra.",
