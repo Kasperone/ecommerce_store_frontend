@@ -120,7 +120,8 @@ onBeforeUnmount(() => {
   <div class="space-y-3">
     <div
       :class="[
-        'relative rounded-lg border-2 border-dashed transition-colors p-6 text-center cursor-pointer',
+        'relative rounded-lg border-2 border-dashed transition-colors',
+        'p-6 text-center cursor-pointer',
         isDragging
           ? 'border-primary bg-primary/5'
           : 'border-default hover:border-accented',
@@ -203,7 +204,9 @@ onBeforeUnmount(() => {
             icon="i-lucide-x"
             size="xs"
             class="absolute top-2 right-2"
-            :aria-label="t('admin.products.media.staging.removeAriaLabel', { filename: staged.file.name })"
+            :aria-label="t('admin.products.media.staging.removeAriaLabel', {
+              filename: staged.file.name,
+            })"
             :disabled="disabled"
             @click="removeStaged(staged.id)"
           />

@@ -35,7 +35,11 @@ export function useUploadProductImage() {
 export function useUpdateProductImage() {
   const { apiFetch } = useApi()
   return useMutation({
-    mutation: ({ productId, imageId, patch }: { productId: number, imageId: number, patch: ProductImageUpdate }) =>
+    mutation: ({ productId, imageId, patch }: {
+      productId: number
+      imageId: number
+      patch: ProductImageUpdate
+    }) =>
       apiFetch<ProductImageResponse>(`/api/v1/products/${productId}/images/${imageId}`, {
         method: 'PATCH',
         body: patch,

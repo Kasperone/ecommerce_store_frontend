@@ -103,7 +103,9 @@ defineExpose({ isValid, score, strength })
         v-for="rule in rules"
         :key="rule.key"
         class="flex items-center gap-1.5"
-        :class="rule.passed ? 'text-green-700 dark:text-green-400' : 'text-neutral-500 dark:text-neutral-400'"
+        :class="rule.passed
+          ? 'text-green-700 dark:text-green-400'
+          : 'text-neutral-500 dark:text-neutral-400'"
       >
         <UIcon
           :name="rule.passed ? 'i-lucide-check-circle-2' : 'i-lucide-circle'"

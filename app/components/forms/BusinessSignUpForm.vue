@@ -157,7 +157,10 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
           @blur="confirmPasswordTouched = true"
         />
         <p
-          v-if="confirmPasswordTouched && state[field.name] && state.password && state[field.name] !== state.password"
+          v-if="confirmPasswordTouched
+            && state[field.name]
+            && state.password
+            && state[field.name] !== state.password"
           class="mt-1 text-xs text-red-600 dark:text-red-400"
         >
           {{ t('auth.errors.passwordsDontMatch') }}

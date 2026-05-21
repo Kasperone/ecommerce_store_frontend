@@ -161,7 +161,12 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
           <template #password-field="{ state, field }">
             <UInput
               v-model="state[field.name]"
-              v-bind="{ name: field.name, placeholder: field.placeholder, autocomplete: 'new-password', class: 'w-full' }"
+              v-bind="{
+                name: field.name,
+                placeholder: field.placeholder,
+                autocomplete: 'new-password',
+                class: 'w-full',
+              }"
               type="password"
             />
             <FormsPasswordStrengthMeter

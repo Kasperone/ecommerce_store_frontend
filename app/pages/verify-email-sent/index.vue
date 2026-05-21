@@ -119,7 +119,9 @@ onUnmounted(() => {
           </p>
 
           <UButton
-            :label="resendDisabled ? `${t('auth.verification.resendButton')} (${countdown}s)` : t('auth.verification.resendButton')"
+            :label="resendDisabled
+              ? `${t('auth.verification.resendButton')} (${countdown}s)`
+              : t('auth.verification.resendButton')"
             :loading="isResending"
             :disabled="resendDisabled"
             color="neutral"
