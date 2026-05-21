@@ -13,6 +13,8 @@ import type { MaybeRefOrGetter } from 'vue'
 import type {
   CategoryCreate,
   CategoryDeletePreview,
+  CategoryHeroAltUpdate,
+  CategoryHeroResponse,
   CategoryResponse,
   CategoryTreeNode,
   CategoryUpdate,
@@ -182,6 +184,54 @@ export function useDeleteCategoryWithMode() {
         method: 'DELETE',
         query: { mode },
       }),
+    onSettled: () => queryCache.invalidateQueries({ key: [...CATEGORIES_NAMESPACE] }),
+  })
+}
+
+/**
+ * `POST /api/v1/categories/{id}/hero` — multipart upload.
+ *
+ * The page orchestrates the create-then-upload flow, including the
+ * compensating DELETE on failure. This hook is the transport only.
+ */
+export function useUploadCategoryHero() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: ({ id, formData }: { id: number, formData: FormData }) =>
+      apiFetch<CategoryHeroResponse>(`/api/v1/categories/${id}/hero`, {
+        method: 'POST',
+        body: formData,
+      }),
+    onSuccess: () => queryCache.invalidateQueries({ key: [...CATEGORIES_NAMESPACE] }),
+  })
+}
+
+/**
+ * `PATCH /api/v1/categories/{id}/hero` — alt-text only edit.
+ */
+export function useUpdateCategoryHeroAlt() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: ({ id, patch }: { id: number, patch: CategoryHeroAltUpdate }) =>
+      apiFetch<CategoryHeroResponse>(`/api/v1/categories/${id}/hero`, {
+        method: 'PATCH',
+        body: patch,
+      }),
+    onSuccess: () => queryCache.invalidateQueries({ key: [...CATEGORIES_NAMESPACE] }),
+  })
+}
+
+/**
+ * `DELETE /api/v1/categories/{id}/hero` — clear columns + R2 object.
+ */
+export function useDeleteCategoryHero() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: (id: number) =>
+      apiFetch<unknown>(`/api/v1/categories/${id}/hero`, { method: 'DELETE' }),
     onSettled: () => queryCache.invalidateQueries({ key: [...CATEGORIES_NAMESPACE] }),
   })
 }

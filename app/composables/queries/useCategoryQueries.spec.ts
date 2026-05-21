@@ -195,6 +195,50 @@ describe('useDeleteCategoryWithMode', () => {
   })
 })
 
+describe('useUploadCategoryHero', () => {
+  it('POSTs multipart to /api/v1/categories/{id}/hero', async () => {
+    apiFetch.mockResolvedValue({ id: 1, hero_image_url: 'https://r2/h.png' })
+    const { useUploadCategoryHero } = await import('./useCategoryQueries')
+    const formData = new FormData()
+    formData.append('file', new Blob([new Uint8Array([1, 2, 3])]), 'hero.png')
+
+    const result = await runInComponent(() => useUploadCategoryHero()) as any
+    await result.mutateAsync({ id: 7, formData })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/categories/7/hero')
+    expect(options.method).toBe('POST')
+    expect(options.body).toBe(formData)
+  })
+})
+
+describe('useUpdateCategoryHeroAlt', () => {
+  it('PATCHes the alt text to /hero', async () => {
+    apiFetch.mockResolvedValue({ id: 9 })
+    const { useUpdateCategoryHeroAlt } = await import('./useCategoryQueries')
+    const result = await runInComponent(() => useUpdateCategoryHeroAlt()) as any
+    await result.mutateAsync({ id: 9, patch: { hero_image_alt: 'A photo' } })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/categories/9/hero')
+    expect(options.method).toBe('PATCH')
+    expect(options.body).toEqual({ hero_image_alt: 'A photo' })
+  })
+})
+
+describe('useDeleteCategoryHero', () => {
+  it('DELETEs /hero', async () => {
+    apiFetch.mockResolvedValue(undefined)
+    const { useDeleteCategoryHero } = await import('./useCategoryQueries')
+    const result = await runInComponent(() => useDeleteCategoryHero()) as any
+    await result.mutateAsync(12)
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/categories/12/hero')
+    expect(options.method).toBe('DELETE')
+  })
+})
+
 describe('useCategoryDeletePreviewQuery', () => {
   it('fetches /api/v1/categories/{id}/delete-preview', async () => {
     apiFetch.mockResolvedValue({
