@@ -230,10 +230,10 @@ const columns: TableColumn<ProductWithCategory>[] = [
           </div>
         </template>
         <template #sku-cell="{ row }">
-          <span class="text-sm text-muted font-mono">{{ row.original.sku ?? '—' }}</span>
+          <span class="text-sm text-muted font-mono">{{ row.original.sku ?? '-' }}</span>
         </template>
         <template #category-cell="{ row }">
-          {{ row.original.category?.name ?? '—' }}
+          {{ row.original.category?.name ?? '-' }}
         </template>
         <template #price_usd-cell="{ row }">
           {{ usdFmt.format(row.original.price_usd) }}

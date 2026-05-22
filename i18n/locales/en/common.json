@@ -327,11 +327,11 @@
       "tagline": "Quality goods, delivered in USD, PLN and EUR.",
       "newsletter": {
         "heading": "Stay in the loop",
-        "description": "New arrivals and exclusive offers — no spam.",
+        "description": "New arrivals and exclusive offers - no spam.",
         "emailLabel": "Email address",
         "emailPlaceholder": "you{'@'}example.com",
         "submit": "Subscribe",
-        "success": "Thanks — you're on the list.",
+        "success": "Thanks - you're on the list.",
         "invalidEmail": "Please enter a valid email."
       }
     },
