@@ -120,11 +120,16 @@ export const createForgotPasswordSchema = (t: TranslateFunction) =>
   })
 
 /**
- * Creates reset password schema with i18n support
+ * Creates reset password schema with i18n support.
+ *
+ * The reset token is a URL param consumed by the page (`route.params.token`) and
+ * passed to the auth store action directly — it never enters the form's state.
+ * `<UAuthForm>` rebuilds its validation state from the `:fields` prop, so any
+ * schema key without a matching field is dropped before Zod runs. Listing
+ * `token` here would fail validation silently with nowhere to render the error.
  */
 export const createResetPasswordSchema = (t: TranslateFunction) =>
   z.object({
-    token: z.string().min(1, 'Reset token is required'),
     password: createPasswordValidation(8, t('auth.errors.passwordMin', { count: 8, default: 'Must be at least 8 characters' })),
     confirmPassword: z.string(),
   }).refine(data => data.password === data.confirmPassword, {

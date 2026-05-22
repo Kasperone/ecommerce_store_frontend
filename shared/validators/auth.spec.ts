@@ -261,7 +261,6 @@ describe('createResetPasswordSchema', () => {
   const schema = createResetPasswordSchema(tStub)
 
   const valid = {
-    token: 'abcdef',
     password: 'Sup3rSecret!',
     confirmPassword: 'Sup3rSecret!',
   }
@@ -270,9 +269,13 @@ describe('createResetPasswordSchema', () => {
     expect(schema.safeParse(valid).success).toBe(true)
   })
 
-  it('rejects when token is empty', () => {
-    const result = schema.safeParse({ ...valid, token: '' })
-    expect(result.success).toBe(false)
+  it('does not require a token key — URL param consumed by the page, not the form', () => {
+    // UAuthForm rebuilds its validation state from the :fields prop, so any
+    // schema key without a matching field is dropped before Zod runs. A `token`
+    // requirement here would fail silently with no field to render the error.
+    expect(schema.safeParse(valid).success).toBe(true)
+    // And an incidentally-passed token key is harmless — Zod strips unknowns.
+    expect(schema.safeParse({ ...valid, token: '' }).success).toBe(true)
   })
 
   it('rejects when passwords differ on the confirmPassword path', () => {
