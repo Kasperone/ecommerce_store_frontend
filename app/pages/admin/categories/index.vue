@@ -335,7 +335,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         class="flex flex-col gap-2"
         data-root-list
       >
-        <CategoryTreeNode
+        <AdminCategoryTreeNode
           v-for="node in rootList"
           :key="node.id"
           :node="node"
@@ -349,7 +349,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         />
       </ul>
 
-      <CategoryFormModal
+      <AdminCategoryFormModal
         :open="creating"
         :category="null"
         :loading="createMutation.isLoading.value"
@@ -359,7 +359,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         @cancel="creating = false"
       />
 
-      <CategoryFormModal
+      <AdminCategoryFormModal
         :open="editing !== null"
         :category="editing"
         :loading="updateMutation.isLoading.value"
@@ -369,7 +369,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         @cancel="editing = null"
       />
 
-      <CategoryMoveDialog
+      <AdminCategoryMoveDialog
         :open="moving !== null"
         :node="moving"
         :tree="treeData"
@@ -379,7 +379,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         @cancel="moving = null"
       />
 
-      <CategoryDeleteConfirm
+      <AdminCategoryDeleteConfirm
         :open="deleting !== null"
         :category="deleting"
         :preview="deletePreviewQuery.data.value ?? null"
