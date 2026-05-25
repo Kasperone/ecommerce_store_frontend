@@ -381,6 +381,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         :node="moving"
         :tree="treeData"
         :loading="updateMutation.isLoading.value"
+        :error="modalError"
         @update:open="(v) => { if (!v) moving = null; modalError = null }"
         @confirm="onMoveConfirm"
         @cancel="moving = null"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CategoryTreeNode } from '#shared/types/api'
+import type { ProblemDetails } from '#shared/utils/problemDetails'
 
 /**
  * "Move under…" picker dialog.
@@ -17,6 +18,7 @@ const props = defineProps<{
   node: CategoryTreeNode | null
   tree: CategoryTreeNode[]
   loading?: boolean
+  error?: ProblemDetails | null
 }>()
 
 const emit = defineEmits<{
@@ -99,6 +101,10 @@ function onConfirm() {
   >
     <template #body>
       <div class="flex flex-col gap-3">
+        <ErrorAlert
+          v-if="error"
+          :problem="error"
+        />
         <p class="text-sm text-muted">
           {{ t('admin.categories.tree.moveDialog.body', {
             default: 'Pick the new parent. Descendants of the moving category are filtered out.',
