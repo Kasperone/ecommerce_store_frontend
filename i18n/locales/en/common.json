@@ -106,6 +106,9 @@
         "clearStaged": "Clear",
         "removeExisting": "Remove",
         "existingLabel": "Current hero image",
+        "altLabel": "Alt text",
+        "altHint": "Describe the image for screen readers and SEO.",
+        "altPlaceholder": "e.g. Blue ceramic mug on a wooden table",
         "errors": {
           "sizeTooLarge": "Image is larger than 5 MiB.",
           "unsupportedType": "Unsupported image format. Allowed: JPEG, PNG, WebP."

@@ -103,4 +103,39 @@ describe('CategoryHeroStaging', () => {
     const events = wrapper.emitted('update:file') as Array<[File | null]>
     expect(events[events.length - 1]?.[0]).toBeNull()
   })
+
+  it('hides the alt-text field when there is no image (F4)', async () => {
+    const wrapper = await mountSuspended(CategoryHeroStaging)
+    expect(wrapper.find('[data-hero-alt-field]').exists()).toBe(false)
+  })
+
+  it('shows the alt-text field seeded from existingAlt for an existing hero', async () => {
+    const wrapper = await mountSuspended(CategoryHeroStaging, {
+      props: { existingUrl: 'https://r2/h.jpg', existingAlt: 'Seeded alt' },
+    })
+    expect(wrapper.find('[data-hero-alt-field]').exists()).toBe(true)
+    const altInput = wrapper.find('[data-hero-alt-field] input').element as HTMLInputElement
+    expect(altInput.value).toBe('Seeded alt')
+  })
+
+  it('emits update:alt when the alt text is edited', async () => {
+    const wrapper = await mountSuspended(CategoryHeroStaging, {
+      props: { existingUrl: 'https://r2/h.jpg', existingAlt: '' },
+    })
+    const altInput = wrapper.find('[data-hero-alt-field] input').element as HTMLInputElement
+    altInput.value = 'A red mug'
+    altInput.dispatchEvent(new Event('input', { bubbles: true }))
+    await new Promise(r => setTimeout(r, 0))
+    const events = wrapper.emitted('update:alt') as Array<[string]> | undefined
+    expect(events?.[events.length - 1]?.[0]).toBe('A red mug')
+  })
+
+  it('shows the alt field once a file is staged (no existing hero)', async () => {
+    const wrapper = await mountSuspended(CategoryHeroStaging)
+    const input = wrapper.find('input[data-hero-file-input]').element as HTMLInputElement
+    Object.defineProperty(input, 'files', { value: [makePngFile()], configurable: true })
+    input.dispatchEvent(new Event('change'))
+    await new Promise(r => setTimeout(r, 0))
+    expect(wrapper.find('[data-hero-alt-field]').exists()).toBe(true)
+  })
 })
