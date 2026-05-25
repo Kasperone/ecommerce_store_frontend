@@ -141,4 +141,27 @@ describe('CategoryMoveDialog', () => {
     await new Promise(r => setTimeout(r, 0))
     expect(wrapper.emitted('confirm')?.[0]?.[0]).toEqual({ id: 3, parentId: null })
   })
+
+  it('surfaces an error alert when the error prop is set (e.g. a depth-violating move)', async () => {
+    const { tree, byId } = buildFixture()
+    await mountSuspended(CategoryMoveDialog, {
+      props: {
+        open: true,
+        node: byId[3],
+        tree,
+        error: { title: 'Maximum category depth exceeded' },
+      },
+    })
+    const alert = document.querySelector('[role="alert"]')
+    expect(alert).toBeTruthy()
+    expect(alert?.textContent).toContain('Maximum category depth exceeded')
+  })
+
+  it('renders no error alert when error is null', async () => {
+    const { tree, byId } = buildFixture()
+    await mountSuspended(CategoryMoveDialog, {
+      props: { open: true, node: byId[3], tree, error: null },
+    })
+    expect(document.querySelector('[role="alert"]')).toBeNull()
+  })
 })
