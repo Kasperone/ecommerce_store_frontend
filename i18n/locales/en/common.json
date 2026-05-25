@@ -137,6 +137,8 @@
         "expand": "Expand",
         "collapse": "Collapse",
         "moveUnder": "Move under…",
+        "inactiveBadge": "Inactive",
+        "reorderDisabledHint": "Reorder is disabled while filtering or searching. Clear the filters to drag-reorder.",
         "productBadge": "{count}",
         "productBadgeTitle": "Active products directly on this category",
         "moveDialog": {
