@@ -30,13 +30,29 @@ function nameField(t: TranslateFunction, required: boolean) {
 }
 
 function slugField(t: TranslateFunction, required: boolean) {
-  const base = _string(t('admin.categories.errors.slugRequired', { default: 'Slug is required' }))
-    .max(100, { error: t('admin.categories.errors.slugTooLong', { default: 'Slug must be 100 characters or fewer' }) })
-    .regex(SLUG_PATTERN, { error: t('admin.categories.errors.slugFormat', { default: 'Slug must be lowercase letters, numbers, and hyphens' }) })
-  if (required) {
-    return base.min(1, { error: t('admin.categories.errors.slugRequired', { default: 'Slug is required' }) })
+  const tooLong = {
+    error: t('admin.categories.errors.slugTooLong', { default: 'Slug must be 100 characters or fewer' }),
   }
-  return base.optional().nullable()
+  const format = {
+    error: t('admin.categories.errors.slugFormat', { default: 'Slug must be lowercase letters, numbers, and hyphens' }),
+  }
+  if (required) {
+    return _string(t('admin.categories.errors.slugRequired', { default: 'Slug is required' }))
+      .min(1, { error: t('admin.categories.errors.slugRequired', { default: 'Slug is required' }) })
+      .max(100, tooLong)
+      .regex(SLUG_PATTERN, format)
+  }
+  // Optional PL slug: an empty string means "not provided". Zod's `.optional()`
+  // only short-circuits `undefined`, so a bare `.regex()` rejects "" — and
+  // because this field lives on the hidden PL tab, the resulting error is
+  // invisible and the whole form silently refuses to submit. Apply the format
+  // check only when a value is present (the page coerces "" → null on submit,
+  // so the backend never receives an empty slug).
+  return z.string()
+    .max(100, tooLong)
+    .refine(v => v === '' || SLUG_PATTERN.test(v), format)
+    .optional()
+    .nullable()
 }
 
 function descriptionField(t: TranslateFunction) {
