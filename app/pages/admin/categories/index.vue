@@ -9,6 +9,7 @@ import type {
 } from '#shared/types/api'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
+import { snapshotCategoryTree } from '#shared/utils/categoryTree'
 
 definePageMeta({
   middleware: ['admin'],
@@ -101,14 +102,13 @@ const [rootListRef, rootList] = useDragAndDrop<CategoryTreeNode>(
   },
 )
 
-function snapshotIds(list: CategoryTreeNode[]) {
-  return list.map(n => n.id).join(',')
-}
-
 watch(
   visibleTree,
   (incoming) => {
-    if (snapshotIds(incoming) === snapshotIds(rootList.value)) return
+    // Deep structural compare (not just root ids) so a cross-parent move,
+    // rename, or is_active toggle — which can leave the root id list unchanged
+    // — still re-syncs the drag list instead of rendering stale until reload.
+    if (snapshotCategoryTree(incoming) === snapshotCategoryTree(rootList.value)) return
     rootList.value = [...incoming]
   },
   { immediate: true },
