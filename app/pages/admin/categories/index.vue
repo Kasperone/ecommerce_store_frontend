@@ -9,7 +9,7 @@ import type {
 } from '#shared/types/api'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
-import { snapshotCategoryTree } from '#shared/utils/categoryTree'
+import { filterCategoryTree, snapshotCategoryTree } from '#shared/utils/categoryTree'
 
 definePageMeta({
   middleware: ['admin'],
@@ -43,32 +43,26 @@ watch(searchInput, value => debouncedSetSearch(value))
 // admin sees an empty page until they manually pick a filter.
 const activeFilter = computed(() => filters.value.active ?? 'all')
 
-const treeParams = computed(() => ({
-  isActive: activeFilter.value === 'all' ? undefined : activeFilter.value === 'true',
-}))
-
-const { data: tree, error: listError } = useCategoryTreeQuery(treeParams)
+// Always fetch the full tree; both the search box and the active/inactive
+// selector filter client-side via `filterCategoryTree`. This keeps the two
+// filters consistent (ancestor-preserving) and fixes the server-side
+// is_active filter dropping active children of inactive parents (F3).
+const { data: tree, error: listError } = useCategoryTreeQuery()
 
 const treeData = computed<CategoryTreeNode[]>(() => tree.value ?? [])
 
-// Search filter walks the tree client-side, hiding subtrees that contain no
-// match (a parent with a matching descendant stays visible).
-function matches(node: CategoryTreeNode, q: string): boolean {
-  if (!q) return true
-  const haystack = `${node.name.toLowerCase()} ${node.slug.toLowerCase()}`
-  if (haystack.includes(q)) return true
-  return (node.children ?? []).some(c => matches(c, q))
-}
-
-function filterTree(nodes: CategoryTreeNode[], q: string): CategoryTreeNode[] {
-  if (!q) return nodes
-  return nodes
-    .filter(n => matches(n, q))
-    .map(n => ({ ...n, children: filterTree(n.children ?? [], q) }))
-}
-
 const visibleTree = computed<CategoryTreeNode[]>(() =>
-  filterTree(treeData.value, filters.value.search?.toLowerCase().trim() ?? ''),
+  filterCategoryTree(treeData.value, {
+    search: filters.value.search,
+    active: activeFilter.value,
+  }),
+)
+
+// Any active filter hides siblings, so the visible list is a partial view of
+// each level — reordering it would renumber sort_order over the subset and
+// collide with the hidden siblings. Disable drag-reorder while filtered (F5).
+const isFiltered = computed(
+  () => !!filters.value.search?.trim() || activeFilter.value !== 'all',
 )
 
 // Expand/collapse state — start with all top-level nodes expanded so the
@@ -130,6 +124,9 @@ function handleRootSort(data: {
   previousValues: CategoryTreeNode[]
   values: CategoryTreeNode[]
 }) {
+  // Belt-and-suspenders: the drag handle is also hidden while filtered, but
+  // guard here too so a stray sort event can't renumber a partial list.
+  if (isFiltered.value) return
   const prev = data.previousValues.map(n => n.id).join(',')
   const next = data.values.map(n => n.id).join(',')
   if (prev === next) return
@@ -137,6 +134,7 @@ function handleRootSort(data: {
 }
 
 function onChildReorder(payload: { parentId: number, orderedIds: number[] }) {
+  if (isFiltered.value) return
   void pushReorder(payload.parentId, payload.orderedIds)
 }
 
@@ -336,25 +334,34 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         </template>
       </div>
 
-      <ul
-        v-else
-        ref="rootListRef"
-        class="flex flex-col gap-2"
-        data-root-list
-      >
-        <AdminCategoryTreeNode
-          v-for="node in rootList"
-          :key="node.id"
-          :node="node"
-          :depth="0"
-          :expanded-ids="expandedIds"
-          @toggle-expand="toggleExpand"
-          @edit="(n) => { editing = n; modalError = null }"
-          @move="(n) => { moving = n; modalError = null }"
-          @delete="(n) => { deleting = n; modalError = null }"
-          @reorder="onChildReorder"
-        />
-      </ul>
+      <template v-else>
+        <p
+          v-if="isFiltered"
+          class="text-muted text-xs"
+        >
+          {{ $t('admin.categories.tree.reorderDisabledHint') }}
+        </p>
+
+        <ul
+          ref="rootListRef"
+          class="flex flex-col gap-2"
+          data-root-list
+        >
+          <AdminCategoryTreeNode
+            v-for="node in rootList"
+            :key="node.id"
+            :node="node"
+            :depth="0"
+            :expanded-ids="expandedIds"
+            :reorder-disabled="isFiltered"
+            @toggle-expand="toggleExpand"
+            @edit="(n) => { editing = n; modalError = null }"
+            @move="(n) => { moving = n; modalError = null }"
+            @delete="(n) => { deleting = n; modalError = null }"
+            @reorder="onChildReorder"
+          />
+        </ul>
+      </template>
 
       <AdminCategoryFormModal
         :open="creating"

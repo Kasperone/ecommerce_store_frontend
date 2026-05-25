@@ -19,6 +19,11 @@ const props = defineProps<{
   node: CategoryTreeNode
   depth: number
   expandedIds: Set<number>
+  /**
+   * When true the drag handle is inert (the visible list is a filtered, partial
+   * view, so reordering it would corrupt sort_order against hidden siblings).
+   */
+  reorderDisabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -67,6 +72,7 @@ function handleSort(data: {
   previousValues: CategoryTreeNode[]
   values: CategoryTreeNode[]
 }) {
+  if (props.reorderDisabled) return
   const previousIds = data.previousValues.map(n => n.id)
   const nextIds = data.values.map(n => n.id)
   if (previousIds.join(',') === nextIds.join(',')) return
@@ -108,7 +114,9 @@ function onToggle() {
 
       <UIcon
         name="i-lucide-grip-vertical"
-        class="text-muted cursor-grab handle"
+        :class="['text-muted', reorderDisabled
+          ? 'opacity-30 cursor-not-allowed'
+          : 'cursor-grab handle']"
         aria-hidden="true"
       />
 
@@ -134,7 +142,7 @@ function onToggle() {
         variant="subtle"
         size="sm"
       >
-        {{ t('admin.categories.filters.inactiveOnly') }}
+        {{ t('admin.categories.tree.inactiveBadge', { default: 'Inactive' }) }}
       </UBadge>
 
       <div class="flex gap-1">
@@ -177,6 +185,7 @@ function onToggle() {
         :node="child"
         :depth="depth + 1"
         :expanded-ids="expandedIds"
+        :reorder-disabled="reorderDisabled"
         @toggle-expand="(id) => emit('toggleExpand', id)"
         @edit="(n) => emit('edit', n)"
         @move="(n) => emit('move', n)"
