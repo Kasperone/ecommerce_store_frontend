@@ -55,7 +55,7 @@ describe('useCategoriesQuery', () => {
 
     expect(apiFetch).toHaveBeenCalled()
     const [url, options] = apiFetch.mock.calls[0]
-    expect(url).toBe('/api/v1/categories')
+    expect(url).toBe('/api/v1/categories/')
     expect(options.query).toMatchObject({ is_active: true, skip: 0, limit: 50 })
   })
 
@@ -81,7 +81,7 @@ describe('useCreateCategory', () => {
     await result.mutateAsync({ name: 'Books', slug: 'books', is_active: true })
 
     const [url, options] = apiFetch.mock.calls[0]
-    expect(url).toBe('/api/v1/categories')
+    expect(url).toBe('/api/v1/categories/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'Books', slug: 'books' })
   })
