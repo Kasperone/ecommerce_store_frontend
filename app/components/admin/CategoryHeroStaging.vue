@@ -33,6 +33,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:file': [file: File | null]
+  /** Alt text edits (applies to either the existing or the staged image). */
+  'update:alt': [alt: string]
   /**
    * Fired when the admin clicks Remove on an existing R2-hosted hero (NOT
    * a locally-staged file). The parent calls DELETE /hero in response.
@@ -41,6 +43,18 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+// Alt text is one value regardless of whether the image is the existing R2 one
+// or a freshly staged file. Seed from the existing alt; the parent also seeds
+// its own copy on open, so the two stay consistent without relying on a
+// mount-time emit.
+const altText = ref(props.existingAlt ?? '')
+watch(() => props.existingAlt, value => (altText.value = value ?? ''))
+
+function onAltInput(value: string | number) {
+  altText.value = String(value ?? '')
+  emit('update:alt', altText.value)
+}
 
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
@@ -215,6 +229,26 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+
+    <UFormField
+      v-if="!isEmpty"
+      :label="t('admin.categories.hero.altLabel', { default: 'Alt text' })"
+      :hint="t('admin.categories.hero.altHint', {
+        default: 'Describe the image for screen readers and SEO.',
+      })"
+      data-hero-alt-field
+    >
+      <UInput
+        :model-value="altText"
+        :placeholder="t('admin.categories.hero.altPlaceholder', {
+          default: 'e.g. Blue ceramic mug on a wooden table',
+        })"
+        :disabled="disabled"
+        class="w-full"
+        data-hero-alt-input
+        @update:model-value="onAltInput"
+      />
+    </UFormField>
 
     <input
       ref="fileInputRef"

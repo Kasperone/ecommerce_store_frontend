@@ -150,6 +150,7 @@ const updateMutation = useUpdateCategory()
 const deleteMutation = useDeleteCategory()
 const deleteWithModeMutation = useDeleteCategoryWithMode()
 const uploadHeroMutation = useUploadCategoryHero()
+const updateHeroAltMutation = useUpdateCategoryHeroAlt()
 const deleteHeroMutation = useDeleteCategoryHero()
 
 const deletePreviewQuery = useCategoryDeletePreviewQuery(() => deleting.value?.id)
@@ -167,6 +168,7 @@ interface CategoryFormSubmit {
   meta_title_pl: string | null
   meta_description_pl: string | null
   heroFile: File | null
+  heroAlt: string
   removeExistingHero: boolean
 }
 
@@ -191,11 +193,17 @@ function buildPatchPayload(payload: CategoryFormSubmit) {
 async function uploadHeroIfStaged(
   id: number,
   heroFile: File | null,
+  heroAlt: string,
 ): Promise<void> {
   if (!heroFile) return
   const formData = new FormData()
   formData.append('file', heroFile)
   await uploadHeroMutation.mutateAsync({ id, formData })
+  // Upload sets the file; alt is a separate PATCH (mirrors the products
+  // gallery). Only send it when the admin actually typed something.
+  if (heroAlt) {
+    await updateHeroAltMutation.mutateAsync({ id, patch: { hero_image_alt: heroAlt } })
+  }
 }
 
 async function onCreate(payload: CategoryFormSubmit) {
@@ -205,7 +213,7 @@ async function onCreate(payload: CategoryFormSubmit) {
     const body = buildPatchPayload(payload)
     const created = await createMutation.mutateAsync(body)
     createdId = created.id
-    await uploadHeroIfStaged(created.id, payload.heroFile)
+    await uploadHeroIfStaged(created.id, payload.heroFile, payload.heroAlt)
     creating.value = false
   }
   catch (err) {
@@ -227,13 +235,31 @@ async function onCreate(payload: CategoryFormSubmit) {
 async function onUpdate(payload: CategoryFormSubmit) {
   if (!editing.value) return
   const id = editing.value.id
+  // Hero fields live on CategoryResponse; a tree node may not carry them.
+  const existing = editing.value as Partial<CategoryResponse>
+  const existingAlt = existing.hero_image_alt ?? ''
+  const hasExistingHero = Boolean(existing.hero_image_url)
   modalError.value = null
   try {
     await updateMutation.mutateAsync({ id, patch: buildPatchPayload(payload) })
     if (payload.removeExistingHero && !payload.heroFile) {
       await deleteHeroMutation.mutateAsync(id)
     }
-    await uploadHeroIfStaged(id, payload.heroFile)
+    await uploadHeroIfStaged(id, payload.heroFile, payload.heroAlt)
+    // No new file and not removing: persist an alt-only edit on the existing
+    // hero (the PATCH /hero metadata path). uploadHeroIfStaged already covers
+    // the alt for a freshly uploaded file.
+    if (
+      !payload.heroFile
+      && !payload.removeExistingHero
+      && hasExistingHero
+      && payload.heroAlt !== existingAlt
+    ) {
+      await updateHeroAltMutation.mutateAsync({
+        id,
+        patch: { hero_image_alt: payload.heroAlt || null },
+      })
+    }
     editing.value = null
   }
   catch (err) {

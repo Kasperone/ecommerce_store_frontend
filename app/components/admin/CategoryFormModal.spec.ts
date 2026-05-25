@@ -178,6 +178,7 @@ describe('CategoryFormModal', () => {
       name_pl: 'Książki',
       slug_pl: 'ksiazki',
       heroFile: null,
+      heroAlt: '',
       removeExistingHero: false,
     })
   })
