@@ -107,6 +107,9 @@
         "clearStaged": "Wyczyść",
         "removeExisting": "Usuń",
         "existingLabel": "Obecny obraz nagłówkowy",
+        "altLabel": "Tekst alternatywny",
+        "altHint": "Opisz obraz dla czytników ekranu i SEO.",
+        "altPlaceholder": "np. Niebieski ceramiczny kubek na drewnianym stole",
         "errors": {
           "sizeTooLarge": "Obraz jest większy niż 5 MiB.",
           "unsupportedType": "Nieobsługiwany format obrazu. Dozwolone: JPEG, PNG, WebP."

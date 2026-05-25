@@ -37,6 +37,8 @@ export interface CategoryFormSubmit {
   meta_description_pl: string | null
   /** Local file the page should POST to /hero after the row lands. */
   heroFile: File | null
+  /** Alt text for the hero (existing or staged); empty string means "none". */
+  heroAlt: string
   /** True when the admin clicked Remove on an existing hero (edit mode). */
   removeExistingHero: boolean
 }
@@ -74,6 +76,7 @@ const state = reactive({
 const slugEnManuallyEdited = ref(false)
 const slugPlManuallyEdited = ref(false)
 const heroFile = ref<File | null>(null)
+const heroAlt = ref('')
 const removeExistingHero = ref(false)
 const localeTab = ref<LocaleTab>('en')
 
@@ -92,6 +95,7 @@ watch(
     if (!isOpen) return
     localeTab.value = 'en'
     heroFile.value = null
+    heroAlt.value = existingHeroAlt.value ?? ''
     removeExistingHero.value = false
     if (props.category) {
       const c = props.category as CategoryResponse & Partial<CategoryTreeNode>
@@ -192,12 +196,17 @@ function onSubmit(_event: FormSubmitEvent<typeof state>) {
     meta_title_pl: nullable(state.meta_title_pl),
     meta_description_pl: nullable(state.meta_description_pl),
     heroFile: heroFile.value,
+    heroAlt: heroAlt.value.trim(),
     removeExistingHero: removeExistingHero.value,
   })
 }
 
 function onHeroFile(file: File | null) {
   heroFile.value = file
+}
+
+function onHeroAlt(alt: string) {
+  heroAlt.value = alt
 }
 
 function onRemoveExistingHero() {
@@ -429,6 +438,7 @@ const title = computed(() =>
             :existing-alt="existingHeroAlt"
             :disabled="loading"
             @update:file="onHeroFile"
+            @update:alt="onHeroAlt"
             @remove-existing="onRemoveExistingHero"
           />
         </div>
