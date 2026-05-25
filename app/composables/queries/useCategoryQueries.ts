@@ -41,7 +41,7 @@ export function useCategoriesQuery(params: MaybeRefOrGetter<CategoryListParams> 
     key: () => [...CATEGORIES_NAMESPACE, 'list', toValue(params)],
     query: () => {
       const p = toValue(params)
-      return apiFetch<CategoryWithProductCount[]>('/api/v1/categories', {
+      return apiFetch<CategoryWithProductCount[]>('/api/v1/categories/', {
         query: {
           is_active: p.isActive,
           skip: p.skip ?? 0,
@@ -72,7 +72,7 @@ export function useCreateCategory() {
   const queryCache = useQueryCache()
   return useMutation({
     mutation: (input: CategoryCreate) =>
-      apiFetch<CategoryResponse>('/api/v1/categories', {
+      apiFetch<CategoryResponse>('/api/v1/categories/', {
         method: 'POST',
         body: input,
       }),
