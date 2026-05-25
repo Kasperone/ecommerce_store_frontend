@@ -171,6 +171,13 @@ function nullable(s: string): string | null {
   return trimmed.length === 0 ? null : trimmed
 }
 
+// The visible Save button lives in the modal footer, outside the <form>, so a
+// native `type="submit"` can't reach it. Route its click through the form's
+// hidden submit button so the browser fires a real submit and `:validate` runs
+// before `@submit` — calling onSubmit directly (the old behaviour) skipped
+// validation entirely and let empty/invalid values POST to the server.
+const submitRef = ref<HTMLButtonElement | null>(null)
+
 function onSubmit(_event: FormSubmitEvent<typeof state>) {
   emit('submit', {
     name: state.name,
@@ -427,6 +434,7 @@ const title = computed(() =>
         </div>
 
         <button
+          ref="submitRef"
           type="submit"
           class="hidden"
           :disabled="loading"
@@ -447,7 +455,7 @@ const title = computed(() =>
         <UButton
           color="primary"
           :loading="loading"
-          @click="onSubmit({ data: { ...state } } as FormSubmitEvent<typeof state>)"
+          @click="submitRef?.click()"
         >
           {{ t('admin.categories.actions.save', { default: 'Save' }) }}
         </UButton>

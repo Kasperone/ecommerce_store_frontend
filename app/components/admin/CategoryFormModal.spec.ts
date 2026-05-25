@@ -182,6 +182,22 @@ describe('CategoryFormModal', () => {
     })
   })
 
+  it('does not emit submit when required fields are empty — Save validates first (F9)', async () => {
+    const wrapper = await mountSuspended(CategoryFormModal, {
+      props: { open: true, category: null },
+    })
+    // Click Save without filling name/slug. The visible Save must route through
+    // the form's submit so `:validate` runs and blocks the emit — the bug was a
+    // direct onSubmit call that skipped validation and POSTed empty values.
+    const saveBtn = [...document.querySelectorAll('button')].find(
+      b => b.textContent?.trim() === 'Save',
+    ) as HTMLButtonElement
+    saveBtn.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(wrapper.emitted('submit')).toBeFalsy()
+  })
+
   it('renders the SEO collapsible section', async () => {
     await mountSuspended(CategoryFormModal, {
       props: { open: true, category: null },
