@@ -126,7 +126,31 @@ describe('CategoryTreeNode', () => {
         expandedIds: new Set(),
       },
     })
-    expect(wrapper.text()).toContain('Inactive only')
+    // Dedicated badge copy, not the "Inactive only" filter label (minor #1).
+    expect(wrapper.text()).toContain('Inactive')
+    expect(wrapper.text()).not.toContain('Inactive only')
+  })
+
+  it('exposes a draggable handle by default', async () => {
+    const wrapper = await mountSuspended(CategoryTreeNode, {
+      props: { node: makeNode(), depth: 0, expandedIds: new Set() },
+    })
+    expect(wrapper.find('.handle').exists()).toBe(true)
+  })
+
+  it('inerts the drag handle when reorderDisabled', async () => {
+    // F5: while the list is filtered the handle loses its `.handle` class so
+    // @formkit/drag-and-drop can't start a drag, and shows a not-allowed cursor.
+    const wrapper = await mountSuspended(CategoryTreeNode, {
+      props: {
+        node: makeNode(),
+        depth: 0,
+        expandedIds: new Set(),
+        reorderDisabled: true,
+      },
+    })
+    expect(wrapper.find('.handle').exists()).toBe(false)
+    expect(wrapper.find('.cursor-not-allowed').exists()).toBe(true)
   })
 
   it('shows the product count badge', async () => {

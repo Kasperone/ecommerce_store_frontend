@@ -138,6 +138,8 @@
         "expand": "Rozwiń",
         "collapse": "Zwiń",
         "moveUnder": "Przenieś pod…",
+        "inactiveBadge": "Nieaktywna",
+        "reorderDisabledHint": "Zmiana kolejności jest wyłączona podczas filtrowania lub wyszukiwania. Wyczyść filtry, aby przeciągać.",
         "productBadge": "{count}",
         "productBadgeTitle": "Aktywne produkty bezpośrednio w tej kategorii",
         "moveDialog": {
