@@ -57,6 +57,24 @@ describe('createCategoryCreateSchema', () => {
     const result = create.safeParse({ name: 'Books', slug: 'books', description: null })
     expect(result.success).toBe(true)
   })
+
+  // F10 regression: the form initialises slug_pl to '' and the admin commonly
+  // leaves the PL tab untouched. An empty optional slug must NOT fail the
+  // format regex — otherwise the (hidden-tab) error silently blocks submit.
+  it('accepts an empty slug_pl (PL tab left untouched)', () => {
+    const result = create.safeParse({ name: 'Books', slug: 'books', slug_pl: '' })
+    expect(result.success).toBe(true)
+  })
+
+  it('still rejects a malformed non-empty slug_pl', () => {
+    const result = create.safeParse({ name: 'Books', slug: 'books', slug_pl: 'Niedozwolony Slug' })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts a valid slug_pl', () => {
+    const result = create.safeParse({ name: 'Books', slug: 'books', slug_pl: 'ksiazki-pl' })
+    expect(result.success).toBe(true)
+  })
 })
 
 describe('createCategoryUpdateSchema', () => {
@@ -73,5 +91,11 @@ describe('createCategoryUpdateSchema', () => {
 
   it('still enforces slug format when present', () => {
     expect(update.safeParse({ slug: 'INVALID' }).success).toBe(false)
+  })
+
+  // F10 regression on the edit path: clearing/leaving an empty PL slug must
+  // not block the patch.
+  it('accepts an empty slug_pl on update', () => {
+    expect(update.safeParse({ name: 'Books', slug_pl: '' }).success).toBe(true)
   })
 })
