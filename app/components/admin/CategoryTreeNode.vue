@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import type { CategoryTreeNode } from '#shared/types/api'
+import { snapshotCategoryTree } from '#shared/utils/categoryTree'
 
 /**
  * Recursive tree node for the admin categories page.
@@ -52,14 +53,12 @@ const [childrenListRef, localChildren] = useDragAndDrop<CategoryTreeNode>(
   },
 )
 
-function snapshotIds(list: CategoryTreeNode[]) {
-  return list.map(n => n.id).join(',')
-}
-
 watch(
   () => props.node.children ?? [],
   (incoming) => {
-    if (snapshotIds(incoming) === snapshotIds(localChildren.value)) return
+    // Deep compare so a change to a grandchild (which keeps this node's direct
+    // child id list unchanged) still re-syncs the local drag list.
+    if (snapshotCategoryTree(incoming) === snapshotCategoryTree(localChildren.value)) return
     localChildren.value = [...incoming]
   },
 )
