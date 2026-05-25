@@ -155,6 +155,31 @@ describe('CategoryDeleteConfirm', () => {
     expect(document.body.textContent).toContain('2 products')
   })
 
+  it('remounts the radio group when the descendant count arrives (minor #2)', async () => {
+    // The cascade label embeds the descendant count, which is 0 until the
+    // preview query resolves. Reka snapshots each radio's accessible name at
+    // registration, so the group is keyed on the count to force a remount when
+    // it lands — otherwise the a11y name stays "+0" while the visible label
+    // reads "+N". Assert the group is a fresh DOM node and the count shows.
+    const wrapper = await mountSuspended(CategoryDeleteConfirm, {
+      props: {
+        open: true,
+        category: makeCategory({ children: [makeCategory({ id: 8 })] }),
+        preview: null,
+      },
+    })
+    const groupBefore = document.querySelector('[role="radiogroup"]')
+    expect(groupBefore).toBeTruthy()
+
+    await wrapper.setProps({ preview: preview({ descendant_count: 3 }) })
+    await new Promise(r => setTimeout(r, 0))
+
+    const groupAfter = document.querySelector('[role="radiogroup"]')
+    expect(groupAfter).toBeTruthy()
+    expect(groupAfter).not.toBe(groupBefore)
+    expect(document.body.textContent).toContain('+3 descendants')
+  })
+
   it('is axe-clean when open', async () => {
     await mountSuspended(CategoryDeleteConfirm, {
       props: {

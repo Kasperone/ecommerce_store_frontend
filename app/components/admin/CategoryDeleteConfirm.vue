@@ -172,7 +172,16 @@ function onConfirm() {
         <p class="text-sm">
           {{ helpLine }}
         </p>
+        <!--
+          The cascade label embeds `descendantCount`, which is 0 until
+          /delete-preview resolves. Reka snapshots each radio's accessible
+          name at registration, so a label that changes from "+0" to "+N"
+          after mount leaves the a11y name stale at "+0". Key the group on the
+          count (+ category id) so it remounts and re-registers with the
+          correct name once the preview lands.
+        -->
         <URadioGroup
+          :key="`${category?.id ?? 'none'}-${descendantCount}`"
           v-model="mode"
           :items="items"
           value-key="value"
