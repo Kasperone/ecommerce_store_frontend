@@ -49,7 +49,6 @@
       "products":   { "title": "Produkty",         "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce." },
       "inventory":  { "title": "Magazyn",          "placeholder": "Tutaj znajdzie się stan magazynowy, progi i historia ruchów. Wkrótce." },
       "reviews":    { "title": "Opinie",           "placeholder": "Tutaj znajdzie się moderacja opinii klientów. Wkrótce." },
-      "orders":     { "title": "Zamówienia",       "placeholder": "Tutaj znajdzie się lista zamówień, szczegóły, statusy i zwroty. Wkrótce." },
       "customers":  { "title": "Klienci",          "placeholder": "Tutaj znajdzie się lista klientów, szczegóły i kontrola kont. Wkrótce." },
       "companies":  { "title": "Firmy (B2B)",      "placeholder": "Tutaj znajdzie się katalog firm B2B, akceptacja kont i opiekunowie. Wkrótce." },
       "quotes":     { "title": "Oferty (B2B)",     "placeholder": "Tutaj znajdzie się obsługa zapytań ofertowych i konwersja w zamówienia. Wkrótce." },
@@ -312,6 +311,69 @@
         "stockInvalid": "Stan musi być liczbą",
         "stockInteger": "Stan musi być liczbą całkowitą",
         "stockNegative": "Stan nie może być ujemny"
+      }
+    },
+    "orders": {
+      "title": "Zamówienia",
+      "subtitle": "Przeglądaj zamówienia i zarządzaj ich statusem",
+      "fields": {
+        "orderNumber": "Nr zamówienia",
+        "customer": "Klient",
+        "status": "Status",
+        "items": "Pozycje",
+        "total": "Razem",
+        "created": "Złożono"
+      },
+      "status": {
+        "pending": "Oczekujące",
+        "paid": "Opłacone",
+        "processing": "W realizacji",
+        "shipped": "Wysłane",
+        "delivered": "Dostarczone",
+        "cancelled": "Anulowane",
+        "refunded": "Zwrócone"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy"
+      },
+      "empty": {
+        "noResults": "Brak zamówień pasujących do filtra.",
+        "noOrders": "Brak zamówień."
+      },
+      "actions": {
+        "view": "Zobacz zamówienie",
+        "back": "Powrót do zamówień",
+        "cancel": "Anuluj zamówienie",
+        "save": "Zapisz zmiany"
+      },
+      "detail": {
+        "title": "Zamówienie {number}",
+        "loading": "Wczytywanie zamówienia…",
+        "customer": "Klient",
+        "email": "E-mail",
+        "name": "Imię i nazwisko",
+        "shipping": "Adres wysyłki",
+        "items": "Pozycje",
+        "subtotal": "Suma częściowa",
+        "tax": "Podatek",
+        "shippingCost": "Wysyłka",
+        "total": "Razem",
+        "manage": "Zarządzaj zamówieniem",
+        "changeStatus": "Status",
+        "paymentMethod": "Metoda płatności",
+        "paymentPlaceholder": "np. stripe, payu",
+        "internalNotes": "Notatki wewnętrzne"
+      },
+      "cancel": {
+        "title": "Anuluj zamówienie",
+        "body": "Spowoduje to przywrócenie stanu magazynowego dla każdej pozycji i ustawienie statusu na anulowane. Tej operacji nie można cofnąć.",
+        "confirm": "Anuluj zamówienie",
+        "dismiss": "Zachowaj zamówienie"
+      },
+      "flashes": {
+        "updated": "Zamówienie zaktualizowane.",
+        "cancelled": "Zamówienie anulowane."
       }
     }
   },

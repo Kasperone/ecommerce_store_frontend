@@ -25,6 +25,14 @@ export type ProductResponse = components['schemas']['ProductResponse']
 export type ProductWithCategory = components['schemas']['ProductWithCategory']
 export type ProductCreate = components['schemas']['ProductCreate']
 export type ProductUpdate = components['schemas']['ProductUpdate']
+export type OrderStatus = components['schemas']['OrderStatus']
+export type OrderListItem = components['schemas']['OrderListItem']
+export type OrderListResponse = components['schemas']['OrderListResponse']
+export type OrderResponse = components['schemas']['OrderResponse']
+export type OrderWithUser = components['schemas']['OrderWithUser']
+export type OrderItemResponse = components['schemas']['OrderItemResponse']
+export type OrderCreate = components['schemas']['OrderCreate']
+export type OrderUpdate = components['schemas']['OrderUpdate']
 
 // User-related types
 export interface UserResponse {
