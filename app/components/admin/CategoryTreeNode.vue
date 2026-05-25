@@ -172,7 +172,7 @@ function onToggle() {
       class="border-t border-default flex flex-col gap-1 px-2 py-2"
       data-children-list
     >
-      <CategoryTreeNode
+      <AdminCategoryTreeNode
         v-for="child in localChildren"
         :key="child.id"
         :node="child"
