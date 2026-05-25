@@ -35,8 +35,15 @@ const debouncedSetSearch = useDebounceFn((value: string) => {
 }, 300)
 watch(searchInput, value => debouncedSetSearch(value))
 
+// `useUrlFilters` returns `undefined` for an absent query param (the schema
+// marks it optional), so the `{ active: 'all' }` default never lands on first
+// load. Coalesce to 'all' here — otherwise `undefined` falls through to the
+// `=== 'true'` branch below as `false`, the tree fetches inactive-only, and the
+// admin sees an empty page until they manually pick a filter.
+const activeFilter = computed(() => filters.value.active ?? 'all')
+
 const treeParams = computed(() => ({
-  isActive: filters.value.active === 'all' ? undefined : filters.value.active === 'true',
+  isActive: activeFilter.value === 'all' ? undefined : activeFilter.value === 'true',
 }))
 
 const { data: tree, error: listError } = useCategoryTreeQuery(treeParams)
@@ -290,7 +297,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
 
       <div class="flex flex-wrap items-center gap-3">
         <USelectMenu
-          :model-value="filters.active"
+          :model-value="activeFilter"
           :items="[
             { label: $t('admin.categories.filters.activeAll'), value: 'all' },
             { label: $t('admin.categories.filters.activeOnly'), value: 'true' },
@@ -321,7 +328,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         v-if="visibleTree.length === 0"
         class="text-muted text-sm py-12 text-center"
       >
-        <template v-if="filters.search || filters.active !== 'all'">
+        <template v-if="filters.search || activeFilter !== 'all'">
           {{ $t('admin.categories.empty.noResults') }}
         </template>
         <template v-else>
