@@ -45,6 +45,14 @@ export type InventoryMovementListResponse = components['schemas']['InventoryMove
 export type StockAdjustRequest = components['schemas']['StockAdjustRequest']
 export type AuditEventItem = components['schemas']['AuditEventItem']
 export type AuditEventListResponse = components['schemas']['AuditEventListResponse']
+export type ReviewResponse = components['schemas']['ReviewResponse']
+export type ReviewCreate = components['schemas']['ReviewCreate']
+export type ReviewUpdate = components['schemas']['ReviewUpdate']
+export type ReviewModerate = components['schemas']['ReviewModerate']
+export type ProductReviewSummary = components['schemas']['ProductReviewSummary']
+export type PublicReviewListResponse = components['schemas']['PublicReviewListResponse']
+export type AdminReviewListItem = components['schemas']['AdminReviewListItem']
+export type AdminReviewListResponse = components['schemas']['AdminReviewListResponse']
 
 // Payment-related types
 export type PayUCheckoutResponse = components['schemas']['PayUCheckoutResponse']
