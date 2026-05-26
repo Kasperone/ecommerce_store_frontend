@@ -1,23 +1,59 @@
 // @vitest-environment nuxt
-import { describe, expect, it } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import AddToCartButton from './AddToCartButton.vue'
 
-// `region` is a page-level rule — a false positive for a bare-mounted fragment.
+const { add, openDrawer } = vi.hoisted(() => ({ add: vi.fn(), openDrawer: vi.fn() }))
+mockNuxtImport('useCartStore', () => () => ({ add, openDrawer }))
+
 const AXE_OPTIONS = { rules: { region: { enabled: false } } }
 
+function product(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 1,
+    name: 'Widget',
+    slug: 'widget',
+    description: null,
+    sku: null,
+    price_usd: 10,
+    price_pln: 40,
+    price_eur: 9,
+    stock: 5,
+    low_stock_threshold: null,
+    is_active: true,
+    is_featured: false,
+    category_id: null,
+    images: [],
+    created_at: '',
+    updated_at: '',
+    in_stock: true,
+    ...overrides,
+  }
+}
+
+beforeEach(() => {
+  add.mockReset()
+  openDrawer.mockReset()
+})
+
 describe('ShopAddToCartButton', () => {
-  it('renders the add-to-cart label on a disabled button (cart is Phase 2)', async () => {
-    const wrapper = await mountSuspended(AddToCartButton, { props: { productId: 1 } })
-    const button = wrapper.find('button')
-    expect(button.exists()).toBe(true)
-    expect(button.attributes('disabled')).toBeDefined()
-    expect(wrapper.text()).toContain('Add to Cart')
+  it('adds the product and opens the drawer on click', async () => {
+    const wrapper = await mountSuspended(AddToCartButton, { props: { product: product() } })
+    await wrapper.find('button').trigger('click')
+    expect(add).toHaveBeenCalledTimes(1)
+    expect(add.mock.calls[0]![0].id).toBe(1)
+    expect(openDrawer).toHaveBeenCalledTimes(1)
+  })
+
+  it('is disabled and labelled out-of-stock when stock is 0', async () => {
+    const wrapper = await mountSuspended(AddToCartButton, { props: { product: product({ stock: 0 }) } })
+    expect(wrapper.find('button').attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).toContain('Out of Stock')
   })
 
   it('is axe-clean', async () => {
-    const wrapper = await mountSuspended(AddToCartButton, { props: { productId: 1 } })
+    const wrapper = await mountSuspended(AddToCartButton, { props: { product: product() } })
     expect(await axe(wrapper.element, AXE_OPTIONS)).toHaveNoViolations()
   })
 })
