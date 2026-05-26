@@ -342,6 +342,8 @@ export interface paths {
          *     - **min_price/max_price**: Price range filter (USD)
          *     - **in_stock**: Filter by stock availability
          *     - **search**: Search query for name and description
+         *     - **sort_by**: Field to sort by (created_at, price_usd, name)
+         *     - **order**: Sort direction (asc or desc)
          */
         get: operations["list_products_api_v1_products__get"];
         put?: never;
@@ -2841,6 +2843,10 @@ export interface operations {
                 in_stock?: boolean | null;
                 /** @description Search in name and description */
                 search?: string | null;
+                /** @description Field to sort by */
+                sort_by?: "created_at" | "price_usd" | "name";
+                /** @description Sort direction */
+                order?: "asc" | "desc";
             };
             header?: never;
             path?: never;
