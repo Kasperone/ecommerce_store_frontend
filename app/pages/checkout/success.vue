@@ -16,7 +16,9 @@ const order = useState<OrderResponse | null>('checkout:lastOrder', () => null)
 useHead({ title: () => t('checkout.success.title') })
 
 const total = computed(() =>
-  order.value ? formatMoney(order.value.total, order.value.currency as CurrencyCode, locale.value) : null,
+  order.value
+    ? formatMoney(order.value.total, order.value.currency as CurrencyCode, locale.value)
+    : null,
 )
 </script>
 
@@ -37,7 +39,10 @@ const total = computed(() =>
 
         <div
           v-if="order"
-          class="mx-auto mt-6 max-w-sm rounded-lg border border-gray-200 p-4 text-left dark:border-gray-800"
+          :class="[
+            'mx-auto mt-6 max-w-sm rounded-lg border border-gray-200 p-4 text-left',
+            'dark:border-gray-800',
+          ]"
         >
           <div class="flex items-center justify-between">
             <span class="text-muted">{{ t('checkout.success.orderNumber') }}</span>

@@ -42,6 +42,11 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
+const deleteTitle = computed(
+  () => props.category?.name
+    ?? t('admin.categories.confirm.deleteTitle', { default: 'Delete category' }),
+)
+
 const directProductCount = computed(() =>
   props.preview?.direct_product_count
   ?? (props.category as CategoryWithProductCount | null)?.product_count
@@ -163,7 +168,7 @@ function onConfirm() {
 <template>
   <UModal
     :open="open"
-    :title="category?.name ?? t('admin.categories.confirm.deleteTitle', { default: 'Delete category' })"
+    :title="deleteTitle"
     :dismissible="!loading"
     @update:open="(v) => emit('update:open', v)"
   >

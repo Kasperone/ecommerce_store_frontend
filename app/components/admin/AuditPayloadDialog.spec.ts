@@ -11,7 +11,10 @@ import AuditPayloadDialog from './AuditPayloadDialog.vue'
  */
 const AXE_OPTIONS = { rules: { 'aria-hidden-focus': { enabled: false } } }
 
-function ev(payload: Record<string, unknown>, overrides: Partial<AuditEventItem> = {}): AuditEventItem {
+function ev(
+  payload: Record<string, unknown>,
+  overrides: Partial<AuditEventItem> = {},
+): AuditEventItem {
   return {
     id: 1,
     created_at: '2026-01-01T00:00:00Z',

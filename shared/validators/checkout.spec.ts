@@ -18,7 +18,12 @@ describe('createShippingSchema', () => {
   })
 
   it('allows omitting notes', () => {
-    const withoutNotes = { address: valid.address, city: valid.city, postalCode: valid.postalCode, country: valid.country }
+    const withoutNotes = {
+      address: valid.address,
+      city: valid.city,
+      postalCode: valid.postalCode,
+      country: valid.country,
+    }
     expect(schema.safeParse(withoutNotes).success).toBe(true)
   })
 

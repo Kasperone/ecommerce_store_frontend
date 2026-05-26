@@ -64,7 +64,12 @@ const subtotal = computed(() => {
             <h2 class="mb-3 font-semibold">
               {{ t('cart.summary.heading') }}
             </h2>
-            <div class="flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
+            <div
+              :class="[
+                'flex items-center justify-between border-b border-gray-100 pb-3',
+                'dark:border-gray-800',
+              ]"
+            >
               <span class="text-muted">{{ t('cart.summary.subtotal') }}</span>
               <span class="font-medium">{{ subtotal }}</span>
             </div>

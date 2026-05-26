@@ -16,7 +16,9 @@ const atMax = computed(() => props.item.quantity >= props.item.stock)
 
 const lineTotal = computed(() => {
   const picked = selectPrice(props.item, currency.value)
-  return picked ? formatMoney(picked.amount * props.item.quantity, picked.currency, locale.value) : null
+  return picked
+    ? formatMoney(picked.amount * props.item.quantity, picked.currency, locale.value)
+    : null
 })
 </script>
 
