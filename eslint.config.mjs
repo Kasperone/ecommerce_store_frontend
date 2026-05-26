@@ -38,6 +38,21 @@ export default withNuxt(
     },
   },
 
+  // Some locale keys deliberately mirror backend enum values (inventory
+  // status `in_stock`/`low_stock`/`out_of_stock`, movement `reasons`, user
+  // `roles` CUSTOMER/ADMIN) so they resolve via dynamic
+  // `$t(`…${enumValue}`)` lookups — they must match the API verbatim and so
+  // can't be camelCase. Turn off key-format-style for locale resources only;
+  // no-unused-keys / no-missing-keys stay on, and camelCase is still the
+  // convention for hand-authored keys (enforced by review).
+  {
+    name: 'ecommerce-store/vue-i18n-locale-keys',
+    files: ['i18n/locales/**/*.json'],
+    rules: {
+      '@intlify/vue-i18n/key-format-style': 'off',
+    },
+  },
+
   {
     name: 'ecommerce-store/rules',
     files: ['**/*.{js,mjs,ts,vue}'],
