@@ -25,6 +25,11 @@ function goToCart() {
   cart.closeDrawer()
   void navigateTo(localePath('/cart'))
 }
+
+function goToCheckout() {
+  cart.closeDrawer()
+  void navigateTo(localePath('/checkout'))
+}
 </script>
 
 <template>
@@ -78,8 +83,7 @@ function goToCart() {
         <UButton
           color="primary"
           block
-          disabled
-          :title="t('actions.comingSoon')"
+          @click="goToCheckout"
         >
           {{ t('cart.actions.checkout') }}
         </UButton>

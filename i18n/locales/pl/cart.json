@@ -33,5 +33,39 @@
       "removed": "Usunięto z koszyka",
       "updated": "Zaktualizowano koszyk"
     }
+  },
+  "checkout": {
+    "title": "Zamówienie",
+    "placeOrder": "Złóż zamówienie",
+    "editCart": "Edytuj koszyk",
+    "shipping": {
+      "heading": "Adres dostawy",
+      "address": "Adres",
+      "city": "Miasto",
+      "postalCode": "Kod pocztowy",
+      "country": "Kraj",
+      "notes": "Uwagi do zamówienia",
+      "notesPlaceholder": "Coś, o czym powinniśmy wiedzieć? (opcjonalnie)"
+    },
+    "summary": {
+      "heading": "Podsumowanie zamówienia",
+      "total": "Razem"
+    },
+    "success": {
+      "title": "Zamówienie złożone!",
+      "message": "Dziękujemy za zamówienie — otrzymaliśmy je i wkrótce je przetworzymy.",
+      "orderNumber": "Numer zamówienia"
+    },
+    "errors": {
+      "addressRequired": "Adres jest wymagany",
+      "addressTooLong": "Adres może mieć maksymalnie 255 znaków",
+      "cityRequired": "Miasto jest wymagane",
+      "cityTooLong": "Miasto może mieć maksymalnie 100 znaków",
+      "postalRequired": "Kod pocztowy jest wymagany",
+      "postalTooLong": "Kod pocztowy może mieć maksymalnie 20 znaków",
+      "countryRequired": "Kraj jest wymagany",
+      "countryTooLong": "Kraj może mieć maksymalnie 100 znaków",
+      "notesTooLong": "Uwagi mogą mieć maksymalnie 1000 znaków"
+    }
   }
 }
