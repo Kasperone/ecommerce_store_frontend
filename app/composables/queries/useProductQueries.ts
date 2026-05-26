@@ -62,6 +62,8 @@ export function useProductsQuery(params: MaybeRefOrGetter<ProductListParams> = {
         },
       })
     },
+    // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
+    enabled: () => import.meta.client,
   })
 }
 
@@ -76,7 +78,8 @@ export function useProductQuery(id: MaybeRefOrGetter<number | undefined>) {
       }
       return apiFetch<ProductWithCategory>(`/api/v1/products/${value}`)
     },
-    enabled: () => toValue(id) !== undefined,
+    // Client-only (+ id present) — see useOrderQueries.ts for the SSR rationale.
+    enabled: () => import.meta.client && toValue(id) !== undefined,
   })
 }
 

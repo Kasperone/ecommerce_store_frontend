@@ -41,5 +41,7 @@ export function useAuditEventsQuery(params: MaybeRefOrGetter<AuditEventListParam
         },
       })
     },
+    // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
+    enabled: () => import.meta.client,
   })
 }

@@ -49,6 +49,8 @@ export function useCategoriesQuery(params: MaybeRefOrGetter<CategoryListParams> 
         },
       })
     },
+    // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
+    enabled: () => import.meta.client,
   })
 }
 
@@ -63,7 +65,8 @@ export function useCategoryQuery(id: MaybeRefOrGetter<number | undefined>) {
       }
       return apiFetch<CategoryWithProductCount>(`/api/v1/categories/${value}`)
     },
-    enabled: () => toValue(id) !== undefined,
+    // Client-only (+ id present) — see useOrderQueries.ts for the SSR rationale.
+    enabled: () => import.meta.client && toValue(id) !== undefined,
   })
 }
 
@@ -124,6 +127,8 @@ export function useCategoryTreeQuery(
         },
       })
     },
+    // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
+    enabled: () => import.meta.client,
   })
 }
 
@@ -146,7 +151,8 @@ export function useCategoryDeletePreviewQuery(
         `/api/v1/categories/${value}/delete-preview`,
       )
     },
-    enabled: () => toValue(id) !== undefined,
+    // Client-only (+ id present) — see useOrderQueries.ts for the SSR rationale.
+    enabled: () => import.meta.client && toValue(id) !== undefined,
   })
 }
 
