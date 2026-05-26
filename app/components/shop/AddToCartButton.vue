@@ -1,29 +1,32 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { ProductResponse, ProductWithCategory } from '#shared/types/api'
 
-/**
- * Add-to-cart affordance. Cart is Phase 2, so this renders disabled with a
- * "coming soon" tooltip — it's the single seam Phase 2 wires (the `productId`
- * prop is accepted now so call sites stay stable).
- */
-defineProps<{
-  productId?: number
+const props = defineProps<{
+  product: ProductResponse | ProductWithCategory
   block?: boolean
 }>()
 
 const { t } = useI18n()
+const cart = useCartStore()
+
+const outOfStock = computed(() => props.product.stock <= 0)
+
+function addToCart() {
+  cart.add(props.product)
+  cart.openDrawer()
+}
 </script>
 
 <template>
-  <!-- Native `title` (not UTooltip) so the hint works on a disabled button and
-       needs no TooltipProvider. Phase 2 enables this and wires the click. -->
   <UButton
     color="primary"
     icon="i-lucide-shopping-cart"
     :block="block"
-    disabled
-    :title="t('actions.comingSoon')"
+    :disabled="outOfStock"
+    @click="addToCart"
   >
-    {{ t('actions.addToCart') }}
+    {{ outOfStock ? t('stock.outOfStock') : t('actions.addToCart') }}
   </UButton>
 </template>

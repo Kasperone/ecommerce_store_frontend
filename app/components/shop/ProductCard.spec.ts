@@ -42,9 +42,10 @@ describe('ShopProductCard', () => {
     expect(wrapper.text()).toContain('Out of Stock')
   })
 
-  it('renders a disabled add-to-cart button', async () => {
+  it('renders an enabled add-to-cart button for in-stock products', async () => {
     const wrapper = await mountSuspended(ProductCard, { props: { product: product() } })
-    expect(wrapper.find('button').attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).toContain('Add to Cart')
+    expect(wrapper.find('button').attributes('disabled')).toBeUndefined()
   })
 
   it('is axe-clean', async () => {

@@ -113,7 +113,7 @@ const categoryTo = computed(() =>
 
           <div class="max-w-md">
             <ShopAddToCartButton
-              :product-id="product.id"
+              :product="product"
               block
             />
           </div>

@@ -60,6 +60,10 @@ const items = computed<NavigationMenuItem[]>(() => {
     <template #right>
       <LayoutCurrencySwitcher class="mr-1" />
 
+      <ClientOnly>
+        <CartTrigger class="mr-1" />
+      </ClientOnly>
+
       <UColorModeButton class="cursor-pointer" />
 
       <UTooltip :text="t('header.toggleLang')">
