@@ -1,0 +1,115 @@
+/**
+ * Storefront catalog data layer.
+ *
+ * Unlike the admin `@pinia/colada` queries (client-only — no Nuxt SSR module is
+ * wired), the public catalog is SEO-critical, so it fetches via Nuxt's native
+ * `useAsyncData` + `useApi().apiFetch`: server-rendered, payload-hydrated (no
+ * double fetch), and feeds `useSeoMeta`. All endpoints are public — `useApi`
+ * simply sends no bearer token.
+ */
+
+import { toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
+import type {
+  CategoryTreeNode,
+  CategoryWithProductCount,
+  ProductResponse,
+  ProductWithCategory,
+} from '#shared/types/api'
+
+export type CatalogSort = 'newest' | 'priceAsc' | 'priceDesc' | 'nameAsc'
+
+export interface StorefrontListParams {
+  page?: number
+  categoryId?: number
+  search?: string
+  inStock?: boolean
+  sort?: CatalogSort
+}
+
+export interface StorefrontProductPage {
+  items: ProductWithCategory[]
+  total: number
+  page: number
+  page_size: number
+  pages: number
+}
+
+export const STOREFRONT_PAGE_SIZE = 12
+
+// UI sort key → backend (sort_by, order). Mirrors the params added in backend #51.
+const SORT_MAP: Record<CatalogSort, { sort_by: string, order: string }> = {
+  newest: { sort_by: 'created_at', order: 'desc' },
+  priceAsc: { sort_by: 'price_usd', order: 'asc' },
+  priceDesc: { sort_by: 'price_usd', order: 'desc' },
+  nameAsc: { sort_by: 'name', order: 'asc' },
+}
+
+export function buildListQuery(p: StorefrontListParams) {
+  const sort = SORT_MAP[p.sort ?? 'newest']
+  return {
+    page: p.page ?? 1,
+    page_size: STOREFRONT_PAGE_SIZE,
+    category_id: p.categoryId,
+    // Only narrow when the shopper opts in; never request out-of-stock-only.
+    in_stock: p.inStock ? true : undefined,
+    search: p.search,
+    is_active: true,
+    sort_by: sort.sort_by,
+    order: sort.order,
+  }
+}
+
+/**
+ * Paginated, filtered product list. Refetches when `params` changes.
+ *
+ * `key` is parameterized so distinct surfaces (the main catalog page vs a
+ * category landing page) don't share a `useAsyncData` cache entry.
+ */
+export function useProductListing(
+  params: MaybeRefOrGetter<StorefrontListParams>,
+  key = 'storefront-products',
+) {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    key,
+    () => apiFetch<StorefrontProductPage>('/api/v1/products/', { query: buildListQuery(toValue(params)) }),
+    { watch: [() => toValue(params)] },
+  )
+}
+
+/** Single product by slug (with category + images). */
+export function useProductDetail(slug: string) {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    `storefront-product-${slug}`,
+    () => apiFetch<ProductWithCategory>(`/api/v1/products/slug/${encodeURIComponent(slug)}`),
+  )
+}
+
+/** Featured products for the home page. */
+export function useFeaturedProducts(limit = 8) {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    'storefront-featured',
+    () => apiFetch<ProductResponse[]>('/api/v1/products/featured', { query: { limit } }),
+  )
+}
+
+/** Single category by slug (EN or PL slug resolves server-side). */
+export function useCategoryDetail(slug: string) {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    `storefront-category-${slug}`,
+    () => apiFetch<CategoryWithProductCount>(`/api/v1/categories/slug/${encodeURIComponent(slug)}`),
+  )
+}
+
+/** Active category tree (for nav + the catalog category filter). */
+export function useStorefrontCategories() {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    'storefront-categories',
+    () => apiFetch<CategoryTreeNode[]>('/api/v1/categories/tree', { query: { is_active: true } }),
+  )
+}
