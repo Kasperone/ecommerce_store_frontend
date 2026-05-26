@@ -17,10 +17,16 @@ function product(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  // The store persists to localStorage in a client env; clear it so each test
-  // starts from an empty cart. CI runs with `import.meta.client` truthy, which
-  // would otherwise let one test's persisted cart hydrate into the next.
-  localStorage.clear()
+  // The store persists to localStorage where it's available (e.g. CI), so clear
+  // it between tests to stop one test's persisted cart hydrating into the next.
+  // Guarded: some envs don't provide a working localStorage (the store no-ops it
+  // there too), so a bare reference would throw.
+  try {
+    globalThis.localStorage?.clear()
+  }
+  catch {
+    // localStorage unavailable in this env — nothing to clear.
+  }
   setActivePinia(createPinia())
 })
 
