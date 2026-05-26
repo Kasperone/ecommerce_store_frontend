@@ -112,8 +112,11 @@
     }
   },
   "payment": {
-    "payNow": "Zapłać teraz",
     "completePrompt": "Dokończ płatność, aby potwierdzić zamówienie.",
+    "methods": {
+      "stripe": "Zapłać kartą",
+      "payu": "Zapłać przez PayU"
+    },
     "return": {
       "title": "Potwierdzamy Twoją płatność",
       "message": "Dziękujemy! Potwierdzamy Twoją płatność w PayU. Status zamówienia zaktualizuje się wkrótce — śledź go w swoich zamówieniach.",

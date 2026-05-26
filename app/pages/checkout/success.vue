@@ -56,10 +56,7 @@ const total = computed(() =>
           <p class="mb-2 text-sm text-muted">
             {{ t('payment.completePrompt') }}
           </p>
-          <CheckoutPayButton
-            :order-id="order.id"
-            block
-          />
+          <CheckoutPaymentMethods :order-id="order.id" />
         </div>
 
         <div class="mt-8 flex flex-wrap justify-center gap-3">
