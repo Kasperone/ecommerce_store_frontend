@@ -75,3 +75,35 @@ describe('useStartStripeCheckout', () => {
     expect(res.checkout_url).toBe('https://checkout.stripe.com/c/pay/cs_1')
   })
 })
+
+describe('useStripeConfig', () => {
+  it('GETs /api/v1/payments/stripe/config', async () => {
+    apiFetch.mockResolvedValue({ configured: true, publishable_key: 'pk_test_x' })
+    const { useStripeConfig } = await import('./usePaymentQueries')
+
+    const result = await runInComponent(() => useStripeConfig()) as {
+      refetch: () => Promise<unknown>
+    }
+    await result.refetch()
+
+    // GET — no options object (default method).
+    expect(apiFetch).toHaveBeenCalledWith('/api/v1/payments/stripe/config')
+  })
+})
+
+describe('useCreateStripePaymentIntent', () => {
+  it('POSTs /api/v1/payments/stripe/payment-intent/{id} and returns the client_secret', async () => {
+    apiFetch.mockResolvedValue({ client_secret: 'pi_1_secret_abc' })
+    const { useCreateStripePaymentIntent } = await import('./usePaymentQueries')
+
+    const result = await runInComponent(() => useCreateStripePaymentIntent()) as {
+      mutateAsync: (id: number) => Promise<{ client_secret: string }>
+    }
+    const res = await result.mutateAsync(42)
+
+    const [url, options] = apiFetch.mock.calls[0]!
+    expect(url).toBe('/api/v1/payments/stripe/payment-intent/42')
+    expect(options.method).toBe('POST')
+    expect(res.client_secret).toBe('pi_1_secret_abc')
+  })
+})

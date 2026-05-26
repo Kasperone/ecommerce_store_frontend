@@ -113,13 +113,15 @@
   },
   "payment": {
     "completePrompt": "Dokończ płatność, aby potwierdzić zamówienie.",
+    "walletError": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
     "methods": {
       "stripe": "Zapłać kartą",
-      "payu": "Zapłać przez PayU"
+      "payu": "Zapłać przez PayU",
+      "walletDivider": "Albo zapłać inaczej"
     },
     "return": {
       "title": "Potwierdzamy Twoją płatność",
-      "message": "Dziękujemy! Potwierdzamy Twoją płatność w PayU. Status zamówienia zaktualizuje się wkrótce — śledź go w swoich zamówieniach.",
+      "message": "Dziękujemy! Potwierdzamy Twoją płatność. Status zamówienia zaktualizuje się wkrótce — śledź go w swoich zamówieniach.",
       "orderRef": "Zamówienie {number}",
       "viewOrders": "Zobacz moje zamówienia"
     }
