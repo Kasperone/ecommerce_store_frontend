@@ -58,3 +58,20 @@ describe('useStartPayuCheckout', () => {
     expect(res.redirect_uri).toBe('https://secure.snd.payu.com/pay/abc')
   })
 })
+
+describe('useStartStripeCheckout', () => {
+  it('POSTs /api/v1/payments/stripe/checkout/{id} and returns the checkout_url', async () => {
+    apiFetch.mockResolvedValue({ checkout_url: 'https://checkout.stripe.com/c/pay/cs_1' })
+    const { useStartStripeCheckout } = await import('./usePaymentQueries')
+
+    const result = await runInComponent(() => useStartStripeCheckout()) as {
+      mutateAsync: (id: number) => Promise<{ checkout_url: string }>
+    }
+    const res = await result.mutateAsync(42)
+
+    const [url, options] = apiFetch.mock.calls[0]!
+    expect(url).toBe('/api/v1/payments/stripe/checkout/42')
+    expect(options.method).toBe('POST')
+    expect(res.checkout_url).toBe('https://checkout.stripe.com/c/pay/cs_1')
+  })
+})

@@ -112,8 +112,11 @@
     }
   },
   "payment": {
-    "payNow": "Pay now",
     "completePrompt": "Complete your payment to confirm your order.",
+    "methods": {
+      "stripe": "Pay with card",
+      "payu": "Pay with PayU"
+    },
     "return": {
       "title": "Confirming your payment",
       "message": "Thanks! We're confirming your payment with PayU. Your order status will update shortly — track it in your orders.",
