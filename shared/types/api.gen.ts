@@ -718,6 +718,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payments/payu/orders/{order_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Payu Checkout
+         * @description Create a PayU payment for the caller's pending order.
+         */
+        post: operations["create_payu_checkout_api_v1_payments_payu_orders__order_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/payu/notify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Payu Notify
+         * @description PayU server-to-server notification. Verify the signature, then settle.
+         */
+        post: operations["payu_notify_api_v1_payments_payu_notify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/customers/": {
         parameters: {
             query?: never;
@@ -1962,6 +2002,14 @@ export interface components {
             token: string;
             /** New Password */
             new_password: string;
+        };
+        /**
+         * PayUCheckoutResponse
+         * @description Where to send the buyer to pay — PayU's hosted payment page.
+         */
+        PayUCheckoutResponse: {
+            /** Redirect Uri */
+            redirect_uri: string;
         };
         /**
          * ProductCreate
@@ -3620,6 +3668,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_payu_checkout_api_v1_payments_payu_orders__order_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayUCheckoutResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    payu_notify_api_v1_payments_payu_notify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
