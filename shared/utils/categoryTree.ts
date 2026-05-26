@@ -75,3 +75,58 @@ export function filterCategoryTree(
 
   return walk(nodes)
 }
+
+/**
+ * Localized display name for a category. Falls back to the EN `name` when the
+ * locale is not `pl` or the Polish name is empty. Accepts a loose shape so both
+ * `CategoryTreeNode` and `CategoryWithProductCount` (and any future variant
+ * carrying `name`/`name_pl`) work.
+ */
+export function localizedCategoryName(
+  cat: { name: string, name_pl?: string | null },
+  locale: string,
+): string {
+  if (locale === 'pl' && cat.name_pl) return cat.name_pl
+  return cat.name
+}
+
+export interface FlatCategory {
+  id: number
+  slug: string
+  name: string
+  /** 0-based nesting depth, for indenting select options. */
+  depth: number
+}
+
+/**
+ * Depth-first flatten of a category tree into `{ id, slug, name, depth }`, with
+ * names localized — for the storefront nav menu and the catalog category filter.
+ */
+export function flattenCategoryTree(
+  nodes: CategoryTreeNode[],
+  locale = 'en',
+  depth = 0,
+): FlatCategory[] {
+  const out: FlatCategory[] = []
+  for (const node of nodes) {
+    out.push({ id: node.id, slug: node.slug, name: localizedCategoryName(node, locale), depth })
+    if (node.children?.length) {
+      out.push(...flattenCategoryTree(node.children, locale, depth + 1))
+    }
+  }
+  return out
+}
+
+/** Depth-first search for a category node by id (used by the category page to
+ * surface a parent's subcategories). */
+export function findCategoryNode(
+  nodes: CategoryTreeNode[],
+  id: number,
+): CategoryTreeNode | null {
+  for (const node of nodes) {
+    if (node.id === id) return node
+    const found = findCategoryNode(node.children ?? [], id)
+    if (found) return found
+  }
+  return null
+}

@@ -17,8 +17,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     background: '/images/home/hero/summer-banner.jpg',
     backgroundAlt: 'Aerial view of farmland in early summer',
     links: [
-      { labelKey: 'slider.slides.growingSeason.cta', to: '/tab-1', icon: 'i-lucide-arrow-right' },
-      { labelKey: 'cta.learnMore', to: '/tab-2', variant: 'ghost' },
+      { labelKey: 'slider.slides.growingSeason.cta', to: '/products', icon: 'i-lucide-arrow-right' },
+      { labelKey: 'cta.learnMore', to: '/about', variant: 'ghost' },
     ],
   },
   {
@@ -29,7 +29,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     background: '/images/home/hero/sprayer-banner.jpg',
     backgroundAlt: 'Tractor spraying a field of young crops',
     links: [
-      { labelKey: 'slider.slides.cropProtection.cta', to: '/tab-2', icon: 'i-lucide-spray-can' },
+      { labelKey: 'slider.slides.cropProtection.cta', to: '/products', icon: 'i-lucide-spray-can' },
     ],
   },
   {
@@ -40,7 +40,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     background: '/images/home/hero/vegetables-banner.jpg',
     backgroundAlt: 'Assortment of freshly harvested vegetables',
     links: [
-      { labelKey: 'slider.slides.harvest.cta', to: '/tab-3', icon: 'i-lucide-leaf' },
+      { labelKey: 'slider.slides.harvest.cta', to: '/products', icon: 'i-lucide-leaf' },
     ],
   },
 ]

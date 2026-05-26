@@ -14,12 +14,13 @@
     "buyNow": "Kup Teraz",
     "addToWishlist": "Dodaj do Ulubionych",
     "compare": "Porównaj",
-    "share": "Udostępnij"
+    "share": "Udostępnij",
+    "comingSoon": "Wkrótce"
   },
   "stock": {
     "inStock": "Dostępny",
     "outOfStock": "Niedostępny",
-    "lowStock": "Tylko {count} sztuk w magazynie",
+    "lowStock": "Tylko {count} szt. w magazynie",
     "preOrder": "Przedsprzedaż"
   },
   "filters": {
@@ -29,5 +30,33 @@
     "brand": "Marka",
     "rating": "Ocena",
     "clearAll": "Wyczyść Wszystko"
+  },
+  "catalog": {
+    "title": "Wszystkie produkty",
+    "metaDescription": "Przeglądaj nasz pełny katalog produktów.",
+    "allCategories": "Wszystkie kategorie",
+    "categoryLabel": "Kategoria",
+    "sortBy": "Sortuj według",
+    "searchPlaceholder": "Szukaj produktów",
+    "inStockOnly": "Tylko dostępne",
+    "clearAll": "Wyczyść filtry",
+    "empty": "Żaden produkt nie pasuje do filtrów.",
+    "sort": {
+      "newest": "Najnowsze",
+      "priceAsc": "Cena: od najniższej",
+      "priceDesc": "Cena: od najwyższej",
+      "nameAsc": "Nazwa: A do Z"
+    }
+  },
+  "pdp": {
+    "loadError": "Nie udało się załadować produktu."
+  },
+  "category": {
+    "empty": "Brak produktów w tej kategorii.",
+    "loadError": "Nie udało się załadować kategorii."
+  },
+  "currency": {
+    "label": "Waluta",
+    "select": "Wybierz walutę"
   }
 }
