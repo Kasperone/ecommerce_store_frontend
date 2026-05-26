@@ -46,5 +46,9 @@
   "cta": {
     "shopNow": "Shop Now",
     "learnMore": "Learn More"
+  },
+  "featured": {
+    "title": "Featured products",
+    "viewAll": "View all products"
   }
 }
