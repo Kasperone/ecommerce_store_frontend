@@ -14,7 +14,8 @@
     "buyNow": "Buy Now",
     "addToWishlist": "Add to Wishlist",
     "compare": "Compare",
-    "share": "Share"
+    "share": "Share",
+    "comingSoon": "Coming soon"
   },
   "stock": {
     "inStock": "In Stock",
@@ -29,5 +30,33 @@
     "brand": "Brand",
     "rating": "Rating",
     "clearAll": "Clear All"
+  },
+  "catalog": {
+    "title": "All products",
+    "metaDescription": "Browse our full catalog of products.",
+    "allCategories": "All categories",
+    "categoryLabel": "Category",
+    "sortBy": "Sort by",
+    "searchPlaceholder": "Search products",
+    "inStockOnly": "In stock only",
+    "clearAll": "Clear filters",
+    "empty": "No products match your filters.",
+    "sort": {
+      "newest": "Newest",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "nameAsc": "Name: A to Z"
+    }
+  },
+  "pdp": {
+    "loadError": "We couldn't load this product."
+  },
+  "category": {
+    "empty": "No products in this category yet.",
+    "loadError": "We couldn't load this category."
+  },
+  "currency": {
+    "label": "Currency",
+    "select": "Select currency"
   }
 }

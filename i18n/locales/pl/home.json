@@ -46,5 +46,9 @@
   "cta": {
     "shopNow": "Kup Teraz",
     "learnMore": "Dowiedz Się Więcej"
+  },
+  "featured": {
+    "title": "Polecane produkty",
+    "viewAll": "Zobacz wszystkie produkty"
   }
 }

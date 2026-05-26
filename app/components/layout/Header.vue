@@ -2,11 +2,15 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { flattenCategoryTree } from '#shared/utils/categoryTree'
 
 const route = useRoute()
 const router = useRouter()
 const { locale, setLocale, t } = useI18n()
 const authStore = useAuthStore()
+const localePath = useLocalePath()
+
+const { data: categoryTree } = useStorefrontCategories()
 
 async function handleLogout() {
   await authStore.logout()
@@ -17,23 +21,23 @@ function toggleLocale() {
   setLocale(locale.value === 'pl' ? 'en' : 'pl')
 }
 
-const items = computed<NavigationMenuItem[]>(() => [{
-  label: 'Tab-1',
-  to: '/tab-1',
-  active: route.path.startsWith('/tab-1'),
-}, {
-  label: 'Tab-2',
-  to: '/tab-2',
-  active: route.path.startsWith('/tab-2'),
-}, {
-  label: 'Tab-3',
-  to: '/tab-3',
-  active: route.path.startsWith('/tab-3'),
-}, {
-  label: 'Tab-4',
-  to: '/tab-4',
-  active: route.path.startsWith('/tab-4'),
-}])
+const items = computed<NavigationMenuItem[]>(() => {
+  const categoryChildren = flattenCategoryTree(categoryTree.value ?? [], locale.value).map(cat => ({
+    label: `${'— '.repeat(cat.depth)}${cat.name}`,
+    to: localePath(`/category/${cat.slug}`),
+  }))
+
+  return [
+    {
+      label: t('navigation.products'),
+      to: localePath('/products'),
+      active: route.path.endsWith('/products') || route.path.includes('/products/'),
+    },
+    ...(categoryChildren.length
+      ? [{ label: t('navigation.categories'), children: categoryChildren }]
+      : []),
+  ]
+})
 </script>
 
 <template>
@@ -54,6 +58,8 @@ const items = computed<NavigationMenuItem[]>(() => [{
     <UNavigationMenu :items="items" />
 
     <template #right>
+      <LayoutCurrencySwitcher class="mr-1" />
+
       <UColorModeButton class="cursor-pointer" />
 
       <UTooltip :text="t('header.toggleLang')">

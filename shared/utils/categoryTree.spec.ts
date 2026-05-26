@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CategoryTreeNode } from '#shared/types/api'
-import { filterCategoryTree, snapshotCategoryTree } from './categoryTree'
+import { filterCategoryTree, findCategoryNode, flattenCategoryTree, localizedCategoryName, snapshotCategoryTree } from './categoryTree'
 
 function node(overrides: Partial<CategoryTreeNode> = {}): CategoryTreeNode {
   return {
@@ -147,5 +147,41 @@ describe('filterCategoryTree', () => {
     // Audio (active) keeps Phones visible as an ancestor.
     const result = filterCategoryTree(tree, { search: 'phones', active: 'true' })
     expect(result).toHaveLength(0) // "phones" doesn't match Audio's name/slug
+  })
+})
+
+describe('localizedCategoryName', () => {
+  it('returns the Polish name for the pl locale when present', () => {
+    expect(localizedCategoryName({ name: 'Books', name_pl: 'Książki' }, 'pl')).toBe('Książki')
+  })
+
+  it('falls back to the EN name when pl is empty or the locale is not pl', () => {
+    expect(localizedCategoryName({ name: 'Books', name_pl: null }, 'pl')).toBe('Books')
+    expect(localizedCategoryName({ name: 'Books', name_pl: 'Książki' }, 'en')).toBe('Books')
+  })
+})
+
+describe('flattenCategoryTree', () => {
+  it('flattens depth-first with depth + slug', () => {
+    const flat = flattenCategoryTree(fixture())
+    expect(flat.map(c => [c.name, c.depth])).toEqual([
+      ['Electronics', 0],
+      ['Phones', 1],
+      ['Audio', 2],
+      ['Laptops', 1],
+    ])
+    expect(flat.find(c => c.name === 'Audio')?.slug).toBe('audio')
+  })
+})
+
+describe('findCategoryNode', () => {
+  it('finds a nested node by id and exposes its children', () => {
+    const phones = findCategoryNode(fixture(), 2)
+    expect(phones?.name).toBe('Phones')
+    expect(phones?.children?.map(c => c.name)).toEqual(['Audio'])
+  })
+
+  it('returns null when the id is absent', () => {
+    expect(findCategoryNode(fixture(), 999)).toBeNull()
   })
 })
