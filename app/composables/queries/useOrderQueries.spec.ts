@@ -123,3 +123,25 @@ describe('useCancelOrder', () => {
     expect(options.method).toBe('POST')
   })
 })
+
+describe('useCreateOrder', () => {
+  it('POSTs /api/v1/orders/ with the order body', async () => {
+    apiFetch.mockResolvedValue({ id: 1, order_number: 'ORD-1', status: 'pending' })
+    const { useCreateOrder } = await import('./useOrderQueries')
+
+    const result = await runInComponent(() => useCreateOrder()) as any
+    await result.mutateAsync({
+      shipping_address: '1 Main St',
+      shipping_city: 'Town',
+      shipping_postal_code: '00-001',
+      shipping_country: 'PL',
+      currency: 'PLN',
+      items: [{ product_id: 8, quantity: 2 }],
+    })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/orders/')
+    expect(options.method).toBe('POST')
+    expect(options.body).toMatchObject({ currency: 'PLN', items: [{ product_id: 8, quantity: 2 }] })
+  })
+})

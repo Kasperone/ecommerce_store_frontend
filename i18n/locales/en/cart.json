@@ -33,5 +33,39 @@
       "removed": "Removed from cart",
       "updated": "Cart updated"
     }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "placeOrder": "Place order",
+    "editCart": "Edit cart",
+    "shipping": {
+      "heading": "Shipping address",
+      "address": "Address",
+      "city": "City",
+      "postalCode": "Postal code",
+      "country": "Country",
+      "notes": "Order notes",
+      "notesPlaceholder": "Anything we should know? (optional)"
+    },
+    "summary": {
+      "heading": "Order summary",
+      "total": "Total"
+    },
+    "success": {
+      "title": "Order placed!",
+      "message": "Thanks for your order — we've received it and will process it shortly.",
+      "orderNumber": "Order number"
+    },
+    "errors": {
+      "addressRequired": "Address is required",
+      "addressTooLong": "Address must be 255 characters or fewer",
+      "cityRequired": "City is required",
+      "cityTooLong": "City must be 100 characters or fewer",
+      "postalRequired": "Postal code is required",
+      "postalTooLong": "Postal code must be 20 characters or fewer",
+      "countryRequired": "Country is required",
+      "countryTooLong": "Country must be 100 characters or fewer",
+      "notesTooLong": "Notes must be 1000 characters or fewer"
+    }
   }
 }
