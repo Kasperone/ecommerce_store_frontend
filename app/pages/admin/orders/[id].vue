@@ -1,0 +1,349 @@
+<script setup lang="ts">
+import type { OrderStatus, OrderUpdate } from '#shared/types/api'
+import type { ProblemDetails } from '#shared/utils/problemDetails'
+import { parseProblem } from '#shared/utils/problemDetails'
+import { isCancellable, nextStatuses, statusColor } from '#shared/utils/orderStatus'
+
+definePageMeta({
+  middleware: ['admin'],
+  layout: 'admin',
+})
+
+const { t } = useI18n()
+const toast = useToast()
+const route = useRoute()
+const orderId = computed(() => {
+  const raw = Number(route.params.id)
+  return Number.isInteger(raw) && raw > 0 ? raw : undefined
+})
+
+const { data: order, error: loadError, isLoading } = useOrderQuery(orderId)
+
+const updateMutation = useUpdateOrder()
+const cancelMutation = useCancelOrder()
+
+// Edit fields, seeded from the loaded order.
+const statusModel = ref<OrderStatus | undefined>()
+const notesModel = ref('')
+const paymentModel = ref('')
+const formError = ref<ProblemDetails | null>(null)
+const cancelOpen = ref(false)
+const cancelError = ref<ProblemDetails | null>(null)
+
+watch(order, (o) => {
+  if (!o) return
+  statusModel.value = o.status
+  notesModel.value = o.notes ?? ''
+  paymentModel.value = o.payment_method ?? ''
+}, { immediate: true })
+
+// Forward-transition targets plus the current status (so the dropdown can
+// "stay put" while editing notes/payment only).
+const statusOptions = computed(() => {
+  const current = order.value?.status
+  if (!current) return []
+  return [current, ...nextStatuses(current)].map(s => ({
+    label: t(`admin.orders.status.${s}`),
+    value: s,
+  }))
+})
+
+const canCancel = computed(() => order.value != null && isCancellable(order.value.status))
+
+function formatMoney(amount: number, currency: string) {
+  return new Intl.NumberFormat('en', { style: 'currency', currency }).format(amount)
+}
+
+const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' })
+function formatDate(iso: string) {
+  return dateFmt.format(new Date(iso))
+}
+
+async function onSave() {
+  if (!order.value) return
+  formError.value = null
+  const patch: OrderUpdate = {
+    status: statusModel.value,
+    notes: notesModel.value.trim() || null,
+    payment_method: paymentModel.value.trim() || null,
+  }
+  try {
+    await updateMutation.mutateAsync({ id: order.value.id, patch })
+    toast.add({
+      title: t('admin.orders.flashes.updated'),
+      color: 'success',
+      icon: 'i-lucide-check',
+    })
+  }
+  catch (err) {
+    formError.value = parseProblem(err)
+  }
+}
+
+async function onCancelConfirm() {
+  if (!order.value) return
+  cancelError.value = null
+  try {
+    await cancelMutation.mutateAsync(order.value.id)
+    cancelOpen.value = false
+    toast.add({
+      title: t('admin.orders.flashes.cancelled'),
+      color: 'success',
+      icon: 'i-lucide-check',
+    })
+  }
+  catch (err) {
+    cancelError.value = parseProblem(err)
+  }
+}
+
+useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.order_number ?? '' }) })
+</script>
+
+<template>
+  <NuxtLayout>
+    <div class="space-y-6 max-w-4xl">
+      <UButton
+        variant="link"
+        color="neutral"
+        icon="i-lucide-arrow-left"
+        :padded="false"
+        @click="navigateTo('/admin/orders')"
+      >
+        {{ $t('admin.orders.actions.back') }}
+      </UButton>
+
+      <div
+        v-if="isLoading"
+        class="text-muted text-sm py-12 text-center"
+      >
+        {{ $t('admin.orders.detail.loading') }}
+      </div>
+
+      <ErrorAlert
+        v-else-if="loadError"
+        :problem="parseProblem(loadError)"
+      />
+
+      <template v-else-if="order">
+        <header class="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 class="text-2xl font-bold font-mono">
+              {{ order.order_number }}
+            </h1>
+            <p class="text-muted text-sm mt-1">
+              {{ formatDate(order.created_at) }}
+            </p>
+          </div>
+          <UBadge
+            :color="statusColor(order.status)"
+            variant="subtle"
+            size="lg"
+          >
+            {{ $t(`admin.orders.status.${order.status}`) }}
+          </UBadge>
+        </header>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <!-- Customer -->
+          <UCard>
+            <template #header>
+              <h2 class="font-semibold">
+                {{ $t('admin.orders.detail.customer') }}
+              </h2>
+            </template>
+            <dl class="space-y-1 text-sm">
+              <div class="flex justify-between gap-4">
+                <dt class="text-muted">
+                  {{ $t('admin.orders.detail.email') }}
+                </dt>
+                <dd>{{ order.user.email }}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-muted">
+                  {{ $t('admin.orders.detail.name') }}
+                </dt>
+                <dd>{{ order.user.first_name }} {{ order.user.last_name }}</dd>
+              </div>
+            </dl>
+          </UCard>
+
+          <!-- Shipping -->
+          <UCard>
+            <template #header>
+              <h2 class="font-semibold">
+                {{ $t('admin.orders.detail.shipping') }}
+              </h2>
+            </template>
+            <address class="not-italic text-sm space-y-0.5">
+              <div>{{ order.shipping_address }}</div>
+              <div>{{ order.shipping_postal_code }} {{ order.shipping_city }}</div>
+              <div>{{ order.shipping_country }}</div>
+            </address>
+          </UCard>
+        </div>
+
+        <!-- Items -->
+        <UCard>
+          <template #header>
+            <h2 class="font-semibold">
+              {{ $t('admin.orders.detail.items') }}
+            </h2>
+          </template>
+          <div class="divide-y divide-default">
+            <div
+              v-for="item in order.items"
+              :key="item.id"
+              class="flex items-center justify-between gap-4 py-2 text-sm"
+            >
+              <div>
+                <div class="font-medium">
+                  {{ item.product_name }}
+                </div>
+                <div
+                  v-if="item.product_sku"
+                  class="text-xs text-muted font-mono"
+                >
+                  {{ item.product_sku }}
+                </div>
+              </div>
+              <div class="text-right whitespace-nowrap">
+                <div>
+                  {{ item.quantity }} &times; {{ formatMoney(item.unit_price, order.currency) }}
+                </div>
+                <div class="text-muted">
+                  {{ formatMoney(item.total_price, order.currency) }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <template #footer>
+            <dl class="space-y-1 text-sm ml-auto w-full max-w-xs">
+              <div class="flex justify-between">
+                <dt class="text-muted">
+                  {{ $t('admin.orders.detail.subtotal') }}
+                </dt>
+                <dd>{{ formatMoney(order.subtotal, order.currency) }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-muted">
+                  {{ $t('admin.orders.detail.tax') }}
+                </dt>
+                <dd>{{ formatMoney(order.tax, order.currency) }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-muted">
+                  {{ $t('admin.orders.detail.shippingCost') }}
+                </dt>
+                <dd>{{ formatMoney(order.shipping, order.currency) }}</dd>
+              </div>
+              <div class="flex justify-between font-semibold border-t border-default pt-1">
+                <dt>{{ $t('admin.orders.detail.total') }}</dt>
+                <dd>{{ formatMoney(order.total, order.currency) }}</dd>
+              </div>
+            </dl>
+          </template>
+        </UCard>
+
+        <!-- Manage -->
+        <UCard>
+          <template #header>
+            <h2 class="font-semibold">
+              {{ $t('admin.orders.detail.manage') }}
+            </h2>
+          </template>
+
+          <ErrorAlert
+            v-if="formError"
+            :problem="formError"
+            class="mb-4"
+          />
+
+          <div class="space-y-4">
+            <UFormField :label="$t('admin.orders.detail.changeStatus')">
+              <USelect
+                v-model="statusModel"
+                :items="statusOptions"
+                value-key="value"
+                class="w-60"
+              />
+            </UFormField>
+
+            <UFormField :label="$t('admin.orders.detail.paymentMethod')">
+              <UInput
+                v-model="paymentModel"
+                :placeholder="$t('admin.orders.detail.paymentPlaceholder')"
+                class="w-60"
+              />
+            </UFormField>
+
+            <UFormField :label="$t('admin.orders.detail.internalNotes')">
+              <UTextarea
+                v-model="notesModel"
+                :rows="3"
+                class="w-full"
+              />
+            </UFormField>
+          </div>
+
+          <template #footer>
+            <div class="flex items-center justify-between gap-3">
+              <UButton
+                v-if="canCancel"
+                color="error"
+                variant="soft"
+                icon="i-lucide-x-circle"
+                @click="cancelError = null; cancelOpen = true"
+              >
+                {{ $t('admin.orders.actions.cancel') }}
+              </UButton>
+              <span v-else />
+              <UButton
+                color="primary"
+                icon="i-lucide-save"
+                :loading="updateMutation.isLoading.value"
+                @click="onSave"
+              >
+                {{ $t('admin.orders.actions.save') }}
+              </UButton>
+            </div>
+          </template>
+        </UCard>
+      </template>
+
+      <UModal
+        :open="cancelOpen"
+        :title="$t('admin.orders.cancel.title')"
+        :description="$t('admin.orders.cancel.body')"
+        :dismissible="!cancelMutation.isLoading.value"
+        @update:open="(v) => { cancelOpen = v; if (!v) cancelError = null }"
+      >
+        <template #body>
+          <ErrorAlert
+            v-if="cancelError"
+            :problem="cancelError"
+          />
+        </template>
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              :disabled="cancelMutation.isLoading.value"
+              @click="cancelOpen = false"
+            >
+              {{ $t('admin.orders.cancel.dismiss') }}
+            </UButton>
+            <UButton
+              color="error"
+              :loading="cancelMutation.isLoading.value"
+              @click="onCancelConfirm"
+            >
+              {{ $t('admin.orders.cancel.confirm') }}
+            </UButton>
+          </div>
+        </template>
+      </UModal>
+    </div>
+  </NuxtLayout>
+</template>

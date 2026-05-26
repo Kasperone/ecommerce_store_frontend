@@ -48,7 +48,6 @@
     "pages": {
       "inventory":  { "title": "Inventory",        "placeholder": "Per-product stock, thresholds, and movement log will live here. Coming soon." },
       "reviews":    { "title": "Reviews",          "placeholder": "Review moderation queue will live here. Coming soon." },
-      "orders":     { "title": "Orders",           "placeholder": "Order list, detail, status transitions, refunds will live here. Coming soon." },
       "customers":  { "title": "Customers",        "placeholder": "Customer list, detail, impersonation, lock controls will live here. Coming soon." },
       "companies":  { "title": "Companies (B2B)",  "placeholder": "B2B company directory, approvals, account managers will live here. Coming soon." },
       "quotes":     { "title": "Quotes (B2B)",     "placeholder": "B2B quote requests, negotiation, conversion to order will live here. Coming soon." },
@@ -311,6 +310,69 @@
         "stockInvalid": "Stock must be a number",
         "stockInteger": "Stock must be a whole number",
         "stockNegative": "Stock cannot be negative"
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "subtitle": "View orders and manage their status",
+      "fields": {
+        "orderNumber": "Order #",
+        "customer": "Customer",
+        "status": "Status",
+        "items": "Items",
+        "total": "Total",
+        "created": "Placed"
+      },
+      "status": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "processing": "Processing",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses"
+      },
+      "empty": {
+        "noResults": "No orders match this filter.",
+        "noOrders": "No orders yet."
+      },
+      "actions": {
+        "view": "View order",
+        "back": "Back to orders",
+        "cancel": "Cancel order",
+        "save": "Save changes"
+      },
+      "detail": {
+        "title": "Order {number}",
+        "loading": "Loading order…",
+        "customer": "Customer",
+        "email": "Email",
+        "name": "Name",
+        "shipping": "Shipping address",
+        "items": "Items",
+        "subtotal": "Subtotal",
+        "tax": "Tax",
+        "shippingCost": "Shipping",
+        "total": "Total",
+        "manage": "Manage order",
+        "changeStatus": "Status",
+        "paymentMethod": "Payment method",
+        "paymentPlaceholder": "e.g. stripe, payu",
+        "internalNotes": "Internal notes"
+      },
+      "cancel": {
+        "title": "Cancel order",
+        "body": "This restores stock for every line and sets the order to cancelled. This cannot be undone.",
+        "confirm": "Cancel order",
+        "dismiss": "Keep order"
+      },
+      "flashes": {
+        "updated": "Order updated.",
+        "cancelled": "Order cancelled."
       }
     }
   },
