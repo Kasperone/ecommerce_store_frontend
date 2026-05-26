@@ -1,6 +1,7 @@
 <template>
   <div class="l-default w-full max-w-[2560px] min-h-screen flex flex-col">
     <LayoutHeader />
+    <CartDrawer />
 
     <div class="flex-1 flex flex-col">
       <main class="flex-1">

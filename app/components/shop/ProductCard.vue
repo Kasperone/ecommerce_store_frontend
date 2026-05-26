@@ -65,7 +65,7 @@ const outOfStock = computed(() => props.product.stock <= 0)
       <ShopPriceDisplay :product="product" />
       <div class="mt-auto pt-2">
         <ShopAddToCartButton
-          :product-id="product.id"
+          :product="product"
           block
         />
       </div>
