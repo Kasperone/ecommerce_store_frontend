@@ -7,6 +7,7 @@ definePageMeta({
 
 const { t } = useI18n()
 const authStore = useAuthStore()
+const localePath = useLocalePath()
 
 useHead({
   titleTemplate: '%s | Account',
@@ -25,16 +26,31 @@ useHead({
         </p>
       </div>
 
-      <UCard>
-        <template #header>
-          <h2 class="font-semibold">
-            {{ t('account.placeholderTitle') }}
-          </h2>
-        </template>
-        <p class="text-gray-600 dark:text-gray-400">
-          {{ t('account.placeholderBody') }}
-        </p>
-      </UCard>
+      <NuxtLink
+        :to="localePath('/account/orders')"
+        class="block"
+      >
+        <UCard class="transition hover:ring-2 hover:ring-primary">
+          <div class="flex items-center gap-4">
+            <UIcon
+              name="i-lucide-package"
+              class="size-8 text-primary"
+            />
+            <div>
+              <h2 class="font-semibold">
+                {{ t('orders.title') }}
+              </h2>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ t('orders.accountCard') }}
+              </p>
+            </div>
+            <UIcon
+              name="i-lucide-chevron-right"
+              class="ml-auto size-5 text-muted"
+            />
+          </div>
+        </UCard>
+      </NuxtLink>
     </div>
   </NuxtLayout>
 </template>

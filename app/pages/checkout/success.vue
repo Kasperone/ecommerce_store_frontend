@@ -49,13 +49,22 @@ const total = computed(() =>
           </div>
         </div>
 
-        <UButton
-          color="primary"
-          class="mt-8"
-          :to="localePath('/products')"
-        >
-          {{ t('cart.actions.continueShopping') }}
-        </UButton>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+          <UButton
+            v-if="order"
+            color="primary"
+            :to="localePath(`/account/orders/${order.id}`)"
+          >
+            {{ t('orders.viewOrder') }}
+          </UButton>
+          <UButton
+            :color="order ? 'neutral' : 'primary'"
+            :variant="order ? 'soft' : 'solid'"
+            :to="localePath('/products')"
+          >
+            {{ t('cart.actions.continueShopping') }}
+          </UButton>
+        </div>
 
         <template #fallback>
           <div class="py-8 text-muted">
