@@ -30,6 +30,15 @@ export interface OrderListParams {
 
 const ORDERS_NAMESPACE = ['orders'] as const
 
+// Orders are private/authed (no SEO) and our Pinia Colada plugin doesn't
+// serialize its cache across SSR. If a query runs on the server it renders real
+// content into the SSR HTML, but the client hydrates with an empty cache and
+// re-renders the loading state → a hydration mismatch on any hard load. Gating
+// `enabled` to the client keeps these queries client-only: the server and the
+// client's first render both show the loading state, so they agree, and the
+// fetch happens once (client) instead of being wasted on the server too. This
+// matches the project's "@pinia/colada is client-only; useAsyncData for SSR/SEO"
+// split — these pages deliberately do not need server-rendered content.
 export function useOrdersQuery(params: MaybeRefOrGetter<OrderListParams> = {}) {
   const { apiFetch } = useApi()
   return useQuery({
@@ -44,6 +53,7 @@ export function useOrdersQuery(params: MaybeRefOrGetter<OrderListParams> = {}) {
         },
       })
     },
+    enabled: () => import.meta.client,
   })
 }
 
@@ -58,7 +68,8 @@ export function useOrderQuery(id: MaybeRefOrGetter<number | undefined>) {
       }
       return apiFetch<OrderWithUser>(`/api/v1/orders/${value}`)
     },
-    enabled: () => toValue(id) !== undefined,
+    // Client-only (+ id present) — see useOrdersQuery above for the SSR rationale.
+    enabled: () => import.meta.client && toValue(id) !== undefined,
   })
 }
 
