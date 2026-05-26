@@ -67,5 +67,48 @@
       "countryTooLong": "Country must be 100 characters or fewer",
       "notesTooLong": "Notes must be 1000 characters or fewer"
     }
+  },
+  "orders": {
+    "title": "My orders",
+    "accountCard": "View your order history and status",
+    "subtitle": "Your orders, newest first",
+    "empty": "You haven't placed any orders yet.",
+    "emptyCta": "Start shopping",
+    "loadError": "We couldn't load your orders.",
+    "back": "Back to my orders",
+    "viewOrder": "View order",
+    "fields": {
+      "placed": "Placed",
+      "items": "Items",
+      "total": "Total"
+    },
+    "detail": {
+      "title": "Order {number}",
+      "placedOn": "Placed on {date}",
+      "shippingAddress": "Shipping address",
+      "items": "Items",
+      "each": "{price} each",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "shippingCost": "Shipping",
+      "total": "Total",
+      "notes": "Notes"
+    },
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "cancel": {
+      "button": "Cancel order",
+      "title": "Cancel this order?",
+      "body": "This cancels the order and restores stock. This cannot be undone.",
+      "confirm": "Yes, cancel",
+      "dismiss": "Keep order"
+    }
   }
 }
