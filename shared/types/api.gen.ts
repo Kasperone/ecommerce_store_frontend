@@ -758,6 +758,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payments/stripe/checkout/{order_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Stripe Checkout
+         * @description Create a Stripe Checkout Session for the caller's pending order.
+         */
+        post: operations["create_stripe_checkout_api_v1_payments_stripe_checkout__order_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/stripe/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stripe Webhook
+         * @description Stripe server-to-server webhook. Verify the signature, then settle.
+         */
+        post: operations["stripe_webhook_api_v1_payments_stripe_webhook_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/customers/": {
         parameters: {
             query?: never;
@@ -2291,6 +2331,14 @@ export interface components {
             note?: string | null;
         };
         /**
+         * StripeCheckoutResponse
+         * @description Where to send the buyer to pay — Stripe's hosted Checkout page.
+         */
+        StripeCheckoutResponse: {
+            /** Checkout Url */
+            checkout_url: string;
+        };
+        /**
          * Token
          * @description Schema for JWT token response
          */
@@ -3704,6 +3752,57 @@ export interface operations {
         };
     };
     payu_notify_api_v1_payments_payu_notify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    create_stripe_checkout_api_v1_payments_stripe_checkout__order_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StripeCheckoutResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stripe_webhook_api_v1_payments_stripe_webhook_post: {
         parameters: {
             query?: never;
             header?: never;

@@ -107,7 +107,7 @@ useHead({
           <p class="mb-3 text-sm font-medium">
             {{ t('payment.completePrompt') }}
           </p>
-          <CheckoutPayButton :order-id="order.id" />
+          <CheckoutPaymentMethods :order-id="order.id" />
         </div>
 
         <section>
