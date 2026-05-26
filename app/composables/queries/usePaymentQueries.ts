@@ -13,8 +13,13 @@
  * 502 provider upstream error.
  */
 
-import { useMutation } from '@pinia/colada'
-import type { PayUCheckoutResponse, StripeCheckoutResponse } from '#shared/types/api'
+import { useMutation, useQuery } from '@pinia/colada'
+import type {
+  PayUCheckoutResponse,
+  StripeCheckoutResponse,
+  StripeConfigResponse,
+  StripePaymentIntentResponse,
+} from '#shared/types/api'
 
 export function useStartPayuCheckout() {
   const { apiFetch } = useApi()
@@ -33,5 +38,36 @@ export function useStartStripeCheckout() {
       apiFetch<StripeCheckoutResponse>(`/api/v1/payments/stripe/checkout/${orderId}`, {
         method: 'POST',
       }),
+  })
+}
+
+/**
+ * Stripe browser config for the in-page Express Checkout Element (wallets).
+ * Never errors on missing keys — the backend returns `configured: false` so the
+ * `<CheckoutWalletButton>` hides the widget instead of rendering a dead button.
+ */
+export function useStripeConfig() {
+  const { apiFetch } = useApi()
+  return useQuery({
+    key: ['payments', 'stripe', 'config'],
+    query: () => apiFetch<StripeConfigResponse>('/api/v1/payments/stripe/config'),
+  })
+}
+
+/**
+ * Create a Stripe PaymentIntent for one of the caller's pending orders and
+ * return the `client_secret` the browser confirms via the Express Checkout
+ * Element. The order settles server-side from the `payment_intent.succeeded`
+ * webhook, so — like the redirect flows — this does NOT invalidate the orders
+ * cache.
+ */
+export function useCreateStripePaymentIntent() {
+  const { apiFetch } = useApi()
+  return useMutation({
+    mutation: (orderId: number) =>
+      apiFetch<StripePaymentIntentResponse>(
+        `/api/v1/payments/stripe/payment-intent/${orderId}`,
+        { method: 'POST' },
+      ),
   })
 }

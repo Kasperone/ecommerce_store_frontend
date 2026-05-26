@@ -778,6 +778,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payments/stripe/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stripe Config
+         * @description Browser-side Stripe config for the in-page Express Checkout Element.
+         *
+         *     Deliberately does NOT 503 when Stripe is unconfigured: the frontend reads
+         *     ``configured`` to decide whether to mount the wallet widget at all, so a
+         *     keyless dev/CI env hides it gracefully instead of showing a dead button.
+         *     The publishable key is a browser key by design — safe to return.
+         */
+        get: operations["stripe_config_api_v1_payments_stripe_config_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/stripe/payment-intent/{order_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Stripe Payment Intent
+         * @description Create a Stripe PaymentIntent for the caller's pending order (wallets).
+         *
+         *     Mirrors ``create_stripe_checkout`` but returns a ``client_secret`` the
+         *     browser confirms in-page via the Express Checkout Element, instead of a
+         *     hosted redirect URL. Settled server-side by the ``payment_intent.succeeded``
+         *     webhook.
+         */
+        post: operations["create_stripe_payment_intent_api_v1_payments_stripe_payment_intent__order_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/stripe/webhook": {
         parameters: {
             query?: never;
@@ -2339,6 +2389,28 @@ export interface components {
             checkout_url: string;
         };
         /**
+         * StripeConfigResponse
+         * @description Browser-side Stripe config for the Express Checkout Element.
+         *
+         *     ``publishable_key`` is safe to expose (it's a browser key by design).
+         *     ``configured`` lets the frontend hide the wallet widget when Stripe has no
+         *     keys, rather than rendering a dead button.
+         */
+        StripeConfigResponse: {
+            /** Configured */
+            configured: boolean;
+            /** Publishable Key */
+            publishable_key: string;
+        };
+        /**
+         * StripePaymentIntentResponse
+         * @description Client secret the browser confirms — in-page Express Checkout (wallets).
+         */
+        StripePaymentIntentResponse: {
+            /** Client Secret */
+            client_secret: string;
+        };
+        /**
          * Token
          * @description Schema for JWT token response
          */
@@ -3789,6 +3861,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StripeCheckoutResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stripe_config_api_v1_payments_stripe_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StripeConfigResponse"];
+                };
+            };
+        };
+    };
+    create_stripe_payment_intent_api_v1_payments_stripe_payment_intent__order_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StripePaymentIntentResponse"];
                 };
             };
             /** @description Validation Error */
