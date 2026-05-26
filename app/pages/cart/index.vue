@@ -72,8 +72,7 @@ const subtotal = computed(() => {
               class="mt-4"
               color="primary"
               block
-              disabled
-              :title="t('actions.comingSoon')"
+              :to="localePath('/checkout')"
             >
               {{ t('cart.actions.checkout') }}
             </UButton>
