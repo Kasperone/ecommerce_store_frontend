@@ -107,7 +107,12 @@ useHead({
           <p class="mb-3 text-sm font-medium">
             {{ t('payment.completePrompt') }}
           </p>
-          <CheckoutPaymentMethods :order-id="order.id" />
+          <CheckoutPaymentMethods
+            :order-id="order.id"
+            :amount-minor="Math.round(order.total * 100)"
+            :currency="order.currency"
+            :order-number="order.order_number"
+          />
         </div>
 
         <section>

@@ -1,0 +1,9 @@
+PLACEHOLDER — not a valid Apple Pay domain association file.
+
+Replace the entire contents of this file with the association file Stripe gives
+you when you register this site's domain for Apple Pay (Stripe Dashboard →
+Settings → Payment Method Domains). See ./README.md in this directory.
+
+Until then this is inert: Apple only fetches/validates this file during domain
+registration (production, with keys), and the in-page Apple Pay button never
+renders in local dev anyway (it needs Safari + HTTPS + a registered domain).

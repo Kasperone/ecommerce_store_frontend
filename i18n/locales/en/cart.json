@@ -113,13 +113,15 @@
   },
   "payment": {
     "completePrompt": "Complete your payment to confirm your order.",
+    "walletError": "We couldn't start the payment. Please try again.",
     "methods": {
       "stripe": "Pay with card",
-      "payu": "Pay with PayU"
+      "payu": "Pay with PayU",
+      "walletDivider": "Or pay another way"
     },
     "return": {
       "title": "Confirming your payment",
-      "message": "Thanks! We're confirming your payment with PayU. Your order status will update shortly — track it in your orders.",
+      "message": "Thanks! We're confirming your payment. Your order status will update shortly — track it in your orders.",
       "orderRef": "Order {number}",
       "viewOrders": "View my orders"
     }

@@ -49,6 +49,8 @@ export type AuditEventListResponse = components['schemas']['AuditEventListRespon
 // Payment-related types
 export type PayUCheckoutResponse = components['schemas']['PayUCheckoutResponse']
 export type StripeCheckoutResponse = components['schemas']['StripeCheckoutResponse']
+export type StripeConfigResponse = components['schemas']['StripeConfigResponse']
+export type StripePaymentIntentResponse = components['schemas']['StripePaymentIntentResponse']
 
 // User-related types
 export interface UserResponse {
