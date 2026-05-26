@@ -49,7 +49,6 @@
       "products":   { "title": "Produkty",         "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce." },
       "inventory":  { "title": "Magazyn",          "placeholder": "Tutaj znajdzie się stan magazynowy, progi i historia ruchów. Wkrótce." },
       "reviews":    { "title": "Opinie",           "placeholder": "Tutaj znajdzie się moderacja opinii klientów. Wkrótce." },
-      "customers":  { "title": "Klienci",          "placeholder": "Tutaj znajdzie się lista klientów, szczegóły i kontrola kont. Wkrótce." },
       "companies":  { "title": "Firmy (B2B)",      "placeholder": "Tutaj znajdzie się katalog firm B2B, akceptacja kont i opiekunowie. Wkrótce." },
       "quotes":     { "title": "Oferty (B2B)",     "placeholder": "Tutaj znajdzie się obsługa zapytań ofertowych i konwersja w zamówienia. Wkrótce." },
       "coupons":    { "title": "Kupony",           "placeholder": "Tutaj znajdą się kody rabatowe, warunki i limity użycia. Wkrótce." },
@@ -374,6 +373,83 @@
       "flashes": {
         "updated": "Zamówienie zaktualizowane.",
         "cancelled": "Zamówienie anulowane."
+      }
+    },
+    "customers": {
+      "title": "Klienci",
+      "subtitle": "Przeglądaj klientów i zarządzaj ich kontami",
+      "roles": {
+        "CUSTOMER": "Klient",
+        "ADMIN": "Administrator"
+      },
+      "fields": {
+        "email": "E-mail",
+        "name": "Imię i nazwisko",
+        "role": "Rola",
+        "status": "Status",
+        "orders": "Zamówienia",
+        "country": "Kraj"
+      },
+      "status": {
+        "active": "Aktywne",
+        "inactive": "Wyłączone",
+        "unverified": "Niezweryfikowane",
+        "locked": "Zablokowane"
+      },
+      "filters": {
+        "role": "Rola",
+        "allRoles": "Wszystkie role",
+        "state": "Stan",
+        "allStates": "Wszystkie stany",
+        "activeOnly": "Tylko aktywne",
+        "inactiveOnly": "Tylko wyłączone",
+        "verification": "Weryfikacja",
+        "allVerification": "Wszystkie",
+        "verifiedOnly": "Tylko zweryfikowane",
+        "unverifiedOnly": "Tylko niezweryfikowane",
+        "search": "Szukaj",
+        "searchPlaceholder": "E-mail lub nazwa"
+      },
+      "empty": {
+        "noResults": "Brak klientów pasujących do filtra.",
+        "noCustomers": "Brak klientów."
+      },
+      "metrics": {
+        "orders": "Złożone zamówienia",
+        "spent": "Wydano łącznie",
+        "lastOrder": "Ostatnie zamówienie"
+      },
+      "detail": {
+        "title": "Klient {email}",
+        "loading": "Wczytywanie klienta…",
+        "profile": "Profil",
+        "phone": "Telefon",
+        "joined": "Dołączył",
+        "shipping": "Adres wysyłki",
+        "noShipping": "Brak zapisanego adresu wysyłki.",
+        "company": "Firma (B2B)",
+        "companyName": "Nazwa firmy",
+        "taxId": "NIP",
+        "manage": "Zarządzaj kontem",
+        "selfHint": "Nie możesz wyłączyć ani cofnąć weryfikacji własnego konta."
+      },
+      "actions": {
+        "view": "Zobacz klienta",
+        "back": "Powrót do klientów",
+        "verify": "Zweryfikuj",
+        "unverify": "Cofnij weryfikację",
+        "enable": "Włącz",
+        "disable": "Wyłącz",
+        "unlock": "Odblokuj",
+        "sendReset": "Wyślij reset hasła"
+      },
+      "flashes": {
+        "verified": "Klient zweryfikowany.",
+        "unverified": "Cofnięto weryfikację klienta.",
+        "enabled": "Konto włączone.",
+        "disabled": "Konto wyłączone.",
+        "unlocked": "Konto odblokowane.",
+        "resetSent": "Wysłano e-mail resetujący hasło."
       }
     }
   },
