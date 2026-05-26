@@ -110,5 +110,15 @@
       "confirm": "Tak, anuluj",
       "dismiss": "Zachowaj zamówienie"
     }
+  },
+  "payment": {
+    "payNow": "Zapłać teraz",
+    "completePrompt": "Dokończ płatność, aby potwierdzić zamówienie.",
+    "return": {
+      "title": "Potwierdzamy Twoją płatność",
+      "message": "Dziękujemy! Potwierdzamy Twoją płatność w PayU. Status zamówienia zaktualizuje się wkrótce — śledź go w swoich zamówieniach.",
+      "orderRef": "Zamówienie {number}",
+      "viewOrders": "Zobacz moje zamówienia"
+    }
   }
 }

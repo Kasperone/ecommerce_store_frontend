@@ -46,6 +46,9 @@ export type StockAdjustRequest = components['schemas']['StockAdjustRequest']
 export type AuditEventItem = components['schemas']['AuditEventItem']
 export type AuditEventListResponse = components['schemas']['AuditEventListResponse']
 
+// Payment-related types
+export type PayUCheckoutResponse = components['schemas']['PayUCheckoutResponse']
+
 // User-related types
 export interface UserResponse {
   email: string

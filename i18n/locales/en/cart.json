@@ -110,5 +110,15 @@
       "confirm": "Yes, cancel",
       "dismiss": "Keep order"
     }
+  },
+  "payment": {
+    "payNow": "Pay now",
+    "completePrompt": "Complete your payment to confirm your order.",
+    "return": {
+      "title": "Confirming your payment",
+      "message": "Thanks! We're confirming your payment with PayU. Your order status will update shortly — track it in your orders.",
+      "orderRef": "Order {number}",
+      "viewOrders": "View my orders"
+    }
   }
 }

@@ -24,6 +24,7 @@ const cancelOpen = ref(false)
 const cancelError = ref<ProblemDetails | null>(null)
 
 const canCancel = computed(() => order.value?.status === 'pending')
+const canPay = computed(() => order.value?.status === 'pending')
 
 function money(value: number) {
   return order.value ? formatMoney(value, order.value.currency as CurrencyCode, locale.value) : ''
@@ -98,6 +99,16 @@ useHead({
             </UButton>
           </div>
         </header>
+
+        <div
+          v-if="canPay"
+          class="rounded-lg border border-primary/30 bg-primary/5 p-4 dark:bg-primary/10"
+        >
+          <p class="mb-3 text-sm font-medium">
+            {{ t('payment.completePrompt') }}
+          </p>
+          <CheckoutPayButton :order-id="order.id" />
+        </div>
 
         <section>
           <h2 class="mb-2 font-semibold">

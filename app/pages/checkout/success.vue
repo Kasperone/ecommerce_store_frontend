@@ -49,10 +49,24 @@ const total = computed(() =>
           </div>
         </div>
 
+        <div
+          v-if="order"
+          class="mx-auto mt-6 max-w-sm"
+        >
+          <p class="mb-2 text-sm text-muted">
+            {{ t('payment.completePrompt') }}
+          </p>
+          <CheckoutPayButton
+            :order-id="order.id"
+            block
+          />
+        </div>
+
         <div class="mt-8 flex flex-wrap justify-center gap-3">
           <UButton
             v-if="order"
-            color="primary"
+            color="neutral"
+            variant="soft"
             :to="localePath(`/account/orders/${order.id}`)"
           >
             {{ t('orders.viewOrder') }}
