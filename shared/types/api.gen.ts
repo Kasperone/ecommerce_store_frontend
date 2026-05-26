@@ -716,6 +716,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/customers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Customers
+         * @description List users with filters (admin). Newest first.
+         */
+        get: operations["list_customers_api_v1_admin_customers__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{customer_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Customer
+         * @description Get one customer with lifetime order metrics (admin).
+         */
+        get: operations["get_customer_api_v1_admin_customers__customer_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Customer
+         * @description Toggle a customer's verification / active state (admin).
+         */
+        patch: operations["update_customer_api_v1_admin_customers__customer_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{customer_id}/unlock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unlock Customer
+         * @description Clear a brute-force lockout (admin).
+         */
+        post: operations["unlock_customer_api_v1_admin_customers__customer_id__unlock_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{customer_id}/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send Customer Password Reset
+         * @description Trigger the standard password-reset email for a customer (admin).
+         *
+         *     Never returns the token (and never writes it to the audit log) — the token
+         *     only travels in the emailed link, exactly like the self-service flow.
+         */
+        post: operations["send_customer_password_reset_api_v1_admin_customers__customer_id__password_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products/{product_id}/images": {
         parameters: {
             query?: never;
@@ -1214,6 +1301,152 @@ export interface components {
              * @default 0
              */
             product_count: number;
+        };
+        /**
+         * CustomerAdminUpdate
+         * @description Admin PATCH body — toggle verification / active state.
+         */
+        CustomerAdminUpdate: {
+            /** Is Verified */
+            is_verified?: boolean | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
+         * CustomerDetail
+         * @description Full customer record + lockout state + lifetime metrics.
+         */
+        CustomerDetail: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Phone */
+            phone?: string | null;
+            /** Is Active */
+            is_active: boolean;
+            /** Is Verified */
+            is_verified: boolean;
+            role: components["schemas"]["UserRole"];
+            /** Shipping Street */
+            shipping_street?: string | null;
+            /** Shipping City */
+            shipping_city?: string | null;
+            /** Shipping Postal Code */
+            shipping_postal_code?: string | null;
+            /** Shipping Country */
+            shipping_country?: string | null;
+            /** Shipping State */
+            shipping_state?: string | null;
+            /** Company Name */
+            company_name?: string | null;
+            /** Company Tax Id */
+            company_tax_id?: string | null;
+            /** Company Address Street */
+            company_address_street?: string | null;
+            /** Company Address City */
+            company_address_city?: string | null;
+            /** Company Address Postal Code */
+            company_address_postal_code?: string | null;
+            /** Company Address Country */
+            company_address_country?: string | null;
+            /** Company Address State */
+            company_address_state?: string | null;
+            /** Is Locked */
+            is_locked: boolean;
+            /** Locked Until */
+            locked_until?: string | null;
+            metrics: components["schemas"]["CustomerOrderMetrics"];
+        };
+        /**
+         * CustomerListItem
+         * @description Lightweight customer row for the admin list.
+         */
+        CustomerListItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Email */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            role: components["schemas"]["UserRole"];
+            /** Is Active */
+            is_active: boolean;
+            /** Is Verified */
+            is_verified: boolean;
+            /** Is Locked */
+            is_locked: boolean;
+            /** Company Name */
+            company_name?: string | null;
+            /** Shipping Country */
+            shipping_country?: string | null;
+            /**
+             * Order Count
+             * @default 0
+             */
+            order_count: number;
+        };
+        /**
+         * CustomerListResponse
+         * @description Paginated admin customer list.
+         */
+        CustomerListResponse: {
+            /** Items */
+            items: components["schemas"]["CustomerListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * CustomerOrderMetrics
+         * @description Lifetime order aggregates for a customer.
+         *
+         *     ``total_spent`` is keyed by currency and **excludes cancelled orders**.
+         *     ``order_count`` / ``last_order_at`` count every order regardless of status.
+         */
+        CustomerOrderMetrics: {
+            /** Order Count */
+            order_count: number;
+            /** Total Spent */
+            total_spent: {
+                [key: string]: number;
+            };
+            /** Last Order At */
+            last_order_at?: string | null;
         };
         /**
          * EmailResend
@@ -3126,6 +3359,174 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_customers_api_v1_admin_customers__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by role */
+                role?: components["schemas"]["UserRole"] | null;
+                /** @description Filter by active state */
+                is_active?: boolean | null;
+                /** @description Filter by verification state */
+                is_verified?: boolean | null;
+                /** @description Search email / first / last name */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_customer_api_v1_admin_customers__customer_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_customer_api_v1_admin_customers__customer_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerAdminUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unlock_customer_api_v1_admin_customers__customer_id__unlock_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_customer_password_reset_api_v1_admin_customers__customer_id__password_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericMessage"];
                 };
             };
             /** @description Validation Error */

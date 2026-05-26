@@ -33,6 +33,11 @@ export type OrderWithUser = components['schemas']['OrderWithUser']
 export type OrderItemResponse = components['schemas']['OrderItemResponse']
 export type OrderCreate = components['schemas']['OrderCreate']
 export type OrderUpdate = components['schemas']['OrderUpdate']
+export type CustomerListItem = components['schemas']['CustomerListItem']
+export type CustomerListResponse = components['schemas']['CustomerListResponse']
+export type CustomerDetail = components['schemas']['CustomerDetail']
+export type CustomerOrderMetrics = components['schemas']['CustomerOrderMetrics']
+export type CustomerAdminUpdate = components['schemas']['CustomerAdminUpdate']
 
 // User-related types
 export interface UserResponse {
