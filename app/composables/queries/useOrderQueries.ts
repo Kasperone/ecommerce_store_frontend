@@ -14,6 +14,7 @@ import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type {
+  OrderCreate,
   OrderListResponse,
   OrderResponse,
   OrderStatus,
@@ -58,6 +59,24 @@ export function useOrderQuery(id: MaybeRefOrGetter<number | undefined>) {
       return apiFetch<OrderWithUser>(`/api/v1/orders/${value}`)
     },
     enabled: () => toValue(id) !== undefined,
+  })
+}
+
+/**
+ * `POST /api/v1/orders/` — customer checkout. Creates a `pending` order from the
+ * cart (the backend validates stock, snapshots products, and computes pricing).
+ * 422 on unavailable/insufficient-stock lines. Trailing slash is required.
+ */
+export function useCreateOrder() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: (input: OrderCreate) =>
+      apiFetch<OrderResponse>('/api/v1/orders/', {
+        method: 'POST',
+        body: input,
+      }),
+    onSuccess: () => queryCache.invalidateQueries({ key: [...ORDERS_NAMESPACE] }),
   })
 }
 
