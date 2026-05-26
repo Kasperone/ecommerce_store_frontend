@@ -38,6 +38,11 @@ export type CustomerListResponse = components['schemas']['CustomerListResponse']
 export type CustomerDetail = components['schemas']['CustomerDetail']
 export type CustomerOrderMetrics = components['schemas']['CustomerOrderMetrics']
 export type CustomerAdminUpdate = components['schemas']['CustomerAdminUpdate']
+export type InventoryListItem = components['schemas']['InventoryListItem']
+export type InventoryListResponse = components['schemas']['InventoryListResponse']
+export type InventoryMovementItem = components['schemas']['InventoryMovementItem']
+export type InventoryMovementListResponse = components['schemas']['InventoryMovementListResponse']
+export type StockAdjustRequest = components['schemas']['StockAdjustRequest']
 
 // User-related types
 export interface UserResponse {
