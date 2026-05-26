@@ -67,7 +67,12 @@ const subcategories = computed(() => {
           :alt="category.hero_image_alt ?? title"
           class="h-48 w-full object-cover sm:h-64"
         >
-        <div class="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent p-6">
+        <div
+          :class="[
+            'absolute inset-0 flex items-end p-6',
+            'bg-gradient-to-t from-black/60 to-transparent',
+          ]"
+        >
           <h1 class="text-3xl font-bold text-white">
             {{ title }}
           </h1>
@@ -95,7 +100,10 @@ const subcategories = computed(() => {
           v-for="sub in subcategories"
           :key="sub.id"
           :to="localePath(`/category/${sub.slug}`)"
-          class="rounded-full border border-gray-200 px-4 py-1.5 text-sm hover:border-primary hover:text-primary dark:border-gray-800"
+          :class="[
+            'rounded-full border border-gray-200 px-4 py-1.5 text-sm',
+            'hover:border-primary hover:text-primary dark:border-gray-800',
+          ]"
         >
           {{ localizedCategoryName(sub, locale) }}
         </ULink>

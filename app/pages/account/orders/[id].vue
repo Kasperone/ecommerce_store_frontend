@@ -83,7 +83,11 @@ useHead({
               {{ t('orders.detail.title', { number: order.order_number }) }}
             </h1>
             <p class="text-sm text-muted">
-              {{ t('orders.detail.placedOn', { date: new Date(order.created_at).toLocaleDateString(locale) }) }}
+              {{
+                t('orders.detail.placedOn', {
+                  date: new Date(order.created_at).toLocaleDateString(locale),
+                })
+              }}
             </p>
           </div>
           <div class="flex items-center gap-3">
@@ -119,7 +123,12 @@ useHead({
           <h2 class="mb-2 font-semibold">
             {{ t('orders.detail.items') }}
           </h2>
-          <ul class="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+          <ul
+            :class="[
+              'divide-y divide-gray-100 rounded-lg border border-gray-200',
+              'dark:divide-gray-800 dark:border-gray-800',
+            ]"
+          >
             <li
               v-for="item in order.items"
               :key="item.id"
@@ -130,7 +139,8 @@ useHead({
                   {{ item.product_name }}
                 </p>
                 <p class="text-xs text-muted">
-                  {{ item.quantity }} × {{ t('orders.detail.each', { price: money(item.unit_price) }) }}
+                  {{ item.quantity }} ×
+                  {{ t('orders.detail.each', { price: money(item.unit_price) }) }}
                 </p>
               </div>
               <span class="font-medium">{{ money(item.total_price) }}</span>
@@ -158,15 +168,23 @@ useHead({
 
           <section class="h-fit rounded-lg border border-gray-200 p-4 dark:border-gray-800">
             <div class="flex justify-between py-1 text-sm">
-              <span class="text-muted">{{ t('orders.detail.subtotal') }}</span><span>{{ money(order.subtotal) }}</span>
+              <span class="text-muted">{{ t('orders.detail.subtotal') }}</span>
+              <span>{{ money(order.subtotal) }}</span>
             </div>
             <div class="flex justify-between py-1 text-sm">
-              <span class="text-muted">{{ t('orders.detail.tax') }}</span><span>{{ money(order.tax) }}</span>
+              <span class="text-muted">{{ t('orders.detail.tax') }}</span>
+              <span>{{ money(order.tax) }}</span>
             </div>
             <div class="flex justify-between py-1 text-sm">
-              <span class="text-muted">{{ t('orders.detail.shippingCost') }}</span><span>{{ money(order.shipping) }}</span>
+              <span class="text-muted">{{ t('orders.detail.shippingCost') }}</span>
+              <span>{{ money(order.shipping) }}</span>
             </div>
-            <div class="mt-1 flex justify-between border-t border-gray-100 pt-2 font-medium dark:border-gray-800">
+            <div
+              :class="[
+                'mt-1 flex justify-between border-t border-gray-100 pt-2',
+                'font-medium dark:border-gray-800',
+              ]"
+            >
               <span>{{ t('orders.detail.total') }}</span><span>{{ money(order.total) }}</span>
             </div>
           </section>

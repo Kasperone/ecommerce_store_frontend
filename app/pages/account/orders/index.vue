@@ -68,22 +68,35 @@ function placedOn(iso: string) {
       </div>
 
       <template v-else>
-        <ul class="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+        <ul
+          :class="[
+            'divide-y divide-gray-100 rounded-lg border border-gray-200',
+            'dark:divide-gray-800 dark:border-gray-800',
+          ]"
+        >
           <li
             v-for="order in orders"
             :key="order.id"
           >
             <NuxtLink
               :to="localePath(`/account/orders/${order.id}`)"
-              class="flex flex-wrap items-center justify-between gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-900"
+              :class="[
+                'flex flex-wrap items-center justify-between gap-3 p-4',
+                'hover:bg-gray-50 dark:hover:bg-gray-900',
+              ]"
             >
               <div class="flex flex-col gap-1">
                 <span class="font-mono font-medium">{{ order.order_number }}</span>
-                <span class="text-xs text-muted">{{ t('orders.fields.placed') }}: {{ placedOn(order.created_at) }} · {{ order.item_count }} {{ t('orders.fields.items') }}</span>
+                <span class="text-xs text-muted">
+                  {{ t('orders.fields.placed') }}: {{ placedOn(order.created_at) }}
+                  · {{ order.item_count }} {{ t('orders.fields.items') }}
+                </span>
               </div>
               <div class="flex items-center gap-4">
                 <OrdersStatusBadge :status="order.status" />
-                <span class="font-medium">{{ formatMoney(order.total, order.currency as CurrencyCode, locale) }}</span>
+                <span class="font-medium">
+                  {{ formatMoney(order.total, order.currency as CurrencyCode, locale) }}
+                </span>
                 <UIcon
                   name="i-lucide-chevron-right"
                   class="size-4 text-muted"

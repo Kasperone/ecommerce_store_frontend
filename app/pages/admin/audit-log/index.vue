@@ -32,6 +32,13 @@ const { filters, set } = useUrlFilters(filterSchema, defaults)
 const resourceFilter = computed(() => filters.value.resourceType ?? 'all')
 const actionFilter = computed(() => filters.value.action ?? 'all')
 
+function onResourceTypeChange(v: unknown) {
+  set({ resourceType: v as typeof defaults.resourceType, page: 1 })
+}
+function onActionChange(v: unknown) {
+  set({ action: v as typeof defaults.action, page: 1 })
+}
+
 const queryParams = computed(() => ({
   page: filters.value.page ?? 1,
   pageSize: filters.value.pageSize ?? 20,
@@ -106,7 +113,7 @@ function openDetails(event: AuditEventItem) {
             :items="resourceOptions"
             value-key="value"
             class="w-48"
-            @update:model-value="(v) => set({ resourceType: v as typeof defaults.resourceType, page: 1 })"
+            @update:model-value="onResourceTypeChange"
           />
         </UFormField>
         <UFormField :label="$t('admin.auditLog.filters.action')">
@@ -115,7 +122,7 @@ function openDetails(event: AuditEventItem) {
             :items="actionOptions"
             value-key="value"
             class="w-44"
-            @update:model-value="(v) => set({ action: v as typeof defaults.action, page: 1 })"
+            @update:model-value="onActionChange"
           />
         </UFormField>
       </div>
@@ -161,7 +168,10 @@ function openDetails(event: AuditEventItem) {
         </template>
         <template #resource_type-cell="{ row }">
           <span>
-            {{ $t(`admin.auditLog.resources.${row.original.resource_type}`, row.original.resource_type) }}
+            {{ $t(
+              `admin.auditLog.resources.${row.original.resource_type}`,
+              row.original.resource_type,
+            ) }}
             <span class="text-muted">#{{ row.original.resource_id ?? '—' }}</span>
           </span>
         </template>

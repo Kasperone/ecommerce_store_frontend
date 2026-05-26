@@ -125,7 +125,12 @@ async function placeOrder(shipping: ShippingInput) {
                 <span class="font-medium">{{ line.lineTotal }}</span>
               </li>
             </ul>
-            <div class="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 font-medium dark:border-gray-800">
+            <div
+              :class="[
+                'mt-3 flex items-center justify-between border-t border-gray-100 pt-3',
+                'font-medium dark:border-gray-800',
+              ]"
+            >
               <span>{{ t('checkout.summary.total') }}</span>
               <span>{{ subtotal }}</span>
             </div>

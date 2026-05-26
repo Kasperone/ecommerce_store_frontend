@@ -58,6 +58,11 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const mode = computed<'create' | 'edit'>(() => (props.category ? 'edit' : 'create'))
+const seoHint = computed(() =>
+  t('admin.categories.seo.hint', {
+    default: 'Optional. Used as the page title and meta description for the storefront category page.',
+  }),
+)
 
 const state = reactive({
   name: '',
@@ -368,9 +373,7 @@ const title = computed(() =>
           </summary>
           <div class="p-3 pt-2 space-y-4">
             <p class="text-xs text-muted">
-              {{ t('admin.categories.seo.hint', {
-                default: 'Optional. Used as the page title and meta description for the storefront category page.',
-              }) }}
+              {{ seoHint }}
             </p>
             <div
               v-show="localeTab === 'en'"

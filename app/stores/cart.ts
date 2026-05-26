@@ -120,5 +120,16 @@ export const useCartStore = defineStore('cart', () => {
 
   // `skipHydrate` keeps Pinia from overwriting the localStorage-hydrated items
   // with the empty server payload (the cart is client-only persisted state).
-  return { items: skipHydrate(items), isOpen, count, isEmpty, add, setQuantity, remove, clear, openDrawer, closeDrawer }
+  return {
+    items: skipHydrate(items),
+    isOpen,
+    count,
+    isEmpty,
+    add,
+    setQuantity,
+    remove,
+    clear,
+    openDrawer,
+    closeDrawer,
+  }
 })
