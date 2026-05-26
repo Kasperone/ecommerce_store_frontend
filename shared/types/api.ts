@@ -43,6 +43,8 @@ export type InventoryListResponse = components['schemas']['InventoryListResponse
 export type InventoryMovementItem = components['schemas']['InventoryMovementItem']
 export type InventoryMovementListResponse = components['schemas']['InventoryMovementListResponse']
 export type StockAdjustRequest = components['schemas']['StockAdjustRequest']
+export type AuditEventItem = components['schemas']['AuditEventItem']
+export type AuditEventListResponse = components['schemas']['AuditEventListResponse']
 
 // User-related types
 export interface UserResponse {

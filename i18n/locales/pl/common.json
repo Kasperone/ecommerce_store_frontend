@@ -55,7 +55,6 @@
       "campaigns":  { "title": "Kampanie",         "placeholder": "Tutaj znajdzie się segmentacja kampanii i odzyskiwanie porzuconych koszyków. Wkrótce." },
       "shipping":   { "title": "Wysyłka",          "placeholder": "Tutaj znajdą się strefy wysyłki, taryfy i integracje z przewoźnikami. Wkrótce." },
       "reports":    { "title": "Raporty",          "placeholder": "Tutaj znajdą się raporty sprzedaży, VAT, magazynu i kohort. Wkrótce." },
-      "auditLog":   { "title": "Dziennik zdarzeń", "placeholder": "Tutaj znajdzie się rejestr działań administratorów. Wkrótce." },
       "settings":   { "title": "Ustawienia",       "placeholder": "Tutaj znajdą się dane sklepu, waluty, VAT, płatności i szablony e-maili. Wkrótce." },
       "staff":      { "title": "Personel i role",  "placeholder": "Tutaj znajdzie się lista administratorów i zarządzanie rolami. Wkrótce." }
     },
@@ -126,6 +125,46 @@
           "note": "Notatka",
           "actor": "Przez"
         }
+      }
+    },
+    "auditLog": {
+      "title": "Dziennik zdarzeń",
+      "subtitle": "Każde utworzenie, zmiana i usunięcie przez administratora w katalogu i operacjach",
+      "view": "Szczegóły",
+      "filters": {
+        "resourceType": "Zasób",
+        "allResources": "Wszystkie zasoby",
+        "action": "Akcja",
+        "allActions": "Wszystkie akcje"
+      },
+      "fields": {
+        "when": "Kiedy",
+        "actor": "Wykonawca",
+        "action": "Akcja",
+        "resource": "Zasób"
+      },
+      "actions": {
+        "create": "Utworzono",
+        "update": "Zmieniono",
+        "delete": "Usunięto"
+      },
+      "resources": {
+        "product": "Produkt",
+        "category": "Kategoria",
+        "order": "Zamówienie",
+        "customer": "Klient",
+        "inventory": "Magazyn"
+      },
+      "empty": {
+        "noResults": "Brak zdarzeń pasujących do filtra.",
+        "noEvents": "Nie zarejestrowano jeszcze żadnych działań administratorów."
+      },
+      "payload": {
+        "title": "Szczegóły zmiany",
+        "field": "Pole",
+        "before": "Przed",
+        "after": "Po",
+        "empty": "Dla tego zdarzenia nie zarejestrowano zmian na poziomie pól."
       }
     },
     "categories": {

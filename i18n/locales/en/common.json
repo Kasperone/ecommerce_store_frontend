@@ -54,7 +54,6 @@
       "campaigns":  { "title": "Campaigns",        "placeholder": "Email campaign segmentation and abandoned-cart recovery will live here. Coming soon." },
       "shipping":   { "title": "Shipping",         "placeholder": "Shipping zones, rate rules, and carrier integrations will live here. Coming soon." },
       "reports":    { "title": "Reports",          "placeholder": "Sales, VAT, inventory, and cohort reports will live here. Coming soon." },
-      "auditLog":   { "title": "Audit Log",        "placeholder": "Admin action audit trail (filter by actor, entity, action) will live here. Coming soon." },
       "settings":   { "title": "Settings",         "placeholder": "Store info, currencies, tax / VAT, payment methods, email templates will live here. Coming soon." },
       "staff":      { "title": "Staff & Roles",    "placeholder": "Admin user list and role management will live here. Coming soon." }
     },
@@ -125,6 +124,46 @@
           "note": "Note",
           "actor": "By"
         }
+      }
+    },
+    "auditLog": {
+      "title": "Audit Log",
+      "subtitle": "Every admin create, update, and delete across the catalog and operations",
+      "view": "Details",
+      "filters": {
+        "resourceType": "Resource",
+        "allResources": "All resources",
+        "action": "Action",
+        "allActions": "All actions"
+      },
+      "fields": {
+        "when": "When",
+        "actor": "Actor",
+        "action": "Action",
+        "resource": "Resource"
+      },
+      "actions": {
+        "create": "Created",
+        "update": "Updated",
+        "delete": "Deleted"
+      },
+      "resources": {
+        "product": "Product",
+        "category": "Category",
+        "order": "Order",
+        "customer": "Customer",
+        "inventory": "Inventory"
+      },
+      "empty": {
+        "noResults": "No audit events match this filter.",
+        "noEvents": "No admin actions recorded yet."
+      },
+      "payload": {
+        "title": "Change details",
+        "field": "Field",
+        "before": "Before",
+        "after": "After",
+        "empty": "No field-level changes were recorded for this event."
       }
     },
     "categories": {
