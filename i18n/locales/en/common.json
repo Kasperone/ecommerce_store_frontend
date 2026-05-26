@@ -48,7 +48,6 @@
     "pages": {
       "inventory":  { "title": "Inventory",        "placeholder": "Per-product stock, thresholds, and movement log will live here. Coming soon." },
       "reviews":    { "title": "Reviews",          "placeholder": "Review moderation queue will live here. Coming soon." },
-      "customers":  { "title": "Customers",        "placeholder": "Customer list, detail, impersonation, lock controls will live here. Coming soon." },
       "companies":  { "title": "Companies (B2B)",  "placeholder": "B2B company directory, approvals, account managers will live here. Coming soon." },
       "quotes":     { "title": "Quotes (B2B)",     "placeholder": "B2B quote requests, negotiation, conversion to order will live here. Coming soon." },
       "coupons":    { "title": "Coupons",          "placeholder": "Discount codes, conditions, and usage caps will live here. Coming soon." },
@@ -373,6 +372,83 @@
       "flashes": {
         "updated": "Order updated.",
         "cancelled": "Order cancelled."
+      }
+    },
+    "customers": {
+      "title": "Customers",
+      "subtitle": "View customers and manage their accounts",
+      "roles": {
+        "CUSTOMER": "Customer",
+        "ADMIN": "Admin"
+      },
+      "fields": {
+        "email": "Email",
+        "name": "Name",
+        "role": "Role",
+        "status": "Status",
+        "orders": "Orders",
+        "country": "Country"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Disabled",
+        "unverified": "Unverified",
+        "locked": "Locked"
+      },
+      "filters": {
+        "role": "Role",
+        "allRoles": "All roles",
+        "state": "State",
+        "allStates": "All states",
+        "activeOnly": "Active only",
+        "inactiveOnly": "Disabled only",
+        "verification": "Verification",
+        "allVerification": "All",
+        "verifiedOnly": "Verified only",
+        "unverifiedOnly": "Unverified only",
+        "search": "Search",
+        "searchPlaceholder": "Email or name"
+      },
+      "empty": {
+        "noResults": "No customers match this filter.",
+        "noCustomers": "No customers yet."
+      },
+      "metrics": {
+        "orders": "Orders placed",
+        "spent": "Total spent",
+        "lastOrder": "Last order"
+      },
+      "detail": {
+        "title": "Customer {email}",
+        "loading": "Loading customer…",
+        "profile": "Profile",
+        "phone": "Phone",
+        "joined": "Joined",
+        "shipping": "Shipping address",
+        "noShipping": "No shipping address on file.",
+        "company": "Company (B2B)",
+        "companyName": "Company name",
+        "taxId": "Tax ID",
+        "manage": "Manage account",
+        "selfHint": "You cannot disable or unverify your own account."
+      },
+      "actions": {
+        "view": "View customer",
+        "back": "Back to customers",
+        "verify": "Verify",
+        "unverify": "Unverify",
+        "enable": "Enable",
+        "disable": "Disable",
+        "unlock": "Unlock",
+        "sendReset": "Send password reset"
+      },
+      "flashes": {
+        "verified": "Customer verified.",
+        "unverified": "Customer unverified.",
+        "enabled": "Account enabled.",
+        "disabled": "Account disabled.",
+        "unlocked": "Account unlocked.",
+        "resetSent": "Password reset email sent."
       }
     }
   },
