@@ -57,6 +57,8 @@ export function useInventoryQuery(params: MaybeRefOrGetter<InventoryListParams> 
         },
       })
     },
+    // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
+    enabled: () => import.meta.client,
   })
 }
 
@@ -76,6 +78,8 @@ export function useInventoryMovementsQuery(
         },
       })
     },
+    // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
+    enabled: () => import.meta.client,
   })
 }
 
