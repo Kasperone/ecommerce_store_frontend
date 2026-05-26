@@ -67,5 +67,48 @@
       "countryTooLong": "Kraj może mieć maksymalnie 100 znaków",
       "notesTooLong": "Uwagi mogą mieć maksymalnie 1000 znaków"
     }
+  },
+  "orders": {
+    "title": "Moje zamówienia",
+    "accountCard": "Zobacz historię i status zamówień",
+    "subtitle": "Twoje zamówienia, od najnowszych",
+    "empty": "Nie masz jeszcze żadnych zamówień.",
+    "emptyCta": "Zacznij zakupy",
+    "loadError": "Nie udało się załadować zamówień.",
+    "back": "Powrót do moich zamówień",
+    "viewOrder": "Zobacz zamówienie",
+    "fields": {
+      "placed": "Złożono",
+      "items": "Produkty",
+      "total": "Razem"
+    },
+    "detail": {
+      "title": "Zamówienie {number}",
+      "placedOn": "Złożono {date}",
+      "shippingAddress": "Adres dostawy",
+      "items": "Produkty",
+      "each": "{price} za szt.",
+      "subtotal": "Suma częściowa",
+      "tax": "Podatek",
+      "shippingCost": "Wysyłka",
+      "total": "Razem",
+      "notes": "Uwagi"
+    },
+    "status": {
+      "pending": "Oczekujące",
+      "paid": "Opłacone",
+      "processing": "W realizacji",
+      "shipped": "Wysłane",
+      "delivered": "Dostarczone",
+      "cancelled": "Anulowane",
+      "refunded": "Zwrócone"
+    },
+    "cancel": {
+      "button": "Anuluj zamówienie",
+      "title": "Anulować to zamówienie?",
+      "body": "To anuluje zamówienie i przywróci stan magazynowy. Tej operacji nie można cofnąć.",
+      "confirm": "Tak, anuluj",
+      "dismiss": "Zachowaj zamówienie"
+    }
   }
 }
