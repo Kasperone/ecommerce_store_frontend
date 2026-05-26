@@ -634,6 +634,88 @@ export interface paths {
         patch: operations["update_category_hero_alt_api_v1_categories__category_id__hero_patch"];
         trace?: never;
     };
+    "/api/v1/orders/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Orders
+         * @description List orders, scoped to the caller.
+         *
+         *     Customers see only their own orders; admins see all. Optional status filter.
+         */
+        get: operations["list_orders_api_v1_orders__get"];
+        put?: never;
+        /**
+         * Create Order
+         * @description Create an order from posted line items (authenticated).
+         *
+         *     Validates availability and stock, snapshots product data, decrements stock,
+         *     and computes pricing. Sets ``status=pending``.
+         */
+        post: operations["create_order_api_v1_orders__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/{order_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Order
+         * @description Get a single order by ID.
+         *
+         *     Customers may only fetch their own orders; admins may fetch any. A
+         *     non-existent or not-owned order returns 404 (existence is not leaked).
+         */
+        get: operations["get_order_api_v1_orders__order_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Order
+         * @description Update an order's status (forward workflow) and notes/payment fields (admin).
+         *
+         *     Cancellation and refunds are not done here — use the cancel endpoint
+         *     (refunds are Phase B).
+         */
+        patch: operations["update_order_api_v1_orders__order_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/orders/{order_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Order
+         * @description Cancel an order and restore stock.
+         *
+         *     Customers may cancel only their own order while ``status=pending``. Admins
+         *     may cancel any order that is not already in a terminal state.
+         */
+        post: operations["cancel_order_api_v1_orders__order_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products/{product_id}/images": {
         parameters: {
             query?: never;
@@ -1161,6 +1243,236 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * OrderCreate
+         * @description Schema for creating an order
+         */
+        OrderCreate: {
+            /** Shipping Address */
+            shipping_address: string;
+            /** Shipping City */
+            shipping_city: string;
+            /** Shipping Postal Code */
+            shipping_postal_code: string;
+            /** Shipping Country */
+            shipping_country: string;
+            /** Notes */
+            notes?: string | null;
+            /** Items */
+            items: components["schemas"]["OrderItemCreate"][];
+            /**
+             * Currency
+             * @default USD
+             */
+            currency: string;
+        };
+        /**
+         * OrderItemCreate
+         * @description Schema for creating an order item
+         */
+        OrderItemCreate: {
+            /** Product Id */
+            product_id: number;
+            /** Quantity */
+            quantity: number;
+        };
+        /**
+         * OrderItemResponse
+         * @description Schema for order item response
+         */
+        OrderItemResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Product Id */
+            product_id: number;
+            /** Quantity */
+            quantity: number;
+            /** Order Id */
+            order_id: number;
+            /** Product Name */
+            product_name: string;
+            /** Product Sku */
+            product_sku: string | null;
+            /** Unit Price */
+            unit_price: number;
+            /** Total Price */
+            total_price: number;
+        };
+        /**
+         * OrderListItem
+         * @description Lightweight order row for list views (no nested line items).
+         */
+        OrderListItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Order Number */
+            order_number: string;
+            status: components["schemas"]["OrderStatus"];
+            /** Subtotal */
+            subtotal: number;
+            /** Total */
+            total: number;
+            /** Currency */
+            currency: string;
+            /** Item Count */
+            item_count: number;
+            /** Customer Email */
+            customer_email?: string | null;
+        };
+        /**
+         * OrderListResponse
+         * @description Schema for paginated order list
+         */
+        OrderListResponse: {
+            /** Items */
+            items: components["schemas"]["OrderListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * OrderResponse
+         * @description Schema for order response
+         */
+        OrderResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Shipping Address */
+            shipping_address: string;
+            /** Shipping City */
+            shipping_city: string;
+            /** Shipping Postal Code */
+            shipping_postal_code: string;
+            /** Shipping Country */
+            shipping_country: string;
+            /** Notes */
+            notes?: string | null;
+            /** User Id */
+            user_id: number;
+            /** Order Number */
+            order_number: string;
+            status: components["schemas"]["OrderStatus"];
+            /** Subtotal */
+            subtotal: number;
+            /** Tax */
+            tax: number;
+            /** Shipping */
+            shipping: number;
+            /** Total */
+            total: number;
+            /** Currency */
+            currency: string;
+            /** Payment Method */
+            payment_method: string | null;
+            /** Payment Intent Id */
+            payment_intent_id: string | null;
+            /** Items */
+            items?: components["schemas"]["OrderItemResponse"][];
+        };
+        /**
+         * OrderStatus
+         * @description Order status enum
+         * @enum {string}
+         */
+        OrderStatus: "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+        /**
+         * OrderUpdate
+         * @description Schema for updating an order (admin only)
+         */
+        OrderUpdate: {
+            status?: components["schemas"]["OrderStatus"] | null;
+            /** Payment Method */
+            payment_method?: string | null;
+            /** Payment Intent Id */
+            payment_intent_id?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * OrderWithUser
+         * @description Order response with user details
+         */
+        OrderWithUser: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Shipping Address */
+            shipping_address: string;
+            /** Shipping City */
+            shipping_city: string;
+            /** Shipping Postal Code */
+            shipping_postal_code: string;
+            /** Shipping Country */
+            shipping_country: string;
+            /** Notes */
+            notes?: string | null;
+            /** User Id */
+            user_id: number;
+            /** Order Number */
+            order_number: string;
+            status: components["schemas"]["OrderStatus"];
+            /** Subtotal */
+            subtotal: number;
+            /** Tax */
+            tax: number;
+            /** Shipping */
+            shipping: number;
+            /** Total */
+            total: number;
+            /** Currency */
+            currency: string;
+            /** Payment Method */
+            payment_method: string | null;
+            /** Payment Intent Id */
+            payment_intent_id: string | null;
+            /** Items */
+            items?: components["schemas"]["OrderItemResponse"][];
+            user: components["schemas"]["UserResponse"];
         };
         /**
          * PasswordChange
@@ -2648,6 +2960,172 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CategoryHeroResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_orders_api_v1_orders__get: {
+        parameters: {
+            query?: {
+                /** @description Page number */
+                page?: number;
+                /** @description Items per page */
+                page_size?: number;
+                /** @description Filter by order status */
+                status?: components["schemas"]["OrderStatus"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_order_api_v1_orders__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_order_api_v1_orders__order_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithUser"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_order_api_v1_orders__order_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithUser"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_order_api_v1_orders__order_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
                 };
             };
             /** @description Validation Error */
