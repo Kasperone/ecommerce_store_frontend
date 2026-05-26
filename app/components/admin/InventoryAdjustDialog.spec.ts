@@ -104,4 +104,34 @@ describe('InventoryAdjustDialog', () => {
     expect(adjustMutate).toHaveBeenCalledWith({ productId: 1, newStock: 25, note: undefined })
     expect(toastAdd).toHaveBeenCalled()
   })
+
+  it('updates only the threshold when stock is unchanged', async () => {
+    const wrapper = await mountSuspended(InventoryAdjustDialog, {
+      props: baseProps({ currentThreshold: null }),
+    })
+    // [0] = new stock, [1] = low-stock threshold — change only the threshold.
+    const numberInputs = wrapper.findAllComponents({ name: 'UInputNumber' })
+    numberInputs[1]!.vm.$emit('update:modelValue', 15)
+    await new Promise(r => setTimeout(r, 0))
+
+    clickSave()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(thresholdMutate).toHaveBeenCalledWith({ productId: 1, threshold: 15 })
+    expect(adjustMutate).not.toHaveBeenCalled()
+  })
+
+  it('shows an error alert and no success toast when a mutation fails', async () => {
+    adjustMutate.mockRejectedValue({ data: { detail: 'Stock conflict' } })
+    const wrapper = await mountSuspended(InventoryAdjustDialog, { props: baseProps() })
+    const numberInputs = wrapper.findAllComponents({ name: 'UInputNumber' })
+    numberInputs[0]!.vm.$emit('update:modelValue', 25)
+    await new Promise(r => setTimeout(r, 0))
+
+    clickSave()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(toastAdd).not.toHaveBeenCalled()
+  })
 })
