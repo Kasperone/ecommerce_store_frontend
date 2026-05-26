@@ -47,7 +47,9 @@ describe('ShopAddToCartButton', () => {
   })
 
   it('is disabled and labelled out-of-stock when stock is 0', async () => {
-    const wrapper = await mountSuspended(AddToCartButton, { props: { product: product({ stock: 0 }) } })
+    const wrapper = await mountSuspended(AddToCartButton, {
+      props: { product: product({ stock: 0 }) },
+    })
     expect(wrapper.find('button').attributes('disabled')).toBeDefined()
     expect(wrapper.text()).toContain('Out of Stock')
   })

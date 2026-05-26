@@ -44,6 +44,13 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
+const dropZoneLabel = computed(() =>
+  t('admin.categories.hero.dropZone', { default: 'Drop image or click to upload' }),
+)
+const existingLabel = computed(() =>
+  t('admin.categories.hero.existingLabel', { default: 'Current hero image' }),
+)
+
 // Alt text is one value regardless of whether the image is the existing R2 one
 // or a freshly staged file. Seed from the existing alt; the parent also seeds
 // its own copy on open, so the two stay consistent without relying on a
@@ -154,7 +161,7 @@ onBeforeUnmount(() => {
       role="button"
       tabindex="0"
       :aria-disabled="disabled"
-      :aria-label="t('admin.categories.hero.dropZone', { default: 'Drop image or click to upload' })"
+      :aria-label="dropZoneLabel"
       data-hero-drop-zone
       @click="openPicker"
       @keydown.enter.prevent="openPicker"
@@ -168,7 +175,7 @@ onBeforeUnmount(() => {
         class="w-8 h-8 mx-auto text-muted"
       />
       <p class="mt-2 text-sm font-medium">
-        {{ t('admin.categories.hero.dropZone', { default: 'Drop image or click to upload' }) }}
+        {{ dropZoneLabel }}
       </p>
       <p class="mt-1 text-xs text-muted">
         {{ t('admin.categories.hero.allowedTypes', { default: 'JPEG, PNG, WebP — up to 5 MiB' }) }}
@@ -193,7 +200,7 @@ onBeforeUnmount(() => {
             {{ stagedFile?.name }}
           </template>
           <template v-else>
-            {{ existingAlt ?? t('admin.categories.hero.existingLabel', { default: 'Current hero image' }) }}
+            {{ existingAlt ?? existingLabel }}
           </template>
         </p>
         <div class="flex gap-1">
@@ -256,7 +263,7 @@ onBeforeUnmount(() => {
       :accept="IMAGE_ACCEPT_ATTR"
       class="sr-only"
       :disabled="disabled"
-      :aria-label="t('admin.categories.hero.dropZone', { default: 'Drop image or click to upload' })"
+      :aria-label="dropZoneLabel"
       data-hero-file-input
       @change="onFileInputChange"
     >

@@ -62,6 +62,17 @@ const eligibleParents = computed(() => {
   return flat.value.filter(o => !blocked.has(o.id))
 })
 
+const parentOptions = computed(() => [
+  {
+    value: 'root' as const,
+    label: t('admin.categories.tree.moveDialog.rootLabel', { default: 'Root (no parent)' }),
+  },
+  ...eligibleParents.value.map(o => ({
+    value: o.id,
+    label: `${'— '.repeat(o.depth)}${o.name}`,
+  })),
+])
+
 const selectedParentId = ref<number | 'root' | null>(null)
 
 watch(
@@ -112,16 +123,7 @@ function onConfirm() {
         </p>
         <URadioGroup
           v-model="selectedParentId"
-          :items="[
-            {
-              value: 'root' as const,
-              label: t('admin.categories.tree.moveDialog.rootLabel', { default: 'Root (no parent)' }),
-            },
-            ...eligibleParents.map(o => ({
-              value: o.id,
-              label: `${'— '.repeat(o.depth)}${o.name}`,
-            })),
-          ]"
+          :items="parentOptions"
           value-key="value"
         />
       </div>
