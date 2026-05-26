@@ -47,7 +47,6 @@
     },
     "pages": {
       "products":   { "title": "Produkty",         "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce." },
-      "inventory":  { "title": "Magazyn",          "placeholder": "Tutaj znajdzie się stan magazynowy, progi i historia ruchów. Wkrótce." },
       "reviews":    { "title": "Opinie",           "placeholder": "Tutaj znajdzie się moderacja opinii klientów. Wkrótce." },
       "companies":  { "title": "Firmy (B2B)",      "placeholder": "Tutaj znajdzie się katalog firm B2B, akceptacja kont i opiekunowie. Wkrótce." },
       "quotes":     { "title": "Oferty (B2B)",     "placeholder": "Tutaj znajdzie się obsługa zapytań ofertowych i konwersja w zamówienia. Wkrótce." },
@@ -59,6 +58,75 @@
       "auditLog":   { "title": "Dziennik zdarzeń", "placeholder": "Tutaj znajdzie się rejestr działań administratorów. Wkrótce." },
       "settings":   { "title": "Ustawienia",       "placeholder": "Tutaj znajdą się dane sklepu, waluty, VAT, płatności i szablony e-maili. Wkrótce." },
       "staff":      { "title": "Personel i role",  "placeholder": "Tutaj znajdzie się lista administratorów i zarządzanie rolami. Wkrótce." }
+    },
+    "inventory": {
+      "title": "Magazyn",
+      "subtitle": "Zarządzaj stanami magazynowymi i przeglądaj historię ruchów",
+      "actions": {
+        "viewMovements": "Historia ruchów",
+        "adjust": "Koryguj"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "search": "Szukaj",
+        "searchPlaceholder": "Nazwa lub SKU"
+      },
+      "fields": {
+        "product": "Produkt",
+        "sku": "SKU",
+        "stock": "Stan",
+        "threshold": "Próg niskiego stanu",
+        "status": "Status"
+      },
+      "status": {
+        "in_stock": "Dostępny",
+        "low_stock": "Niski stan",
+        "out_of_stock": "Brak"
+      },
+      "empty": {
+        "noResults": "Brak produktów pasujących do filtra.",
+        "noProducts": "Brak produktów."
+      },
+      "adjust": {
+        "title": "Korekta stanu — {name}",
+        "description": "Ustaw nowy stan magazynowy. Zmiana zostanie zapisana w historii ruchów.",
+        "currentStock": "Obecny stan",
+        "newStock": "Nowy stan",
+        "threshold": "Próg niskiego stanu",
+        "thresholdHint": "Pozostaw puste, aby wyłączyć alert niskiego stanu.",
+        "thresholdPlaceholder": "Bez progu",
+        "note": "Notatka",
+        "notePlaceholder": "Powód korekty (opcjonalnie)",
+        "save": "Zapisz",
+        "cancel": "Anuluj",
+        "flashes": {
+          "saved": "Zaktualizowano stan."
+        }
+      },
+      "reasons": {
+        "order_placed": "Złożenie zamówienia",
+        "order_cancelled": "Anulowanie zamówienia",
+        "manual_adjustment": "Korekta ręczna",
+        "restock": "Uzupełnienie"
+      },
+      "movements": {
+        "title": "Ruchy magazynowe",
+        "subtitle": "Każda zmiana stanu, od najnowszych",
+        "back": "Powrót do magazynu",
+        "empty": "Brak ruchów magazynowych.",
+        "filteredByProduct": "Filtr: produkt #{id}",
+        "clearFilter": "Wyczyść",
+        "fields": {
+          "when": "Kiedy",
+          "product": "Produkt",
+          "reason": "Powód",
+          "change": "Zmiana",
+          "resulting": "Stan po zmianie",
+          "note": "Notatka",
+          "actor": "Przez"
+        }
+      }
     },
     "categories": {
       "title": "Kategorie",

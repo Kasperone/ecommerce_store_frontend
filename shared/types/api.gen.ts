@@ -803,6 +803,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/inventory/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Inventory
+         * @description List products with stock, threshold, and computed status (admin).
+         */
+        get: operations["list_inventory_api_v1_admin_inventory__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/inventory/products/{product_id}/stock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Adjust Stock
+         * @description Set a product's stock to an absolute value, recording the delta (admin).
+         *
+         *     Computes ``delta = new_stock - current``; a no-op (delta 0) is rejected so the
+         *     ledger never gets empty rows. Records a ``manual_adjustment`` movement + an
+         *     audit row in one transaction.
+         */
+        patch: operations["adjust_stock_api_v1_admin_inventory_products__product_id__stock_patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/inventory/movements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Movements
+         * @description Global stock-movement ledger, newest first; optional product filter (admin).
+         */
+        get: operations["list_movements_api_v1_admin_inventory_movements_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products/{product_id}/images": {
         parameters: {
             query?: never;
@@ -1478,6 +1542,93 @@ export interface components {
             detail?: components["schemas"]["ValidationError"][];
         };
         /**
+         * InventoryListItem
+         * @description One product row in the admin stock list.
+         */
+        InventoryListItem: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Sku */
+            sku?: string | null;
+            /** Stock */
+            stock: number;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "in_stock" | "low_stock" | "out_of_stock";
+        };
+        /**
+         * InventoryListResponse
+         * @description Paginated admin stock list.
+         */
+        InventoryListResponse: {
+            /** Items */
+            items: components["schemas"]["InventoryListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * InventoryMovementItem
+         * @description One ledger row, with the product name joined in for display.
+         */
+        InventoryMovementItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Product Id */
+            product_id: number;
+            /** Product Name */
+            product_name: string;
+            /** Delta */
+            delta: number;
+            /** Resulting Stock */
+            resulting_stock: number;
+            /** Reason */
+            reason: string;
+            /** Note */
+            note?: string | null;
+            /** Order Id */
+            order_id?: number | null;
+            /** Actor User Id */
+            actor_user_id?: number | null;
+        };
+        /**
+         * InventoryMovementListResponse
+         * @description Paginated movement ledger.
+         */
+        InventoryMovementListResponse: {
+            /** Items */
+            items: components["schemas"]["InventoryMovementItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
          * OrderCreate
          * @description Schema for creating an order
          */
@@ -1762,6 +1913,8 @@ export interface components {
              * @default 0
              */
             stock: number;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
             /**
              * Is Active
              * @default true
@@ -1889,6 +2042,8 @@ export interface components {
              * @default 0
              */
             stock: number;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
             /**
              * Is Active
              * @default true
@@ -1930,6 +2085,8 @@ export interface components {
             price_eur?: number | null;
             /** Stock */
             stock?: number | null;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
             /** Is Active */
             is_active?: boolean | null;
             /** Is Featured */
@@ -1973,6 +2130,8 @@ export interface components {
              * @default 0
              */
             stock: number;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
             /**
              * Is Active
              * @default true
@@ -1993,6 +2152,21 @@ export interface components {
              * @description True when stock > 0.
              */
             readonly in_stock: boolean;
+        };
+        /**
+         * StockAdjustRequest
+         * @description Manual stock adjustment body.
+         *
+         *     ``new_stock`` is the absolute target; the route computes
+         *     ``delta = new_stock - current`` and rejects a no-op (delta 0). ``note`` is a
+         *     free-text explanation stored on the ledger row (the movement ``reason`` is
+         *     always ``manual_adjustment``).
+         */
+        StockAdjustRequest: {
+            /** New Stock */
+            new_stock: number;
+            /** Note */
+            note?: string | null;
         };
         /**
          * Token
@@ -3527,6 +3701,111 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GenericMessage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_inventory_api_v1_admin_inventory__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by computed stock status */
+                status?: ("in_stock" | "low_stock" | "out_of_stock") | null;
+                /** @description Search name / SKU */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adjust_stock_api_v1_admin_inventory_products__product_id__stock_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StockAdjustRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryMovementItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_movements_api_v1_admin_inventory_movements_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter to one product's movements */
+                product_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryMovementListResponse"];
                 };
             };
             /** @description Validation Error */

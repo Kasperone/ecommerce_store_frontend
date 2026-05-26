@@ -46,7 +46,6 @@
       }
     },
     "pages": {
-      "inventory":  { "title": "Inventory",        "placeholder": "Per-product stock, thresholds, and movement log will live here. Coming soon." },
       "reviews":    { "title": "Reviews",          "placeholder": "Review moderation queue will live here. Coming soon." },
       "companies":  { "title": "Companies (B2B)",  "placeholder": "B2B company directory, approvals, account managers will live here. Coming soon." },
       "quotes":     { "title": "Quotes (B2B)",     "placeholder": "B2B quote requests, negotiation, conversion to order will live here. Coming soon." },
@@ -58,6 +57,75 @@
       "auditLog":   { "title": "Audit Log",        "placeholder": "Admin action audit trail (filter by actor, entity, action) will live here. Coming soon." },
       "settings":   { "title": "Settings",         "placeholder": "Store info, currencies, tax / VAT, payment methods, email templates will live here. Coming soon." },
       "staff":      { "title": "Staff & Roles",    "placeholder": "Admin user list and role management will live here. Coming soon." }
+    },
+    "inventory": {
+      "title": "Inventory",
+      "subtitle": "Manage stock levels and review the movement ledger",
+      "actions": {
+        "viewMovements": "Movement log",
+        "adjust": "Adjust"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "search": "Search",
+        "searchPlaceholder": "Name or SKU"
+      },
+      "fields": {
+        "product": "Product",
+        "sku": "SKU",
+        "stock": "Stock",
+        "threshold": "Low-stock threshold",
+        "status": "Status"
+      },
+      "status": {
+        "in_stock": "In stock",
+        "low_stock": "Low stock",
+        "out_of_stock": "Out of stock"
+      },
+      "empty": {
+        "noResults": "No products match this filter.",
+        "noProducts": "No products yet."
+      },
+      "adjust": {
+        "title": "Adjust stock — {name}",
+        "description": "Set the new stock level. The change is recorded on the movement ledger.",
+        "currentStock": "Current stock",
+        "newStock": "New stock",
+        "threshold": "Low-stock threshold",
+        "thresholdHint": "Leave empty for no low-stock alert.",
+        "thresholdPlaceholder": "No threshold",
+        "note": "Note",
+        "notePlaceholder": "Reason for the adjustment (optional)",
+        "save": "Save",
+        "cancel": "Cancel",
+        "flashes": {
+          "saved": "Stock updated."
+        }
+      },
+      "reasons": {
+        "order_placed": "Order placed",
+        "order_cancelled": "Order cancelled",
+        "manual_adjustment": "Manual adjustment",
+        "restock": "Restock"
+      },
+      "movements": {
+        "title": "Stock movements",
+        "subtitle": "Every change to stock, newest first",
+        "back": "Back to inventory",
+        "empty": "No stock movements yet.",
+        "filteredByProduct": "Filtered to product #{id}",
+        "clearFilter": "Clear",
+        "fields": {
+          "when": "When",
+          "product": "Product",
+          "reason": "Reason",
+          "change": "Change",
+          "resulting": "Resulting stock",
+          "note": "Note",
+          "actor": "By"
+        }
+      }
     },
     "categories": {
       "title": "Categories",
