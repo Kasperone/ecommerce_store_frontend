@@ -43,6 +43,12 @@ export const API_ENDPOINTS = {
     UPDATE: '/api/v1/categories/{id}', // PUT - Update category (admin)
     DELETE: '/api/v1/categories/{id}', // DELETE - Delete category (admin)
   },
+
+  // Search endpoints (backend-proxied Meilisearch; 503 when unconfigured)
+  SEARCH: {
+    QUERY: '/api/v1/search', // GET - Faceted product search
+    SUGGEST: '/api/v1/search/suggest', // GET - Mixed autocomplete (products + categories)
+  },
 } as const
 
 export const HTTP_STATUS = {

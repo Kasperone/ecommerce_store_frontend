@@ -635,6 +635,16 @@
     "orders": "Moje Zamówienia",
     "wishlist": "Lista Życzeń"
   },
+  "search": {
+    "placeholder": "Szukaj produktów…",
+    "ariaLabel": "Szukaj produktów",
+    "sections": {
+      "products": "Produkty",
+      "categories": "Kategorie"
+    },
+    "seeAll": "Zobacz wszystkie wyniki dla „{query}”",
+    "noResults": "Brak wyników dla „{query}”"
+  },
   "footer": {
     "brand": {
       "tagline": "Sprawdzone produkty, dostawa w USD, PLN i EUR.",
