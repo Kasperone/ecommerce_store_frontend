@@ -54,16 +54,33 @@ export function useReviewsQuery(params: MaybeRefOrGetter<ReviewListParams> = {})
   })
 }
 
-/** `PATCH /api/v1/admin/reviews/{id}` — approve or reject. Returns the updated row. */
+export interface ModerateReviewVars {
+  id: number
+  /** Approve/reject. Omit to leave the moderation status unchanged. */
+  status?: ReviewModerationStatus
+  /** Set the store's public reply; `null` clears it. Omit to leave it unchanged. */
+  adminResponse?: string | null
+}
+
+/**
+ * `PATCH /api/v1/admin/reviews/{id}` — moderate (approve/reject) and/or set the
+ * store's public reply. Only the keys actually provided are sent, so the
+ * backend's `model_fields_set` logic distinguishes "set status", "set/clear
+ * reply", and "both" (an empty body 422s). Returns the updated row.
+ */
 export function useModerateReview() {
   const { apiFetch } = useApi()
   const queryCache = useQueryCache()
   return useMutation({
-    mutation: ({ id, status }: { id: number, status: ReviewModerationStatus }) =>
-      apiFetch<AdminReviewListItem>(`/api/v1/admin/reviews/${id}`, {
+    mutation: ({ id, status, adminResponse }: ModerateReviewVars) => {
+      const body: { status?: ReviewModerationStatus, admin_response?: string | null } = {}
+      if (status !== undefined) body.status = status
+      if (adminResponse !== undefined) body.admin_response = adminResponse
+      return apiFetch<AdminReviewListItem>(`/api/v1/admin/reviews/${id}`, {
         method: 'PATCH',
-        body: { status },
-      }),
+        body,
+      })
+    },
     onSuccess: () => queryCache.invalidateQueries({ key: [...REVIEWS_NAMESPACE] }),
   })
 }

@@ -64,7 +64,7 @@ beforeEach(() => {
   }
   state.auth.isAuthenticated = false
   state.refresh.mockReset()
-  state.fetchMine.mockReset().mockRejectedValue({}) // default: no own review (404)
+  state.fetchMine.mockReset().mockResolvedValue(null) // default: no own review (200 + null)
   state.create.mockReset()
   state.update.mockReset()
   state.remove.mockReset()
@@ -95,6 +95,18 @@ describe('ShopProductReviews', () => {
     await flush()
     expect(state.fetchMine).toHaveBeenCalledWith(1)
     expect(wrapper.text()).toContain('Write a review')
+  })
+
+  it('renders a store response under a review that has one', async () => {
+    state.data.value = {
+      summary: { average_rating: 5, total: 1, breakdown: { 5: 1 } },
+      items: [{ ...SAMPLE_ITEM, admin_response: 'Thanks for the kind words!' }],
+      total: 1,
+    }
+    const wrapper = await mountSuspended(ProductReviews, { props: { productId: 1 } })
+    const text = wrapper.text()
+    expect(text).toContain('Store response')
+    expect(text).toContain('Thanks for the kind words!')
   })
 
   it('renders an empty state when there are no approved reviews', async () => {
