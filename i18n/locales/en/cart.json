@@ -109,6 +109,10 @@
       "body": "This cancels the order and restores stock. This cannot be undone.",
       "confirm": "Yes, cancel",
       "dismiss": "Keep order"
+    },
+    "invoice": {
+      "download": "Download invoice",
+      "error": "Couldn't download the invoice. Please try again."
     }
   },
   "payment": {

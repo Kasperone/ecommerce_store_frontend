@@ -92,6 +92,11 @@ useHead({
           </div>
           <div class="flex items-center gap-3">
             <OrdersStatusBadge :status="order.status" />
+            <OrdersInvoiceDownloadButton
+              :order-id="order.id"
+              :order-number="order.order_number"
+              size="sm"
+            />
             <UButton
               v-if="canCancel"
               color="error"
