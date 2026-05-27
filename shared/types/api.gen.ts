@@ -1000,6 +1000,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/customers/{customer_id}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Customer Notes
+         * @description List a customer's internal notes (admin), newest first.
+         */
+        get: operations["list_customer_notes_api_v1_admin_customers__customer_id__notes_get"];
+        put?: never;
+        /**
+         * Create Customer Note
+         * @description Add an internal note to a customer (admin). Author = the acting admin.
+         */
+        post: operations["create_customer_note_api_v1_admin_customers__customer_id__notes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{customer_id}/notes/{note_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Customer Note
+         * @description Delete a note (admin).
+         */
+        delete: operations["delete_customer_note_api_v1_admin_customers__customer_id__notes__note_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Customer Note
+         * @description Edit a note's text (admin).
+         */
+        patch: operations["update_customer_note_api_v1_admin_customers__customer_id__notes__note_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{customer_id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign Customer Tag
+         * @description Attach a tag to a customer (admin) — by ``tag_id`` or by ``name`` (created
+         *     if new). Idempotent; returns the customer's full tag list.
+         */
+        post: operations["assign_customer_tag_api_v1_admin_customers__customer_id__tags_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{customer_id}/tags/{tag_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Customer Tag
+         * @description Detach a tag from a customer (admin). Idempotent; returns the remaining tags.
+         */
+        delete: operations["remove_customer_tag_api_v1_admin_customers__customer_id__tags__tag_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/inventory/": {
         parameters: {
             query?: never;
@@ -1134,6 +1223,54 @@ export interface paths {
          *     neither field present is a 422 — there is nothing to do.
          */
         patch: operations["moderate_review_api_v1_admin_reviews__review_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/tags/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Tags
+         * @description List the tag vocabulary with per-tag customer usage counts (admin).
+         */
+        get: operations["list_tags_api_v1_admin_tags__get"];
+        put?: never;
+        /**
+         * Create Tag
+         * @description Create a tag (admin). 409 if the name already exists (case-insensitive).
+         */
+        post: operations["create_tag_api_v1_admin_tags__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tags/{tag_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Tag
+         * @description Delete a tag (admin). Cascades to remove it from every customer.
+         */
+        delete: operations["delete_tag_api_v1_admin_tags__tag_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Tag
+         * @description Rename / recolor a tag (admin). 409 if a rename collides with another tag.
+         */
+        patch: operations["update_tag_api_v1_admin_tags__tag_id__patch"];
         trace?: never;
     };
     "/api/v1/products/{product_id}/images": {
@@ -1901,7 +2038,7 @@ export interface components {
         };
         /**
          * CustomerDetail
-         * @description Full customer record + lockout state + lifetime metrics.
+         * @description Full customer record + lockout state + lifetime metrics + tags.
          */
         CustomerDetail: {
             /** Id */
@@ -1961,6 +2098,8 @@ export interface components {
             /** Locked Until */
             locked_until?: string | null;
             metrics: components["schemas"]["CustomerOrderMetrics"];
+            /** Tags */
+            tags?: components["schemas"]["TagChip"][];
         };
         /**
          * CustomerListItem
@@ -2001,6 +2140,13 @@ export interface components {
              * @default 0
              */
             order_count: number;
+            /**
+             * Note Count
+             * @default 0
+             */
+            note_count: number;
+            /** Tags */
+            tags?: components["schemas"]["TagChip"][];
         };
         /**
          * CustomerListResponse
@@ -2019,6 +2165,46 @@ export interface components {
             pages: number;
         };
         /**
+         * CustomerNoteCreate
+         * @description Request body for creating a note.
+         */
+        CustomerNoteCreate: {
+            /** Body */
+            body: string;
+        };
+        /**
+         * CustomerNoteResponse
+         * @description A note with author attribution for display.
+         */
+        CustomerNoteResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Body */
+            body: string;
+            /** Author Id */
+            author_id?: number | null;
+            /** Author Name */
+            author_name: string;
+        };
+        /**
+         * CustomerNoteUpdate
+         * @description Request body for editing a note's text.
+         */
+        CustomerNoteUpdate: {
+            /** Body */
+            body: string;
+        };
+        /**
          * CustomerOrderMetrics
          * @description Lifetime order aggregates for a customer.
          *
@@ -2034,6 +2220,18 @@ export interface components {
             };
             /** Last Order At */
             last_order_at?: string | null;
+        };
+        /**
+         * CustomerTagAssign
+         * @description Attach a tag to a customer — by ``tag_id`` (existing) or ``name`` (get-or-create).
+         *
+         *     Exactly one of the two must be supplied.
+         */
+        CustomerTagAssign: {
+            /** Tag Id */
+            tag_id?: number | null;
+            /** Name */
+            name?: string | null;
         };
         /**
          * EmailResend
@@ -3013,6 +3211,65 @@ export interface components {
             categories: components["schemas"]["SuggestCategoryItem"][];
             /** Query */
             query: string;
+        };
+        /**
+         * TagChip
+         * @description Minimal tag shape for chips attached to a customer (no count/timestamps).
+         */
+        TagChip: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+        };
+        /**
+         * TagCreate
+         * @description Create a tag in the shared vocabulary.
+         */
+        TagCreate: {
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+        };
+        /**
+         * TagResponse
+         * @description A tag in the vocabulary list, with its customer usage count.
+         */
+        TagResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+            /**
+             * Usage Count
+             * @default 0
+             */
+            usage_count: number;
+        };
+        /**
+         * TagUpdate
+         * @description Rename / recolor a tag. Both optional (partial PATCH).
+         */
+        TagUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Color */
+            color?: string | null;
         };
         /**
          * Token
@@ -4681,6 +4938,8 @@ export interface operations {
                 is_verified?: boolean | null;
                 /** @description Search email / first / last name */
                 search?: string | null;
+                /** @description Filter by an assigned tag */
+                tag_id?: number | null;
             };
             header?: never;
             path?: never;
@@ -4823,6 +5082,205 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GenericMessage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_customer_notes_api_v1_admin_customers__customer_id__notes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerNoteResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_customer_note_api_v1_admin_customers__customer_id__notes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerNoteCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerNoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_customer_note_api_v1_admin_customers__customer_id__notes__note_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+                note_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_customer_note_api_v1_admin_customers__customer_id__notes__note_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+                note_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerNoteUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerNoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    assign_customer_tag_api_v1_admin_customers__customer_id__tags_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerTagAssign"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagChip"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_customer_tag_api_v1_admin_customers__customer_id__tags__tag_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+                tag_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagChip"][];
                 };
             };
             /** @description Validation Error */
@@ -5101,6 +5559,123 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminReviewListItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tags_api_v1_admin_tags__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagResponse"][];
+                };
+            };
+        };
+    };
+    create_tag_api_v1_admin_tags__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TagCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_tag_api_v1_admin_tags__tag_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tag_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_tag_api_v1_admin_tags__tag_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tag_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TagUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagResponse"];
                 };
             };
             /** @description Validation Error */

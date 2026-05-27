@@ -618,6 +618,23 @@
         "disabled": "Account disabled.",
         "unlocked": "Account unlocked.",
         "resetSent": "Password reset email sent."
+      },
+      "notes": {
+        "title": "Notes",
+        "placeholder": "Add an internal note about this customer…",
+        "add": "Add note",
+        "loading": "Loading notes…",
+        "empty": "No notes yet.",
+        "edit": "Edit note",
+        "delete": "Delete note",
+        "deleteConfirm": "Delete this note?",
+        "save": "Save",
+        "cancel": "Cancel",
+        "flashes": {
+          "added": "Note added.",
+          "updated": "Note updated.",
+          "deleted": "Note deleted."
+        }
       }
     }
   },

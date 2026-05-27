@@ -619,6 +619,23 @@
         "disabled": "Konto wyłączone.",
         "unlocked": "Konto odblokowane.",
         "resetSent": "Wysłano e-mail resetujący hasło."
+      },
+      "notes": {
+        "title": "Notatki",
+        "placeholder": "Dodaj wewnętrzną notatkę o tym kliencie…",
+        "add": "Dodaj notatkę",
+        "loading": "Ładowanie notatek…",
+        "empty": "Brak notatek.",
+        "edit": "Edytuj notatkę",
+        "delete": "Usuń notatkę",
+        "deleteConfirm": "Usunąć tę notatkę?",
+        "save": "Zapisz",
+        "cancel": "Anuluj",
+        "flashes": {
+          "added": "Dodano notatkę.",
+          "updated": "Zaktualizowano notatkę.",
+          "deleted": "Usunięto notatkę."
+        }
       }
     }
   },
