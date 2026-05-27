@@ -1124,7 +1124,10 @@ export interface paths {
         };
         /**
          * List Product Reviews
-         * @description Public: approved reviews for a product (newest first) + the rating summary.
+         * @description Public: approved reviews for a product + the rating summary.
+         *
+         *     ``sort_by`` is whitelisted to ``newest`` (default) or ``helpful``; FastAPI 422s
+         *     anything else, so the value is never interpolated into the ordering.
          */
         get: operations["list_product_reviews_api_v1_products__product_id__reviews_get"];
         put?: never;
@@ -1196,6 +1199,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/products/{product_id}/reviews/my-votes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Review Votes
+         * @description Authenticated: which of this product's reviews the caller voted helpful on.
+         *
+         *     Drives the pressed state of the helpful buttons on the PDP. Client-only on the
+         *     storefront (like ``/reviews/me``) so the SSR render stays unauthenticated.
+         */
+        get: operations["get_my_review_votes_api_v1_products__product_id__reviews_my_votes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/reviews/{review_id}/vote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Vote Review Helpful
+         * @description Authenticated: mark a review as helpful (idempotent set).
+         *
+         *     404 if the review is missing / unapproved / not under this product; 403 on the
+         *     caller's own review (self-votes are disallowed). Re-voting is a no-op. Returns
+         *     the review's new helpful count + the caller's resulting vote state so the
+         *     frontend can reconcile its optimistic toggle without a refetch.
+         */
+        put: operations["vote_review_helpful_api_v1_products__product_id__reviews__review_id__vote_put"];
+        post?: never;
+        /**
+         * Unvote Review Helpful
+         * @description Authenticated: withdraw a previous helpful vote (idempotent).
+         *
+         *     Returns the review's new helpful count + ``my_vote=False`` (rather than a bare
+         *     204) so the storefront can snap its displayed tally to the authoritative value,
+         *     which may have shifted from other shoppers' concurrent votes. Un-voting when no
+         *     vote exists is a no-op.
+         */
+        delete: operations["unvote_review_helpful_api_v1_products__product_id__reviews__review_id__vote_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1238,6 +1298,8 @@ export interface components {
             status: components["schemas"]["ReviewStatus"];
             /** Is Verified Purchase */
             is_verified_purchase: boolean;
+            /** Helpful Count */
+            helpful_count: number;
             /** Admin Response */
             admin_response?: string | null;
             /** Admin Response At */
@@ -2025,6 +2087,18 @@ export interface components {
             pages: number;
         };
         /**
+         * MyVotesResponse
+         * @description The reviews the caller has voted "helpful" on for a given product.
+         *
+         *     Drives the pressed state of the helpful button across a PDP's review list.
+         *     Client-only on the storefront (mirrors ``GET /reviews/me``) so SSR stays
+         *     unauthenticated.
+         */
+        MyVotesResponse: {
+            /** Voted Review Ids */
+            voted_review_ids: number[];
+        };
+        /**
          * OrderCreate
          * @description Schema for creating an order
          */
@@ -2648,6 +2722,8 @@ export interface components {
             is_verified_purchase: boolean;
             /** Author Name */
             author_name: string;
+            /** Helpful Count */
+            helpful_count: number;
             /** Admin Response */
             admin_response?: string | null;
             /** Admin Response At */
@@ -2674,6 +2750,21 @@ export interface components {
             title?: string | null;
             /** Body */
             body?: string | null;
+        };
+        /**
+         * ReviewVoteResponse
+         * @description Returned after casting/withdrawing a helpful vote.
+         *
+         *     Carries the review's new ``helpful_count`` plus the caller's resulting state
+         *     so the frontend can reconcile its optimistic toggle without a refetch.
+         */
+        ReviewVoteResponse: {
+            /** Review Id */
+            review_id: number;
+            /** Helpful Count */
+            helpful_count: number;
+            /** My Vote */
+            my_vote: boolean;
         };
         /**
          * StockAdjustRequest
@@ -4807,6 +4898,8 @@ export interface operations {
             query?: {
                 page?: number;
                 page_size?: number;
+                /** @description Sort by recency (newest) or helpful-vote count (helpful) */
+                sort_by?: "newest" | "helpful";
             };
             header?: never;
             path: {
@@ -4985,6 +5078,101 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_review_votes_api_v1_products__product_id__reviews_my_votes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyVotesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    vote_review_helpful_api_v1_products__product_id__reviews__review_id__vote_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+                review_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewVoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unvote_review_helpful_api_v1_products__product_id__reviews__review_id__vote_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+                review_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewVoteResponse"];
+                };
             };
             /** @description Validation Error */
             422: {
