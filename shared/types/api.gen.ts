@@ -1062,7 +1062,11 @@ export interface paths {
         head?: never;
         /**
          * Moderate Review
-         * @description Approve or reject a review (admin). Audited.
+         * @description Moderate a review and/or set the store's public reply (admin). Audited.
+         *
+         *     Both fields are optional: send ``status`` to approve/reject, send
+         *     ``admin_response`` to attach a public reply (``null`` clears it). A body with
+         *     neither field present is a 422 — there is nothing to do.
          */
         patch: operations["moderate_review_api_v1_admin_reviews__review_id__patch"];
         trace?: never;
@@ -1168,7 +1172,11 @@ export interface paths {
         };
         /**
          * Get My Product Review
-         * @description Authenticated: the caller's own review for a product (any status), or 404.
+         * @description Authenticated: the caller's own review for a product (any status).
+         *
+         *     Returns ``200`` with ``null`` when the caller hasn't reviewed this product
+         *     yet — "no review" is an expected state on every PDP, not an error, so the
+         *     frontend reads it without treating a 404 as a console error.
          */
         get: operations["get_my_product_review_api_v1_products__product_id__reviews_me_get"];
         /**
@@ -1230,6 +1238,10 @@ export interface components {
             status: components["schemas"]["ReviewStatus"];
             /** Is Verified Purchase */
             is_verified_purchase: boolean;
+            /** Admin Response */
+            admin_response?: string | null;
+            /** Admin Response At */
+            admin_response_at?: string | null;
         };
         /**
          * AdminReviewListResponse
@@ -2590,17 +2602,19 @@ export interface components {
         };
         /**
          * ReviewModerate
-         * @description Admin PATCH body — approve or reject a review.
+         * @description Admin PATCH body — approve/reject and/or set/clear the store's reply.
          *
-         *     ``pending`` is intentionally not accepted: moderation is a forward decision,
-         *     not a way to un-decide. Re-opening would be a separate explicit action.
+         *     Both fields are optional and independent: send ``status`` to moderate, send
+         *     ``admin_response`` to attach a public reply (``null`` clears it, and the
+         *     server stamps/un-stamps ``admin_response_at``). The route 422s a body with
+         *     neither field set. ``pending`` is intentionally not an accepted status:
+         *     moderation is a forward decision, not a way to un-decide.
          */
         ReviewModerate: {
-            /**
-             * Status
-             * @enum {string}
-             */
-            status: "approved" | "rejected";
+            /** Status */
+            status?: ("approved" | "rejected") | null;
+            /** Admin Response */
+            admin_response?: string | null;
         };
         /**
          * ReviewResponse
@@ -2634,6 +2648,10 @@ export interface components {
             is_verified_purchase: boolean;
             /** Author Name */
             author_name: string;
+            /** Admin Response */
+            admin_response?: string | null;
+            /** Admin Response At */
+            admin_response_at?: string | null;
         };
         /**
          * ReviewStatus
@@ -4901,7 +4919,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReviewResponse"];
+                    "application/json": components["schemas"]["ReviewResponse"] | null;
                 };
             };
             /** @description Validation Error */

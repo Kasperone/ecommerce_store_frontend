@@ -71,6 +71,13 @@ function click(text: string) {
   button(text)?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 }
 
+function setReply(value: string) {
+  const ta = document.querySelector('textarea') as HTMLTextAreaElement | null
+  if (!ta) throw new Error('reply textarea not found')
+  ta.value = value
+  ta.dispatchEvent(new Event('input', { bubbles: true }))
+}
+
 describe('ReviewModerationDialog', () => {
   it('renders the review body, title, author and product', async () => {
     await mountSuspended(ReviewModerationDialog, {
@@ -124,6 +131,40 @@ describe('ReviewModerationDialog', () => {
     await new Promise(r => setTimeout(r, 0))
     expect(deleteMutate).toHaveBeenCalledWith(7)
     expect(toastAdd).toHaveBeenCalled()
+  })
+
+  it('saves a typed store reply (admin_response only)', async () => {
+    const wrapper = await mountSuspended(ReviewModerationDialog, {
+      props: { open: true, review: baseReview() },
+    })
+    setReply('Glad you enjoyed it!')
+    await new Promise(r => setTimeout(r, 0))
+    click('Save reply')
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(moderateMutate).toHaveBeenCalledWith({ id: 7, adminResponse: 'Glad you enjoyed it!' })
+    expect(toastAdd).toHaveBeenCalled()
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+  })
+
+  it('prefills an existing reply and offers Remove reply', async () => {
+    await mountSuspended(ReviewModerationDialog, {
+      props: { open: true, review: baseReview({ admin_response: 'Earlier reply' }) },
+    })
+    const ta = document.querySelector('textarea') as HTMLTextAreaElement
+    expect(ta.value).toBe('Earlier reply')
+
+    click('Remove reply')
+    await new Promise(r => setTimeout(r, 0))
+    expect(moderateMutate).toHaveBeenCalledWith({ id: 7, adminResponse: null })
+  })
+
+  it('hides Remove reply when there is no existing reply', async () => {
+    await mountSuspended(ReviewModerationDialog, {
+      props: { open: true, review: baseReview() },
+    })
+    expect(button('Remove reply')).toBeUndefined()
+    expect(button('Save reply')).toBeTruthy()
   })
 
   it('shows an error alert and no toast when moderation fails', async () => {

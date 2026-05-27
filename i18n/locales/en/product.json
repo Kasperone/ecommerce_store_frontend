@@ -66,6 +66,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "verified": "Verified purchase",
+    "storeResponse": "Store response",
     "pendingNote": "Your review is awaiting moderation and isn't public yet.",
     "status": {
       "pending": "Awaiting moderation",

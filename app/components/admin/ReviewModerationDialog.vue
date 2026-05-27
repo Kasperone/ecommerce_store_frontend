@@ -17,8 +17,11 @@ const toast = useToast()
 const moderate = useModerateReview()
 const removeReview = useDeleteReview()
 
+const REPLY_MAX = 2000
+
 const error = ref<ProblemDetails | null>(null)
 const confirmingDelete = ref(false)
+const replyText = ref('')
 
 const moderating = computed(() => moderate.isLoading.value)
 const deleting = computed(() => removeReview.isLoading.value)
@@ -29,15 +32,18 @@ const openModel = computed({
   set: value => emit('update:open', value),
 })
 
-// Reset transient state each time the dialog opens for a (possibly different) row.
+// Reset transient state each time the dialog opens for a (possibly different)
+// row. `immediate` so a dialog mounted already-open still prefills the reply.
 watch(
   () => props.open,
   (isOpen) => {
     if (isOpen) {
       error.value = null
       confirmingDelete.value = false
+      replyText.value = props.review?.admin_response ?? ''
     }
   },
+  { immediate: true },
 )
 
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' })
@@ -57,6 +63,31 @@ async function setStatus(status: 'approved' | 'rejected') {
   catch (err) {
     error.value = parseProblem(err)
   }
+}
+
+// Save (or clear, when empty) the store's public reply. Shares the moderate
+// mutation/endpoint; only the admin_response key is sent.
+async function saveReply() {
+  if (!props.review) return
+  error.value = null
+  const trimmed = replyText.value.trim()
+  try {
+    await moderate.mutateAsync({ id: props.review.id, adminResponse: trimmed || null })
+    toast.add({
+      title: t(trimmed ? 'admin.reviews.flashes.replySaved' : 'admin.reviews.flashes.replyCleared'),
+      color: 'success',
+      icon: 'i-lucide-message-square',
+    })
+    openModel.value = false
+  }
+  catch (err) {
+    error.value = parseProblem(err)
+  }
+}
+
+async function clearReply() {
+  replyText.value = ''
+  await saveReply()
 }
 
 // First click arms the confirm; second click deletes.
@@ -148,6 +179,46 @@ async function onDelete() {
           </dt>
           <dd>{{ dateFmt.format(new Date(review.created_at)) }}</dd>
         </dl>
+
+        <div class="pt-3 border-t border-default">
+          <UFormField
+            :label="t('admin.reviews.reply.label')"
+            :description="t('admin.reviews.reply.hint')"
+            name="adminResponse"
+          >
+            <UTextarea
+              v-model="replyText"
+              :rows="3"
+              :maxlength="REPLY_MAX"
+              :placeholder="t('admin.reviews.reply.placeholder')"
+              :disabled="busy"
+              class="w-full"
+            />
+          </UFormField>
+          <div class="flex gap-2 mt-2">
+            <UButton
+              color="primary"
+              variant="soft"
+              size="sm"
+              icon="i-lucide-message-square"
+              :loading="moderating"
+              :disabled="deleting"
+              @click="saveReply"
+            >
+              {{ $t('admin.reviews.reply.save') }}
+            </UButton>
+            <UButton
+              v-if="review.admin_response"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :disabled="busy"
+              @click="clearReply"
+            >
+              {{ $t('admin.reviews.reply.clear') }}
+            </UButton>
+          </div>
+        </div>
       </div>
     </template>
 

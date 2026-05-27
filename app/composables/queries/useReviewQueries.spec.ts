@@ -77,19 +77,43 @@ describe('useReviewsQuery', () => {
 })
 
 describe('useModerateReview', () => {
-  it('PATCHes /api/v1/admin/reviews/{id} with the new status', async () => {
+  type Moderate = {
+    mutateAsync: (v: { id: number, status?: string, adminResponse?: string | null }) => Promise<unknown>
+  }
+
+  it('PATCHes /api/v1/admin/reviews/{id} with the new status (no reply key)', async () => {
     apiFetch.mockResolvedValue({ id: 5, status: 'approved' })
     const { useModerateReview } = await import('./useReviewQueries')
 
-    const result = (await runInComponent(() => useModerateReview())) as {
-      mutateAsync: (v: { id: number, status: string }) => Promise<unknown>
-    }
+    const result = (await runInComponent(() => useModerateReview())) as Moderate
     await result.mutateAsync({ id: 5, status: 'approved' })
 
     const [url, options] = apiFetch.mock.calls[0]
     expect(url).toBe('/api/v1/admin/reviews/5')
     expect(options.method).toBe('PATCH')
-    expect(options.body).toMatchObject({ status: 'approved' })
+    expect(options.body).toEqual({ status: 'approved' })
+  })
+
+  it('sends only admin_response for a reply-only PATCH', async () => {
+    apiFetch.mockResolvedValue({ id: 5 })
+    const { useModerateReview } = await import('./useReviewQueries')
+
+    const result = (await runInComponent(() => useModerateReview())) as Moderate
+    await result.mutateAsync({ id: 5, adminResponse: 'Thanks for the feedback!' })
+
+    const options = apiFetch.mock.calls[0]?.[1]
+    expect(options.body).toEqual({ admin_response: 'Thanks for the feedback!' })
+  })
+
+  it('sends admin_response: null to clear a reply', async () => {
+    apiFetch.mockResolvedValue({ id: 5 })
+    const { useModerateReview } = await import('./useReviewQueries')
+
+    const result = (await runInComponent(() => useModerateReview())) as Moderate
+    await result.mutateAsync({ id: 5, adminResponse: null })
+
+    const options = apiFetch.mock.calls[0]?.[1]
+    expect(options.body).toEqual({ admin_response: null })
   })
 })
 

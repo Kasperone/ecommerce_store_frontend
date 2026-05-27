@@ -26,6 +26,12 @@ describe('useMyReview', () => {
     expect(apiFetch).toHaveBeenCalledWith('/api/v1/products/7/reviews/me')
   })
 
+  it('fetchMine returns null when the customer has no review (200 + null)', async () => {
+    apiFetch.mockResolvedValue(null)
+    const { useMyReview } = await import('./useMyReview')
+    expect(await useMyReview().fetchMine(7)).toBeNull()
+  })
+
   it('create POSTs /products/{id}/reviews with the body', async () => {
     const { useMyReview } = await import('./useMyReview')
     await useMyReview().create(7, { rating: 5, title: 'Nice', body: 'Works great.' })
