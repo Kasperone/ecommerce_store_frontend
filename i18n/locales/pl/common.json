@@ -207,10 +207,19 @@
       "dialog": {
         "title": "Moderacja opinii"
       },
+      "reply": {
+        "label": "Odpowiedź sklepu",
+        "hint": "Wyświetlana publicznie pod tą opinią po jej zatwierdzeniu.",
+        "placeholder": "Napisz publiczną odpowiedź na tę opinię…",
+        "save": "Zapisz odpowiedź",
+        "clear": "Usuń odpowiedź"
+      },
       "flashes": {
         "approved": "Opinia zatwierdzona.",
         "rejected": "Opinia odrzucona.",
-        "deleted": "Opinia usunięta."
+        "deleted": "Opinia usunięta.",
+        "replySaved": "Odpowiedź zapisana.",
+        "replyCleared": "Odpowiedź usunięta."
       }
     },
     "categories": {

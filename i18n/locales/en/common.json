@@ -206,10 +206,19 @@
       "dialog": {
         "title": "Moderate review"
       },
+      "reply": {
+        "label": "Store response",
+        "hint": "Shown publicly under this review once it's approved.",
+        "placeholder": "Write a public reply to this review…",
+        "save": "Save reply",
+        "clear": "Remove reply"
+      },
       "flashes": {
         "approved": "Review approved.",
         "rejected": "Review rejected.",
-        "deleted": "Review deleted."
+        "deleted": "Review deleted.",
+        "replySaved": "Reply saved.",
+        "replyCleared": "Reply removed."
       }
     },
     "categories": {

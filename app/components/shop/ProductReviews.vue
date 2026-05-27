@@ -45,10 +45,10 @@ async function loadOwn() {
     return
   }
   try {
-    own.value = await myReview.fetchMine(props.productId)
+    own.value = await myReview.fetchMine(props.productId) // null → no review yet
   }
   catch {
-    own.value = null // 404 → no review yet
+    own.value = null
   }
   finally {
     ownLoaded.value = true
@@ -230,6 +230,17 @@ function starsLabel(rating: number) {
           <p class="mt-1 whitespace-pre-line text-sm text-muted">
             {{ own.body }}
           </p>
+          <div
+            v-if="own.admin_response"
+            class="mt-3 rounded-md bg-elevated p-3"
+          >
+            <p class="text-xs font-semibold">
+              {{ t('reviews.storeResponse') }}
+            </p>
+            <p class="mt-1 whitespace-pre-line text-sm text-muted">
+              {{ own.admin_response }}
+            </p>
+          </div>
           <p
             v-if="own.status === 'pending'"
             class="mt-2 text-xs text-muted"
@@ -364,6 +375,17 @@ function starsLabel(rating: number) {
         <p class="mt-1 whitespace-pre-line text-sm text-muted">
           {{ review.body }}
         </p>
+        <div
+          v-if="review.admin_response"
+          class="mt-3 rounded-md bg-elevated p-3"
+        >
+          <p class="text-xs font-semibold">
+            {{ t('reviews.storeResponse') }}
+          </p>
+          <p class="mt-1 whitespace-pre-line text-sm text-muted">
+            {{ review.admin_response }}
+          </p>
+        </div>
       </li>
     </ul>
 
