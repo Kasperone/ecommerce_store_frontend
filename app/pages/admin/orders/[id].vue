@@ -298,14 +298,20 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
                 {{ $t('admin.orders.actions.cancel') }}
               </UButton>
               <span v-else />
-              <UButton
-                color="primary"
-                icon="i-lucide-save"
-                :loading="updateMutation.isLoading.value"
-                @click="onSave"
-              >
-                {{ $t('admin.orders.actions.save') }}
-              </UButton>
+              <div class="flex items-center gap-2">
+                <OrdersInvoiceDownloadButton
+                  :order-id="order.id"
+                  :order-number="order.order_number"
+                />
+                <UButton
+                  color="primary"
+                  icon="i-lucide-save"
+                  :loading="updateMutation.isLoading.value"
+                  @click="onSave"
+                >
+                  {{ $t('admin.orders.actions.save') }}
+                </UButton>
+              </div>
             </div>
           </template>
         </UCard>
