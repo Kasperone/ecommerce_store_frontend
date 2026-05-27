@@ -54,6 +54,44 @@
     "empty": "Brak produktów w tej kategorii.",
     "loadError": "Nie udało się załadować kategorii."
   },
+  "reviews": {
+    "heading": "Opinie klientów",
+    "basedOn": "Brak opinii | {count} opinia | {count} opinii",
+    "starsShort": "{count} ★",
+    "starsLabel": "{rating} na 5 gwiazdek",
+    "empty": "Brak opinii. Dodaj pierwszą opinię o tym produkcie.",
+    "loginToWrite": "Zaloguj się, aby dodać opinię",
+    "writeReview": "Dodaj opinię",
+    "yourReview": "Twoja opinia",
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "verified": "Zakup potwierdzony",
+    "pendingNote": "Twoja opinia czeka na moderację i nie jest jeszcze widoczna publicznie.",
+    "status": {
+      "pending": "Oczekuje na moderację",
+      "approved": "Opublikowana",
+      "rejected": "Nieopublikowana"
+    },
+    "form": {
+      "ratingLabel": "Twoja ocena",
+      "rate": "Oceń na {count} gwiazdek",
+      "titleLabel": "Tytuł (opcjonalnie)",
+      "titlePlaceholder": "Podsumuj w kilku słowach",
+      "bodyLabel": "Twoja opinia",
+      "bodyPlaceholder": "Co Ci się podobało lub nie podobało?",
+      "submit": "Wyślij opinię",
+      "cancel": "Anuluj",
+      "successPending": "Dziękujemy! Twoja opinia czeka na moderację.",
+      "errors": {
+        "ratingRequired": "Wybierz ocenę",
+        "ratingRange": "Ocena musi być od 1 do 5",
+        "titleTooLong": "Tytuł może mieć maksymalnie 200 znaków",
+        "bodyRequired": "Napisz swoją opinię",
+        "bodyTooShort": "Opinia musi mieć co najmniej 10 znaków",
+        "bodyTooLong": "Opinia może mieć maksymalnie 5000 znaków"
+      }
+    }
+  },
   "currency": {
     "label": "Waluta",
     "select": "Wybierz walutę"

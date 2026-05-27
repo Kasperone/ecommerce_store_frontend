@@ -15,6 +15,7 @@ import type {
   CategoryWithProductCount,
   ProductResponse,
   ProductWithCategory,
+  PublicReviewListResponse,
 } from '#shared/types/api'
 
 export type CatalogSort = 'newest' | 'priceAsc' | 'priceDesc' | 'nameAsc'
@@ -84,6 +85,26 @@ export function useProductDetail(slug: string) {
   return useAsyncData(
     `storefront-product-${slug}`,
     () => apiFetch<ProductWithCategory>(`/api/v1/products/slug/${encodeURIComponent(slug)}`),
+  )
+}
+
+/**
+ * Public (approved-only) reviews + rating summary for a product, paginated.
+ * SSR-fetched so reviews are crawlable and feed the PDP. Refetches on page change.
+ */
+export function useProductReviews(
+  productId: number,
+  page: MaybeRefOrGetter<number> = 1,
+  pageSize = 10,
+) {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    `storefront-product-reviews-${productId}`,
+    () =>
+      apiFetch<PublicReviewListResponse>(`/api/v1/products/${productId}/reviews`, {
+        query: { page: toValue(page), page_size: pageSize },
+      }),
+    { watch: [() => toValue(page)] },
   )
 }
 

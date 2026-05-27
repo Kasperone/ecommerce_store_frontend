@@ -131,6 +131,8 @@ const categoryTo = computed(() =>
           </div>
         </div>
       </div>
+
+      <ShopProductReviews :product-id="product.id" />
     </div>
   </NuxtLayout>
 </template>
