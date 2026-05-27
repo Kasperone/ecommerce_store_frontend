@@ -14,7 +14,21 @@ const { t } = useI18n()
 useHead({ title: () => t('admin.auditLog.title') })
 
 const filterSchema = z.object({
-  resourceType: z.enum(['all', 'product', 'category', 'order', 'customer', 'inventory']).optional(),
+  resourceType: z
+    .enum([
+      'all',
+      'product',
+      'product_image',
+      'category',
+      'order',
+      'customer',
+      'customer_note',
+      'customer_tag',
+      'tag',
+      'inventory',
+      'review',
+    ])
+    .optional(),
   action: z.enum(['all', 'create', 'update', 'delete']).optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),
@@ -54,7 +68,19 @@ const hasFilter = computed(() => resourceFilter.value !== 'all' || actionFilter.
 
 const resourceOptions = computed(() => [
   { label: t('admin.auditLog.filters.allResources'), value: 'all' },
-  ...(['product', 'category', 'order', 'customer', 'inventory'] as const).map(r => ({
+  // Mirrors the AuditResourceType union + the backend's recorded resource_type strings.
+  ...([
+    'product',
+    'product_image',
+    'category',
+    'order',
+    'customer',
+    'customer_note',
+    'customer_tag',
+    'tag',
+    'inventory',
+    'review',
+  ] as const).map(r => ({
     label: t(`admin.auditLog.resources.${r}`),
     value: r,
   })),

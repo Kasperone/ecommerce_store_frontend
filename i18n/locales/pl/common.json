@@ -149,10 +149,15 @@
       },
       "resources": {
         "product": "Produkt",
+        "product_image": "Zdjęcie produktu",
         "category": "Kategoria",
         "order": "Zamówienie",
         "customer": "Klient",
-        "inventory": "Magazyn"
+        "customer_note": "Notatka klienta",
+        "customer_tag": "Tag klienta",
+        "tag": "Tag",
+        "inventory": "Magazyn",
+        "review": "Opinia"
       },
       "empty": {
         "noResults": "Brak zdarzeń pasujących do filtra.",
