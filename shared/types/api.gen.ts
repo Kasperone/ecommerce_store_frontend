@@ -848,6 +848,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Products
+         * @description Faceted product search. 503 when Meilisearch is unconfigured.
+         */
+        get: operations["search_products_api_v1_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Suggest
+         * @description Mixed autocomplete: product hits + category shortcuts via one multi-search.
+         *
+         *     503 when Meilisearch is unconfigured.
+         */
+        get: operations["suggest_api_v1_search_suggest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/customers/": {
         parameters: {
             query?: never;
@@ -1987,6 +2029,18 @@ export interface components {
             token: string;
         };
         /**
+         * FacetBucket
+         * @description One bucket of a facet distribution (value + human label + match count).
+         */
+        FacetBucket: {
+            /** Value */
+            value: string;
+            /** Label */
+            label?: string | null;
+            /** Count */
+            count: number;
+        };
+        /**
          * GenericMessage
          * @description Generic single-message response (used where revealing detail would leak info).
          */
@@ -2380,6 +2434,10 @@ export interface components {
             description?: string | null;
             /** Sku */
             sku?: string | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
             /** Price Usd */
             price_usd?: number | null;
             /** Price Pln */
@@ -2509,6 +2567,10 @@ export interface components {
             description?: string | null;
             /** Sku */
             sku?: string | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
             /** Price Usd */
             price_usd?: number | null;
             /** Price Pln */
@@ -2569,6 +2631,10 @@ export interface components {
             description?: string | null;
             /** Sku */
             sku?: string | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
             /** Price Usd */
             price_usd?: number | null;
             /** Price Pln */
@@ -2611,6 +2677,10 @@ export interface components {
             description?: string | null;
             /** Sku */
             sku?: string | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
             /** Price Usd */
             price_usd?: number | null;
             /** Price Pln */
@@ -2767,6 +2837,65 @@ export interface components {
             my_vote: boolean;
         };
         /**
+         * SearchResponse
+         * @description Paginated, faceted product search results.
+         */
+        SearchResponse: {
+            /** Items */
+            items: components["schemas"]["SearchResultItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+            /** Facets */
+            facets: {
+                [key: string]: components["schemas"]["FacetBucket"][];
+            };
+            /** Query */
+            query: string;
+            /** Processing Time Ms */
+            processing_time_ms: number;
+        };
+        /**
+         * SearchResultItem
+         * @description One product hit on the faceted results page.
+         */
+        SearchResultItem: {
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Name Highlight */
+            name_highlight: string;
+            /** Description */
+            description?: string | null;
+            /** Sku */
+            sku?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * In Stock
+             * @default false
+             */
+            in_stock: boolean;
+            /** Category Id */
+            category_id?: number | null;
+            /** Category Name */
+            category_name?: string | null;
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+        };
+        /**
          * StockAdjustRequest
          * @description Manual stock adjustment body.
          *
@@ -2810,6 +2939,57 @@ export interface components {
         StripePaymentIntentResponse: {
             /** Client Secret */
             client_secret: string;
+        };
+        /**
+         * SuggestCategoryItem
+         * @description A category shortcut in the autocomplete dropdown.
+         */
+        SuggestCategoryItem: {
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * SuggestProductItem
+         * @description A product hit in the autocomplete dropdown.
+         */
+        SuggestProductItem: {
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Name Highlight */
+            name_highlight: string;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * In Stock
+             * @default false
+             */
+            in_stock: boolean;
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+        };
+        /**
+         * SuggestResponse
+         * @description Mixed autocomplete results: product hits + category shortcuts.
+         */
+        SuggestResponse: {
+            /** Products */
+            products: components["schemas"]["SuggestProductItem"][];
+            /** Categories */
+            categories: components["schemas"]["SuggestCategoryItem"][];
+            /** Query */
+            query: string;
         };
         /**
          * Token
@@ -4342,6 +4522,90 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    search_products_api_v1_search_get: {
+        parameters: {
+            query?: {
+                /** @description Search query */
+                q?: string;
+                /** @description Locale for localized fields */
+                locale?: "en" | "pl";
+                /** @description Currency for price filter/sort */
+                currency?: "USD" | "PLN" | "EUR";
+                /** @description Filter by category */
+                category_id?: number | null;
+                /** @description Min price (selected currency) */
+                min_price?: number | null;
+                /** @description Max price (selected currency) */
+                max_price?: number | null;
+                /** @description Filter by stock availability */
+                in_stock?: boolean | null;
+                /** @description Sort order */
+                sort?: "relevance" | "price_asc" | "price_desc" | "name";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suggest_api_v1_search_suggest_get: {
+        parameters: {
+            query: {
+                /** @description Search query */
+                q: string;
+                /** @description Locale for localized fields */
+                locale?: "en" | "pl";
+                /** @description Max hits per section */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

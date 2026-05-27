@@ -2,15 +2,17 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ProductResponse, ProductWithCategory } from '#shared/types/api'
+import { localizedProductName } from '#shared/utils/localizedProduct'
 
 const props = defineProps<{
   product: ProductResponse | ProductWithCategory
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 
 const to = computed(() => localePath(`/products/${props.product.slug}`))
+const displayName = computed(() => localizedProductName(props.product, locale.value))
 
 const primaryImage = computed(() => {
   const images = props.product.images ?? []
@@ -25,13 +27,13 @@ const outOfStock = computed(() => props.product.stock <= 0)
     <NuxtLink
       :to="to"
       class="block"
-      :aria-label="product.name"
+      :aria-label="displayName"
     >
       <div class="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
         <img
           v-if="primaryImage"
           :src="primaryImage.url"
-          :alt="primaryImage.alt_text ?? product.name"
+          :alt="primaryImage.alt_text ?? displayName"
           class="h-full w-full object-cover transition-transform group-hover:scale-105"
           loading="lazy"
         >
@@ -60,7 +62,7 @@ const outOfStock = computed(() => props.product.stock <= 0)
         :to="to"
         class="font-medium hover:text-primary line-clamp-2"
       >
-        {{ product.name }}
+        {{ displayName }}
       </NuxtLink>
       <ShopPriceDisplay :product="product" />
       <div class="mt-auto pt-2">

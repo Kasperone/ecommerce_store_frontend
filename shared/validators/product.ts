@@ -33,7 +33,9 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
       .min(1, { error: t('admin.products.errors.slugRequired', { default: 'Slug is required' }) })
       .max(200, { error: t('admin.products.errors.slugTooLong', { default: 'Slug must be 200 characters or fewer' }) })
       .regex(SLUG_PATTERN, { error: t('admin.products.errors.slugFormat', { default: 'Slug must be lowercase letters, numbers, and hyphens' }) }),
+    name_pl: z.string().max(200, { error: t('admin.products.errors.nameTooLong', { default: 'Name must be 200 characters or fewer' }) }).optional().nullable(),
     description: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
+    description_pl: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
     sku: z.string().max(100, { error: t('admin.products.errors.skuTooLong', { default: 'SKU must be 100 characters or fewer' }) }).optional().nullable(),
     price_usd: _price(t).nullable().optional(),
     price_pln: _price(t).nullable().optional(),
@@ -76,7 +78,9 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
       .max(200, { error: t('admin.products.errors.slugTooLong', { default: 'Slug must be 200 characters or fewer' }) })
       .regex(SLUG_PATTERN, { error: t('admin.products.errors.slugFormat', { default: 'Slug must be lowercase letters, numbers, and hyphens' }) })
       .optional(),
+    name_pl: z.string().max(200, { error: t('admin.products.errors.nameTooLong', { default: 'Name must be 200 characters or fewer' }) }).optional().nullable(),
     description: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
+    description_pl: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
     sku: z.string().max(100, { error: t('admin.products.errors.skuTooLong', { default: 'SKU must be 100 characters or fewer' }) }).optional().nullable(),
     price_usd: _price(t).nullable().optional(),
     price_pln: _price(t).nullable().optional(),

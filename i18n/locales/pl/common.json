@@ -349,17 +349,24 @@
         "pricing": "Ceny i stan",
         "media": "Multimedia"
       },
+      "tabs": {
+        "en": "Angielski",
+        "pl": "Polski"
+      },
       "hints": {
         "slug": "Małe litery, cyfry i myślniki",
         "sku": "Opcjonalny identyfikator wewnętrzny",
         "category": "Wybierz kategorię katalogu, do której należy produkt",
-        "currency": "Wymagana co najmniej jedna cena. Ustaw ceny dla rynków, na których produkt ma być sprzedawany."
+        "currency": "Wymagana co najmniej jedna cena. Ustaw ceny dla rynków, na których produkt ma być sprzedawany.",
+        "localeOptional": "Opcjonalne — w razie braku użyje wersji angielskiej"
       },
       "placeholders": {
         "name": "Encyklopedia herbaty",
         "slug": "encyklopedia-herbaty",
         "description": "Opcjonalny opis",
-        "sku": "ENCY-TEA-001"
+        "sku": "ENCY-TEA-001",
+        "namePl": "Encyklopedia herbaty",
+        "descriptionPl": "Opcjonalny opis"
       },
       "flashes": {
         "created": "Produkt utworzony.",
