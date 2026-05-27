@@ -54,6 +54,44 @@
     "empty": "No products in this category yet.",
     "loadError": "We couldn't load this category."
   },
+  "reviews": {
+    "heading": "Customer reviews",
+    "basedOn": "No reviews yet | {count} review | {count} reviews",
+    "starsShort": "{count} ★",
+    "starsLabel": "{rating} out of 5 stars",
+    "empty": "No reviews yet. Be the first to review this product.",
+    "loginToWrite": "Log in to write a review",
+    "writeReview": "Write a review",
+    "yourReview": "Your review",
+    "edit": "Edit",
+    "delete": "Delete",
+    "verified": "Verified purchase",
+    "pendingNote": "Your review is awaiting moderation and isn't public yet.",
+    "status": {
+      "pending": "Awaiting moderation",
+      "approved": "Published",
+      "rejected": "Not published"
+    },
+    "form": {
+      "ratingLabel": "Your rating",
+      "rate": "Rate {count} stars",
+      "titleLabel": "Title (optional)",
+      "titlePlaceholder": "Sum it up in a few words",
+      "bodyLabel": "Your review",
+      "bodyPlaceholder": "What did you like or dislike?",
+      "submit": "Submit review",
+      "cancel": "Cancel",
+      "successPending": "Thanks! Your review is awaiting moderation.",
+      "errors": {
+        "ratingRequired": "Please select a rating",
+        "ratingRange": "Rating must be between 1 and 5",
+        "titleTooLong": "Title must be 200 characters or fewer",
+        "bodyRequired": "Please write your review",
+        "bodyTooShort": "Review must be at least 10 characters",
+        "bodyTooLong": "Review must be 5000 characters or fewer"
+      }
+    }
+  },
   "currency": {
     "label": "Currency",
     "select": "Select currency"
