@@ -225,35 +225,56 @@ jobs:
           docker logs backend || true
           exit 1
 
-      # Cache the browser binaries (keyed on the Playwright version) so most runs
-      # skip the ~120 MB Chromium download entirely — the download is what stalls
-      # on a transient Playwright-CDN/runner hiccup.
+      # Browser binaries are cached (keyed on the Playwright version) so most runs
+      # skip the ~170 MB Chromium download entirely. We split restore/save (rather
+      # than the combined cache action) so a *failed* install never saves a partial
+      # browser dir — otherwise the next run restores a broken browser and e2e fails.
       - name: Resolve Playwright version
         id: pw
         run: echo "version=$(npx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
+      - name: Restore Playwright browser cache
+        id: pw-cache
+        uses: actions/cache/restore@v4
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.pw.outputs.version }}
 
-      # Per-attempt `timeout` (not just a step-level one) so a hung download is
-      # killed and *retried* within the same run instead of hanging the job until
-      # the 6 h ceiling. On a cache hit `--with-deps` skips the download (only apt
-      # runs), so this is fast. `timeout-minutes` is a backstop for the whole loop.
-      - name: Install Playwright browsers (cached, retried)
+      # On a cache miss, install with a per-attempt `timeout -k` (force-kill).
+      # Playwright's downloader has no timeout and can stall *after* the zip hits
+      # 100% (it then fetches the headless shell), so a hung attempt must be
+      # SIGKILLed and retried — plain `timeout` only SIGTERMs and then waits, which
+      # the hung npx ignores, so the job rides to the ceiling. Retries are cheap:
+      # already-downloaded artifacts are skipped.
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
         timeout-minutes: 12
         run: |
           for attempt in 1 2 3; do
-            if timeout 240 npx playwright install --with-deps chromium; then
+            if timeout -k 30 180 npx playwright install --with-deps chromium; then
+              echo "Playwright install succeeded on attempt ${attempt}"
               exit 0
             fi
-            echo "::warning::Playwright install attempt ${attempt} failed or timed out; retrying in $((attempt * 15))s"
-            sleep $((attempt * 15))
+            echo "::warning::Playwright install attempt ${attempt} hung or failed (force-killed); retrying in 15s"
+            sleep 15
           done
           echo "::error::Playwright install failed after 3 attempts"
           exit 1
+
+      # On a cache hit the browsers are restored, but the OS deps (apt) are not cached.
+      - name: Install Playwright system deps (cache hit)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      # Save only on a cache miss AND only if the install above succeeded — never
+      # cache a partial/broken browser dir (the explicit success() replaces the
+      # implicit one that an `if:` would otherwise drop).
+      - name: Save Playwright browser cache
+        if: ${{ success() && steps.pw-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.pw.outputs.version }}
 
       - name: Run Playwright
         run: npm run e2e
