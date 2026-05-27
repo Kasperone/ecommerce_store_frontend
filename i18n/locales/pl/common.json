@@ -557,7 +557,8 @@
         "role": "Rola",
         "status": "Status",
         "orders": "Zamówienia",
-        "country": "Kraj"
+        "country": "Kraj",
+        "tags": "Tagi"
       },
       "status": {
         "active": "Aktywne",
@@ -577,7 +578,9 @@
         "verifiedOnly": "Tylko zweryfikowane",
         "unverifiedOnly": "Tylko niezweryfikowane",
         "search": "Szukaj",
-        "searchPlaceholder": "E-mail lub nazwa"
+        "searchPlaceholder": "E-mail lub nazwa",
+        "tag": "Tag",
+        "allTags": "Wszystkie tagi"
       },
       "empty": {
         "noResults": "Brak klientów pasujących do filtra.",
@@ -636,6 +639,42 @@
           "updated": "Zaktualizowano notatkę.",
           "deleted": "Usunięto notatkę."
         }
+      },
+      "manageTags": "Zarządzaj tagami",
+      "tags": {
+        "title": "Tagi",
+        "empty": "Brak tagów.",
+        "addExisting": "Dodaj istniejący",
+        "newPlaceholder": "Nazwa nowego tagu",
+        "add": "Dodaj",
+        "flashes": {
+          "removed": "Usunięto tag."
+        }
+      }
+    },
+    "tags": {
+      "removeAria": "Usuń {name}",
+      "flashes": {
+        "created": "Utworzono tag.",
+        "updated": "Zaktualizowano tag.",
+        "deleted": "Usunięto tag."
+      },
+      "manage": {
+        "title": "Zarządzaj tagami",
+        "description": "Twórz, zmieniaj nazwy i kolory lub usuwaj tagi klientów.",
+        "namePlaceholder": "Nazwa tagu",
+        "create": "Utwórz",
+        "color": "Kolor",
+        "noColor": "Bez koloru",
+        "loading": "Ładowanie tagów…",
+        "empty": "Brak tagów.",
+        "usage": "Używany przez {count}",
+        "edit": "Edytuj tag",
+        "delete": "Usuń tag",
+        "deleteConfirm": "Usunąć ten tag? Zostanie usunięty od każdego klienta, który go używa.",
+        "save": "Zapisz",
+        "cancel": "Anuluj",
+        "close": "Zamknij"
       }
     }
   },
