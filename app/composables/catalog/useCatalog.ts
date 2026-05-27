@@ -10,13 +10,16 @@
 
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
+import { API_ENDPOINTS } from '#shared/constants/api'
 import type {
   CategoryTreeNode,
   CategoryWithProductCount,
   ProductResponse,
   ProductWithCategory,
   PublicReviewListResponse,
+  SearchResponse,
 } from '#shared/types/api'
+import type { CurrencyCode } from '#shared/utils/money'
 
 export type CatalogSort = 'newest' | 'priceAsc' | 'priceDesc' | 'nameAsc'
 
@@ -136,5 +139,63 @@ export function useStorefrontCategories() {
   return useAsyncData(
     'storefront-categories',
     () => apiFetch<CategoryTreeNode[]>('/api/v1/categories/tree', { query: { is_active: true } }),
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Faceted search (Meilisearch via the backend `/api/v1/search` endpoint).
+// ---------------------------------------------------------------------------
+
+export type SearchSort = 'relevance' | 'priceAsc' | 'priceDesc' | 'nameAsc'
+
+export interface SearchParams {
+  q: string
+  locale: string
+  currency: CurrencyCode
+  categoryId?: number
+  minPrice?: number
+  maxPrice?: number
+  inStock?: boolean
+  sort?: SearchSort
+  page?: number
+}
+
+// UI sort key → backend `sort` Literal (relevance | price_asc | price_desc | name).
+const SEARCH_SORT_MAP: Record<SearchSort, string> = {
+  relevance: 'relevance',
+  priceAsc: 'price_asc',
+  priceDesc: 'price_desc',
+  nameAsc: 'name',
+}
+
+export function buildSearchQuery(p: SearchParams) {
+  return {
+    q: p.q,
+    locale: p.locale,
+    currency: p.currency,
+    category_id: p.categoryId,
+    min_price: p.minPrice,
+    max_price: p.maxPrice,
+    // Only narrow when the shopper opts in; never request out-of-stock-only.
+    in_stock: p.inStock ? true : undefined,
+    sort: SEARCH_SORT_MAP[p.sort ?? 'relevance'],
+    page: p.page ?? 1,
+    page_size: STOREFRONT_PAGE_SIZE,
+  }
+}
+
+/**
+ * Faceted product search. SSR-fetched (SEO-friendly, like the catalog), refetches
+ * when `params` changes. The shopper's currency drives the price facet/sort field;
+ * `locale` selects the localized name/description returned by the backend.
+ */
+export function useSearchResults(params: MaybeRefOrGetter<SearchParams>) {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    'storefront-search',
+    () => apiFetch<SearchResponse>(API_ENDPOINTS.SEARCH.QUERY, {
+      query: buildSearchQuery(toValue(params)),
+    }),
+    { watch: [() => toValue(params)] },
   )
 }

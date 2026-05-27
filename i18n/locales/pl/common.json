@@ -643,7 +643,28 @@
       "categories": "Kategorie"
     },
     "seeAll": "Zobacz wszystkie wyniki dla „{query}”",
-    "noResults": "Brak wyników dla „{query}”"
+    "noResults": "Brak wyników dla „{query}”",
+    "results": {
+      "heading": "Wyniki wyszukiwania",
+      "summary": "{count} wyników dla „{query}”",
+      "count": "{count} produktów"
+    },
+    "sort": {
+      "label": "Sortuj według",
+      "relevance": "Trafność",
+      "priceAsc": "Cena: rosnąco",
+      "priceDesc": "Cena: malejąco",
+      "nameAsc": "Nazwa: A–Z"
+    },
+    "facets": {
+      "title": "Filtry",
+      "clear": "Wyczyść",
+      "category": "Kategoria",
+      "price": "Cena",
+      "min": "Min",
+      "max": "Maks",
+      "inStock": "Tylko dostępne"
+    }
   },
   "footer": {
     "brand": {
