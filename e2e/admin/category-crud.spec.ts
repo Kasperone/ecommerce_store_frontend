@@ -23,7 +23,11 @@ test.use({ storageState: { cookies: [], origins: [] } })
 //     create modal, so this smoke transitively guards them; their behavior is
 //     covered by the per-component Vitest specs.
 test('admin category page renders and opens the create modal', async ({ page }) => {
-  test.setTimeout(30_000)
+  // Generous budget: e2e runs against `npm run dev` (Vite), and this spec sorts
+  // first, so it eats the *cold* on-demand compile of a heavy admin page (tree +
+  // drag-and-drop + modals). That cold compile is what made the old 30 s budget
+  // flake — both via a hung `networkidle` and via a too-short retry loop.
+  test.setTimeout(90_000)
 
   const api = await ApiClient.create()
 
@@ -58,11 +62,16 @@ test('admin category page renders and opens the create modal', async ({ page }) 
     await page.goto('/admin/categories')
 
     // Page shell rendered (tree query may resolve to an empty DB — that's fine).
-    await expect(page.getByRole('heading', { name: 'Categories', exact: true })).toBeVisible()
-    // Let the boot /auth/refresh and the category tree query settle before
-    // interacting — clicking mid-hydration drops the toggle in this SPA.
-    // Same guard product-gallery.spec.ts applies before driving its uploader.
-    await page.waitForLoadState('networkidle')
+    // 30 s because a cold Vite dev compile of this route can be slow on the first hit.
+    await expect(page.getByRole('heading', { name: 'Categories', exact: true }))
+      .toBeVisible({ timeout: 30_000 })
+    // Best-effort settle so the retry loop below starts on a compiled+hydrated page
+    // (the click only opens the modal once the component graph has compiled). It's
+    // BOUNDED + `.catch`-swallowed: against the dev server `networkidle` can never
+    // settle (HMR + the auth plugin's proactive-refresh timer + Colada keep the
+    // network warm), and an unbounded wait there used to eat the whole budget and
+    // time the test out. So we give it a head start, then fall through to the loop.
+    await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {})
 
     await test.step('clicking "New category" opens the form modal', async () => {
       const dialog = page.getByRole('dialog')
@@ -82,7 +91,7 @@ test('admin category page renders and opens the create modal', async ({ page }) 
       await expect(async () => {
         await page.getByRole('button', { name: 'New category' }).click()
         await expect(dialog).toBeVisible({ timeout: 1000 })
-      }).toPass({ timeout: 15_000 })
+      }).toPass({ timeout: 30_000 })
 
       // The EN pane's Name + Slug inputs prove the form body rendered, not just
       // an empty shell. (Placeholders are unique to the EN locale pane.)
