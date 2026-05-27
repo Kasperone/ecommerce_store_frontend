@@ -118,6 +118,44 @@ describe('ProductForm', () => {
     expect(labels).toContain('Save')
   })
 
+  it('renders the EN/PL locale tabs', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: { categories: baseCategories },
+    })
+    const html = wrapper.html()
+    expect(html).toContain('English')
+    expect(html).toContain('Polski')
+  })
+
+  it('hydrates the Polish fields from an existing product', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: {
+        categories: baseCategories,
+        product: { ...baseProduct, name_pl: 'Encyklopedia', description_pl: 'Dzieło' },
+      },
+    })
+    // The PL tab is v-show-hidden by default but still in the DOM.
+    expect((wrapper.find('input[name="name_pl"]').element as HTMLInputElement).value).toBe('Encyklopedia')
+    expect((wrapper.find('textarea[name="description_pl"]').element as HTMLTextAreaElement).value).toBe('Dzieło')
+  })
+
+  it('emits the Polish fields in the submit payload', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: {
+        categories: baseCategories,
+        product: { ...baseProduct, name_pl: 'Encyklopedia', description_pl: 'Dzieło' },
+      },
+    })
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    const emitted = wrapper.emitted('submit')
+    expect(emitted).toBeTruthy()
+    const payload = emitted![0]![0] as Record<string, unknown>
+    expect(payload.name_pl).toBe('Encyklopedia')
+    expect(payload.description_pl).toBe('Dzieło')
+  })
+
   it('renders three currency input fields (USD, PLN, EUR)', async () => {
     const wrapper = await mountSuspended(ProductForm, {
       props: { categories: baseCategories },

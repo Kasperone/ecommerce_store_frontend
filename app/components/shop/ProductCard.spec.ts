@@ -37,6 +37,16 @@ describe('ShopProductCard', () => {
     expect(wrapper.html()).toContain('/products/blue-mug')
   })
 
+  it('renders the localized display name (EN fallback under the default locale)', async () => {
+    // name_pl is set but the default test locale is `en`, so the EN name shows.
+    // The PL branch of the helper is covered in localizedProduct.spec.ts.
+    const wrapper = await mountSuspended(ProductCard, {
+      props: { product: product({ name: 'Blue Mug', name_pl: 'Niebieski kubek' }) },
+    })
+    expect(wrapper.text()).toContain('Blue Mug')
+    expect(wrapper.text()).not.toContain('Niebieski kubek')
+  })
+
   it('shows an out-of-stock badge when stock is 0', async () => {
     const wrapper = await mountSuspended(ProductCard, { props: { product: product({ stock: 0 }) } })
     expect(wrapper.text()).toContain('Out of Stock')

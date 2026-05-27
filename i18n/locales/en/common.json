@@ -348,17 +348,24 @@
         "pricing": "Pricing & stock",
         "media": "Media"
       },
+      "tabs": {
+        "en": "English",
+        "pl": "Polski"
+      },
       "hints": {
         "slug": "Lowercase letters, numbers, and hyphens",
         "sku": "Optional internal identifier",
         "category": "Pick the catalog category this product belongs to",
-        "currency": "At least one currency price is required. Set the prices for the markets this product targets."
+        "currency": "At least one currency price is required. Set the prices for the markets this product targets.",
+        "localeOptional": "Optional — falls back to English"
       },
       "placeholders": {
         "name": "Encyclopedia of Tea",
         "slug": "encyclopedia-of-tea",
         "description": "Optional description",
-        "sku": "ENCY-TEA-001"
+        "sku": "ENCY-TEA-001",
+        "namePl": "Encyklopedia herbaty",
+        "descriptionPl": "Opcjonalny opis"
       },
       "flashes": {
         "created": "Product created.",
