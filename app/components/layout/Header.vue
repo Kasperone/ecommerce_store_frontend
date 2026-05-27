@@ -58,6 +58,8 @@ const items = computed<NavigationMenuItem[]>(() => {
     <UNavigationMenu :items="items" />
 
     <template #right>
+      <LayoutSearchBar class="mr-2 hidden md:block" />
+
       <LayoutCurrencySwitcher class="mr-1" />
 
       <ClientOnly>
@@ -154,6 +156,8 @@ const items = computed<NavigationMenuItem[]>(() => {
     </template>
 
     <template #body>
+      <LayoutSearchBar class="mb-4 md:hidden" />
+
       <UNavigationMenu
         :items="items"
         orientation="vertical"
