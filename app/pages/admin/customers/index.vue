@@ -20,7 +20,9 @@ const filterSchema = z.object({
   active: tri,
   verified: tri,
   search: z.string().optional(),
-  tagId: z.number().min(1).optional(),
+  // `coerce` because the URL value round-trips as a string and `fromQueryValue`
+  // can't infer "number" from an `undefined` default (unlike page/pageSize).
+  tagId: z.coerce.number().min(1).optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),
 })
@@ -30,6 +32,7 @@ const defaults = {
   active: 'all' as const,
   verified: 'all' as const,
   search: undefined as string | undefined,
+  tagId: undefined as number | undefined,
   page: 1,
   pageSize: 20,
 }
