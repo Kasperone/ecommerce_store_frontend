@@ -269,6 +269,9 @@ useHead({ title: () => t('admin.customers.detail.title', { email: customer.value
           </dl>
         </UCard>
 
+        <!-- Internal notes -->
+        <AdminCustomerNotes :customer-id="customer.id" />
+
         <!-- Actions -->
         <UCard>
           <template #header>
