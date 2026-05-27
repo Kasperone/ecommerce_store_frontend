@@ -20,6 +20,7 @@ const filterSchema = z.object({
   active: tri,
   verified: tri,
   search: z.string().optional(),
+  tagId: z.number().min(1).optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),
 })
@@ -39,6 +40,10 @@ const roleFilter = computed(() => filters.value.role ?? 'all')
 const activeFilter = computed(() => filters.value.active ?? 'all')
 const verifiedFilter = computed(() => filters.value.verified ?? 'all')
 const searchValue = computed(() => filters.value.search ?? '')
+const tagFilter = computed<number | 'all'>(() => filters.value.tagId ?? 'all')
+
+const { data: tagVocabulary } = useTagsQuery()
+const showTagManager = ref(false)
 
 function triToBool(v: string | undefined): boolean | undefined {
   if (v === 'true') return true
@@ -53,6 +58,7 @@ const queryParams = computed(() => ({
   isActive: triToBool(activeFilter.value),
   isVerified: triToBool(verifiedFilter.value),
   search: searchValue.value || undefined,
+  tagId: filters.value.tagId,
 }))
 
 const { data: pageData, error: listError } = useCustomersQuery(queryParams)
@@ -62,8 +68,14 @@ const hasFilter = computed(() =>
   roleFilter.value !== 'all'
   || activeFilter.value !== 'all'
   || verifiedFilter.value !== 'all'
+  || tagFilter.value !== 'all'
   || searchValue.value.length > 0,
 )
+
+const tagOptions = computed(() => [
+  { label: t('admin.customers.filters.allTags'), value: 'all' as const },
+  ...(tagVocabulary.value ?? []).map(tag => ({ label: tag.name, value: tag.id })),
+])
 
 const roleOptions = computed(() => [
   { label: t('admin.customers.filters.allRoles'), value: 'all' },
@@ -87,6 +99,7 @@ const columns: TableColumn<CustomerListItem>[] = [
   { accessorKey: 'role', header: () => t('admin.customers.fields.role') },
   { accessorKey: 'status', header: () => t('admin.customers.fields.status') },
   { accessorKey: 'order_count', header: () => t('admin.customers.fields.orders') },
+  { accessorKey: 'tags', header: () => t('admin.customers.fields.tags') },
   { accessorKey: 'shipping_country', header: () => t('admin.customers.fields.country') },
   { id: 'actions', header: '' },
 ]
@@ -95,13 +108,22 @@ const columns: TableColumn<CustomerListItem>[] = [
 <template>
   <NuxtLayout>
     <div class="space-y-6">
-      <header>
-        <h1 class="text-2xl font-bold">
-          {{ $t('admin.customers.title') }}
-        </h1>
-        <p class="text-muted text-sm mt-1">
-          {{ $t('admin.customers.subtitle') }}
-        </p>
+      <header class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 class="text-2xl font-bold">
+            {{ $t('admin.customers.title') }}
+          </h1>
+          <p class="text-muted text-sm mt-1">
+            {{ $t('admin.customers.subtitle') }}
+          </p>
+        </div>
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-tags"
+          :label="$t('admin.customers.manageTags')"
+          @click="showTagManager = true"
+        />
       </header>
 
       <div class="flex flex-wrap items-end gap-3">
@@ -130,6 +152,15 @@ const columns: TableColumn<CustomerListItem>[] = [
             value-key="value"
             class="w-40"
             @update:model-value="(v) => set({ verified: v as typeof defaults.verified, page: 1 })"
+          />
+        </UFormField>
+        <UFormField :label="$t('admin.customers.filters.tag')">
+          <USelect
+            :model-value="tagFilter"
+            :items="tagOptions"
+            value-key="value"
+            class="w-44"
+            @update:model-value="(v) => set({ tagId: v === 'all' ? undefined : Number(v), page: 1 })"
           />
         </UFormField>
         <UFormField :label="$t('admin.customers.filters.search')">
@@ -214,6 +245,19 @@ const columns: TableColumn<CustomerListItem>[] = [
         <template #order_count-cell="{ row }">
           {{ row.original.order_count }}
         </template>
+        <template #tags-cell="{ row }">
+          <div class="flex flex-wrap gap-1 max-w-48">
+            <AdminTagPill
+              v-for="tag in row.original.tags"
+              :key="tag.id"
+              :tag="tag"
+            />
+            <span
+              v-if="!row.original.tags || row.original.tags.length === 0"
+              class="text-muted text-xs"
+            >—</span>
+          </div>
+        </template>
         <template #shipping_country-cell="{ row }">
           <span class="text-sm text-muted">{{ row.original.shipping_country ?? '-' }}</span>
         </template>
@@ -239,6 +283,8 @@ const columns: TableColumn<CustomerListItem>[] = [
         class="mt-4"
         @update:page="(p) => set({ page: p })"
       />
+
+      <AdminTagManagerDialog v-model:open="showTagManager" />
     </div>
   </NuxtLayout>
 </template>
