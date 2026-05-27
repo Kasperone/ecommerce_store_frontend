@@ -634,6 +634,16 @@
     "orders": "My Orders",
     "wishlist": "Wishlist"
   },
+  "search": {
+    "placeholder": "Search products…",
+    "ariaLabel": "Search products",
+    "sections": {
+      "products": "Products",
+      "categories": "Categories"
+    },
+    "seeAll": "See all results for “{query}”",
+    "noResults": "No matches for “{query}”"
+  },
   "footer": {
     "brand": {
       "tagline": "Quality goods, delivered in USD, PLN and EUR.",
