@@ -67,6 +67,13 @@
     "delete": "Delete",
     "verified": "Verified purchase",
     "storeResponse": "Store response",
+    "helpful": "Helpful",
+    "helpfulCount": "No helpful votes yet | {count} found this helpful | {count} found this helpful",
+    "loginToVote": "Log in to vote",
+    "voteError": "Couldn't save your vote. Please try again.",
+    "sortLabel": "Sort reviews",
+    "sortNewest": "Newest",
+    "sortHelpful": "Most helpful",
     "pendingNote": "Your review is awaiting moderation and isn't public yet.",
     "status": {
       "pending": "Awaiting moderation",
