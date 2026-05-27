@@ -109,6 +109,10 @@
       "body": "To anuluje zamówienie i przywróci stan magazynowy. Tej operacji nie można cofnąć.",
       "confirm": "Tak, anuluj",
       "dismiss": "Zachowaj zamówienie"
+    },
+    "invoice": {
+      "download": "Pobierz fakturę",
+      "error": "Nie udało się pobrać faktury. Spróbuj ponownie."
     }
   },
   "payment": {
