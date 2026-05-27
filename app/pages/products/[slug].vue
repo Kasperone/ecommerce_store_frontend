@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { localizedCategoryName } from '#shared/utils/categoryTree'
+import { localizedProductDescription, localizedProductName } from '#shared/utils/localizedProduct'
 import { parseProblem } from '#shared/utils/problemDetails'
 
 const { t, locale } = useI18n()
@@ -21,11 +22,18 @@ if (error.value) {
   })
 }
 
+const displayName = computed(() =>
+  product.value ? localizedProductName(product.value, locale.value) : '',
+)
+const displayDescription = computed(() =>
+  product.value ? localizedProductDescription(product.value, locale.value) : null,
+)
+
 useSeoMeta({
-  title: () => product.value?.name ?? '',
-  description: () => product.value?.description ?? '',
-  ogTitle: () => product.value?.name ?? '',
-  ogDescription: () => product.value?.description ?? '',
+  title: () => displayName.value,
+  description: () => displayDescription.value ?? '',
+  ogTitle: () => displayName.value,
+  ogDescription: () => displayDescription.value ?? '',
 })
 
 const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
@@ -64,18 +72,18 @@ const categoryTo = computed(() =>
           </NuxtLink>
         </template>
         <span>/</span>
-        <span class="font-medium text-highlighted">{{ product.name }}</span>
+        <span class="font-medium text-highlighted">{{ displayName }}</span>
       </nav>
 
       <div class="grid gap-8 lg:grid-cols-2">
         <ShopProductGallery
           :images="product.images"
-          :name="product.name"
+          :name="displayName"
         />
 
         <div class="flex flex-col gap-4">
           <h1 class="text-3xl font-bold">
-            {{ product.name }}
+            {{ displayName }}
           </h1>
 
           <ShopPriceDisplay
@@ -119,14 +127,14 @@ const categoryTo = computed(() =>
           </div>
 
           <div
-            v-if="product.description"
+            v-if="displayDescription"
             class="mt-4"
           >
             <h2 class="mb-2 text-lg font-semibold">
               {{ t('details.description') }}
             </h2>
             <p class="whitespace-pre-line text-muted">
-              {{ product.description }}
+              {{ displayDescription }}
             </p>
           </div>
         </div>

@@ -56,6 +56,14 @@ export type PublicReviewListResponse = components['schemas']['PublicReviewListRe
 export type AdminReviewListItem = components['schemas']['AdminReviewListItem']
 export type AdminReviewListResponse = components['schemas']['AdminReviewListResponse']
 
+// Search-related types
+export type SearchResponse = components['schemas']['SearchResponse']
+export type SearchResultItem = components['schemas']['SearchResultItem']
+export type FacetBucket = components['schemas']['FacetBucket']
+export type SuggestResponse = components['schemas']['SuggestResponse']
+export type SuggestProductItem = components['schemas']['SuggestProductItem']
+export type SuggestCategoryItem = components['schemas']['SuggestCategoryItem']
+
 // Payment-related types
 export type PayUCheckoutResponse = components['schemas']['PayUCheckoutResponse']
 export type StripeCheckoutResponse = components['schemas']['StripeCheckoutResponse']

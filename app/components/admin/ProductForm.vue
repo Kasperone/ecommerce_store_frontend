@@ -13,8 +13,10 @@ import {
 
 export interface ProductFormPayload {
   name: string
+  name_pl: string | null
   slug: string
   description: string | null
+  description_pl: string | null
   sku: string | null
   price_usd: number | null
   price_pln: number | null
@@ -44,8 +46,10 @@ const mode = computed<'create' | 'edit'>(() => (props.product ? 'edit' : 'create
 
 interface FormState {
   name: string
+  name_pl: string
   slug: string
   description: string
+  description_pl: string
   sku: string
   price_usd: number | undefined
   price_pln: number | undefined
@@ -58,8 +62,10 @@ interface FormState {
 
 const state = reactive<FormState>({
   name: '',
+  name_pl: '',
   slug: '',
   description: '',
+  description_pl: '',
   sku: '',
   price_usd: undefined,
   price_pln: undefined,
@@ -72,13 +78,23 @@ const state = reactive<FormState>({
 
 const slugManuallyEdited = ref(false)
 
+// EN/PL locale tabs for the localized title + description (mirrors the
+// category form). Slug/SKU/category/pricing are shared, not per-locale.
+const localeTab = ref<'en' | 'pl'>('en')
+const localeTabItems = computed(() => [
+  { value: 'en' as const, label: t('admin.products.tabs.en', { default: 'English' }) },
+  { value: 'pl' as const, label: t('admin.products.tabs.pl', { default: 'Polski' }) },
+])
+
 watch(
   () => props.product,
   (product) => {
     if (product) {
       state.name = product.name
+      state.name_pl = product.name_pl ?? ''
       state.slug = product.slug
       state.description = product.description ?? ''
+      state.description_pl = product.description_pl ?? ''
       state.sku = product.sku ?? ''
       state.price_usd = product.price_usd ?? undefined
       state.price_pln = product.price_pln ?? undefined
@@ -91,8 +107,10 @@ watch(
     }
     else {
       state.name = ''
+      state.name_pl = ''
       state.slug = ''
       state.description = ''
+      state.description_pl = ''
       state.sku = ''
       state.price_usd = undefined
       state.price_pln = undefined
@@ -130,7 +148,9 @@ async function validate(values: FormState): Promise<FormError[]> {
   // cleared" from "JS client omitted the key") matches in both modes.
   const candidate = {
     ...values,
+    name_pl: values.name_pl.trim() || null,
     description: values.description.trim() || null,
+    description_pl: values.description_pl.trim() || null,
     sku: values.sku.trim() || null,
     category_id: values.category_id ?? null,
     price_usd: values.price_usd ?? null,
@@ -148,8 +168,10 @@ async function validate(values: FormState): Promise<FormError[]> {
 function buildPayload(): ProductFormPayload {
   return {
     name: state.name,
+    name_pl: state.name_pl.trim() || null,
     slug: state.slug,
     description: state.description.trim() || null,
+    description_pl: state.description_pl.trim() || null,
     sku: state.sku.trim() || null,
     price_usd: state.price_usd ?? null,
     price_pln: state.price_pln ?? null,
@@ -199,19 +221,74 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         {{ t('admin.products.sections.basics') }}
       </h2>
 
-      <UFormField
-        :label="t('admin.products.fields.name')"
-        name="name"
-        required
+      <UTabs
+        v-model="localeTab"
+        :items="localeTabItems"
+        class="w-full"
+      />
+
+      <div
+        v-show="localeTab === 'en'"
+        class="space-y-4"
       >
-        <UInput
-          v-model="state.name"
-          :placeholder="t('admin.products.placeholders.name')"
-          :disabled="loading"
-          class="w-full"
-          @blur="onNameBlur"
-        />
-      </UFormField>
+        <UFormField
+          :label="t('admin.products.fields.name')"
+          name="name"
+          required
+        >
+          <UInput
+            v-model="state.name"
+            :placeholder="t('admin.products.placeholders.name')"
+            :disabled="loading"
+            class="w-full"
+            @blur="onNameBlur"
+          />
+        </UFormField>
+
+        <UFormField
+          :label="t('admin.products.fields.description')"
+          name="description"
+        >
+          <UTextarea
+            v-model="state.description"
+            :placeholder="t('admin.products.placeholders.description')"
+            :disabled="loading"
+            :rows="4"
+            class="w-full"
+          />
+        </UFormField>
+      </div>
+
+      <div
+        v-show="localeTab === 'pl'"
+        class="space-y-4"
+      >
+        <UFormField
+          :label="t('admin.products.fields.name')"
+          name="name_pl"
+          :hint="t('admin.products.hints.localeOptional')"
+        >
+          <UInput
+            v-model="state.name_pl"
+            :placeholder="t('admin.products.placeholders.namePl')"
+            :disabled="loading"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          :label="t('admin.products.fields.description')"
+          name="description_pl"
+        >
+          <UTextarea
+            v-model="state.description_pl"
+            :placeholder="t('admin.products.placeholders.descriptionPl')"
+            :disabled="loading"
+            :rows="4"
+            class="w-full"
+          />
+        </UFormField>
+      </div>
 
       <UFormField
         :label="t('admin.products.fields.slug')"
@@ -225,19 +302,6 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
           :disabled="loading"
           class="w-full"
           @update:model-value="onSlugInput"
-        />
-      </UFormField>
-
-      <UFormField
-        :label="t('admin.products.fields.description')"
-        name="description"
-      >
-        <UTextarea
-          v-model="state.description"
-          :placeholder="t('admin.products.placeholders.description')"
-          :disabled="loading"
-          :rows="4"
-          class="w-full"
         />
       </UFormField>
 
