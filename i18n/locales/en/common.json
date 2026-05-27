@@ -642,7 +642,28 @@
       "categories": "Categories"
     },
     "seeAll": "See all results for “{query}”",
-    "noResults": "No matches for “{query}”"
+    "noResults": "No matches for “{query}”",
+    "results": {
+      "heading": "Search results",
+      "summary": "{count} results for “{query}”",
+      "count": "{count} products"
+    },
+    "sort": {
+      "label": "Sort by",
+      "relevance": "Relevance",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "nameAsc": "Name: A–Z"
+    },
+    "facets": {
+      "title": "Filters",
+      "clear": "Clear",
+      "category": "Category",
+      "price": "Price",
+      "min": "Min",
+      "max": "Max",
+      "inStock": "In stock only"
+    }
   },
   "footer": {
     "brand": {
