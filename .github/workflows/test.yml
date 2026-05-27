@@ -225,56 +225,53 @@ jobs:
           docker logs backend || true
           exit 1
 
-      # Browser binaries are cached (keyed on the Playwright version) so most runs
-      # skip the ~170 MB Chromium download entirely. We split restore/save (rather
-      # than the combined cache action) so a *failed* install never saves a partial
-      # browser dir — otherwise the next run restores a broken browser and e2e fails.
+      # Provision the Playwright browsers from the official Microsoft image
+      # (mcr.microsoft.com — a reliable registry) instead of `npx playwright
+      # install`, whose CDN path hangs *after* the Chrome zip reaches 100% during
+      # extraction / the next artifact. That stall was reproduced across runs
+      # #156/#159/#160/#161/#162/#163 — force-kill + 3 retries bounded it but every
+      # attempt re-hit the same post-download hang. The image ships the browsers
+      # pre-extracted at /ms-playwright, so there's no download and no extraction.
       - name: Resolve Playwright version
         id: pw
         run: echo "version=$(npx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
 
+      # Cache the seeded browsers so subsequent runs skip even the image pull.
+      # restore/save split with save gated on success() + miss → a failed provision
+      # never persists a partial browser dir. New key (`-mcr-`) so it doesn't reuse
+      # any cache from the old CDN approach.
       - name: Restore Playwright browser cache
         id: pw-cache
         uses: actions/cache/restore@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.pw.outputs.version }}
+          key: ${{ runner.os }}-playwright-mcr-${{ steps.pw.outputs.version }}
 
-      # On a cache miss, install with a per-attempt `timeout -k` (force-kill).
-      # Playwright's downloader has no timeout and can stall *after* the zip hits
-      # 100% (it then fetches the headless shell), so a hung attempt must be
-      # SIGKILLed and retried — plain `timeout` only SIGTERMs and then waits, which
-      # the hung npx ignores, so the job rides to the ceiling. Retries are cheap:
-      # already-downloaded artifacts are skipped.
-      - name: Install Playwright browsers
+      - name: Provision Playwright browsers from the Playwright image
         if: steps.pw-cache.outputs.cache-hit != 'true'
-        timeout-minutes: 12
+        timeout-minutes: 10
         run: |
-          for attempt in 1 2 3; do
-            if timeout -k 30 180 npx playwright install --with-deps chromium; then
-              echo "Playwright install succeeded on attempt ${attempt}"
-              exit 0
-            fi
-            echo "::warning::Playwright install attempt ${attempt} hung or failed (force-killed); retrying in 15s"
-            sleep 15
-          done
-          echo "::error::Playwright install failed after 3 attempts"
-          exit 1
+          set -euo pipefail
+          IMG="mcr.microsoft.com/playwright:v${{ steps.pw.outputs.version }}-noble"
+          echo "Pulling browsers from ${IMG}"
+          docker pull "$IMG"
+          cid=$(docker create "$IMG")
+          mkdir -p "$HOME/.cache/ms-playwright"
+          docker cp "$cid:/ms-playwright/." "$HOME/.cache/ms-playwright/"
+          docker rm "$cid"
+          sudo chown -R "$USER" "$HOME/.cache/ms-playwright"
+          ls "$HOME/.cache/ms-playwright"
 
-      # On a cache hit the browsers are restored, but the OS deps (apt) are not cached.
-      - name: Install Playwright system deps (cache hit)
-        if: steps.pw-cache.outputs.cache-hit == 'true'
+      # OS libs the browsers need (apt only — no browser download, so it can't hang).
+      - name: Install Playwright system deps
         run: npx playwright install-deps chromium
 
-      # Save only on a cache miss AND only if the install above succeeded — never
-      # cache a partial/broken browser dir (the explicit success() replaces the
-      # implicit one that an `if:` would otherwise drop).
       - name: Save Playwright browser cache
         if: ${{ success() && steps.pw-cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.pw.outputs.version }}
+          key: ${{ runner.os }}-playwright-mcr-${{ steps.pw.outputs.version }}
 
       - name: Run Playwright
         run: npm run e2e
