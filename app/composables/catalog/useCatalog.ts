@@ -88,23 +88,27 @@ export function useProductDetail(slug: string) {
   )
 }
 
+export type ReviewSort = 'newest' | 'helpful'
+
 /**
  * Public (approved-only) reviews + rating summary for a product, paginated.
- * SSR-fetched so reviews are crawlable and feed the PDP. Refetches on page change.
+ * SSR-fetched so reviews are crawlable and feed the PDP. Refetches on page or
+ * sort change. `sortBy` is whitelisted by the backend (`newest` | `helpful`).
  */
 export function useProductReviews(
   productId: number,
   page: MaybeRefOrGetter<number> = 1,
   pageSize = 10,
+  sortBy: MaybeRefOrGetter<ReviewSort> = 'newest',
 ) {
   const { apiFetch } = useApi()
   return useAsyncData(
     `storefront-product-reviews-${productId}`,
     () =>
       apiFetch<PublicReviewListResponse>(`/api/v1/products/${productId}/reviews`, {
-        query: { page: toValue(page), page_size: pageSize },
+        query: { page: toValue(page), page_size: pageSize, sort_by: toValue(sortBy) },
       }),
-    { watch: [() => toValue(page)] },
+    { watch: [() => toValue(page), () => toValue(sortBy)] },
   )
 }
 

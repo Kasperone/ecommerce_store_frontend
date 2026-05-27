@@ -67,6 +67,13 @@
     "delete": "Usuń",
     "verified": "Zakup potwierdzony",
     "storeResponse": "Odpowiedź sklepu",
+    "helpful": "Pomocna",
+    "helpfulCount": "Brak głosów | {count} osoba uznała to za pomocne | {count} osób uznało to za pomocne",
+    "loginToVote": "Zaloguj się, aby głosować",
+    "voteError": "Nie udało się zapisać głosu. Spróbuj ponownie.",
+    "sortLabel": "Sortuj opinie",
+    "sortNewest": "Najnowsze",
+    "sortHelpful": "Najbardziej pomocne",
     "pendingNote": "Twoja opinia czeka na moderację i nie jest jeszcze widoczna publicznie.",
     "status": {
       "pending": "Oczekuje na moderację",

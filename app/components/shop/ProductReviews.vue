@@ -11,11 +11,14 @@ const localePath = useLocalePath()
 const route = useRoute()
 const authStore = useAuthStore()
 const myReview = useMyReview()
+const reviewVotes = useReviewVotes()
+const toast = useToast()
 
 const PAGE_SIZE = 10
 const page = ref(1)
+const sortBy = ref<'newest' | 'helpful'>('newest')
 // Public, approved-only — SSR-fetched so reviews are crawlable.
-const { data, refresh } = await useProductReviews(props.productId, page, PAGE_SIZE)
+const { data, refresh } = await useProductReviews(props.productId, page, PAGE_SIZE, sortBy)
 
 const emptySummary = { average_rating: 0, total: 0, breakdown: {} as Record<string, number> }
 const summary = computed(() => data.value?.summary ?? emptySummary)
@@ -55,7 +58,86 @@ async function loadOwn() {
   }
 }
 
-onMounted(loadOwn)
+// --- helpful votes (client-only, authed) ---
+const votedIds = ref<Set<number>>(new Set())
+const countOverride = ref<Map<number, number>>(new Map())
+const pendingVote = ref<Set<number>>(new Set())
+
+async function loadMyVotes() {
+  if (!isAuthed.value) return
+  try {
+    votedIds.value = await reviewVotes.fetchMyVotes(props.productId)
+  }
+  catch {
+    // Non-fatal: leave the pressed state empty; counts still render from SSR.
+  }
+}
+
+onMounted(() => {
+  void loadOwn()
+  void loadMyVotes()
+})
+
+function displayedCount(review: ReviewResponse): number {
+  return countOverride.value.get(review.id) ?? review.helpful_count
+}
+function hasVoted(review: ReviewResponse): boolean {
+  return votedIds.value.has(review.id)
+}
+// You can vote on others' approved reviews only: guests get a login link, your
+// own review shows a plain count (the backend 403s a self-vote anyway).
+function voteMode(review: ReviewResponse): 'guest' | 'self' | 'toggle' {
+  if (!isAuthed.value) return 'guest'
+  if (own.value && review.id === own.value.id) return 'self'
+  return 'toggle'
+}
+
+async function toggleVote(review: ReviewResponse) {
+  const id = review.id
+  if (pendingVote.value.has(id)) return
+  const wasVoted = votedIds.value.has(id)
+  const prevOverride = countOverride.value.get(id)
+  const current = prevOverride ?? review.helpful_count
+
+  // Optimistic flip: update the pressed state + count immediately.
+  countOverride.value.set(id, Math.max(0, current + (wasVoted ? -1 : 1)))
+  if (wasVoted) votedIds.value.delete(id)
+  else votedIds.value.add(id)
+  pendingVote.value.add(id)
+
+  try {
+    const res = wasVoted
+      ? await reviewVotes.unvote(props.productId, id)
+      : await reviewVotes.vote(props.productId, id)
+    // Reconcile to the server's authoritative count + vote state.
+    countOverride.value.set(id, res.helpful_count)
+    if (res.my_vote) votedIds.value.add(id)
+    else votedIds.value.delete(id)
+  }
+  catch {
+    // Roll back the optimistic change.
+    if (prevOverride === undefined) countOverride.value.delete(id)
+    else countOverride.value.set(id, prevOverride)
+    if (wasVoted) votedIds.value.add(id)
+    else votedIds.value.delete(id)
+    toast.add({ title: t('reviews.voteError'), color: 'error' })
+  }
+  finally {
+    pendingVote.value.delete(id)
+  }
+}
+
+const sortItems = computed(() => [
+  { label: t('reviews.sortNewest'), value: 'newest' as const },
+  { label: t('reviews.sortHelpful'), value: 'helpful' as const },
+])
+
+// A fresh SSR fetch (sort/page change) carries authoritative counts — drop overrides.
+watch(data, () => countOverride.value.clear())
+// Reset to page 1 on a sort change so we never land past the last page.
+watch(sortBy, () => {
+  page.value = 1
+})
 
 const schema = computed(() => createReviewSchema(t))
 const state = reactive<{ rating: number, title: string, body: string }>({
@@ -335,6 +417,18 @@ function starsLabel(rating: number) {
 
     <!-- Approved review list -->
     <div
+      v-if="total > 1"
+      class="mb-4 flex justify-end"
+    >
+      <USelect
+        v-model="sortBy"
+        :items="sortItems"
+        :aria-label="t('reviews.sortLabel')"
+        size="sm"
+        class="w-48"
+      />
+    </div>
+    <div
       v-if="items.length === 0"
       class="text-sm text-muted"
     >
@@ -385,6 +479,39 @@ function starsLabel(rating: number) {
           <p class="mt-1 whitespace-pre-line text-sm text-muted">
             {{ review.admin_response }}
           </p>
+        </div>
+        <div class="mt-3 flex items-center gap-2">
+          <UButton
+            v-if="voteMode(review) === 'toggle'"
+            :color="hasVoted(review) ? 'primary' : 'neutral'"
+            :variant="hasVoted(review) ? 'solid' : 'outline'"
+            size="xs"
+            icon="i-lucide-thumbs-up"
+            :disabled="pendingVote.has(review.id)"
+            :aria-pressed="hasVoted(review)"
+            @click="toggleVote(review)"
+          >
+            {{ t('reviews.helpful') }} ({{ displayedCount(review) }})
+          </UButton>
+          <UButton
+            v-else-if="voteMode(review) === 'guest'"
+            :to="loginTo"
+            color="neutral"
+            variant="outline"
+            size="xs"
+            icon="i-lucide-thumbs-up"
+            :aria-label="t('reviews.loginToVote')"
+          >
+            {{ t('reviews.helpful') }} ({{ displayedCount(review) }})
+          </UButton>
+          <span
+            v-else
+            class="text-xs text-muted"
+          >
+            {{
+              t('reviews.helpfulCount', displayedCount(review), { count: displayedCount(review) })
+            }}
+          </span>
         </div>
       </li>
     </ul>
