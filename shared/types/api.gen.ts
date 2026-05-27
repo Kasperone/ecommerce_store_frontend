@@ -1019,6 +1019,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reviews/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Reviews
+         * @description List reviews with filters (admin). Newest first.
+         */
+        get: operations["list_reviews_api_v1_admin_reviews__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reviews/{review_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Review
+         * @description Get a single review (admin).
+         */
+        get: operations["get_review_api_v1_admin_reviews__review_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Review
+         * @description Delete a review (admin). Audited (snapshot taken before delete).
+         */
+        delete: operations["delete_review_api_v1_admin_reviews__review_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Moderate Review
+         * @description Approve or reject a review (admin). Audited.
+         */
+        patch: operations["moderate_review_api_v1_admin_reviews__review_id__patch"];
+        trace?: never;
+    };
     "/api/v1/products/{product_id}/images": {
         parameters: {
             query?: never;
@@ -1063,10 +1111,142 @@ export interface paths {
         patch: operations["update_product_image_api_v1_products__product_id__images__image_id__patch"];
         trace?: never;
     };
+    "/api/v1/products/{product_id}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Product Reviews
+         * @description Public: approved reviews for a product (newest first) + the rating summary.
+         */
+        get: operations["list_product_reviews_api_v1_products__product_id__reviews_get"];
+        put?: never;
+        /**
+         * Create Product Review
+         * @description Authenticated: submit a review for a product (one per customer per product).
+         *
+         *     Returns 404 for an unknown/inactive product, 409 if the caller already has a
+         *     review (they should edit it instead). The new review is ``pending`` until an
+         *     admin approves it; ``is_verified_purchase`` is snapshotted from order history.
+         */
+        post: operations["create_product_review_api_v1_products__product_id__reviews_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/reviews/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Product Review Summary
+         * @description Public: aggregate rating stats for a product (approved reviews only).
+         */
+        get: operations["product_review_summary_api_v1_products__product_id__reviews_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/reviews/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Product Review
+         * @description Authenticated: the caller's own review for a product (any status), or 404.
+         */
+        get: operations["get_my_product_review_api_v1_products__product_id__reviews_me_get"];
+        /**
+         * Update My Product Review
+         * @description Authenticated: edit the caller's own review. Re-queues it for moderation
+         *     (``status`` back to ``pending``) since the content changed.
+         */
+        put: operations["update_my_product_review_api_v1_products__product_id__reviews_me_put"];
+        post?: never;
+        /**
+         * Delete My Product Review
+         * @description Authenticated: delete the caller's own review for a product.
+         */
+        delete: operations["delete_my_product_review_api_v1_products__product_id__reviews_me_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdminReviewListItem
+         * @description A review row for the admin moderation list (joins product + author).
+         */
+        AdminReviewListItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Product Id */
+            product_id: number;
+            /** Product Name */
+            product_name: string;
+            /** Product Slug */
+            product_slug: string;
+            /** User Id */
+            user_id: number;
+            /** Author Name */
+            author_name: string;
+            /** Author Email */
+            author_email: string;
+            /** Rating */
+            rating: number;
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body: string;
+            status: components["schemas"]["ReviewStatus"];
+            /** Is Verified Purchase */
+            is_verified_purchase: boolean;
+        };
+        /**
+         * AdminReviewListResponse
+         * @description Paginated admin review list.
+         */
+        AdminReviewListResponse: {
+            /** Items */
+            items: components["schemas"]["AdminReviewListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
         /**
          * AuditEventItem
          * @description One audit-log row, with the acting admin's email joined in for display.
@@ -2277,6 +2457,20 @@ export interface components {
             readonly in_stock: boolean;
         };
         /**
+         * ProductReviewSummary
+         * @description Aggregate rating stats for a product (approved reviews only).
+         */
+        ProductReviewSummary: {
+            /** Average Rating */
+            average_rating: number;
+            /** Total */
+            total: number;
+            /** Breakdown */
+            breakdown: {
+                [key: string]: number;
+            };
+        };
+        /**
          * ProductUpdate
          * @description Schema for updating a product
          */
@@ -2364,6 +2558,104 @@ export interface components {
              * @description True when stock > 0.
              */
             readonly in_stock: boolean;
+        };
+        /**
+         * PublicReviewListResponse
+         * @description Paginated public review list bundled with the product's summary.
+         */
+        PublicReviewListResponse: {
+            /** Items */
+            items: components["schemas"]["ReviewResponse"][];
+            summary: components["schemas"]["ProductReviewSummary"];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * ReviewCreate
+         * @description Customer POST body — create a review for a product.
+         */
+        ReviewCreate: {
+            /** Rating */
+            rating: number;
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body: string;
+        };
+        /**
+         * ReviewModerate
+         * @description Admin PATCH body — approve or reject a review.
+         *
+         *     ``pending`` is intentionally not accepted: moderation is a forward decision,
+         *     not a way to un-decide. Re-opening would be a separate explicit action.
+         */
+        ReviewModerate: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "approved" | "rejected";
+        };
+        /**
+         * ReviewResponse
+         * @description A single review as returned to customers (public list + own review).
+         */
+        ReviewResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Product Id */
+            product_id: number;
+            /** User Id */
+            user_id: number;
+            /** Rating */
+            rating: number;
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body: string;
+            status: components["schemas"]["ReviewStatus"];
+            /** Is Verified Purchase */
+            is_verified_purchase: boolean;
+            /** Author Name */
+            author_name: string;
+        };
+        /**
+         * ReviewStatus
+         * @description Moderation state of a customer review.
+         *
+         *     Stored as the lowercase value string in a plain ``String`` column (not a PG
+         *     enum type) so adding a state is a code-only change, no migration — same
+         *     pattern as ``InventoryMovementReason``. Only ``APPROVED`` reviews are public.
+         * @enum {string}
+         */
+        ReviewStatus: "pending" | "approved" | "rejected";
+        /**
+         * ReviewUpdate
+         * @description Customer PUT body — edit own review (re-queues it for moderation).
+         */
+        ReviewUpdate: {
+            /** Rating */
+            rating?: number | null;
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body?: string | null;
         };
         /**
          * StockAdjustRequest
@@ -4256,6 +4548,141 @@ export interface operations {
             };
         };
     };
+    list_reviews_api_v1_admin_reviews__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by moderation status */
+                status?: components["schemas"]["ReviewStatus"] | null;
+                /** @description Filter by product */
+                product_id?: number | null;
+                /** @description Filter by star rating */
+                rating?: number | null;
+                /** @description Search title / body / author email / product name */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReviewListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_review_api_v1_admin_reviews__review_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReviewListItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_review_api_v1_admin_reviews__review_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    moderate_review_api_v1_admin_reviews__review_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewModerate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReviewListItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     upload_product_image_api_v1_products__product_id__images_post: {
         parameters: {
             query?: never;
@@ -4345,6 +4772,201 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ProductImageResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_product_reviews_api_v1_products__product_id__reviews_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicReviewListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_product_review_api_v1_products__product_id__reviews_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    product_review_summary_api_v1_products__product_id__reviews_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductReviewSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_product_review_api_v1_products__product_id__reviews_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_my_product_review_api_v1_products__product_id__reviews_me_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_my_product_review_api_v1_products__product_id__reviews_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

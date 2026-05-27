@@ -47,7 +47,6 @@
     },
     "pages": {
       "products":   { "title": "Produkty",         "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce." },
-      "reviews":    { "title": "Opinie",           "placeholder": "Tutaj znajdzie się moderacja opinii klientów. Wkrótce." },
       "companies":  { "title": "Firmy (B2B)",      "placeholder": "Tutaj znajdzie się katalog firm B2B, akceptacja kont i opiekunowie. Wkrótce." },
       "quotes":     { "title": "Oferty (B2B)",     "placeholder": "Tutaj znajdzie się obsługa zapytań ofertowych i konwersja w zamówienia. Wkrótce." },
       "coupons":    { "title": "Kupony",           "placeholder": "Tutaj znajdą się kody rabatowe, warunki i limity użycia. Wkrótce." },
@@ -165,6 +164,53 @@
         "before": "Przed",
         "after": "Po",
         "empty": "Dla tego zdarzenia nie zarejestrowano zmian na poziomie pól."
+      }
+    },
+    "reviews": {
+      "title": "Opinie",
+      "subtitle": "Moderuj opinie klientów o produktach",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "rating": "Ocena",
+        "allRatings": "Wszystkie oceny",
+        "ratingStars": "{rating} gwiazdek",
+        "search": "Szukaj",
+        "searchPlaceholder": "Tytuł, treść, autor lub produkt"
+      },
+      "fields": {
+        "status": "Status",
+        "rating": "Ocena",
+        "product": "Produkt",
+        "author": "Autor",
+        "review": "Opinia",
+        "submitted": "Data"
+      },
+      "status": {
+        "pending": "Oczekująca",
+        "approved": "Zatwierdzona",
+        "rejected": "Odrzucona"
+      },
+      "verified": "Zakup potwierdzony",
+      "starsLabel": "{rating} z 5 gwiazdek",
+      "empty": {
+        "noResults": "Żadna opinia nie pasuje do tego filtra.",
+        "noReviews": "Brak opinii."
+      },
+      "actions": {
+        "moderate": "Moderuj",
+        "approve": "Zatwierdź",
+        "reject": "Odrzuć",
+        "delete": "Usuń",
+        "confirmDelete": "Potwierdź usunięcie"
+      },
+      "dialog": {
+        "title": "Moderacja opinii"
+      },
+      "flashes": {
+        "approved": "Opinia zatwierdzona.",
+        "rejected": "Opinia odrzucona.",
+        "deleted": "Opinia usunięta."
       }
     },
     "categories": {
