@@ -46,7 +46,6 @@
       }
     },
     "pages": {
-      "reviews":    { "title": "Reviews",          "placeholder": "Review moderation queue will live here. Coming soon." },
       "companies":  { "title": "Companies (B2B)",  "placeholder": "B2B company directory, approvals, account managers will live here. Coming soon." },
       "quotes":     { "title": "Quotes (B2B)",     "placeholder": "B2B quote requests, negotiation, conversion to order will live here. Coming soon." },
       "coupons":    { "title": "Coupons",          "placeholder": "Discount codes, conditions, and usage caps will live here. Coming soon." },
@@ -164,6 +163,53 @@
         "before": "Before",
         "after": "After",
         "empty": "No field-level changes were recorded for this event."
+      }
+    },
+    "reviews": {
+      "title": "Reviews",
+      "subtitle": "Moderate customer product reviews",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "rating": "Rating",
+        "allRatings": "All ratings",
+        "ratingStars": "{rating} stars",
+        "search": "Search",
+        "searchPlaceholder": "Title, body, author, or product"
+      },
+      "fields": {
+        "status": "Status",
+        "rating": "Rating",
+        "product": "Product",
+        "author": "Author",
+        "review": "Review",
+        "submitted": "Submitted"
+      },
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "verified": "Verified purchase",
+      "starsLabel": "{rating} out of 5 stars",
+      "empty": {
+        "noResults": "No reviews match this filter.",
+        "noReviews": "No reviews yet."
+      },
+      "actions": {
+        "moderate": "Moderate",
+        "approve": "Approve",
+        "reject": "Reject",
+        "delete": "Delete",
+        "confirmDelete": "Confirm delete"
+      },
+      "dialog": {
+        "title": "Moderate review"
+      },
+      "flashes": {
+        "approved": "Review approved.",
+        "rejected": "Review rejected.",
+        "deleted": "Review deleted."
       }
     },
     "categories": {
