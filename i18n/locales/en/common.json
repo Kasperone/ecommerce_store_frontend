@@ -556,7 +556,8 @@
         "role": "Role",
         "status": "Status",
         "orders": "Orders",
-        "country": "Country"
+        "country": "Country",
+        "tags": "Tags"
       },
       "status": {
         "active": "Active",
@@ -576,7 +577,9 @@
         "verifiedOnly": "Verified only",
         "unverifiedOnly": "Unverified only",
         "search": "Search",
-        "searchPlaceholder": "Email or name"
+        "searchPlaceholder": "Email or name",
+        "tag": "Tag",
+        "allTags": "All tags"
       },
       "empty": {
         "noResults": "No customers match this filter.",
@@ -635,6 +638,42 @@
           "updated": "Note updated.",
           "deleted": "Note deleted."
         }
+      },
+      "manageTags": "Manage tags",
+      "tags": {
+        "title": "Tags",
+        "empty": "No tags.",
+        "addExisting": "Add existing",
+        "newPlaceholder": "New tag name",
+        "add": "Add",
+        "flashes": {
+          "removed": "Tag removed."
+        }
+      }
+    },
+    "tags": {
+      "removeAria": "Remove {name}",
+      "flashes": {
+        "created": "Tag created.",
+        "updated": "Tag updated.",
+        "deleted": "Tag deleted."
+      },
+      "manage": {
+        "title": "Manage tags",
+        "description": "Create, rename, recolor, or delete customer tags.",
+        "namePlaceholder": "Tag name",
+        "create": "Create",
+        "color": "Color",
+        "noColor": "No color",
+        "loading": "Loading tags…",
+        "empty": "No tags yet.",
+        "usage": "Used by {count}",
+        "edit": "Edit tag",
+        "delete": "Delete tag",
+        "deleteConfirm": "Delete this tag? It will be removed from every customer using it.",
+        "save": "Save",
+        "cancel": "Cancel",
+        "close": "Close"
       }
     }
   },

@@ -269,6 +269,12 @@ useHead({ title: () => t('admin.customers.detail.title', { email: customer.value
           </dl>
         </UCard>
 
+        <!-- Tags -->
+        <AdminCustomerTags
+          :customer-id="customer.id"
+          :tags="customer.tags ?? []"
+        />
+
         <!-- Internal notes -->
         <AdminCustomerNotes :customer-id="customer.id" />
 

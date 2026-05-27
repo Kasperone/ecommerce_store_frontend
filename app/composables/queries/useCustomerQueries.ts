@@ -27,6 +27,7 @@ export interface CustomerListParams {
   isActive?: boolean
   isVerified?: boolean
   search?: string
+  tagId?: number
 }
 
 const CUSTOMERS_NAMESPACE = ['customers'] as const
@@ -45,6 +46,7 @@ export function useCustomersQuery(params: MaybeRefOrGetter<CustomerListParams> =
           is_active: p.isActive,
           is_verified: p.isVerified,
           search: p.search || undefined,
+          tag_id: p.tagId,
         },
       })
     },
