@@ -100,14 +100,20 @@ function openTransfer(row: InventoryListItem) {
             {{ $t('admin.inventory.subtitle') }}
           </p>
         </div>
-        <UButton
-          color="neutral"
-          variant="soft"
-          icon="i-lucide-scroll-text"
-          @click="navigateTo('/admin/inventory/movements')"
-        >
-          {{ $t('admin.inventory.actions.viewMovements') }}
-        </UButton>
+        <div class="flex items-center gap-2 flex-wrap">
+          <AdminInventoryExportButton
+            :status="statusFilter === 'all' ? undefined : statusFilter"
+            :search="searchValue || undefined"
+          />
+          <UButton
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-scroll-text"
+            @click="navigateTo('/admin/inventory/movements')"
+          >
+            {{ $t('admin.inventory.actions.viewMovements') }}
+          </UButton>
+        </div>
       </header>
 
       <div class="flex flex-wrap items-end gap-3">

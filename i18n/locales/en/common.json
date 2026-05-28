@@ -66,6 +66,11 @@
         "restock": "Restock",
         "transfer": "Transfer"
       },
+      "export": {
+        "button": "Export CSV",
+        "exporting": "Exporting…",
+        "error": "Export failed"
+      },
       "filters": {
         "status": "Status",
         "allStatuses": "All statuses",

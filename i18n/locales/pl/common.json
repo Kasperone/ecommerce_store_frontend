@@ -67,6 +67,11 @@
         "restock": "Uzupełnij",
         "transfer": "Przesuń"
       },
+      "export": {
+        "button": "Eksport CSV",
+        "exporting": "Eksportowanie…",
+        "error": "Eksport nie powiódł się"
+      },
       "filters": {
         "status": "Status",
         "allStatuses": "Wszystkie statusy",
