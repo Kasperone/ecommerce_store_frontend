@@ -363,6 +363,60 @@ describe('useAuthStore', () => {
       expect(result.success).toBe(false)
       if (!result.success) expect(result.error).toBe('Email already registered')
     })
+
+    it('sends the locale in the register body (default en, override pl)', async () => {
+      routeFetch({ '/auth/register': () => ({ message: 'ok' }) })
+      const store = await loadStore()
+      const data = {
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        email: 'ada@example.com',
+        password: 'Sup3rSecret!',
+        confirmPassword: 'Sup3rSecret!',
+      } as any
+      await store.register(data) // default
+      await store.register(data, 'pl') // override
+      const calls = mockFetch.mock.calls.filter(([url]: any[]) =>
+        String(url).includes('/auth/register'),
+      )
+      expect(calls[0]![1].body).toMatchObject({ locale: 'en' })
+      expect(calls[1]![1].body).toMatchObject({ locale: 'pl' })
+    })
+  })
+
+  describe('updateProfile', () => {
+    it('PUTs /auth/me and refreshes the local user from the response', async () => {
+      routeFetch({
+        '/auth/me': () => ({
+          email: 'ada@example.com',
+          first_name: 'Ada',
+          last_name: 'Lovelace',
+          locale: 'pl',
+          is_active: true,
+          is_verified: true,
+          role: 'CUSTOMER',
+          created_at: '',
+          updated_at: '',
+        }),
+      })
+      const store = await loadStore()
+      const result = await store.updateProfile({ locale: 'pl' })
+
+      expect(result.success).toBe(true)
+      expect(store.user?.locale).toBe('pl')
+      const call = mockFetch.mock.calls.find(([url]: any[]) => String(url).includes('/auth/me'))
+      expect(call![1].method).toBe('PUT')
+      expect(call![1].body).toEqual({ locale: 'pl' })
+    })
+
+    it('returns the backend error detail on failure', async () => {
+      mockFetch.mockImplementationOnce(() => Promise.reject({ data: { detail: 'nope' } }))
+      const store = await loadStore()
+      const result = await store.updateProfile({ locale: 'pl' })
+
+      expect(result.success).toBe(false)
+      if (!result.success) expect(result.error).toBe('nope')
+    })
   })
 
   describe('verifyEmail / resendVerification', () => {

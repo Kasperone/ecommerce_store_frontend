@@ -84,6 +84,7 @@ export interface UserResponse {
   first_name: string
   last_name: string
   phone?: string | null
+  locale: 'en' | 'pl' // preferred language for transactional emails
   is_active: boolean
   is_verified: boolean
   role: 'CUSTOMER' | 'ADMIN'

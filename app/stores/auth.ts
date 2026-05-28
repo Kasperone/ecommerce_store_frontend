@@ -112,7 +112,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   // ---- actions ----
 
-  const register = async (data: PersonalSignUpFormData | BusinessSignUpFormData) => {
+  const register = async (
+    data: PersonalSignUpFormData | BusinessSignUpFormData,
+    locale: 'en' | 'pl' = 'en',
+  ) => {
     try {
       const { apiFetch } = useApi()
       const response = await apiFetch<MessageResponse>(AUTH_ENDPOINTS.REGISTER, {
@@ -123,6 +126,9 @@ export const useAuthStore = defineStore('auth', () => {
           first_name: data.firstName,
           last_name: data.lastName,
           phone: data.phone,
+          // Seed the email-language preference from the UI language at signup;
+          // changeable later on the account page.
+          locale,
           ...('shippingStreet' in data && data.shippingStreet
             ? {
                 shipping_street: data.shippingStreet,
@@ -458,6 +464,36 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Update the current user's profile via PUT /auth/me and refresh the local
+   * `user` ref from the response. Used by the account page's email-language
+   * preference; the payload is any subset of the writable profile fields.
+   */
+  const updateProfile = async (
+    payload: Partial<
+      Omit<UserResponse, 'email' | 'is_active' | 'is_verified' | 'role' | 'created_at' | 'updated_at'>
+    >,
+  ) => {
+    try {
+      const { apiFetch } = useApi()
+      const updated = await apiFetch<UserResponse>(AUTH_ENDPOINTS.UPDATE_ME, {
+        method: 'PUT',
+        body: payload,
+      })
+      user.value = updated
+      return { success: true, data: updated } as ApiResponse<UserResponse>
+    }
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
+      return {
+        success: false,
+        error: detail ?? 'Failed to update profile.',
+        raw: error,
+      } as ApiResponse<UserResponse>
+    }
+  }
+
   return {
     // State — exposed as raw refs (not `readonly()`, not `computed()`) so Pinia
     // serializes the SSR-populated values into the hydration payload. The two
@@ -493,6 +529,7 @@ export const useAuthStore = defineStore('auth', () => {
     armClientTimer,
     clearSession,
     updateUser,
+    updateProfile,
     verifyEmail,
     resendVerification,
     requestPasswordReset,

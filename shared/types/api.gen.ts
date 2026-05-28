@@ -735,8 +735,10 @@ export interface paths {
          * Download Order Invoice
          * @description Download an order's invoice as a PDF (generated on demand from the snapshot).
          *
-         *     Customers may download only their own orders' invoices; admins may download
-         *     any. A non-existent or not-owned order returns 404 (existence is not leaked).
+         *     A paid order yields its numbered faktura (stable number + issue date from the
+         *     registry); a not-yet-paid order yields a proforma. Customers may download only
+         *     their own orders' invoices; admins may download any. A non-existent or not-owned
+         *     order returns 404 (existence is not leaked). Pure read — no number is assigned here.
          */
         get: operations["download_order_invoice_api_v1_orders__order_id__invoice_get"];
         put?: never;
@@ -2093,6 +2095,12 @@ export interface components {
             last_name: string;
             /** Phone */
             phone?: string | null;
+            /**
+             * Locale
+             * @default en
+             * @enum {string}
+             */
+            locale: "en" | "pl";
             /** Is Active */
             is_active: boolean;
             /** Is Verified */
@@ -3329,6 +3337,12 @@ export interface components {
             last_name: string;
             /** Phone */
             phone?: string | null;
+            /**
+             * Locale
+             * @default en
+             * @enum {string}
+             */
+            locale: "en" | "pl";
             /** Password */
             password: string;
             /** Shipping Street */
@@ -3384,6 +3398,12 @@ export interface components {
             last_name: string;
             /** Phone */
             phone?: string | null;
+            /**
+             * Locale
+             * @default en
+             * @enum {string}
+             */
+            locale: "en" | "pl";
             /** Is Active */
             is_active: boolean;
             /** Is Verified */
@@ -3431,6 +3451,8 @@ export interface components {
             last_name?: string | null;
             /** Phone */
             phone?: string | null;
+            /** Locale */
+            locale?: ("en" | "pl") | null;
             /** Shipping Street */
             shipping_street?: string | null;
             /** Shipping City */
