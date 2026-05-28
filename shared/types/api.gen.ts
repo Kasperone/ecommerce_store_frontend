@@ -647,7 +647,8 @@ export interface paths {
          * List Orders
          * @description List orders, scoped to the caller.
          *
-         *     Customers see only their own orders; admins see all. Optional status filter.
+         *     Customers see only their own orders; admins see all. Optional status filter
+         *     and ``created_at`` date range (``date_to`` inclusive, UTC calendar days).
          */
         get: operations["list_orders_api_v1_orders__get"];
         put?: never;
@@ -659,6 +660,34 @@ export interface paths {
          *     and computes pricing. Sets ``status=pending``.
          */
         post: operations["create_order_api_v1_orders__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Orders
+         * @description Download orders as a CSV file (admin only).
+         *
+         *     Inherits the on-screen filters (status + ``created_at`` date range). One row
+         *     per order with line items packed into the ``items`` column; RFC 4180, UTF-8
+         *     with BOM. Generated on demand from the order snapshot — no persistence and no
+         *     audit row (read-only GET, like the invoice download).
+         *
+         *     NOTE: declared *before* ``GET /{order_id}`` so FastAPI does not try to parse
+         *     the literal ``"export"`` as an integer ``order_id`` (which would 422).
+         */
+        get: operations["export_orders_api_v1_orders_export_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4496,6 +4525,10 @@ export interface operations {
                 page_size?: number;
                 /** @description Filter by order status */
                 status?: components["schemas"]["OrderStatus"] | null;
+                /** @description Orders created on/after this date (UTC) */
+                date_from?: string | null;
+                /** @description Orders created on/before this date (UTC, inclusive) */
+                date_to?: string | null;
             };
             header?: never;
             path?: never;
@@ -4543,6 +4576,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_orders_api_v1_orders_export_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by order status */
+                status?: components["schemas"]["OrderStatus"] | null;
+                /** @description Orders created on/after this date (UTC) */
+                date_from?: string | null;
+                /** @description Orders created on/before this date (UTC, inclusive) */
+                date_to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Orders CSV export */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
                 };
             };
             /** @description Validation Error */

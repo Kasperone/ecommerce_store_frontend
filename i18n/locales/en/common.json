@@ -507,7 +507,14 @@
       },
       "filters": {
         "status": "Status",
-        "allStatuses": "All statuses"
+        "allStatuses": "All statuses",
+        "dateFrom": "From",
+        "dateTo": "To"
+      },
+      "export": {
+        "button": "Export CSV",
+        "exporting": "Exporting…",
+        "error": "Export failed"
       },
       "empty": {
         "noResults": "No orders match this filter.",
