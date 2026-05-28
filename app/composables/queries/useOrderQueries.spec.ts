@@ -70,6 +70,18 @@ describe('useOrdersQuery', () => {
     expect(options.query).toMatchObject({ page: 1, page_size: 20 })
     expect(options.query.status).toBeUndefined()
   })
+
+  it('threads dateFrom/dateTo as date_from/date_to', async () => {
+    apiFetch.mockResolvedValue({ items: [], total: 0 })
+    const { useOrdersQuery } = await import('./useOrderQueries')
+
+    await runInComponent(() => useOrdersQuery({ dateFrom: '2026-05-01', dateTo: '2026-05-31' }))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    const options = apiFetch.mock.calls[0]?.[1]
+    expect(options.query).toMatchObject({ date_from: '2026-05-01', date_to: '2026-05-31' })
+  })
 })
 
 describe('useOrderQuery', () => {

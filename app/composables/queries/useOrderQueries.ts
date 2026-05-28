@@ -26,6 +26,9 @@ export interface OrderListParams {
   page?: number
   pageSize?: number
   status?: OrderStatus
+  // ISO `YYYY-MM-DD`; bounds `created_at` by UTC calendar day, `dateTo` inclusive.
+  dateFrom?: string
+  dateTo?: string
 }
 
 const ORDERS_NAMESPACE = ['orders'] as const
@@ -50,6 +53,8 @@ export function useOrdersQuery(params: MaybeRefOrGetter<OrderListParams> = {}) {
           page: p.page ?? 1,
           page_size: p.pageSize ?? 20,
           status: p.status,
+          date_from: p.dateFrom,
+          date_to: p.dateTo,
         },
       })
     },

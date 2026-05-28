@@ -15,12 +15,19 @@ useHead({ title: () => t('admin.orders.title') })
 
 const filterSchema = z.object({
   status: z.enum(['all', ...ORDER_STATUSES]).optional(),
+  // ISO `YYYY-MM-DD`; strings round-trip from the URL with no coercion. A filter
+  // key MUST live in BOTH the schema AND `defaults` — useUrlFilters iterates
+  // `Object.keys(defaults)`, so a schema-only key is silently dropped.
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),
 })
 
 const defaults = {
   status: 'all' as const,
+  dateFrom: undefined as string | undefined,
+  dateTo: undefined as string | undefined,
   page: 1,
   pageSize: 20,
 }
@@ -33,13 +40,17 @@ const queryParams = computed(() => ({
   page: filters.value.page ?? 1,
   pageSize: filters.value.pageSize ?? 20,
   status: statusFilter.value === 'all' ? undefined : (statusFilter.value as OrderStatus),
+  dateFrom: filters.value.dateFrom,
+  dateTo: filters.value.dateTo,
 }))
 
 const { data: pageData, error: listError } = useOrdersQuery(queryParams)
 
 const items = computed<OrderListItem[]>(() => pageData.value?.items ?? [])
 const total = computed(() => pageData.value?.total ?? 0)
-const hasFilter = computed(() => statusFilter.value !== 'all')
+const hasFilter = computed(
+  () => statusFilter.value !== 'all' || !!filters.value.dateFrom || !!filters.value.dateTo,
+)
 
 const statusOptions = computed(() => [
   { label: t('admin.orders.filters.allStatuses'), value: 'all' },
@@ -49,6 +60,12 @@ const statusOptions = computed(() => [
 function onStatusChange(value: string) {
   // Any filter change snaps pagination back to page 1.
   set({ status: value as typeof defaults.status, page: 1 })
+}
+
+function onDateChange(field: 'dateFrom' | 'dateTo', value: string) {
+  const patch: Partial<typeof defaults> = { page: 1 }
+  patch[field] = value || undefined // clearing the input drops the filter
+  set(patch)
 }
 
 function formatMoney(amount: number, currency: string) {
@@ -83,15 +100,38 @@ const columns: TableColumn<OrderListItem>[] = [
             {{ $t('admin.orders.subtitle') }}
           </p>
         </div>
-        <UFormField :label="$t('admin.orders.filters.status')">
-          <USelect
-            :model-value="statusFilter"
-            :items="statusOptions"
-            value-key="value"
-            class="w-48"
-            @update:model-value="onStatusChange"
+        <div class="flex items-end gap-3 flex-wrap">
+          <UFormField :label="$t('admin.orders.filters.status')">
+            <USelect
+              :model-value="statusFilter"
+              :items="statusOptions"
+              value-key="value"
+              class="w-40"
+              @update:model-value="onStatusChange"
+            />
+          </UFormField>
+          <UFormField :label="$t('admin.orders.filters.dateFrom')">
+            <UInput
+              type="date"
+              :model-value="filters.dateFrom ?? ''"
+              class="w-40"
+              @update:model-value="(v) => onDateChange('dateFrom', String(v))"
+            />
+          </UFormField>
+          <UFormField :label="$t('admin.orders.filters.dateTo')">
+            <UInput
+              type="date"
+              :model-value="filters.dateTo ?? ''"
+              class="w-40"
+              @update:model-value="(v) => onDateChange('dateTo', String(v))"
+            />
+          </UFormField>
+          <OrdersExportButton
+            :status="queryParams.status"
+            :date-from="queryParams.dateFrom"
+            :date-to="queryParams.dateTo"
           />
-        </UFormField>
+        </div>
       </header>
 
       <ErrorAlert

@@ -508,7 +508,14 @@
       },
       "filters": {
         "status": "Status",
-        "allStatuses": "Wszystkie statusy"
+        "allStatuses": "Wszystkie statusy",
+        "dateFrom": "Od",
+        "dateTo": "Do"
+      },
+      "export": {
+        "button": "Eksportuj CSV",
+        "exporting": "Eksportowanie…",
+        "error": "Eksport nie powiódł się"
       },
       "empty": {
         "noResults": "Brak zamówień pasujących do filtra.",
