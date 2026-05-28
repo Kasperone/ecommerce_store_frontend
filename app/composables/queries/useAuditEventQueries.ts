@@ -13,7 +13,20 @@ import type { MaybeRefOrGetter } from 'vue'
 import type { AuditEventListResponse } from '#shared/types/api'
 
 export type AuditAction = 'create' | 'update' | 'delete'
-export type AuditResourceType = 'product' | 'category' | 'order' | 'customer' | 'inventory'
+// Keep in sync with the resource_type strings the backend AuditWriter records
+// (grep the backend for `resource_type=`). These mirror the filter options in
+// app/pages/admin/audit-log/index.vue.
+export type AuditResourceType
+  = | 'product'
+    | 'product_image'
+    | 'category'
+    | 'order'
+    | 'customer'
+    | 'customer_note'
+    | 'customer_tag'
+    | 'tag'
+    | 'inventory'
+    | 'review'
 
 export interface AuditEventListParams {
   page?: number
