@@ -12,7 +12,9 @@ concurrency:
 jobs:
   lint:
     name: Lint (ESLint + Stylistic)
-    runs-on: ubuntu-latest
+    # Self-hosted runner on hive: free, and runs even while GitHub-hosted
+    # minutes are capped. Rollback = restore `runs-on: ubuntu-latest`.
+    runs-on: [self-hosted, hive]
 
     steps:
       - uses: actions/checkout@v5
@@ -34,7 +36,8 @@ jobs:
 
   unit:
     name: Unit (Vitest)
-    runs-on: ubuntu-latest
+    # Self-hosted runner on hive (see lint job).
+    runs-on: [self-hosted, hive]
 
     steps:
       - uses: actions/checkout@v5
