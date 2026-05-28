@@ -63,7 +63,9 @@
       "subtitle": "Zarządzaj stanami magazynowymi i przeglądaj historię ruchów",
       "actions": {
         "viewMovements": "Historia ruchów",
-        "adjust": "Koryguj"
+        "adjust": "Koryguj",
+        "restock": "Uzupełnij",
+        "transfer": "Przesuń"
       },
       "filters": {
         "status": "Status",
@@ -104,6 +106,37 @@
         "cancel": "Anuluj",
         "flashes": {
           "saved": "Zaktualizowano stan."
+        }
+      },
+      "restock": {
+        "title": "Uzupełnienie — {name}",
+        "description": "Dodaj przychodzący stan do magazynu (dostawa / przyjęcie z zamówienia zakupu).",
+        "warehouse": "Magazyn",
+        "quantity": "Ilość",
+        "note": "Notatka",
+        "notePlaceholder": "Numer zamówienia lub notatka (opcjonalnie)",
+        "save": "Uzupełnij",
+        "cancel": "Anuluj",
+        "flashes": {
+          "saved": "Dodano stan."
+        }
+      },
+      "transfer": {
+        "title": "Przesunięcie stanu — {name}",
+        "description": "Przenieś stan z jednego magazynu do drugiego. Suma pozostaje bez zmian.",
+        "from": "Z magazynu",
+        "to": "Do magazynu",
+        "toPlaceholder": "Wybierz magazyn docelowy",
+        "available": "Dostępne w źródle",
+        "quantity": "Ilość",
+        "note": "Notatka",
+        "notePlaceholder": "Powód przesunięcia (opcjonalnie)",
+        "sameWarehouse": "Magazyn źródłowy i docelowy muszą być różne.",
+        "insufficient": "Za mało stanu w magazynie źródłowym (dostępne: {available}).",
+        "save": "Przesuń",
+        "cancel": "Anuluj",
+        "flashes": {
+          "saved": "Przesunięto stan."
         }
       },
       "reasons": {

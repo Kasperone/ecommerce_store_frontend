@@ -62,7 +62,9 @@
       "subtitle": "Manage stock levels and review the movement ledger",
       "actions": {
         "viewMovements": "Movement log",
-        "adjust": "Adjust"
+        "adjust": "Adjust",
+        "restock": "Restock",
+        "transfer": "Transfer"
       },
       "filters": {
         "status": "Status",
@@ -103,6 +105,37 @@
         "cancel": "Cancel",
         "flashes": {
           "saved": "Stock updated."
+        }
+      },
+      "restock": {
+        "title": "Restock — {name}",
+        "description": "Add incoming stock to a warehouse (a supplier / purchase-order receipt).",
+        "warehouse": "Warehouse",
+        "quantity": "Quantity",
+        "note": "Note",
+        "notePlaceholder": "PO reference or note (optional)",
+        "save": "Restock",
+        "cancel": "Cancel",
+        "flashes": {
+          "saved": "Stock added."
+        }
+      },
+      "transfer": {
+        "title": "Transfer stock — {name}",
+        "description": "Move stock from one warehouse to another. The total is unchanged.",
+        "from": "From warehouse",
+        "to": "To warehouse",
+        "toPlaceholder": "Select destination",
+        "available": "Available in source",
+        "quantity": "Quantity",
+        "note": "Note",
+        "notePlaceholder": "Reason for the transfer (optional)",
+        "sameWarehouse": "Source and destination warehouses must differ.",
+        "insufficient": "Not enough stock in the source warehouse (available: {available}).",
+        "save": "Transfer",
+        "cancel": "Cancel",
+        "flashes": {
+          "saved": "Stock transferred."
         }
       },
       "reasons": {
