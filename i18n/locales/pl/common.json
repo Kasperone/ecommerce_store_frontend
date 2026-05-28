@@ -30,6 +30,7 @@
         "products": "Produkty",
         "categories": "Kategorie",
         "inventory": "Magazyn",
+        "warehouses": "Magazyny",
         "reviews": "Opinie",
         "orders": "Zamówienia",
         "customers": "Klienci",
@@ -124,6 +125,57 @@
           "note": "Notatka",
           "actor": "Przez"
         }
+      }
+    },
+    "warehouses": {
+      "title": "Magazyny",
+      "subtitle": "Zarządzaj lokalizacjami magazynowymi i domyślnym magazynem realizacji",
+      "actions": {
+        "create": "Nowy magazyn",
+        "edit": "Edytuj",
+        "delete": "Usuń"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne"
+      },
+      "fields": {
+        "code": "Kod",
+        "name": "Nazwa",
+        "default": "Domyślny",
+        "status": "Status"
+      },
+      "badges": {
+        "default": "Domyślny",
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "empty": "Brak magazynów.",
+      "form": {
+        "createTitle": "Nowy magazyn",
+        "editTitle": "Edytuj magazyn",
+        "name": "Nazwa",
+        "code": "Kod",
+        "codeHint": "Krótki unikalny kod, np. MAIN lub EU-1",
+        "isActive": "Aktywny",
+        "isDefault": "Domyślny magazyn realizacji",
+        "isDefaultHint": "Zamówienia są realizowane z domyślnego magazynu.",
+        "isDefaultLocked": "To jest magazyn domyślny. Aby go zmienić, ustaw inny magazyn jako domyślny.",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "delete": {
+        "title": "Usuń magazyn",
+        "confirm": "Usunąć magazyn \"{name}\"? Tej operacji nie można cofnąć.",
+        "delete": "Usuń",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "created": "Magazyn utworzony.",
+        "updated": "Magazyn zaktualizowany.",
+        "deleted": "Magazyn usunięty."
       }
     },
     "auditLog": {

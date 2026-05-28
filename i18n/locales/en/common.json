@@ -30,6 +30,7 @@
         "products": "Products",
         "categories": "Categories",
         "inventory": "Inventory",
+        "warehouses": "Warehouses",
         "reviews": "Reviews",
         "orders": "Orders",
         "customers": "Customers",
@@ -123,6 +124,57 @@
           "note": "Note",
           "actor": "By"
         }
+      }
+    },
+    "warehouses": {
+      "title": "Warehouses",
+      "subtitle": "Manage stock locations and the default fulfilment warehouse",
+      "actions": {
+        "create": "New warehouse",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "fields": {
+        "code": "Code",
+        "name": "Name",
+        "default": "Default",
+        "status": "Status"
+      },
+      "badges": {
+        "default": "Default",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "empty": "No warehouses yet.",
+      "form": {
+        "createTitle": "New warehouse",
+        "editTitle": "Edit warehouse",
+        "name": "Name",
+        "code": "Code",
+        "codeHint": "Short unique code, e.g. MAIN or EU-1",
+        "isActive": "Active",
+        "isDefault": "Default fulfilment warehouse",
+        "isDefaultHint": "Orders are fulfilled from the default warehouse.",
+        "isDefaultLocked": "This is the default. Set another warehouse as default to change it.",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "delete": {
+        "title": "Delete warehouse",
+        "confirm": "Delete warehouse \"{name}\"? This cannot be undone.",
+        "delete": "Delete",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "created": "Warehouse created.",
+        "updated": "Warehouse updated.",
+        "deleted": "Warehouse deleted."
       }
     },
     "auditLog": {
