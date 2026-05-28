@@ -459,7 +459,10 @@
         "sku": "Optional internal identifier",
         "category": "Pick the catalog category this product belongs to",
         "currency": "At least one currency price is required. Set the prices for the markets this product targets.",
-        "localeOptional": "Optional — falls back to English"
+        "localeOptional": "Optional — falls back to English",
+        "stockCreateOnly": "Sets the initial stock in the default warehouse. Adjust it later from Inventory.",
+        "stockEditViaInventory": "Stock is managed per warehouse from Inventory (adjust, restock, transfer).",
+        "allowBackorder": "Let customers order beyond available stock (the level goes negative)."
       },
       "placeholders": {
         "name": "Encyclopedia of Tea",
@@ -520,6 +523,7 @@
         "pricePln": "PLN",
         "priceEur": "EUR",
         "stock": "Stock",
+        "allowBackorder": "Allow backorder",
         "isActive": "Active",
         "isFeatured": "Featured",
         "status": "Status",

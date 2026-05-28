@@ -460,7 +460,10 @@
         "sku": "Opcjonalny identyfikator wewnętrzny",
         "category": "Wybierz kategorię katalogu, do której należy produkt",
         "currency": "Wymagana co najmniej jedna cena. Ustaw ceny dla rynków, na których produkt ma być sprzedawany.",
-        "localeOptional": "Opcjonalne — w razie braku użyje wersji angielskiej"
+        "localeOptional": "Opcjonalne — w razie braku użyje wersji angielskiej",
+        "stockCreateOnly": "Ustawia początkowy stan w domyślnym magazynie. Później zmień go w module Magazyn.",
+        "stockEditViaInventory": "Stan jest zarządzany per magazyn w module Magazyn (korekta, uzupełnienie, przesunięcie).",
+        "allowBackorder": "Pozwól zamawiać ponad dostępny stan (stan może być ujemny)."
       },
       "placeholders": {
         "name": "Encyklopedia herbaty",
@@ -521,6 +524,7 @@
         "pricePln": "PLN",
         "priceEur": "EUR",
         "stock": "Stan",
+        "allowBackorder": "Zezwól na zamówienia oczekujące",
         "isActive": "Aktywny",
         "isFeatured": "Wyróżniony",
         "status": "Status",
