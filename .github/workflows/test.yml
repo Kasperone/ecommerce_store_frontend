@@ -12,7 +12,9 @@ concurrency:
 jobs:
   lint:
     name: Lint (ESLint + Stylistic)
-    runs-on: ubuntu-latest
+    # Self-hosted runner on hive: free, and runs even while GitHub-hosted
+    # minutes are capped. Native job. Rollback = restore `runs-on: ubuntu-latest`.
+    runs-on: [self-hosted, hive]
 
     steps:
       - uses: actions/checkout@v5
@@ -34,7 +36,8 @@ jobs:
 
   unit:
     name: Unit (Vitest)
-    runs-on: ubuntu-latest
+    # Self-hosted runner on hive (see lint job).
+    runs-on: [self-hosted, hive]
 
     steps:
       - uses: actions/checkout@v5
@@ -61,7 +64,9 @@ jobs:
 
   codegen-check:
     name: OpenAPI codegen drift
-    runs-on: ubuntu-latest
+    # Self-hosted on hive (native — icc:false rules out a container job reaching
+    # the backend; runs even while GitHub-hosted minutes are capped).
+    runs-on: [self-hosted, hive]
 
     services:
       postgres:
@@ -71,7 +76,8 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ecommerce_e2e
         ports:
-          - 5432:5432
+          # Host port the native job reaches at localhost:5499 (hive's :5432 is taken).
+          - 5499:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s
@@ -80,7 +86,7 @@ jobs:
 
     env:
       BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
-      BACKEND_URL: http://localhost:8000
+      BACKEND_URL: http://localhost:8200
 
     steps:
       - uses: actions/checkout@v5
@@ -103,11 +109,13 @@ jobs:
 
       - name: Start backend container
         run: |
+          docker rm -f backend 2>/dev/null || true
           docker run -d --name backend \
             --network host \
             -e ENVIRONMENT=development \
             -e DEBUG=False \
-            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/ecommerce_e2e" \
+            -e PORT=8200 \
+            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5499/ecommerce_e2e" \
             -e SECRET_KEY="codegen-secret-not-for-prod--padding-x" \
             -e JWT_SECRET_KEY="codegen-jwt-secret-not-for-prod--pad-x" \
             -e RESEND_API_KEY="" \
@@ -147,9 +155,15 @@ jobs:
             backend.log
           if-no-files-found: ignore
 
+      - name: Stop backend container
+        if: always()
+        run: docker rm -f backend 2>/dev/null || true
+
   e2e:
     name: E2E (Playwright + backend image)
-    runs-on: ubuntu-latest
+    # Self-hosted on hive (native — icc:false; browsers + libs provisioned with
+    # passwordless sudo; Nuxt dev server on :3100 since hive's :3000 is taken).
+    runs-on: [self-hosted, hive]
 
     services:
       postgres:
@@ -159,7 +173,8 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ecommerce_e2e
         ports:
-          - 5432:5432
+          # Host port the native job reaches at localhost:5499 (hive's :5432 is taken).
+          - 5499:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s
@@ -172,9 +187,12 @@ jobs:
       # owner casing. Hardcoded here because ${{ github.repository_owner }}
       # preserves the original case and docker pull rejects it.
       BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
-      E2E_BACKEND_URL: http://localhost:8000
-      E2E_DB_URL: postgresql://postgres:postgres@localhost:5432/ecommerce_e2e
-      NUXT_PUBLIC_API_BASE: http://localhost:8000
+      E2E_BACKEND_URL: http://localhost:8200
+      E2E_DB_URL: postgresql://postgres:postgres@localhost:5499/ecommerce_e2e
+      NUXT_PUBLIC_API_BASE: http://localhost:8200
+      # Nuxt dev-server port (playwright.config reads E2E_WEB_PORT); hive's :3000
+      # is taken by another project's container.
+      E2E_WEB_PORT: "3100"
 
     steps:
       - uses: actions/checkout@v5
@@ -197,25 +215,28 @@ jobs:
 
       - name: Start backend container
         run: |
+          docker rm -f backend 2>/dev/null || true
           docker run -d --name backend \
             --network host \
             -e ENVIRONMENT=development \
             -e DEBUG=False \
-            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/ecommerce_e2e" \
+            -e PORT=8200 \
+            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5499/ecommerce_e2e" \
             -e SECRET_KEY="e2e-secret-not-for-prod--not-for-prod--padding" \
             -e JWT_SECRET_KEY="e2e-jwt-secret-not-for-prod--not-for-prod--padding" \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=2 \
             -e RESEND_API_KEY="" \
             -e EMAIL_FROM=e2e@example.com \
             -e EMAIL_FROM_NAME="E2E" \
-            -e FRONTEND_URL=http://localhost:3000 \
+            -e FRONTEND_URL=http://localhost:3100 \
+            -e CORS_ORIGINS='["http://localhost:3100"]' \
             -e RATE_LIMIT_STORAGE_URL=memory:// \
             "$BACKEND_IMAGE"
 
       - name: Wait for backend /health
         run: |
           for i in $(seq 1 30); do
-            if curl -fsS http://localhost:8000/health >/dev/null; then
+            if curl -fsS http://localhost:8200/health >/dev/null; then
               echo "backend ready after ${i} attempts"
               exit 0
             fi
@@ -236,19 +257,14 @@ jobs:
         id: pw
         run: echo "version=$(npx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
 
-      # Cache the seeded browsers so subsequent runs skip even the image pull.
-      # restore/save split with save gated on success() + miss → a failed provision
-      # never persists a partial browser dir. New key (`-mcr-`) so it doesn't reuse
-      # any cache from the old CDN approach.
-      - name: Restore Playwright browser cache
-        id: pw-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-mcr-${{ steps.pw.outputs.version }}
-
+      # Provision the browsers from the official Playwright image every run. On a
+      # persistent self-hosted runner ~/.cache/ms-playwright survives between jobs,
+      # but actions/cache is intentionally NOT used: its key is shared across all
+      # Linux runners, so a stale cache saved by the old ubuntu jobs got restored
+      # here MISSING chrome-headless-shell. A direct cp from the version-matched
+      # mcr image is always complete (and avoids the CDN hang `npx playwright
+      # install` hits — see git history).
       - name: Provision Playwright browsers from the Playwright image
-        if: steps.pw-cache.outputs.cache-hit != 'true'
         timeout-minutes: 10
         run: |
           set -euo pipefail
@@ -265,13 +281,6 @@ jobs:
       # OS libs the browsers need (apt only — no browser download, so it can't hang).
       - name: Install Playwright system deps
         run: npx playwright install-deps chromium
-
-      - name: Save Playwright browser cache
-        if: ${{ success() && steps.pw-cache.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-mcr-${{ steps.pw.outputs.version }}
 
       - name: Run Playwright
         run: npm run e2e
@@ -291,3 +300,7 @@ jobs:
             backend.log
           retention-days: 14
           if-no-files-found: ignore
+
+      - name: Stop backend container
+        if: always()
+        run: docker rm -f backend 2>/dev/null || true
