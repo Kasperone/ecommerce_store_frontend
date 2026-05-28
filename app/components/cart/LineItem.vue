@@ -12,7 +12,8 @@ const cart = useCartStore()
 const { currency } = useCurrencyPreference()
 
 const to = computed(() => localePath(`/products/${props.item.slug}`))
-const atMax = computed(() => props.item.quantity >= props.item.stock)
+// Backorder lines have no stock ceiling, so the "+" stepper never caps.
+const atMax = computed(() => !props.item.allowBackorder && props.item.quantity >= props.item.stock)
 
 const lineTotal = computed(() => {
   const picked = selectPrice(props.item, currency.value)
