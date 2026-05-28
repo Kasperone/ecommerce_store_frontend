@@ -1140,6 +1140,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/inventory/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Inventory
+         * @description Download the stock list as CSV (admin), inheriting the status/search filters.
+         *
+         *     One row per product; per-warehouse levels packed into the ``warehouses`` column
+         *     (default first, synthesised from unallocated stock where a level isn't
+         *     materialised, so the packed levels sum to the ``stock`` total). RFC 4180, UTF-8
+         *     with BOM. Generated on demand — no persistence, no audit row (read-only GET).
+         */
+        get: operations["export_inventory_api_v1_admin_inventory_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/inventory/products/{product_id}/levels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Product Levels
+         * @description Per-warehouse stock breakdown for one product (admin).
+         *
+         *     Always includes the default warehouse (synthesised from unallocated stock if
+         *     its level row hasn't been materialised yet), so the rows sum to the product's
+         *     total stock.
+         */
+        get: operations["list_product_levels_api_v1_admin_inventory_products__product_id__levels_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/inventory/products/{product_id}/stock": {
         parameters: {
             query?: never;
@@ -1155,13 +1204,60 @@ export interface paths {
         head?: never;
         /**
          * Adjust Stock
-         * @description Set a product's stock to an absolute value, recording the delta (admin).
+         * @description Set a product's stock in one warehouse to an absolute value (admin).
          *
-         *     Computes ``delta = new_stock - current``; a no-op (delta 0) is rejected so the
-         *     ledger never gets empty rows. Records a ``manual_adjustment`` movement + an
-         *     audit row in one transaction.
+         *     Computes ``delta = new_stock - <that warehouse's level>``; a no-op (delta 0)
+         *     is rejected so the ledger never gets empty rows. Records a
+         *     ``manual_adjustment`` movement + an audit row in one transaction.
          */
         patch: operations["adjust_stock_api_v1_admin_inventory_products__product_id__stock_patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/inventory/products/{product_id}/restock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restock Product
+         * @description Add incoming stock to a warehouse (admin) — a supplier/purchase-order receipt.
+         *
+         *     Records a ``restock`` movement of ``+quantity`` and an audit row in one
+         *     transaction. 404 on unknown product/warehouse.
+         */
+        post: operations["restock_product_api_v1_admin_inventory_products__product_id__restock_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/inventory/transfer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Transfer Stock
+         * @description Move stock between two warehouses (admin).
+         *
+         *     Writes a paired transfer_out (source) + transfer_in (destination) movement in
+         *     one transaction; the product total is unchanged. 404 on unknown
+         *     product/warehouse, 422 on same-warehouse or insufficient source stock.
+         */
+        post: operations["transfer_stock_api_v1_admin_inventory_transfer_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/inventory/movements": {
@@ -1173,7 +1269,7 @@ export interface paths {
         };
         /**
          * List Movements
-         * @description Global stock-movement ledger, newest first; optional product filter (admin).
+         * @description Global stock-movement ledger, newest first; optional product/warehouse filters (admin).
          */
         get: operations["list_movements_api_v1_admin_inventory_movements_get"];
         put?: never;
@@ -1302,6 +1398,61 @@ export interface paths {
          * @description Rename / recolor a tag (admin). 409 if a rename collides with another tag.
          */
         patch: operations["update_tag_api_v1_admin_tags__tag_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/warehouses/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Warehouses
+         * @description List warehouses (default first, then by code).
+         */
+        get: operations["list_warehouses_api_v1_admin_warehouses__get"];
+        put?: never;
+        /**
+         * Create Warehouse
+         * @description Create a warehouse. ``code`` must be unique; ``is_default=true`` reassigns
+         *     the default.
+         */
+        post: operations["create_warehouse_api_v1_admin_warehouses__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/warehouses/{warehouse_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Warehouse
+         * @description Get one warehouse by id.
+         */
+        get: operations["get_warehouse_api_v1_admin_warehouses__warehouse_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Warehouse
+         * @description Delete a warehouse. Blocked (409) if it holds any stock or is the default.
+         */
+        delete: operations["delete_warehouse_api_v1_admin_warehouses__warehouse_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Warehouse
+         * @description Update a warehouse. ``code`` stays unique; ``is_default=true`` reassigns the
+         *     default. The current default cannot be un-defaulted directly (set another as
+         *     default instead) — that would leave no fulfilment warehouse.
+         */
+        patch: operations["update_warehouse_api_v1_admin_warehouses__warehouse_id__patch"];
         trace?: never;
     };
     "/api/v1/products/{product_id}/images": {
@@ -2330,7 +2481,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "in_stock" | "low_stock" | "out_of_stock";
+            status: "in_stock" | "low_stock" | "out_of_stock" | "backorder";
         };
         /**
          * InventoryListResponse
@@ -2350,7 +2501,7 @@ export interface components {
         };
         /**
          * InventoryMovementItem
-         * @description One ledger row, with the product name joined in for display.
+         * @description One ledger row, with product + warehouse names joined in for display.
          */
         InventoryMovementItem: {
             /** Id */
@@ -2369,6 +2520,10 @@ export interface components {
             product_id: number;
             /** Product Name */
             product_name: string;
+            /** Warehouse Id */
+            warehouse_id?: number | null;
+            /** Warehouse Name */
+            warehouse_name?: string | null;
             /** Delta */
             delta: number;
             /** Resulting Stock */
@@ -2710,6 +2865,11 @@ export interface components {
             /** Low Stock Threshold */
             low_stock_threshold?: number | null;
             /**
+             * Allow Backorder
+             * @default false
+             */
+            allow_backorder: boolean;
+            /**
              * Is Active
              * @default true
              */
@@ -2843,6 +3003,11 @@ export interface components {
             /** Low Stock Threshold */
             low_stock_threshold?: number | null;
             /**
+             * Allow Backorder
+             * @default false
+             */
+            allow_backorder: boolean;
+            /**
              * Is Active
              * @default true
              */
@@ -2899,10 +3064,10 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
-            /** Stock */
-            stock?: number | null;
             /** Low Stock Threshold */
             low_stock_threshold?: number | null;
+            /** Allow Backorder */
+            allow_backorder?: boolean | null;
             /** Is Active */
             is_active?: boolean | null;
             /** Is Featured */
@@ -2953,6 +3118,11 @@ export interface components {
             /** Low Stock Threshold */
             low_stock_threshold?: number | null;
             /**
+             * Allow Backorder
+             * @default false
+             */
+            allow_backorder: boolean;
+            /**
              * Is Active
              * @default true
              */
@@ -2989,6 +3159,20 @@ export interface components {
             page_size: number;
             /** Pages */
             pages: number;
+        };
+        /**
+         * RestockRequest
+         * @description Record incoming stock into a warehouse (a purchase-order / supplier receipt).
+         *
+         *     Adds ``quantity`` units to ``warehouse_id`` as a ``restock`` movement.
+         */
+        RestockRequest: {
+            /** Warehouse Id */
+            warehouse_id: number;
+            /** Quantity */
+            quantity: number;
+            /** Note */
+            note?: string | null;
         };
         /**
          * ReviewCreate
@@ -3155,18 +3339,39 @@ export interface components {
         };
         /**
          * StockAdjustRequest
-         * @description Manual stock adjustment body.
+         * @description Manual stock adjustment body (per warehouse).
          *
-         *     ``new_stock`` is the absolute target; the route computes
-         *     ``delta = new_stock - current`` and rejects a no-op (delta 0). ``note`` is a
-         *     free-text explanation stored on the ledger row (the movement ``reason`` is
-         *     always ``manual_adjustment``).
+         *     ``new_stock`` is the absolute target for ``warehouse_id``; the route computes
+         *     ``delta = new_stock - <that warehouse's level>`` and rejects a no-op (delta 0).
+         *     ``note`` is a free-text explanation stored on the ledger row (the movement
+         *     ``reason`` is always ``manual_adjustment``).
          */
         StockAdjustRequest: {
+            /** Warehouse Id */
+            warehouse_id: number;
             /** New Stock */
             new_stock: number;
             /** Note */
             note?: string | null;
+        };
+        /**
+         * StockLevelItem
+         * @description One per-warehouse stock level for a product (the breakdown view).
+         *
+         *     A product's default warehouse always appears (synthesised from unallocated
+         *     stock when no level row has been materialised yet).
+         */
+        StockLevelItem: {
+            /** Warehouse Id */
+            warehouse_id: number;
+            /** Warehouse Code */
+            warehouse_code: string;
+            /** Warehouse Name */
+            warehouse_name: string;
+            /** Quantity */
+            quantity: number;
+            /** Is Default */
+            is_default: boolean;
         };
         /**
          * StripeCheckoutResponse
@@ -3320,6 +3525,44 @@ export interface components {
              * @default bearer
              */
             token_type: string;
+        };
+        /**
+         * TransferRequest
+         * @description Move ``quantity`` units of a product from one warehouse to another.
+         *
+         *     Writes a paired ``transfer_out`` / ``transfer_in`` movement; the product total
+         *     is unchanged. The source must hold at least ``quantity`` (no backorder on a
+         *     transfer).
+         */
+        TransferRequest: {
+            /** Product Id */
+            product_id: number;
+            /** From Warehouse Id */
+            from_warehouse_id: number;
+            /** To Warehouse Id */
+            to_warehouse_id: number;
+            /** Quantity */
+            quantity: number;
+            /** Note */
+            note?: string | null;
+        };
+        /**
+         * TransferResponse
+         * @description Result of a stock transfer: the new level in each warehouse.
+         */
+        TransferResponse: {
+            /** Product Id */
+            product_id: number;
+            /** From Warehouse Id */
+            from_warehouse_id: number;
+            /** To Warehouse Id */
+            to_warehouse_id: number;
+            /** Quantity */
+            quantity: number;
+            /** From Resulting Stock */
+            from_resulting_stock: number;
+            /** To Resulting Stock */
+            to_resulting_stock: number;
         };
         /**
          * UserCreate
@@ -3486,6 +3729,88 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /**
+         * WarehouseCreate
+         * @description Request body for creating a warehouse.
+         */
+        WarehouseCreate: {
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+        };
+        /**
+         * WarehouseListResponse
+         * @description Paginated warehouse list.
+         */
+        WarehouseListResponse: {
+            /** Items */
+            items: components["schemas"]["WarehouseResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * WarehouseResponse
+         * @description A warehouse row.
+         */
+        WarehouseResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+        };
+        /**
+         * WarehouseUpdate
+         * @description Request body for updating a warehouse (all fields optional).
+         */
+        WarehouseUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Code */
+            code?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Is Default */
+            is_default?: boolean | null;
         };
     };
     responses: never;
@@ -5392,7 +5717,7 @@ export interface operations {
                 page?: number;
                 page_size?: number;
                 /** @description Filter by computed stock status */
-                status?: ("in_stock" | "low_stock" | "out_of_stock") | null;
+                status?: ("in_stock" | "low_stock" | "out_of_stock" | "backorder") | null;
                 /** @description Search name / SKU */
                 search?: string | null;
             };
@@ -5409,6 +5734,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InventoryListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_inventory_api_v1_admin_inventory_export_get: {
+        parameters: {
+            query?: {
+                status?: ("in_stock" | "low_stock" | "out_of_stock" | "backorder") | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Inventory CSV export */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_product_levels_api_v1_admin_inventory_products__product_id__levels_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockLevelItem"][];
                 };
             };
             /** @description Validation Error */
@@ -5457,6 +5846,74 @@ export interface operations {
             };
         };
     };
+    restock_product_api_v1_admin_inventory_products__product_id__restock_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestockRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryMovementItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transfer_stock_api_v1_admin_inventory_transfer_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransferRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransferResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_movements_api_v1_admin_inventory_movements_get: {
         parameters: {
             query?: {
@@ -5464,6 +5921,8 @@ export interface operations {
                 page_size?: number;
                 /** @description Filter to one product's movements */
                 product_id?: number | null;
+                /** @description Filter to one warehouse's movements */
+                warehouse_id?: number | null;
             };
             header?: never;
             path?: never;
@@ -5768,6 +6227,168 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_warehouses_api_v1_admin_warehouses__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by active status */
+                is_active?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WarehouseListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_warehouse_api_v1_admin_warehouses__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WarehouseCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WarehouseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_warehouse_api_v1_admin_warehouses__warehouse_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                warehouse_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WarehouseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_warehouse_api_v1_admin_warehouses__warehouse_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                warehouse_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_warehouse_api_v1_admin_warehouses__warehouse_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                warehouse_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WarehouseUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WarehouseResponse"];
                 };
             };
             /** @description Validation Error */
