@@ -58,7 +58,7 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
   isLoading.value = true
   errorMessage.value = ''
 
-  const result = await authStore.register(payload.data)
+  const result = await authStore.register(payload.data, locale.value as 'en' | 'pl')
 
   isLoading.value = false
 
