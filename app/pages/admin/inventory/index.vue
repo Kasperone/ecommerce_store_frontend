@@ -14,7 +14,7 @@ const { t } = useI18n()
 useHead({ title: () => t('admin.inventory.title') })
 
 const filterSchema = z.object({
-  status: z.enum(['all', 'in_stock', 'low_stock', 'out_of_stock']).optional(),
+  status: z.enum(['all', 'in_stock', 'low_stock', 'out_of_stock', 'backorder']).optional(),
   search: z.string().optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),
@@ -49,12 +49,14 @@ const statusOptions = computed(() => [
   { label: t('admin.inventory.status.in_stock'), value: 'in_stock' },
   { label: t('admin.inventory.status.low_stock'), value: 'low_stock' },
   { label: t('admin.inventory.status.out_of_stock'), value: 'out_of_stock' },
+  { label: t('admin.inventory.status.backorder'), value: 'backorder' },
 ])
 
-const STATUS_COLOR: Record<InventoryStatus, 'success' | 'warning' | 'error'> = {
+const STATUS_COLOR: Record<InventoryStatus, 'success' | 'warning' | 'error' | 'info'> = {
   in_stock: 'success',
   low_stock: 'warning',
   out_of_stock: 'error',
+  backorder: 'info',
 }
 
 const columns: TableColumn<InventoryListItem>[] = [
@@ -66,13 +68,23 @@ const columns: TableColumn<InventoryListItem>[] = [
   { id: 'actions', header: '' },
 ]
 
-// Adjust dialog state.
+// Row-action dialog state (adjust / restock / transfer all act on `selected`).
 const dialogOpen = ref(false)
+const restockOpen = ref(false)
+const transferOpen = ref(false)
 const selected = ref<InventoryListItem | null>(null)
 
 function openAdjust(row: InventoryListItem) {
   selected.value = row
   dialogOpen.value = true
+}
+function openRestock(row: InventoryListItem) {
+  selected.value = row
+  restockOpen.value = true
+}
+function openTransfer(row: InventoryListItem) {
+  selected.value = row
+  transferOpen.value = true
 }
 </script>
 
@@ -88,14 +100,20 @@ function openAdjust(row: InventoryListItem) {
             {{ $t('admin.inventory.subtitle') }}
           </p>
         </div>
-        <UButton
-          color="neutral"
-          variant="soft"
-          icon="i-lucide-scroll-text"
-          @click="navigateTo('/admin/inventory/movements')"
-        >
-          {{ $t('admin.inventory.actions.viewMovements') }}
-        </UButton>
+        <div class="flex items-center gap-2 flex-wrap">
+          <AdminInventoryExportButton
+            :status="statusFilter === 'all' ? undefined : statusFilter"
+            :search="searchValue || undefined"
+          />
+          <UButton
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-scroll-text"
+            @click="navigateTo('/admin/inventory/movements')"
+          >
+            {{ $t('admin.inventory.actions.viewMovements') }}
+          </UButton>
+        </div>
       </header>
 
       <div class="flex flex-wrap items-end gap-3">
@@ -165,7 +183,7 @@ function openAdjust(row: InventoryListItem) {
           </UBadge>
         </template>
         <template #actions-cell="{ row }">
-          <div class="flex justify-end">
+          <div class="flex justify-end gap-1">
             <UButton
               color="neutral"
               variant="ghost"
@@ -176,6 +194,22 @@ function openAdjust(row: InventoryListItem) {
             >
               {{ $t('admin.inventory.actions.adjust') }}
             </UButton>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-package-plus"
+              size="sm"
+              :aria-label="$t('admin.inventory.actions.restock')"
+              @click="openRestock(row.original)"
+            />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-arrow-left-right"
+              size="sm"
+              :aria-label="$t('admin.inventory.actions.transfer')"
+              @click="openTransfer(row.original)"
+            />
           </div>
         </template>
       </UTable>
@@ -196,6 +230,20 @@ function openAdjust(row: InventoryListItem) {
         :current-stock="selected?.stock ?? 0"
         :current-threshold="selected?.low_stock_threshold ?? null"
         @update:open="(v) => (dialogOpen = v)"
+      />
+
+      <AdminInventoryRestockDialog
+        :open="restockOpen"
+        :product-id="selected?.id ?? null"
+        :product-name="selected?.name ?? ''"
+        @update:open="(v) => (restockOpen = v)"
+      />
+
+      <AdminInventoryTransferDialog
+        :open="transferOpen"
+        :product-id="selected?.id ?? null"
+        :product-name="selected?.name ?? ''"
+        @update:open="(v) => (transferOpen = v)"
       />
     </div>
   </NuxtLayout>

@@ -22,6 +22,7 @@ export interface ProductFormPayload {
   price_pln: number | null
   price_eur: number | null
   stock: number
+  allow_backorder: boolean
   is_active: boolean
   is_featured: boolean
   category_id: number | null
@@ -55,6 +56,7 @@ interface FormState {
   price_pln: number | undefined
   price_eur: number | undefined
   stock: number
+  allow_backorder: boolean
   is_active: boolean
   is_featured: boolean
   category_id: number | undefined
@@ -71,6 +73,7 @@ const state = reactive<FormState>({
   price_pln: undefined,
   price_eur: undefined,
   stock: 0,
+  allow_backorder: false,
   is_active: true,
   is_featured: false,
   category_id: undefined,
@@ -100,6 +103,7 @@ watch(
       state.price_pln = product.price_pln ?? undefined
       state.price_eur = product.price_eur ?? undefined
       state.stock = product.stock
+      state.allow_backorder = product.allow_backorder
       state.is_active = product.is_active
       state.is_featured = product.is_featured
       state.category_id = product.category_id ?? undefined
@@ -116,6 +120,7 @@ watch(
       state.price_pln = undefined
       state.price_eur = undefined
       state.stock = 0
+      state.allow_backorder = false
       state.is_active = true
       state.is_featured = false
       state.category_id = undefined
@@ -177,6 +182,7 @@ function buildPayload(): ProductFormPayload {
     price_pln: state.price_pln ?? null,
     price_eur: state.price_eur ?? null,
     stock: state.stock,
+    allow_backorder: state.allow_backorder,
     is_active: state.is_active,
     is_featured: state.is_featured,
     category_id: state.category_id ?? null,
@@ -401,7 +407,9 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
       </div>
 
       <UFormField
+        v-if="mode === 'create'"
         :label="t('admin.products.fields.stock')"
+        :hint="t('admin.products.hints.stockCreateOnly')"
         name="stock"
         class="max-w-xs"
       >
@@ -411,6 +419,23 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
           :step="1"
           :disabled="loading"
           class="w-full"
+        />
+      </UFormField>
+      <p
+        v-else
+        class="text-xs text-muted"
+      >
+        {{ t('admin.products.hints.stockEditViaInventory') }}
+      </p>
+
+      <UFormField
+        name="allow_backorder"
+        :help="t('admin.products.hints.allowBackorder')"
+      >
+        <UCheckbox
+          v-model="state.allow_backorder"
+          :label="t('admin.products.fields.allowBackorder')"
+          :disabled="loading"
         />
       </UFormField>
     </section>

@@ -82,6 +82,28 @@ describe('useCartStore', () => {
     expect(cart.isEmpty).toBe(true)
   })
 
+  it('adds a backorder product that is out of stock', () => {
+    const cart = useCartStore()
+    cart.add(product({ stock: 0, allow_backorder: true }))
+    expect(cart.items).toHaveLength(1)
+    expect(cart.items[0]).toMatchObject({ quantity: 1, allowBackorder: true })
+  })
+
+  it('does not cap quantity for backorder products', () => {
+    const cart = useCartStore()
+    cart.add(product({ stock: 2, allow_backorder: true }), 5)
+    expect(cart.items[0]!.quantity).toBe(5)
+    cart.add(product({ stock: 2, allow_backorder: true }), 3)
+    expect(cart.items[0]!.quantity).toBe(8)
+  })
+
+  it('setQuantity is not clamped for backorder lines', () => {
+    const cart = useCartStore()
+    cart.add(product({ stock: 2, allow_backorder: true }))
+    cart.setQuantity(1, 10)
+    expect(cart.items[0]!.quantity).toBe(10)
+  })
+
   it('removes and clears', () => {
     const cart = useCartStore()
     cart.add(product({ id: 1 }))

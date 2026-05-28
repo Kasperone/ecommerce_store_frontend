@@ -13,13 +13,15 @@ const { t } = useI18n()
 useHead({ title: () => t('admin.inventory.movements.title') })
 
 const filterSchema = z.object({
-  productId: z.number().min(1).optional(),
+  productId: z.coerce.number().min(1).optional(),
+  warehouseId: z.coerce.number().min(1).optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),
 })
 
 const defaults = {
   productId: undefined as number | undefined,
+  warehouseId: undefined as number | undefined,
   page: 1,
   pageSize: 20,
 }
@@ -27,11 +29,13 @@ const defaults = {
 const { filters, set } = useUrlFilters(filterSchema, defaults)
 
 const productId = computed(() => filters.value.productId)
+const warehouseId = computed(() => filters.value.warehouseId)
 
 const queryParams = computed(() => ({
   page: filters.value.page ?? 1,
   pageSize: filters.value.pageSize ?? 20,
   productId: productId.value,
+  warehouseId: warehouseId.value,
 }))
 
 const { data: pageData, error: listError } = useInventoryMovementsQuery(queryParams)
@@ -43,11 +47,14 @@ const REASON_COLOR: Record<string, 'neutral' | 'warning' | 'primary' | 'success'
   order_cancelled: 'warning',
   manual_adjustment: 'primary',
   restock: 'success',
+  transfer_out: 'warning',
+  transfer_in: 'success',
 }
 
 const columns: TableColumn<InventoryMovementItem>[] = [
   { accessorKey: 'created_at', header: () => t('admin.inventory.movements.fields.when') },
   { accessorKey: 'product_name', header: () => t('admin.inventory.movements.fields.product') },
+  { accessorKey: 'warehouse_name', header: () => t('admin.inventory.movements.fields.warehouse') },
   { accessorKey: 'reason', header: () => t('admin.inventory.movements.fields.reason') },
   { accessorKey: 'delta', header: () => t('admin.inventory.movements.fields.change') },
   { accessorKey: 'resulting_stock', header: () => t('admin.inventory.movements.fields.resulting') },
@@ -87,21 +94,29 @@ function reasonLabel(reason: string) {
       </header>
 
       <div
-        v-if="productId !== undefined"
-        class="flex items-center gap-2"
+        v-if="productId !== undefined || warehouseId !== undefined"
+        class="flex items-center gap-2 flex-wrap"
       >
         <UBadge
+          v-if="productId !== undefined"
           color="neutral"
           variant="subtle"
         >
           {{ $t('admin.inventory.movements.filteredByProduct', { id: productId }) }}
+        </UBadge>
+        <UBadge
+          v-if="warehouseId !== undefined"
+          color="neutral"
+          variant="subtle"
+        >
+          {{ $t('admin.inventory.movements.filteredByWarehouse', { id: warehouseId }) }}
         </UBadge>
         <UButton
           size="xs"
           color="neutral"
           variant="ghost"
           icon="i-lucide-x"
-          @click="set({ productId: undefined, page: 1 })"
+          @click="set({ productId: undefined, warehouseId: undefined, page: 1 })"
         >
           {{ $t('admin.inventory.movements.clearFilter') }}
         </UButton>
@@ -132,6 +147,9 @@ function reasonLabel(reason: string) {
         </template>
         <template #product_name-cell="{ row }">
           <span class="font-medium">{{ row.original.product_name }}</span>
+        </template>
+        <template #warehouse_name-cell="{ row }">
+          <span class="text-sm">{{ row.original.warehouse_name ?? '—' }}</span>
         </template>
         <template #reason-cell="{ row }">
           <UBadge
