@@ -694,7 +694,18 @@
     "dashboard": "Moje konto",
     "signedInAs": "Zalogowano jako",
     "placeholderTitle": "Witaj",
-    "placeholderBody": "Funkcje konta pojawią się tutaj (zamówienia, profil, adresy, metody płatności)."
+    "placeholderBody": "Funkcje konta pojawią się tutaj (zamówienia, profil, adresy, metody płatności).",
+    "preferences": {
+      "title": "Preferencje"
+    },
+    "emailLanguage": {
+      "label": "Język wiadomości e-mail",
+      "hint": "Język, którego używamy w potwierdzeniach zamówień i innych wiadomościach.",
+      "en": "Angielski",
+      "pl": "Polski",
+      "saved": "Zaktualizowano język wiadomości e-mail.",
+      "error": "Nie udało się zaktualizować języka wiadomości e-mail."
+    }
   },
   "navigation": {
     "home": "Strona Główna",

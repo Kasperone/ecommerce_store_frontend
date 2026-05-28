@@ -693,7 +693,18 @@
     "dashboard": "My Account",
     "signedInAs": "Signed in as",
     "placeholderTitle": "Welcome",
-    "placeholderBody": "Your account features will appear here (orders, profile, addresses, payment methods)."
+    "placeholderBody": "Your account features will appear here (orders, profile, addresses, payment methods).",
+    "preferences": {
+      "title": "Preferences"
+    },
+    "emailLanguage": {
+      "label": "Email language",
+      "hint": "The language we use for order confirmations and other emails.",
+      "en": "English",
+      "pl": "Polish",
+      "saved": "Email language updated.",
+      "error": "Could not update email language."
+    }
   },
   "navigation": {
     "home": "Home",
