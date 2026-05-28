@@ -1,5 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
 
+// The dev-server port is overridable so CI can dodge host port clashes — the
+// self-hosted hive runner already has :3000 taken by another project. Defaults
+// to 3000 so local `npm run e2e` is unchanged.
+const WEB_PORT = Number(process.env.E2E_WEB_PORT) || 3000
+
 export default defineConfig({
   testDir: 'e2e',
   outputDir: 'playwright/.test-results',
@@ -10,13 +15,13 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   globalSetup: './e2e/seed/global-setup.ts',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: `http://localhost:${WEB_PORT}`,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npm run dev',
-    port: 3000,
+    command: `npm run dev -- --port ${WEB_PORT}`,
+    port: WEB_PORT,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
