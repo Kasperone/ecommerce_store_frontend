@@ -76,8 +76,10 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ecommerce_e2e
         ports:
-          # Host port the native job reaches at localhost:5499 (hive's :5432 is taken).
-          - 5499:5432
+          # Host port the native job reaches at localhost:5498. Distinct from the
+          # backend repo's :5499 — both self-hosted runners share the hive host, so a
+          # shared Postgres host port collides when backend + frontend CI overlap.
+          - 5498:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s
@@ -115,7 +117,7 @@ jobs:
             -e ENVIRONMENT=development \
             -e DEBUG=False \
             -e PORT=8200 \
-            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5499/ecommerce_e2e" \
+            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5498/ecommerce_e2e" \
             -e SECRET_KEY="codegen-secret-not-for-prod--padding-x" \
             -e JWT_SECRET_KEY="codegen-jwt-secret-not-for-prod--pad-x" \
             -e RESEND_API_KEY="" \
@@ -173,8 +175,10 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ecommerce_e2e
         ports:
-          # Host port the native job reaches at localhost:5499 (hive's :5432 is taken).
-          - 5499:5432
+          # Host port the native job reaches at localhost:5498. Distinct from the
+          # backend repo's :5499 — both self-hosted runners share the hive host, so a
+          # shared Postgres host port collides when backend + frontend CI overlap.
+          - 5498:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s
@@ -188,7 +192,7 @@ jobs:
       # preserves the original case and docker pull rejects it.
       BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
       E2E_BACKEND_URL: http://localhost:8200
-      E2E_DB_URL: postgresql://postgres:postgres@localhost:5499/ecommerce_e2e
+      E2E_DB_URL: postgresql://postgres:postgres@localhost:5498/ecommerce_e2e
       NUXT_PUBLIC_API_BASE: http://localhost:8200
       # Nuxt dev-server port (playwright.config reads E2E_WEB_PORT); hive's :3000
       # is taken by another project's container.
@@ -221,7 +225,7 @@ jobs:
             -e ENVIRONMENT=development \
             -e DEBUG=False \
             -e PORT=8200 \
-            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5499/ecommerce_e2e" \
+            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5498/ecommerce_e2e" \
             -e SECRET_KEY="e2e-secret-not-for-prod--not-for-prod--padding" \
             -e JWT_SECRET_KEY="e2e-jwt-secret-not-for-prod--not-for-prod--padding" \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=2 \
