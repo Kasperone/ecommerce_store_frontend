@@ -23,9 +23,11 @@ import type {
   InventoryMovementItem,
   InventoryMovementListResponse,
   ProductResponse,
+  StockLevelItem,
+  TransferResponse,
 } from '#shared/types/api'
 
-export type InventoryStatus = 'in_stock' | 'low_stock' | 'out_of_stock'
+export type InventoryStatus = 'in_stock' | 'low_stock' | 'out_of_stock' | 'backorder'
 
 export interface InventoryListParams {
   page?: number
@@ -38,6 +40,7 @@ export interface InventoryMovementParams {
   page?: number
   pageSize?: number
   productId?: number
+  warehouseId?: number
 }
 
 const INVENTORY_NAMESPACE = ['inventory'] as const
@@ -75,6 +78,7 @@ export function useInventoryMovementsQuery(
           page: p.page ?? 1,
           page_size: p.pageSize ?? 20,
           product_id: p.productId,
+          warehouse_id: p.warehouseId,
         },
       })
     },
@@ -84,8 +88,25 @@ export function useInventoryMovementsQuery(
 }
 
 /**
- * `PATCH /api/v1/admin/inventory/products/{id}/stock` — set absolute stock;
- * the backend computes + records the signed delta. Returns the ledger row.
+ * `GET /api/v1/admin/inventory/products/{id}/levels` — per-warehouse breakdown
+ * (always includes the default warehouse, synthesised from unallocated stock).
+ */
+export function useProductLevels(productId: MaybeRefOrGetter<number | null>) {
+  const { apiFetch } = useApi()
+  return useQuery({
+    key: () => [...INVENTORY_NAMESPACE, 'levels', toValue(productId)],
+    query: () =>
+      apiFetch<StockLevelItem[]>(
+        `/api/v1/admin/inventory/products/${toValue(productId)}/levels`,
+      ),
+    // Client-only + only once a product is selected (the dialog passes null when closed).
+    enabled: () => import.meta.client && toValue(productId) !== null,
+  })
+}
+
+/**
+ * `PATCH /api/v1/admin/inventory/products/{id}/stock` — set a warehouse's absolute
+ * stock; the backend computes + records the signed delta. Returns the ledger row.
  */
 export function useAdjustStock() {
   const { apiFetch } = useApi()
@@ -93,17 +114,87 @@ export function useAdjustStock() {
   return useMutation({
     mutation: ({
       productId,
+      warehouseId,
       newStock,
       note,
     }: {
       productId: number
+      warehouseId: number
       newStock: number
       note?: string
     }) =>
       apiFetch<InventoryMovementItem>(
         `/api/v1/admin/inventory/products/${productId}/stock`,
-        { method: 'PATCH', body: { new_stock: newStock, note: note || undefined } },
+        {
+          method: 'PATCH',
+          body: { warehouse_id: warehouseId, new_stock: newStock, note: note || undefined },
+        },
       ),
+    onSuccess: () => queryCache.invalidateQueries({ key: [...INVENTORY_NAMESPACE] }),
+  })
+}
+
+/**
+ * `POST /api/v1/admin/inventory/products/{id}/restock` — add incoming stock to a
+ * warehouse (records a `restock` movement).
+ */
+export function useRestock() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: ({
+      productId,
+      warehouseId,
+      quantity,
+      note,
+    }: {
+      productId: number
+      warehouseId: number
+      quantity: number
+      note?: string
+    }) =>
+      apiFetch<InventoryMovementItem>(
+        `/api/v1/admin/inventory/products/${productId}/restock`,
+        {
+          method: 'POST',
+          body: { warehouse_id: warehouseId, quantity, note: note || undefined },
+        },
+      ),
+    onSuccess: () => queryCache.invalidateQueries({ key: [...INVENTORY_NAMESPACE] }),
+  })
+}
+
+/**
+ * `POST /api/v1/admin/inventory/transfer` — move stock between two warehouses
+ * (paired transfer_out/in; the product total is unchanged).
+ */
+export function useTransferStock() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: ({
+      productId,
+      fromWarehouseId,
+      toWarehouseId,
+      quantity,
+      note,
+    }: {
+      productId: number
+      fromWarehouseId: number
+      toWarehouseId: number
+      quantity: number
+      note?: string
+    }) =>
+      apiFetch<TransferResponse>('/api/v1/admin/inventory/transfer', {
+        method: 'POST',
+        body: {
+          product_id: productId,
+          from_warehouse_id: fromWarehouseId,
+          to_warehouse_id: toWarehouseId,
+          quantity,
+          note: note || undefined,
+        },
+      }),
     onSuccess: () => queryCache.invalidateQueries({ key: [...INVENTORY_NAMESPACE] }),
   })
 }

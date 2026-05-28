@@ -14,7 +14,7 @@ const { t } = useI18n()
 useHead({ title: () => t('admin.inventory.title') })
 
 const filterSchema = z.object({
-  status: z.enum(['all', 'in_stock', 'low_stock', 'out_of_stock']).optional(),
+  status: z.enum(['all', 'in_stock', 'low_stock', 'out_of_stock', 'backorder']).optional(),
   search: z.string().optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),
@@ -49,12 +49,14 @@ const statusOptions = computed(() => [
   { label: t('admin.inventory.status.in_stock'), value: 'in_stock' },
   { label: t('admin.inventory.status.low_stock'), value: 'low_stock' },
   { label: t('admin.inventory.status.out_of_stock'), value: 'out_of_stock' },
+  { label: t('admin.inventory.status.backorder'), value: 'backorder' },
 ])
 
-const STATUS_COLOR: Record<InventoryStatus, 'success' | 'warning' | 'error'> = {
+const STATUS_COLOR: Record<InventoryStatus, 'success' | 'warning' | 'error' | 'info'> = {
   in_stock: 'success',
   low_stock: 'warning',
   out_of_stock: 'error',
+  backorder: 'info',
 }
 
 const columns: TableColumn<InventoryListItem>[] = [

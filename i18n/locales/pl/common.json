@@ -81,7 +81,8 @@
       "status": {
         "in_stock": "Dostępny",
         "low_stock": "Niski stan",
-        "out_of_stock": "Brak"
+        "out_of_stock": "Brak",
+        "backorder": "Na zamówienie"
       },
       "empty": {
         "noResults": "Brak produktów pasujących do filtra.",
@@ -90,6 +91,8 @@
       "adjust": {
         "title": "Korekta stanu — {name}",
         "description": "Ustaw nowy stan magazynowy. Zmiana zostanie zapisana w historii ruchów.",
+        "levels": "Stan wg magazynu",
+        "warehouse": "Magazyn",
         "currentStock": "Obecny stan",
         "newStock": "Nowy stan",
         "threshold": "Próg niskiego stanu",
@@ -107,7 +110,9 @@
         "order_placed": "Złożenie zamówienia",
         "order_cancelled": "Anulowanie zamówienia",
         "manual_adjustment": "Korekta ręczna",
-        "restock": "Uzupełnienie"
+        "restock": "Uzupełnienie",
+        "transfer_out": "Przesunięcie (wyjście)",
+        "transfer_in": "Przesunięcie (wejście)"
       },
       "movements": {
         "title": "Ruchy magazynowe",
@@ -115,10 +120,12 @@
         "back": "Powrót do magazynu",
         "empty": "Brak ruchów magazynowych.",
         "filteredByProduct": "Filtr: produkt #{id}",
+        "filteredByWarehouse": "Filtr: magazyn #{id}",
         "clearFilter": "Wyczyść",
         "fields": {
           "when": "Kiedy",
           "product": "Produkt",
+          "warehouse": "Magazyn",
           "reason": "Powód",
           "change": "Zmiana",
           "resulting": "Stan po zmianie",

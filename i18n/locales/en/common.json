@@ -80,7 +80,8 @@
       "status": {
         "in_stock": "In stock",
         "low_stock": "Low stock",
-        "out_of_stock": "Out of stock"
+        "out_of_stock": "Out of stock",
+        "backorder": "Backorder"
       },
       "empty": {
         "noResults": "No products match this filter.",
@@ -89,6 +90,8 @@
       "adjust": {
         "title": "Adjust stock — {name}",
         "description": "Set the new stock level. The change is recorded on the movement ledger.",
+        "levels": "Per-warehouse stock",
+        "warehouse": "Warehouse",
         "currentStock": "Current stock",
         "newStock": "New stock",
         "threshold": "Low-stock threshold",
@@ -106,7 +109,9 @@
         "order_placed": "Order placed",
         "order_cancelled": "Order cancelled",
         "manual_adjustment": "Manual adjustment",
-        "restock": "Restock"
+        "restock": "Restock",
+        "transfer_out": "Transfer out",
+        "transfer_in": "Transfer in"
       },
       "movements": {
         "title": "Stock movements",
@@ -114,10 +119,12 @@
         "back": "Back to inventory",
         "empty": "No stock movements yet.",
         "filteredByProduct": "Filtered to product #{id}",
+        "filteredByWarehouse": "Filtered to warehouse #{id}",
         "clearFilter": "Clear",
         "fields": {
           "when": "When",
           "product": "Product",
+          "warehouse": "Warehouse",
           "reason": "Reason",
           "change": "Change",
           "resulting": "Resulting stock",
