@@ -30,6 +30,7 @@
         "products": "Products",
         "categories": "Categories",
         "inventory": "Inventory",
+        "warehouses": "Warehouses",
         "reviews": "Reviews",
         "orders": "Orders",
         "customers": "Customers",
@@ -61,7 +62,14 @@
       "subtitle": "Manage stock levels and review the movement ledger",
       "actions": {
         "viewMovements": "Movement log",
-        "adjust": "Adjust"
+        "adjust": "Adjust",
+        "restock": "Restock",
+        "transfer": "Transfer"
+      },
+      "export": {
+        "button": "Export CSV",
+        "exporting": "Exporting…",
+        "error": "Export failed"
       },
       "filters": {
         "status": "Status",
@@ -79,7 +87,8 @@
       "status": {
         "in_stock": "In stock",
         "low_stock": "Low stock",
-        "out_of_stock": "Out of stock"
+        "out_of_stock": "Out of stock",
+        "backorder": "Backorder"
       },
       "empty": {
         "noResults": "No products match this filter.",
@@ -88,6 +97,8 @@
       "adjust": {
         "title": "Adjust stock — {name}",
         "description": "Set the new stock level. The change is recorded on the movement ledger.",
+        "levels": "Per-warehouse stock",
+        "warehouse": "Warehouse",
         "currentStock": "Current stock",
         "newStock": "New stock",
         "threshold": "Low-stock threshold",
@@ -101,11 +112,44 @@
           "saved": "Stock updated."
         }
       },
+      "restock": {
+        "title": "Restock — {name}",
+        "description": "Add incoming stock to a warehouse (a supplier / purchase-order receipt).",
+        "warehouse": "Warehouse",
+        "quantity": "Quantity",
+        "note": "Note",
+        "notePlaceholder": "PO reference or note (optional)",
+        "save": "Restock",
+        "cancel": "Cancel",
+        "flashes": {
+          "saved": "Stock added."
+        }
+      },
+      "transfer": {
+        "title": "Transfer stock — {name}",
+        "description": "Move stock from one warehouse to another. The total is unchanged.",
+        "from": "From warehouse",
+        "to": "To warehouse",
+        "toPlaceholder": "Select destination",
+        "available": "Available in source",
+        "quantity": "Quantity",
+        "note": "Note",
+        "notePlaceholder": "Reason for the transfer (optional)",
+        "sameWarehouse": "Source and destination warehouses must differ.",
+        "insufficient": "Not enough stock in the source warehouse (available: {available}).",
+        "save": "Transfer",
+        "cancel": "Cancel",
+        "flashes": {
+          "saved": "Stock transferred."
+        }
+      },
       "reasons": {
         "order_placed": "Order placed",
         "order_cancelled": "Order cancelled",
         "manual_adjustment": "Manual adjustment",
-        "restock": "Restock"
+        "restock": "Restock",
+        "transfer_out": "Transfer out",
+        "transfer_in": "Transfer in"
       },
       "movements": {
         "title": "Stock movements",
@@ -113,16 +157,69 @@
         "back": "Back to inventory",
         "empty": "No stock movements yet.",
         "filteredByProduct": "Filtered to product #{id}",
+        "filteredByWarehouse": "Filtered to warehouse #{id}",
         "clearFilter": "Clear",
         "fields": {
           "when": "When",
           "product": "Product",
+          "warehouse": "Warehouse",
           "reason": "Reason",
           "change": "Change",
           "resulting": "Resulting stock",
           "note": "Note",
           "actor": "By"
         }
+      }
+    },
+    "warehouses": {
+      "title": "Warehouses",
+      "subtitle": "Manage stock locations and the default fulfilment warehouse",
+      "actions": {
+        "create": "New warehouse",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "fields": {
+        "code": "Code",
+        "name": "Name",
+        "default": "Default",
+        "status": "Status"
+      },
+      "badges": {
+        "default": "Default",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "empty": "No warehouses yet.",
+      "form": {
+        "createTitle": "New warehouse",
+        "editTitle": "Edit warehouse",
+        "name": "Name",
+        "code": "Code",
+        "codeHint": "Short unique code, e.g. MAIN or EU-1",
+        "isActive": "Active",
+        "isDefault": "Default fulfilment warehouse",
+        "isDefaultHint": "Orders are fulfilled from the default warehouse.",
+        "isDefaultLocked": "This is the default. Set another warehouse as default to change it.",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "delete": {
+        "title": "Delete warehouse",
+        "confirm": "Delete warehouse \"{name}\"? This cannot be undone.",
+        "delete": "Delete",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "created": "Warehouse created.",
+        "updated": "Warehouse updated.",
+        "deleted": "Warehouse deleted."
       }
     },
     "auditLog": {
@@ -362,7 +459,10 @@
         "sku": "Optional internal identifier",
         "category": "Pick the catalog category this product belongs to",
         "currency": "At least one currency price is required. Set the prices for the markets this product targets.",
-        "localeOptional": "Optional — falls back to English"
+        "localeOptional": "Optional — falls back to English",
+        "stockCreateOnly": "Sets the initial stock in the default warehouse. Adjust it later from Inventory.",
+        "stockEditViaInventory": "Stock is managed per warehouse from Inventory (adjust, restock, transfer).",
+        "allowBackorder": "Let customers order beyond available stock (the level goes negative)."
       },
       "placeholders": {
         "name": "Encyclopedia of Tea",
@@ -423,6 +523,7 @@
         "pricePln": "PLN",
         "priceEur": "EUR",
         "stock": "Stock",
+        "allowBackorder": "Allow backorder",
         "isActive": "Active",
         "isFeatured": "Featured",
         "status": "Status",

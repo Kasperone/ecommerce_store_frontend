@@ -20,7 +20,9 @@
     "inStock": "Dostępny",
     "outOfStock": "Niedostępny",
     "lowStock": "Tylko {count} szt. w magazynie",
-    "preOrder": "Przedsprzedaż"
+    "preOrder": "Przedsprzedaż",
+    "backorder": "Dostępny na zamówienie",
+    "addBackorder": "Dodaj do koszyka (na zamówienie)"
   },
   "filters": {
     "sortBy": "Sortuj według",

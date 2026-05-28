@@ -54,6 +54,16 @@ describe('ShopAddToCartButton', () => {
     expect(wrapper.text()).toContain('Out of Stock')
   })
 
+  it('stays enabled with a backorder label when out of stock but backorder is allowed', async () => {
+    const wrapper = await mountSuspended(AddToCartButton, {
+      props: { product: product({ stock: 0, allow_backorder: true }) },
+    })
+    expect(wrapper.find('button').attributes('disabled')).toBeUndefined()
+    expect(wrapper.text()).toContain('backorder')
+    await wrapper.find('button').trigger('click')
+    expect(add).toHaveBeenCalledTimes(1)
+  })
+
   it('is axe-clean', async () => {
     const wrapper = await mountSuspended(AddToCartButton, { props: { product: product() } })
     expect(await axe(wrapper.element, AXE_OPTIONS)).toHaveNoViolations()

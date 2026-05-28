@@ -48,6 +48,7 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
       .int({ error: t('admin.products.errors.stockInteger', { default: 'Stock must be a whole number' }) })
       .min(0, { error: t('admin.products.errors.stockNegative', { default: 'Stock cannot be negative' }) })
       .default(0),
+    allow_backorder: z.boolean().default(false),
     is_active: z.boolean().default(true),
     is_featured: z.boolean().default(false),
     category_id: z.number().int().positive().optional().nullable(),
@@ -89,6 +90,7 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
       .int({ error: t('admin.products.errors.stockInteger', { default: 'Stock must be a whole number' }) })
       .min(0, { error: t('admin.products.errors.stockNegative', { default: 'Stock cannot be negative' }) })
       .optional(),
+    allow_backorder: z.boolean().optional(),
     is_active: z.boolean().optional(),
     is_featured: z.boolean().optional(),
     category_id: z.number().int().positive().optional().nullable(),

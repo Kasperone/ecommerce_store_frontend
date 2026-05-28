@@ -30,6 +30,7 @@
         "products": "Produkty",
         "categories": "Kategorie",
         "inventory": "Magazyn",
+        "warehouses": "Magazyny",
         "reviews": "Opinie",
         "orders": "Zamówienia",
         "customers": "Klienci",
@@ -62,7 +63,14 @@
       "subtitle": "Zarządzaj stanami magazynowymi i przeglądaj historię ruchów",
       "actions": {
         "viewMovements": "Historia ruchów",
-        "adjust": "Koryguj"
+        "adjust": "Koryguj",
+        "restock": "Uzupełnij",
+        "transfer": "Przesuń"
+      },
+      "export": {
+        "button": "Eksport CSV",
+        "exporting": "Eksportowanie…",
+        "error": "Eksport nie powiódł się"
       },
       "filters": {
         "status": "Status",
@@ -80,7 +88,8 @@
       "status": {
         "in_stock": "Dostępny",
         "low_stock": "Niski stan",
-        "out_of_stock": "Brak"
+        "out_of_stock": "Brak",
+        "backorder": "Na zamówienie"
       },
       "empty": {
         "noResults": "Brak produktów pasujących do filtra.",
@@ -89,6 +98,8 @@
       "adjust": {
         "title": "Korekta stanu — {name}",
         "description": "Ustaw nowy stan magazynowy. Zmiana zostanie zapisana w historii ruchów.",
+        "levels": "Stan wg magazynu",
+        "warehouse": "Magazyn",
         "currentStock": "Obecny stan",
         "newStock": "Nowy stan",
         "threshold": "Próg niskiego stanu",
@@ -102,11 +113,44 @@
           "saved": "Zaktualizowano stan."
         }
       },
+      "restock": {
+        "title": "Uzupełnienie — {name}",
+        "description": "Dodaj przychodzący stan do magazynu (dostawa / przyjęcie z zamówienia zakupu).",
+        "warehouse": "Magazyn",
+        "quantity": "Ilość",
+        "note": "Notatka",
+        "notePlaceholder": "Numer zamówienia lub notatka (opcjonalnie)",
+        "save": "Uzupełnij",
+        "cancel": "Anuluj",
+        "flashes": {
+          "saved": "Dodano stan."
+        }
+      },
+      "transfer": {
+        "title": "Przesunięcie stanu — {name}",
+        "description": "Przenieś stan z jednego magazynu do drugiego. Suma pozostaje bez zmian.",
+        "from": "Z magazynu",
+        "to": "Do magazynu",
+        "toPlaceholder": "Wybierz magazyn docelowy",
+        "available": "Dostępne w źródle",
+        "quantity": "Ilość",
+        "note": "Notatka",
+        "notePlaceholder": "Powód przesunięcia (opcjonalnie)",
+        "sameWarehouse": "Magazyn źródłowy i docelowy muszą być różne.",
+        "insufficient": "Za mało stanu w magazynie źródłowym (dostępne: {available}).",
+        "save": "Przesuń",
+        "cancel": "Anuluj",
+        "flashes": {
+          "saved": "Przesunięto stan."
+        }
+      },
       "reasons": {
         "order_placed": "Złożenie zamówienia",
         "order_cancelled": "Anulowanie zamówienia",
         "manual_adjustment": "Korekta ręczna",
-        "restock": "Uzupełnienie"
+        "restock": "Uzupełnienie",
+        "transfer_out": "Przesunięcie (wyjście)",
+        "transfer_in": "Przesunięcie (wejście)"
       },
       "movements": {
         "title": "Ruchy magazynowe",
@@ -114,16 +158,69 @@
         "back": "Powrót do magazynu",
         "empty": "Brak ruchów magazynowych.",
         "filteredByProduct": "Filtr: produkt #{id}",
+        "filteredByWarehouse": "Filtr: magazyn #{id}",
         "clearFilter": "Wyczyść",
         "fields": {
           "when": "Kiedy",
           "product": "Produkt",
+          "warehouse": "Magazyn",
           "reason": "Powód",
           "change": "Zmiana",
           "resulting": "Stan po zmianie",
           "note": "Notatka",
           "actor": "Przez"
         }
+      }
+    },
+    "warehouses": {
+      "title": "Magazyny",
+      "subtitle": "Zarządzaj lokalizacjami magazynowymi i domyślnym magazynem realizacji",
+      "actions": {
+        "create": "Nowy magazyn",
+        "edit": "Edytuj",
+        "delete": "Usuń"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne"
+      },
+      "fields": {
+        "code": "Kod",
+        "name": "Nazwa",
+        "default": "Domyślny",
+        "status": "Status"
+      },
+      "badges": {
+        "default": "Domyślny",
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "empty": "Brak magazynów.",
+      "form": {
+        "createTitle": "Nowy magazyn",
+        "editTitle": "Edytuj magazyn",
+        "name": "Nazwa",
+        "code": "Kod",
+        "codeHint": "Krótki unikalny kod, np. MAIN lub EU-1",
+        "isActive": "Aktywny",
+        "isDefault": "Domyślny magazyn realizacji",
+        "isDefaultHint": "Zamówienia są realizowane z domyślnego magazynu.",
+        "isDefaultLocked": "To jest magazyn domyślny. Aby go zmienić, ustaw inny magazyn jako domyślny.",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "delete": {
+        "title": "Usuń magazyn",
+        "confirm": "Usunąć magazyn \"{name}\"? Tej operacji nie można cofnąć.",
+        "delete": "Usuń",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "created": "Magazyn utworzony.",
+        "updated": "Magazyn zaktualizowany.",
+        "deleted": "Magazyn usunięty."
       }
     },
     "auditLog": {
@@ -363,7 +460,10 @@
         "sku": "Opcjonalny identyfikator wewnętrzny",
         "category": "Wybierz kategorię katalogu, do której należy produkt",
         "currency": "Wymagana co najmniej jedna cena. Ustaw ceny dla rynków, na których produkt ma być sprzedawany.",
-        "localeOptional": "Opcjonalne — w razie braku użyje wersji angielskiej"
+        "localeOptional": "Opcjonalne — w razie braku użyje wersji angielskiej",
+        "stockCreateOnly": "Ustawia początkowy stan w domyślnym magazynie. Później zmień go w module Magazyn.",
+        "stockEditViaInventory": "Stan jest zarządzany per magazyn w module Magazyn (korekta, uzupełnienie, przesunięcie).",
+        "allowBackorder": "Pozwól zamawiać ponad dostępny stan (stan może być ujemny)."
       },
       "placeholders": {
         "name": "Encyklopedia herbaty",
@@ -424,6 +524,7 @@
         "pricePln": "PLN",
         "priceEur": "EUR",
         "stock": "Stan",
+        "allowBackorder": "Zezwól na zamówienia oczekujące",
         "isActive": "Aktywny",
         "isFeatured": "Wyróżniony",
         "status": "Status",

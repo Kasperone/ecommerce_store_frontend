@@ -89,18 +89,31 @@ describe('useInventoryMovementsQuery', () => {
   })
 })
 
+describe('useProductLevels', () => {
+  it('fetches /api/v1/admin/inventory/products/{id}/levels', async () => {
+    apiFetch.mockResolvedValue([])
+    const { useProductLevels } = await import('./useInventoryQueries')
+
+    await runInComponent(() => useProductLevels(7))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(apiFetch.mock.calls[0]?.[0]).toBe('/api/v1/admin/inventory/products/7/levels')
+  })
+})
+
 describe('useAdjustStock', () => {
-  it('PATCHes /api/v1/admin/inventory/products/{id}/stock with new_stock + note', async () => {
+  it('PATCHes products/{id}/stock with warehouse_id + new_stock + note', async () => {
     apiFetch.mockResolvedValue({ id: 1, delta: 5, resulting_stock: 15 })
     const { useAdjustStock } = await import('./useInventoryQueries')
 
     const result = (await runInComponent(() => useAdjustStock())) as any
-    await result.mutateAsync({ productId: 4, newStock: 15, note: 'recount' })
+    await result.mutateAsync({ productId: 4, warehouseId: 2, newStock: 15, note: 'recount' })
 
     const [url, options] = apiFetch.mock.calls[0]
     expect(url).toBe('/api/v1/admin/inventory/products/4/stock')
     expect(options.method).toBe('PATCH')
-    expect(options.body).toMatchObject({ new_stock: 15, note: 'recount' })
+    expect(options.body).toMatchObject({ warehouse_id: 2, new_stock: 15, note: 'recount' })
   })
 
   it('omits an empty note', async () => {
@@ -108,11 +121,51 @@ describe('useAdjustStock', () => {
     const { useAdjustStock } = await import('./useInventoryQueries')
 
     const result = (await runInComponent(() => useAdjustStock())) as any
-    await result.mutateAsync({ productId: 4, newStock: 0 })
+    await result.mutateAsync({ productId: 4, warehouseId: 1, newStock: 0 })
 
     const options = apiFetch.mock.calls[0]?.[1]
-    expect(options.body).toMatchObject({ new_stock: 0 })
+    expect(options.body).toMatchObject({ warehouse_id: 1, new_stock: 0 })
     expect(options.body.note).toBeUndefined()
+  })
+})
+
+describe('useRestock', () => {
+  it('POSTs products/{id}/restock with warehouse_id + quantity', async () => {
+    apiFetch.mockResolvedValue({ id: 1, delta: 5 })
+    const { useRestock } = await import('./useInventoryQueries')
+
+    const result = (await runInComponent(() => useRestock())) as any
+    await result.mutateAsync({ productId: 4, warehouseId: 2, quantity: 5, note: 'PO-1' })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/inventory/products/4/restock')
+    expect(options.method).toBe('POST')
+    expect(options.body).toMatchObject({ warehouse_id: 2, quantity: 5, note: 'PO-1' })
+  })
+})
+
+describe('useTransferStock', () => {
+  it('POSTs /transfer with the from/to/quantity payload', async () => {
+    apiFetch.mockResolvedValue({ product_id: 4, from_resulting_stock: 5, to_resulting_stock: 3 })
+    const { useTransferStock } = await import('./useInventoryQueries')
+
+    const result = (await runInComponent(() => useTransferStock())) as any
+    await result.mutateAsync({
+      productId: 4,
+      fromWarehouseId: 1,
+      toWarehouseId: 2,
+      quantity: 3,
+    })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/inventory/transfer')
+    expect(options.method).toBe('POST')
+    expect(options.body).toMatchObject({
+      product_id: 4,
+      from_warehouse_id: 1,
+      to_warehouse_id: 2,
+      quantity: 3,
+    })
   })
 })
 

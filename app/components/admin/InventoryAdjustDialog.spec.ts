@@ -7,20 +7,17 @@ import InventoryAdjustDialog from './InventoryAdjustDialog.vue'
 
 /**
  * The dialog owns its mutations (adjust stock + set threshold) and the success
- * toast, so we stub those auto-imports and assert the dialog's own logic: the
- * no-op guard (nothing changed → close, no network) and a11y. Argument mapping
- * for the mutations is pinned in `useInventoryQueries.spec.ts`.
- *
- * `aria-hidden-focus` is disabled in axe runs for the same reka-ui open-transition
- * timing reason documented in AdminFormModal.spec.ts.
+ * toast, plus the per-warehouse levels + warehouse list queries. We stub those
+ * auto-imports and assert the dialog's own logic: the no-op guard, the
+ * warehouse-scoped adjust payload, and a11y. URL/verb mapping is pinned in
+ * `useInventoryQueries.spec.ts`.
  */
 
 const AXE_OPTIONS = {
   rules: {
     'aria-hidden-focus': { enabled: false },
-    // Nuxt UI's UInputNumber renders a visually-hidden native input (for form
-    // submission) that axe flags as unlabeled; the visible control is labeled via
-    // UFormField. Disabled here for the same reason as CategoryFormModal.spec.ts.
+    // UInputNumber renders a visually-hidden native input that axe flags as
+    // unlabeled; the visible control is labeled via UFormField.
     'label': { enabled: false },
   },
 }
@@ -38,6 +35,17 @@ mockNuxtImport('useAdjustStock', () => () => ({
 mockNuxtImport('useSetLowStockThreshold', () => () => ({
   mutateAsync: thresholdMutate,
   isLoading: ref(false),
+}))
+mockNuxtImport('useProductLevels', () => () => ({
+  data: ref([
+    { warehouse_id: 1, warehouse_code: 'MAIN', warehouse_name: 'Main', quantity: 10, is_default: true },
+  ]),
+}))
+mockNuxtImport('useWarehousesQuery', () => () => ({
+  data: ref({
+    items: [{ id: 1, code: 'MAIN', name: 'Main', is_default: true, is_active: true }],
+    total: 1,
+  }),
 }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
@@ -67,14 +75,17 @@ function clickSave() {
 }
 
 describe('InventoryAdjustDialog', () => {
-  it('renders the product name and current stock', async () => {
+  it('renders the product name and the selected warehouse level', async () => {
     await mountSuspended(InventoryAdjustDialog, { props: baseProps() })
+    await new Promise(r => setTimeout(r, 0))
     expect(document.body.textContent).toContain('Blue Widget')
+    expect(document.body.textContent).toContain('MAIN')
     expect(document.body.textContent).toContain('10')
   })
 
   it('is axe-clean when open', async () => {
     await mountSuspended(InventoryAdjustDialog, { props: baseProps() })
+    await new Promise(r => setTimeout(r, 0))
     const dialog = document.querySelector('[role="dialog"]') as HTMLElement
     expect(dialog).toBeTruthy()
     expect(await axe(dialog, AXE_OPTIONS)).toHaveNoViolations()
@@ -82,6 +93,7 @@ describe('InventoryAdjustDialog', () => {
 
   it('closes without calling any mutation when nothing changed', async () => {
     const wrapper = await mountSuspended(InventoryAdjustDialog, { props: baseProps() })
+    await new Promise(r => setTimeout(r, 0))
     clickSave()
     await new Promise(r => setTimeout(r, 0))
 
@@ -90,18 +102,22 @@ describe('InventoryAdjustDialog', () => {
     expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
   })
 
-  it('adjusts stock when the new-stock value changed', async () => {
+  it('adjusts the selected warehouse when the new-stock value changed', async () => {
     const wrapper = await mountSuspended(InventoryAdjustDialog, { props: baseProps() })
-    // Drive the first UInputNumber (new stock) via its v-model event.
+    await new Promise(r => setTimeout(r, 0))
     const numberInputs = wrapper.findAllComponents({ name: 'UInputNumber' })
-    expect(numberInputs.length).toBeGreaterThan(0)
     numberInputs[0]!.vm.$emit('update:modelValue', 25)
     await new Promise(r => setTimeout(r, 0))
 
     clickSave()
     await new Promise(r => setTimeout(r, 0))
 
-    expect(adjustMutate).toHaveBeenCalledWith({ productId: 1, newStock: 25, note: undefined })
+    expect(adjustMutate).toHaveBeenCalledWith({
+      productId: 1,
+      warehouseId: 1,
+      newStock: 25,
+      note: undefined,
+    })
     expect(toastAdd).toHaveBeenCalled()
   })
 
@@ -109,6 +125,7 @@ describe('InventoryAdjustDialog', () => {
     const wrapper = await mountSuspended(InventoryAdjustDialog, {
       props: baseProps({ currentThreshold: null }),
     })
+    await new Promise(r => setTimeout(r, 0))
     // [0] = new stock, [1] = low-stock threshold — change only the threshold.
     const numberInputs = wrapper.findAllComponents({ name: 'UInputNumber' })
     numberInputs[1]!.vm.$emit('update:modelValue', 15)
@@ -124,6 +141,7 @@ describe('InventoryAdjustDialog', () => {
   it('shows an error alert and no success toast when a mutation fails', async () => {
     adjustMutate.mockRejectedValue({ data: { detail: 'Stock conflict' } })
     const wrapper = await mountSuspended(InventoryAdjustDialog, { props: baseProps() })
+    await new Promise(r => setTimeout(r, 0))
     const numberInputs = wrapper.findAllComponents({ name: 'UInputNumber' })
     numberInputs[0]!.vm.$emit('update:modelValue', 25)
     await new Promise(r => setTimeout(r, 0))

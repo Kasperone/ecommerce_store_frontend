@@ -49,6 +49,22 @@ describe('CartLineItem', () => {
     expect(setQuantity).toHaveBeenCalledWith(1, 1)
   })
 
+  it('caps the increase button at stock for a normal line', async () => {
+    const wrapper = await mountSuspended(LineItem, {
+      props: { item: item({ stock: 2, quantity: 2 }) },
+    })
+    expect(wrapper.find('button[aria-label="Increase quantity"]').attributes('disabled'))
+      .toBeDefined()
+  })
+
+  it('does not cap the increase button for a backorder line at/over stock', async () => {
+    const wrapper = await mountSuspended(LineItem, {
+      props: { item: item({ stock: 0, quantity: 1, allowBackorder: true }) },
+    })
+    expect(wrapper.find('button[aria-label="Increase quantity"]').attributes('disabled'))
+      .toBeUndefined()
+  })
+
   it('removes the line through the store', async () => {
     const wrapper = await mountSuspended(LineItem, { props: { item: item() } })
     await wrapper.find('button[aria-label="Remove"]').trigger('click')
