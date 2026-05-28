@@ -148,10 +148,15 @@
       },
       "resources": {
         "product": "Product",
+        "product_image": "Product image",
         "category": "Category",
         "order": "Order",
         "customer": "Customer",
-        "inventory": "Inventory"
+        "customer_note": "Customer note",
+        "customer_tag": "Customer tag",
+        "tag": "Tag",
+        "inventory": "Inventory",
+        "review": "Review"
       },
       "empty": {
         "noResults": "No audit events match this filter.",
