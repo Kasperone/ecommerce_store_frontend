@@ -11,7 +11,9 @@ const props = defineProps<{
 const { t } = useI18n()
 const cart = useCartStore()
 
-const outOfStock = computed(() => props.product.stock <= 0)
+// Out of stock blocks the button only when backorder isn't allowed.
+const outOfStock = computed(() => props.product.stock <= 0 && !props.product.allow_backorder)
+const isBackorder = computed(() => props.product.stock <= 0 && props.product.allow_backorder)
 
 function addToCart() {
   cart.add(props.product)
@@ -27,6 +29,14 @@ function addToCart() {
     :disabled="outOfStock"
     @click="addToCart"
   >
-    {{ outOfStock ? t('stock.outOfStock') : t('actions.addToCart') }}
+    <template v-if="outOfStock">
+      {{ t('stock.outOfStock') }}
+    </template>
+    <template v-else-if="isBackorder">
+      {{ t('stock.addBackorder') }}
+    </template>
+    <template v-else>
+      {{ t('actions.addToCart') }}
+    </template>
   </UButton>
 </template>

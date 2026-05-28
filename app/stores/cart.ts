@@ -25,12 +25,23 @@ export interface CartItem {
   price_pln: number | null
   price_eur: number | null
   stock: number
+  // Snapshotted so the cart can allow quantities beyond stock for backorder
+  // products without refetching. Older persisted carts lack it → treated as false.
+  allowBackorder: boolean
   quantity: number
 }
 
 type AddableProduct = Pick<
   ProductResponse | ProductWithCategory,
-  'id' | 'slug' | 'name' | 'images' | 'price_usd' | 'price_pln' | 'price_eur' | 'stock'
+  | 'id'
+  | 'slug'
+  | 'name'
+  | 'images'
+  | 'price_usd'
+  | 'price_pln'
+  | 'price_eur'
+  | 'stock'
+  | 'allow_backorder'
 >
 
 const STORAGE_KEY = 'cart'
@@ -52,10 +63,12 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   function add(product: AddableProduct, quantity = 1) {
-    if (product.stock <= 0) return
+    // Out of stock blocks adding only when backorder isn't allowed.
+    if (product.stock <= 0 && !product.allow_backorder) return
     const existing = items.value.find(item => item.productId === product.id)
     if (existing) {
-      existing.quantity = Math.min(existing.quantity + quantity, product.stock)
+      const next = existing.quantity + quantity
+      existing.quantity = product.allow_backorder ? next : Math.min(next, product.stock)
       return
     }
     items.value.push({
@@ -67,7 +80,10 @@ export const useCartStore = defineStore('cart', () => {
       price_pln: product.price_pln,
       price_eur: product.price_eur,
       stock: product.stock,
-      quantity: Math.min(Math.max(quantity, 1), product.stock),
+      allowBackorder: product.allow_backorder,
+      quantity: product.allow_backorder
+        ? Math.max(quantity, 1)
+        : Math.min(Math.max(quantity, 1), product.stock),
     })
   }
 
@@ -78,7 +94,8 @@ export const useCartStore = defineStore('cart', () => {
       remove(productId)
       return
     }
-    item.quantity = Math.min(quantity, item.stock)
+    // Backorder lines aren't clamped to stock; everything else is.
+    item.quantity = item.allowBackorder ? quantity : Math.min(quantity, item.stock)
   }
 
   function clear() {

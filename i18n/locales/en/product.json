@@ -20,7 +20,9 @@
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
     "lowStock": "Only {count} left in stock",
-    "preOrder": "Pre-order"
+    "preOrder": "Pre-order",
+    "backorder": "Available on backorder",
+    "addBackorder": "Add to cart (backorder)"
   },
   "filters": {
     "sortBy": "Sort by",

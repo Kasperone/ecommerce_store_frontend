@@ -36,7 +36,13 @@ useSeoMeta({
   ogDescription: () => displayDescription.value ?? '',
 })
 
-const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
+// A backorderable product at zero stock is "on backorder", not "out of stock".
+const backorder = computed(
+  () => (product.value?.stock ?? 0) <= 0 && product.value?.allow_backorder === true,
+)
+const outOfStock = computed(
+  () => (product.value?.stock ?? 0) <= 0 && !backorder.value,
+)
 const lowStock = computed(() => {
   const p = product.value
   if (!p || p.stock <= 0 || p.low_stock_threshold == null) return false
@@ -98,6 +104,13 @@ const categoryTo = computed(() =>
               variant="subtle"
             >
               {{ t('stock.outOfStock') }}
+            </UBadge>
+            <UBadge
+              v-else-if="backorder"
+              color="info"
+              variant="subtle"
+            >
+              {{ t('stock.backorder') }}
             </UBadge>
             <UBadge
               v-else-if="lowStock"
