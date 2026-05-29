@@ -1120,6 +1120,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/dashboard/kpis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Dashboard Kpis
+         * @description Dashboard KPIs: revenue/orders/customers, sales trend, top products, low stock.
+         */
+        get: operations["get_dashboard_kpis_api_v1_admin_dashboard_kpis_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/inventory/": {
         parameters: {
             query?: never;
@@ -2422,6 +2442,51 @@ export interface components {
             name?: string | null;
         };
         /**
+         * DashboardKpis
+         * @description The full admin-dashboard payload (read-only aggregate).
+         */
+        DashboardKpis: {
+            /** Window Days */
+            window_days: number;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Primary Currency */
+            primary_currency: string;
+            /** Revenue Total */
+            revenue_total: {
+                [key: string]: number;
+            };
+            /** Revenue Window */
+            revenue_window: {
+                [key: string]: number;
+            };
+            /** Aov Total */
+            aov_total: {
+                [key: string]: number;
+            };
+            /** Orders Total */
+            orders_total: number;
+            /** Orders Window */
+            orders_window: number;
+            /** Orders Pending */
+            orders_pending: number;
+            /** Customers Total */
+            customers_total: number;
+            /** Customers Window */
+            customers_window: number;
+            /** Sales Trend */
+            sales_trend: components["schemas"]["SalesTrendPoint"][];
+            /** Top Products */
+            top_products: components["schemas"]["TopProductItem"][];
+            /** Low Stock Count */
+            low_stock_count: number;
+            /** Low Stock */
+            low_stock: components["schemas"]["LowStockItem"][];
+        };
+        /**
          * EmailResend
          * @description Schema for resending verification email
          */
@@ -2552,6 +2617,27 @@ export interface components {
             page_size: number;
             /** Pages */
             pages: number;
+        };
+        /**
+         * LowStockItem
+         * @description A product needing attention (computed status is not ``in_stock``).
+         */
+        LowStockItem: {
+            /** Product Id */
+            product_id: number;
+            /** Name */
+            name: string;
+            /** Sku */
+            sku?: string | null;
+            /** Stock */
+            stock: number;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "in_stock" | "low_stock" | "out_of_stock" | "backorder";
         };
         /**
          * MyVotesResponse
@@ -3279,6 +3365,27 @@ export interface components {
             my_vote: boolean;
         };
         /**
+         * SalesTrendPoint
+         * @description One day in the sales trend (zero-filled across the whole window).
+         *
+         *     ``order_count`` is every order placed that day (volume); ``revenue`` is the
+         *     per-currency sum of revenue-status orders placed that day. Both attributed by
+         *     ``created_at``.
+         */
+        SalesTrendPoint: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Order Count */
+            order_count: number;
+            /** Revenue */
+            revenue: {
+                [key: string]: number;
+            };
+        };
+        /**
          * SearchResponse
          * @description Paginated, faceted product search results.
          */
@@ -3525,6 +3632,25 @@ export interface components {
              * @default bearer
              */
             token_type: string;
+        };
+        /**
+         * TopProductItem
+         * @description A best-seller, ranked by units sold over revenue-status orders.
+         *
+         *     ``name``/``slug`` are the product's current values; ``name`` falls back to the
+         *     ``order_items`` snapshot if the product row was deleted, and ``slug`` is then null.
+         */
+        TopProductItem: {
+            /** Product Id */
+            product_id: number;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug?: string | null;
+            /** Units Sold */
+            units_sold: number;
+            /** Order Count */
+            order_count: number;
         };
         /**
          * TransferRequest
@@ -5698,6 +5824,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagChip"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dashboard_kpis_api_v1_admin_dashboard_kpis_get: {
+        parameters: {
+            query?: {
+                /** @description Window for the trend + windowed KPIs (days) */
+                window_days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardKpis"];
                 };
             };
             /** @description Validation Error */

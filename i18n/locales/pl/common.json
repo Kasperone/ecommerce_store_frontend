@@ -12,6 +12,45 @@
   },
   "admin": {
     "dashboard": "Panel administratora",
+    "dashboardKpis": {
+      "title": "Pulpit",
+      "subtitle": "Wyniki sklepu w skrócie.",
+      "window": {
+        "label": "Okres",
+        "last7": "Ostatnie 7 dni",
+        "last30": "Ostatnie 30 dni",
+        "last90": "Ostatnie 90 dni"
+      },
+      "cards": {
+        "revenue": "Przychód",
+        "aov": "Śr. wartość zamówienia",
+        "orders": "Zamówienia",
+        "pending": "Oczekujące zamówienia",
+        "customers": "Klienci",
+        "ordersInWindow": "{count} w ciągu ostatnich {days} dni",
+        "newCustomers": "{count} nowych w ciągu ostatnich {days} dni"
+      },
+      "trend": {
+        "title": "Trend sprzedaży",
+        "summary": "{total} w ciągu ostatnich {days} dni",
+        "currencyLabel": "Waluta trendu",
+        "barLabel": "{date}: {amount} przychodu, {count} zamówień",
+        "noRevenue": "Brak przychodu w ciągu ostatnich {days} dni"
+      },
+      "top": {
+        "title": "Najlepsze produkty",
+        "units": "sprzedano {count}",
+        "orders": "{count} zamówienie | {count} zamówień",
+        "empty": "Brak sprzedaży."
+      },
+      "low": {
+        "title": "Niski stan",
+        "stock": "{count} w magazynie",
+        "more": "+{count} więcej",
+        "viewAll": "Zobacz magazyn",
+        "empty": "Wszystko dobrze zatowarowane."
+      }
+    },
     "signedInAs": "Zalogowano jako",
     "placeholderTitle": "Witaj",
     "placeholderBody": "Funkcje administracyjne pojawią się tutaj (produkty, kategorie, zamówienia, użytkownicy).",
