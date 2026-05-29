@@ -86,6 +86,26 @@ function onSendReset() {
   )
 }
 
+const startingImpersonation = ref(false)
+
+async function onImpersonate() {
+  if (!customer.value) return
+  startingImpersonation.value = true
+  formError.value = null
+  try {
+    const res = await auth.startImpersonation(customer.value.id)
+    if (res.success) {
+      await navigateTo('/account')
+    }
+    else {
+      toast.add({ title: res.error, color: 'error', icon: 'i-lucide-triangle-alert' })
+    }
+  }
+  finally {
+    startingImpersonation.value = false
+  }
+}
+
 useHead({ title: () => t('admin.customers.detail.title', { email: customer.value?.email ?? '' }) })
 </script>
 
@@ -333,6 +353,17 @@ useHead({ title: () => t('admin.customers.detail.title', { email: customer.value
               @click="onSendReset"
             >
               {{ $t('admin.customers.actions.sendReset') }}
+            </UButton>
+            <UButton
+              v-if="customer.role !== 'ADMIN'"
+              color="neutral"
+              variant="soft"
+              icon="i-lucide-eye"
+              :loading="startingImpersonation"
+              :disabled="busy || !customer.is_active || isSelf"
+              @click="onImpersonate"
+            >
+              {{ $t('admin.customers.actions.impersonate') }}
             </UButton>
           </div>
           <p
