@@ -29,7 +29,7 @@ const filterSchema = z.object({
       'review',
     ])
     .optional(),
-  action: z.enum(['all', 'create', 'update', 'delete']).optional(),
+  action: z.enum(['all', 'create', 'update', 'delete', 'impersonate']).optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),
 })
@@ -87,16 +87,17 @@ const resourceOptions = computed(() => [
 ])
 const actionOptions = computed(() => [
   { label: t('admin.auditLog.filters.allActions'), value: 'all' },
-  ...(['create', 'update', 'delete'] as const).map(a => ({
+  ...(['create', 'update', 'delete', 'impersonate'] as const).map(a => ({
     label: t(`admin.auditLog.actions.${a}`),
     value: a,
   })),
 ])
 
-const ACTION_COLOR: Record<string, 'success' | 'primary' | 'error' | 'neutral'> = {
+const ACTION_COLOR: Record<string, 'success' | 'primary' | 'error' | 'neutral' | 'warning'> = {
   create: 'success',
   update: 'primary',
   delete: 'error',
+  impersonate: 'warning',
 }
 
 const columns: TableColumn<AuditEventItem>[] = [

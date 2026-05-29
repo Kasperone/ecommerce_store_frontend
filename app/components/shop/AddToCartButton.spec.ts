@@ -4,8 +4,17 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import AddToCartButton from './AddToCartButton.vue'
 
-const { add, openDrawer } = vi.hoisted(() => ({ add: vi.fn(), openDrawer: vi.fn() }))
+const { add, openDrawer, authState } = vi.hoisted(() => ({
+  add: vi.fn(),
+  openDrawer: vi.fn(),
+  authState: { isImpersonating: false },
+}))
 mockNuxtImport('useCartStore', () => () => ({ add, openDrawer }))
+mockNuxtImport('useAuthStore', () => () => ({
+  get isImpersonating() {
+    return authState.isImpersonating
+  },
+}))
 
 const AXE_OPTIONS = { rules: { region: { enabled: false } } }
 
@@ -35,6 +44,7 @@ function product(overrides: Record<string, unknown> = {}) {
 beforeEach(() => {
   add.mockReset()
   openDrawer.mockReset()
+  authState.isImpersonating = false
 })
 
 describe('ShopAddToCartButton', () => {
@@ -62,6 +72,14 @@ describe('ShopAddToCartButton', () => {
     expect(wrapper.text()).toContain('backorder')
     await wrapper.find('button').trigger('click')
     expect(add).toHaveBeenCalledTimes(1)
+  })
+
+  it('is disabled and does not add to cart while impersonating', async () => {
+    authState.isImpersonating = true
+    const wrapper = await mountSuspended(AddToCartButton, { props: { product: product() } })
+    expect(wrapper.find('button').attributes('disabled')).toBeDefined()
+    await wrapper.find('button').trigger('click')
+    expect(add).not.toHaveBeenCalled()
   })
 
   it('is axe-clean', async () => {
