@@ -1,0 +1,30 @@
+# Build artifacts + deps (the image installs/builds fresh)
+node_modules
+.nuxt
+.output
+.data
+
+# VCS + tooling
+.git
+.gitignore
+.github
+
+# Local env (never bake secrets into the image — injected at runtime)
+.env
+.env.*
+
+# Tests / reports / scratch
+coverage
+test-results
+playwright-report
+playwright/.mcp-output
+**/*.spec.ts
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+
+# Docker
+Dockerfile
+.dockerignore

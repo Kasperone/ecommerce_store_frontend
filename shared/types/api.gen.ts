@@ -1049,6 +1049,9 @@ export interface paths {
          *     rejects every non-safe HTTP method on that token, so the admin can only *see*
          *     what the customer sees — never act for them. Refused for another admin (no
          *     impersonating peers) or an inactive account. Audited as ``impersonate``.
+         *
+         *     Rate-limited (20/hour) and gated by the ``IMPERSONATION_ENABLED`` kill-switch
+         *     so the capability can be throttled / disabled per environment.
          */
         post: operations["impersonate_customer_api_v1_admin_customers__customer_id__impersonate_post"];
         delete?: never;
