@@ -1031,6 +1031,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/customers/{customer_id}/impersonate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Impersonate Customer
+         * @description Start a **view-only** impersonation session for a customer (admin).
+         *
+         *     Issues a short-lived, no-refresh access token whose ``sub`` is the customer
+         *     and which carries an ``impersonator_id`` claim. The write-guard middleware
+         *     rejects every non-safe HTTP method on that token, so the admin can only *see*
+         *     what the customer sees — never act for them. Refused for another admin (no
+         *     impersonating peers) or an inactive account. Audited as ``impersonate``.
+         */
+        post: operations["impersonate_customer_api_v1_admin_customers__customer_id__impersonate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/customers/{customer_id}/notes": {
         parameters: {
             query?: never;
@@ -2526,6 +2552,44 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * ImpersonatedCustomer
+         * @description Minimal customer identity returned when an admin starts impersonation —
+         *     enough for the frontend's 'Viewing as …' banner.
+         */
+        ImpersonatedCustomer: {
+            /** Id */
+            id: number;
+            /** Email */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+        };
+        /**
+         * ImpersonationResponse
+         * @description Result of `POST /admin/customers/{id}/impersonate`.
+         *
+         *     ``access_token`` is a short-lived, no-refresh access token whose ``sub`` is the
+         *     customer and which carries an ``impersonator_id`` claim (the acting admin). The
+         *     write-guard middleware makes it view-only.
+         */
+        ImpersonationResponse: {
+            /** Access Token */
+            access_token: string;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            customer: components["schemas"]["ImpersonatedCustomer"];
         };
         /**
          * InventoryListItem
@@ -5625,6 +5689,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GenericMessage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    impersonate_customer_api_v1_admin_customers__customer_id__impersonate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImpersonationResponse"];
                 };
             };
             /** @description Validation Error */

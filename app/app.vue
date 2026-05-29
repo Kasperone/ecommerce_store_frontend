@@ -1,5 +1,6 @@
 <template>
   <UApp :locale="uiLocale">
+    <ImpersonationBanner />
     <NuxtPage />
   </UApp>
 </template>

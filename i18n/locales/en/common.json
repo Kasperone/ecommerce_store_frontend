@@ -1,4 +1,9 @@
 {
+  "impersonation": {
+    "banner": "Viewing as {name}",
+    "viewOnly": "View-only",
+    "exit": "Exit"
+  },
   "header": {
     "account": "Account",
     "admin": "Admin",
@@ -764,7 +769,8 @@
         "enable": "Enable",
         "disable": "Disable",
         "unlock": "Unlock",
-        "sendReset": "Send password reset"
+        "sendReset": "Send password reset",
+        "impersonate": "View as customer"
       },
       "flashes": {
         "verified": "Customer verified.",

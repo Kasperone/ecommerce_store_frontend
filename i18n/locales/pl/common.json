@@ -1,4 +1,9 @@
 {
+  "impersonation": {
+    "banner": "Podgląd jako {name}",
+    "viewOnly": "Tylko podgląd",
+    "exit": "Zakończ"
+  },
   "header": {
     "account": "Konto",
     "admin": "Admin",
@@ -765,7 +770,8 @@
         "enable": "Włącz",
         "disable": "Wyłącz",
         "unlock": "Odblokuj",
-        "sendReset": "Wyślij reset hasła"
+        "sendReset": "Wyślij reset hasła",
+        "impersonate": "Zobacz jako klient"
       },
       "flashes": {
         "verified": "Klient zweryfikowany.",

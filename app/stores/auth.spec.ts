@@ -565,4 +565,53 @@ describe('useAuthStore', () => {
       expect(clientStore.isAuthenticated).toBe(true)
     })
   })
+
+  describe('impersonation', () => {
+    const CUSTOMER = { id: 7, email: 'shopper@example.com', first_name: 'Sam', last_name: 'Shopper' }
+
+    it('startImpersonation swaps to the impersonation token and loads the customer', async () => {
+      const store = await loadStore()
+      const impToken = buildJwt(FUTURE_EXP())
+      routeFetch({
+        '/impersonate': () => ({
+          access_token: impToken,
+          token_type: 'bearer',
+          expires_at: '2026-01-01T00:30:00Z',
+          customer: CUSTOMER,
+        }),
+        '/me': () => ({ ...ME_USER, email: CUSTOMER.email, first_name: 'Sam', last_name: 'Shopper' }),
+      })
+
+      const res = await store.startImpersonation(7)
+
+      expect(res.success).toBe(true)
+      expect(store.isImpersonating).toBe(true)
+      expect(store.impersonating?.email).toBe(CUSTOMER.email)
+      expect(store.accessToken).toBe(impToken)
+      expect(store.user?.email).toBe(CUSTOMER.email)
+    })
+
+    it('stopImpersonation restores the admin via the refresh cookie', async () => {
+      const store = await loadStore()
+      const impToken = buildJwt(FUTURE_EXP())
+      routeFetch({
+        '/impersonate': () => ({ access_token: impToken, token_type: 'bearer', expires_at: 'x', customer: CUSTOMER }),
+        '/me': () => ({ ...ME_USER, email: CUSTOMER.email }),
+      })
+      await store.startImpersonation(7)
+      expect(store.isImpersonating).toBe(true)
+
+      // Exit: /auth/refresh (authFetcher, admin cookie) → admin token, then /me → admin user.
+      const adminToken = buildJwt(FUTURE_EXP())
+      mockAuthFetcher.mockResolvedValueOnce({ access_token: adminToken })
+      routeFetch({ '/me': () => ADMIN_USER })
+
+      const ok = await store.stopImpersonation()
+
+      expect(ok).toBe(true)
+      expect(store.isImpersonating).toBe(false)
+      expect(store.accessToken).toBe(adminToken)
+      expect(store.user?.role).toBe('ADMIN')
+    })
+  })
 })
