@@ -12,6 +12,45 @@
   },
   "admin": {
     "dashboard": "Admin Dashboard",
+    "dashboardKpis": {
+      "title": "Dashboard",
+      "subtitle": "Store performance at a glance.",
+      "window": {
+        "label": "Period",
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "last90": "Last 90 days"
+      },
+      "cards": {
+        "revenue": "Revenue",
+        "aov": "Avg. order value",
+        "orders": "Orders",
+        "pending": "Pending orders",
+        "customers": "Customers",
+        "ordersInWindow": "{count} in the last {days} days",
+        "newCustomers": "{count} new in the last {days} days"
+      },
+      "trend": {
+        "title": "Sales trend",
+        "summary": "{total} over the last {days} days",
+        "currencyLabel": "Trend currency",
+        "barLabel": "{date}: {amount} revenue, {count} orders",
+        "noRevenue": "No revenue in the last {days} days"
+      },
+      "top": {
+        "title": "Top products",
+        "units": "{count} sold",
+        "orders": "{count} order | {count} orders",
+        "empty": "No sales yet."
+      },
+      "low": {
+        "title": "Low stock",
+        "stock": "{count} in stock",
+        "more": "+{count} more",
+        "viewAll": "View inventory",
+        "empty": "Everything is well stocked."
+      }
+    },
     "signedInAs": "Signed in as",
     "placeholderTitle": "Welcome",
     "placeholderBody": "Admin features will be added here (products, categories, orders, users).",

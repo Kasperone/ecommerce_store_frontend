@@ -72,6 +72,12 @@ export type PublicReviewListResponse = components['schemas']['PublicReviewListRe
 export type AdminReviewListItem = components['schemas']['AdminReviewListItem']
 export type AdminReviewListResponse = components['schemas']['AdminReviewListResponse']
 
+// Dashboard-related types
+export type DashboardKpis = components['schemas']['DashboardKpis']
+export type SalesTrendPoint = components['schemas']['SalesTrendPoint']
+export type TopProductItem = components['schemas']['TopProductItem']
+export type LowStockItem = components['schemas']['LowStockItem']
+
 // Search-related types
 export type SearchResponse = components['schemas']['SearchResponse']
 export type SearchResultItem = components['schemas']['SearchResultItem']
