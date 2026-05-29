@@ -50,6 +50,9 @@ const subtotal = computed(() => {
 })
 
 async function placeOrder(shipping: ShippingInput) {
+  // Defense-in-depth: the form isn't rendered while impersonating, and the
+  // backend guard 403s the POST anyway — but never attempt the write.
+  if (authStore.isImpersonating) return
   error.value = null
   try {
     const order = await createOrder.mutateAsync({
@@ -93,6 +96,19 @@ async function placeOrder(shipping: ShippingInput) {
           >
             {{ t('cart.emptyCta') }}
           </UButton>
+        </div>
+
+        <div
+          v-else-if="authStore.isImpersonating"
+          class="flex flex-col items-center gap-3 py-16 text-center"
+        >
+          <UIcon
+            name="i-lucide-eye"
+            class="text-3xl text-muted"
+          />
+          <p class="text-muted">
+            {{ t('impersonation.checkoutBlocked') }}
+          </p>
         </div>
 
         <div

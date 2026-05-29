@@ -10,12 +10,16 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const cart = useCartStore()
+const auth = useAuthStore()
 
 // Out of stock blocks the button only when backorder isn't allowed.
 const outOfStock = computed(() => props.product.stock <= 0 && !props.product.allow_backorder)
 const isBackorder = computed(() => props.product.stock <= 0 && props.product.allow_backorder)
+// Impersonation is view-only — don't let an admin build the customer's cart.
+const disabled = computed(() => outOfStock.value || auth.isImpersonating)
 
 function addToCart() {
+  if (auth.isImpersonating) return
   cart.add(props.product)
   cart.openDrawer()
 }
@@ -26,7 +30,8 @@ function addToCart() {
     color="primary"
     icon="i-lucide-shopping-cart"
     :block="block"
-    :disabled="outOfStock"
+    :disabled="disabled"
+    :title="auth.isImpersonating ? t('impersonation.writeBlocked') : undefined"
     @click="addToCart"
   >
     <template v-if="outOfStock">

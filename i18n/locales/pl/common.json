@@ -2,7 +2,9 @@
   "impersonation": {
     "banner": "Podgląd jako {name}",
     "viewOnly": "Tylko podgląd",
-    "exit": "Zakończ"
+    "exit": "Zakończ",
+    "writeBlocked": "Niedostępne w trybie podglądu",
+    "checkoutBlocked": "Zamówienie jest niedostępne w trybie podglądu klienta."
   },
   "header": {
     "account": "Konto",
@@ -286,7 +288,8 @@
       "actions": {
         "create": "Utworzono",
         "update": "Zmieniono",
-        "delete": "Usunięto"
+        "delete": "Usunięto",
+        "impersonate": "Podgląd klienta"
       },
       "resources": {
         "product": "Produkt",
