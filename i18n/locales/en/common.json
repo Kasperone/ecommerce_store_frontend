@@ -2,7 +2,9 @@
   "impersonation": {
     "banner": "Viewing as {name}",
     "viewOnly": "View-only",
-    "exit": "Exit"
+    "exit": "Exit",
+    "writeBlocked": "View-only while impersonating",
+    "checkoutBlocked": "Checkout is disabled while viewing as a customer (view-only)."
   },
   "header": {
     "account": "Account",
@@ -285,7 +287,8 @@
       "actions": {
         "create": "Created",
         "update": "Updated",
-        "delete": "Deleted"
+        "delete": "Deleted",
+        "impersonate": "Impersonated"
       },
       "resources": {
         "product": "Product",
