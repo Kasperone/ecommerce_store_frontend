@@ -3,7 +3,14 @@ import { ref, computed } from 'vue'
 import { appendResponseHeader } from 'h3'
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
 import type { PersonalSignUpFormData, BusinessSignUpFormData } from '#shared/validators/auth'
-import type { UserResponse, TokenResponse, MessageResponse, ApiResponse } from '#shared/types/api'
+import type {
+  UserResponse,
+  TokenResponse,
+  MessageResponse,
+  ApiResponse,
+  ImpersonationResponse,
+  ImpersonatedCustomer,
+} from '#shared/types/api'
 import { narrowFetchError } from '~/utils/apiError'
 
 /**
@@ -29,6 +36,12 @@ export const useAuthStore = defineStore('auth', () => {
   // the boot-time restore before redirecting an apparently-logged-out user.
   const sessionRestoreAttempted = ref(false)
 
+  // Non-null while an admin is "viewing as" a customer. The in-memory access
+  // token is then the (short-lived, view-only) impersonation token and `user`
+  // reflects the customer. Ephemeral — a hard reload restores the admin via the
+  // refresh cookie (impersonation is never persisted).
+  const impersonating = ref<ImpersonatedCustomer | null>(null)
+
   let refreshTimer: ReturnType<typeof setTimeout> | null = null
   let refreshInFlight: Promise<boolean> | null = null
 
@@ -43,6 +56,8 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const isAdmin = computed(() => user.value?.role === 'ADMIN')
+
+  const isImpersonating = computed(() => !!impersonating.value)
 
   // ---- internal helpers ----
 
@@ -70,6 +85,9 @@ export const useAuthStore = defineStore('auth', () => {
   function scheduleProactiveRefresh() {
     clearRefreshTimer()
     if (!import.meta.client || !accessExpiresAt.value) return
+    // Impersonation tokens are short-lived and intentionally non-refreshable —
+    // a /auth/refresh here would silently swap the admin's session back in.
+    if (impersonating.value) return
     const delay = accessExpiresAt.value - Date.now() - PROACTIVE_REFRESH_MS
     if (delay <= 0) {
       // Already past the proactive window; refresh on next tick.
@@ -93,6 +111,7 @@ export const useAuthStore = defineStore('auth', () => {
   function clearSession() {
     setAccessToken(null)
     user.value = null
+    impersonating.value = null
   }
 
   // Direct $fetch (NOT useApi) for /auth/refresh and /auth/logout — those
@@ -494,6 +513,55 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Start a view-only impersonation session for a customer. Calls the
+   * admin-gated impersonate endpoint with the current admin token, swaps the
+   * in-memory access token to the returned short-lived impersonation token, and
+   * loads the customer as `user` (GET /auth/me now resolves AS the customer).
+   * Setting `impersonating` first suppresses the proactive-refresh timer. On
+   * any failure the session is torn down. Returns the impersonated customer.
+   */
+  const startImpersonation = async (customerId: number) => {
+    const { apiFetch } = useApi()
+    try {
+      const resp = await apiFetch<ImpersonationResponse>(
+        `/api/v1/admin/customers/${customerId}/impersonate`,
+        { method: 'POST' },
+      )
+      impersonating.value = resp.customer
+      setAccessToken(resp.access_token)
+      await fetchUser()
+      if (!user.value) throw new Error('Failed to load impersonated customer')
+      return { success: true, data: resp.customer } as ApiResponse<ImpersonatedCustomer>
+    }
+    catch (error) {
+      // Don't tear down the admin session on a failed start — just exit
+      // impersonation cleanly back to the admin.
+      if (impersonating.value) await stopImpersonation()
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
+      return {
+        success: false,
+        error: detail ?? 'Failed to start impersonation.',
+        raw: error,
+      } as ApiResponse<ImpersonatedCustomer>
+    }
+  }
+
+  /**
+   * Exit impersonation and restore the admin. Clearing `impersonating` + `user`
+   * makes `refreshAccessToken` mint a fresh admin access token from the admin's
+   * still-valid refresh cookie and re-fetch the admin user (it only fetches when
+   * `user` is null). If the admin session has since expired, this lands on the
+   * logged-out state.
+   */
+  const stopImpersonation = async (): Promise<boolean> => {
+    if (!impersonating.value) return isAuthenticated.value
+    impersonating.value = null
+    user.value = null
+    return refreshAccessToken()
+  }
+
   return {
     // State — exposed as raw refs (not `readonly()`, not `computed()`) so Pinia
     // serializes the SSR-populated values into the hydration payload. The two
@@ -513,16 +581,20 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken,
     accessExpiresAt,
     sessionRestoreAttempted,
+    impersonating,
 
     // Getters
     isAuthenticated,
     fullName,
     isAdmin,
+    isImpersonating,
 
     // Actions
     register,
     login,
     logout,
+    startImpersonation,
+    stopImpersonation,
     fetchUser,
     refreshAccessToken,
     tryRestoreSession,

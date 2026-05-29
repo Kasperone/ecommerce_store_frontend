@@ -48,7 +48,10 @@ export const useApi = () => {
       const { status } = narrowFetchError(error)
       const targetsAuthCookie = url === AUTH_ENDPOINTS.REFRESH || url === AUTH_ENDPOINTS.LOGOUT
 
-      if (status !== 401 || targetsAuthCookie) {
+      // While impersonating, a 401 means the short-lived view-only token expired.
+      // Refreshing here would silently restore the ADMIN session mid-storefront,
+      // so we surface the 401 instead — the banner's Exit is the way back.
+      if (status !== 401 || targetsAuthCookie || authStore.isImpersonating) {
         throw error
       }
 
