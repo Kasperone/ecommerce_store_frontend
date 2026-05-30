@@ -4,10 +4,12 @@ import { createShippingSchema } from './checkout'
 
 const schema = createShippingSchema(tStub)
 
-const valid = { address: '1 Main St', city: 'Town', postalCode: '00-001', country: 'Poland', notes: '' }
+// country is now ISO-2 (uppercase) — the storefront <USelect> emits these,
+// and the backend shipping resolver matches on them exactly.
+const valid = { address: '1 Main St', city: 'Town', postalCode: '00-001', country: 'PL', notes: '' }
 
 describe('createShippingSchema', () => {
-  it('accepts a complete shipping address', () => {
+  it('accepts a complete shipping address with an ISO-2 country', () => {
     expect(schema.safeParse(valid).success).toBe(true)
   })
 
@@ -15,6 +17,13 @@ describe('createShippingSchema', () => {
     for (const field of ['address', 'city', 'postalCode', 'country'] as const) {
       expect(schema.safeParse({ ...valid, [field]: '' }).success).toBe(false)
     }
+  })
+
+  it('rejects a country that is not ISO-2 (free-text "Poland" no longer accepted)', () => {
+    expect(schema.safeParse({ ...valid, country: 'Poland' }).success).toBe(false)
+    expect(schema.safeParse({ ...valid, country: 'pl' }).success).toBe(false)
+    expect(schema.safeParse({ ...valid, country: 'PLA' }).success).toBe(false)
+    expect(schema.safeParse({ ...valid, country: 'P' }).success).toBe(false)
   })
 
   it('allows omitting notes', () => {

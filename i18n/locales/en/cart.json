@@ -44,11 +44,20 @@
       "city": "City",
       "postalCode": "Postal code",
       "country": "Country",
+      "countryPlaceholder": "Select a country",
       "notes": "Order notes",
-      "notesPlaceholder": "Anything we should know? (optional)"
+      "notesPlaceholder": "Anything we should know? (optional)",
+      "selectMethod": "Shipping method",
+      "selectCountryFirst": "Select a country to see shipping options.",
+      "noMethods": "We don't ship to {country} yet.",
+      "fetchError": "We couldn't load shipping options. Please try again.",
+      "freeAbove": "Free over {amount}",
+      "free": "Free"
     },
     "summary": {
       "heading": "Order summary",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
       "total": "Total"
     },
     "success": {
@@ -65,6 +74,7 @@
       "postalTooLong": "Postal code must be 20 characters or fewer",
       "countryRequired": "Country is required",
       "countryTooLong": "Country must be 100 characters or fewer",
+      "countryInvalid": "Select a country",
       "notesTooLong": "Notes must be 1000 characters or fewer"
     }
   },

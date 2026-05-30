@@ -944,6 +944,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/shipping/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Quote Shipping
+         * @description Return the available shipping methods + resolved prices for a checkout.
+         *
+         *     Each method's ``amount`` reflects the *resolved* shipping price for the
+         *     provided subtotal (free-above triggered, tier band picked, or the flat
+         *     fallback) — the storefront renders it directly without re-running the
+         *     resolver.
+         */
+        get: operations["quote_shipping_api_v1_shipping_quote_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/customers/": {
         parameters: {
             query?: never;
@@ -1144,6 +1169,147 @@ export interface paths {
          * @description Detach a tag from a customer (admin). Idempotent; returns the remaining tags.
          */
         delete: operations["remove_customer_tag_api_v1_admin_customers__customer_id__tags__tag_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/shipping/zones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Zones
+         * @description List zones with country + rate counts (admin).
+         */
+        get: operations["list_zones_api_v1_admin_shipping_zones_get"];
+        put?: never;
+        /**
+         * Create Zone
+         * @description Create a zone with its initial country assignment (admin).
+         */
+        post: operations["create_zone_api_v1_admin_shipping_zones_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/shipping/zones/{zone_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Zone
+         * @description Get one zone with its country list (admin).
+         */
+        get: operations["get_zone_api_v1_admin_shipping_zones__zone_id__get"];
+        /**
+         * Update Zone
+         * @description Update a zone (admin). Reassigns countries if ``country_codes`` is set.
+         */
+        put: operations["update_zone_api_v1_admin_shipping_zones__zone_id__put"];
+        post?: never;
+        /**
+         * Delete Zone
+         * @description Delete a zone (admin). Cascades country assignments + rates.
+         */
+        delete: operations["delete_zone_api_v1_admin_shipping_zones__zone_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/shipping/methods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Methods
+         * @description List shipping methods (admin).
+         */
+        get: operations["list_methods_api_v1_admin_shipping_methods_get"];
+        put?: never;
+        /**
+         * Create Method
+         * @description Create a shipping method (admin). 400 on duplicate name/code.
+         */
+        post: operations["create_method_api_v1_admin_shipping_methods_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/shipping/methods/{method_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Method */
+        get: operations["get_method_api_v1_admin_shipping_methods__method_id__get"];
+        /** Update Method */
+        put: operations["update_method_api_v1_admin_shipping_methods__method_id__put"];
+        post?: never;
+        /**
+         * Delete Method
+         * @description Delete a method (admin). CASCADEs its rates; orders snapshotted the
+         *     method name + the FK is SET NULL so history survives.
+         */
+        delete: operations["delete_method_api_v1_admin_shipping_methods__method_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/shipping/rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Rates
+         * @description List rates with filters (admin matrix view).
+         */
+        get: operations["list_rates_api_v1_admin_shipping_rates_get"];
+        put?: never;
+        /**
+         * Create Rate
+         * @description Create a rate (admin). 400 on duplicate (zone, method, currency) combo.
+         */
+        post: operations["create_rate_api_v1_admin_shipping_rates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/shipping/rates/{rate_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Rate */
+        put: operations["update_rate_api_v1_admin_shipping_rates__rate_id__put"];
+        post?: never;
+        /** Delete Rate */
+        delete: operations["delete_rate_api_v1_admin_shipping_rates__rate_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2740,6 +2906,8 @@ export interface components {
              * @default USD
              */
             currency: string;
+            /** Shipping Method Id */
+            shipping_method_id: number;
         };
         /**
          * OrderItemCreate
@@ -2876,6 +3044,10 @@ export interface components {
             payment_method: string | null;
             /** Payment Intent Id */
             payment_intent_id: string | null;
+            /** Shipping Method Id */
+            shipping_method_id?: number | null;
+            /** Shipping Method Name */
+            shipping_method_name?: string | null;
             /** Items */
             items?: components["schemas"]["OrderItemResponse"][];
         };
@@ -2944,6 +3116,10 @@ export interface components {
             payment_method: string | null;
             /** Payment Intent Id */
             payment_intent_id: string | null;
+            /** Shipping Method Id */
+            shipping_method_id?: number | null;
+            /** Shipping Method Name */
+            shipping_method_name?: string | null;
             /** Items */
             items?: components["schemas"]["OrderItemResponse"][];
             user: components["schemas"]["UserResponse"];
@@ -3510,6 +3686,345 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
+        };
+        /** ShippingMethodCreate */
+        ShippingMethodCreate: {
+            /** Name */
+            name: string;
+            /** Code */
+            code?: string | null;
+            /** Description */
+            description?: string | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /** ShippingMethodListResponse */
+        ShippingMethodListResponse: {
+            /** Items */
+            items: components["schemas"]["ShippingMethodResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /** ShippingMethodResponse */
+        ShippingMethodResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string | null;
+            /** Description */
+            description: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /** Is Active */
+            is_active: boolean;
+        };
+        /** ShippingMethodUpdate */
+        ShippingMethodUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Code */
+            code?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
+         * ShippingQuoteMethod
+         * @description One method available for the asked ``(country, currency, subtotal)``.
+         *
+         *     ``amount`` is the **resolved** shipping price (free-above + tiers already
+         *     applied) — the storefront renders it directly without re-running the
+         *     resolver. ``is_free`` flags the free-above-triggered case so the UI can
+         *     badge it. ``pricing_kind`` exposes the rate's shape so we can drop a
+         *     "rates vary by cart total" hint in the future without a backend change.
+         */
+        ShippingQuoteMethod: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string | null;
+            /** Description */
+            description: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /** Amount */
+            amount: number;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** Is Free */
+            is_free: boolean;
+            /**
+             * Pricing Kind
+             * @enum {string}
+             */
+            pricing_kind: "flat" | "free_above" | "tiered";
+            /** Free Above Subtotal */
+            free_above_subtotal: number | null;
+        };
+        /** ShippingQuoteResponse */
+        ShippingQuoteResponse: {
+            /** Country Code */
+            country_code: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** Subtotal */
+            subtotal: number;
+            /** Methods */
+            methods: components["schemas"]["ShippingQuoteMethod"][];
+        };
+        /** ShippingRateCreate */
+        ShippingRateCreate: {
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** Amount */
+            amount: number;
+            /** Free Above Subtotal */
+            free_above_subtotal?: number | null;
+            /** Tiers */
+            tiers?: components["schemas"]["ShippingRateTier"][] | null;
+            /** Zone Id */
+            zone_id: number;
+            /** Method Id */
+            method_id: number;
+        };
+        /** ShippingRateListItem */
+        ShippingRateListItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Zone Id */
+            zone_id: number;
+            /** Zone Name */
+            zone_name: string;
+            /** Method Id */
+            method_id: number;
+            /** Method Name */
+            method_name: string;
+            /** Currency */
+            currency: string;
+            /** Amount */
+            amount: number;
+            /** Free Above Subtotal */
+            free_above_subtotal: number | null;
+            /** Tiers */
+            tiers: components["schemas"]["ShippingRateTier"][] | null;
+            /**
+             * Pricing Kind
+             * @enum {string}
+             */
+            pricing_kind: "flat" | "free_above" | "tiered";
+        };
+        /** ShippingRateListResponse */
+        ShippingRateListResponse: {
+            /** Items */
+            items: components["schemas"]["ShippingRateListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /** ShippingRateResponse */
+        ShippingRateResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Zone Id */
+            zone_id: number;
+            /** Method Id */
+            method_id: number;
+            /** Currency */
+            currency: string;
+            /** Amount */
+            amount: number;
+            /** Free Above Subtotal */
+            free_above_subtotal: number | null;
+            /** Tiers */
+            tiers: components["schemas"]["ShippingRateTier"][] | null;
+        };
+        /**
+         * ShippingRateTier
+         * @description One band in a tiered subtotal-priced shipping rate.
+         *
+         *     The resolver picks the band whose ``min_subtotal`` is the largest value
+         *     ``<= subtotal``. Bands are stored sorted ascending by ``min_subtotal``;
+         *     the CRUD's ``sort_tiers`` canonicalises before persistence so the resolver
+         *     never has to sort on every quote.
+         */
+        ShippingRateTier: {
+            /** Min Subtotal */
+            min_subtotal: number;
+            /** Amount */
+            amount: number;
+        };
+        /** ShippingRateUpdate */
+        ShippingRateUpdate: {
+            /** Currency */
+            currency?: ("USD" | "PLN" | "EUR") | null;
+            /** Amount */
+            amount?: number | null;
+            /** Free Above Subtotal */
+            free_above_subtotal?: number | null;
+            /** Tiers */
+            tiers?: components["schemas"]["ShippingRateTier"][] | null;
+        };
+        /** ShippingZoneCreate */
+        ShippingZoneCreate: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Country Codes */
+            country_codes?: string[];
+        };
+        /** ShippingZoneDetail */
+        ShippingZoneDetail: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string | null;
+            /** Is Active */
+            is_active: boolean;
+            /** Sort Order */
+            sort_order: number;
+            /** Country Codes */
+            country_codes: string[];
+        };
+        /** ShippingZoneListItem */
+        ShippingZoneListItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string | null;
+            /** Is Active */
+            is_active: boolean;
+            /** Sort Order */
+            sort_order: number;
+            /** Country Count */
+            country_count: number;
+            /** Rate Count */
+            rate_count: number;
+        };
+        /** ShippingZoneListResponse */
+        ShippingZoneListResponse: {
+            /** Items */
+            items: components["schemas"]["ShippingZoneListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /** ShippingZoneUpdate */
+        ShippingZoneUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Country Codes */
+            country_codes?: string[] | null;
         };
         /**
          * StockAdjustRequest
@@ -5535,6 +6050,42 @@ export interface operations {
             };
         };
     };
+    quote_shipping_api_v1_shipping_quote_get: {
+        parameters: {
+            query: {
+                /** @description ISO-2 country code (uppercase) */
+                country: string;
+                /** @description USD, PLN, or EUR */
+                currency: "USD" | "PLN" | "EUR";
+                /** @description Cart subtotal in the asked currency */
+                subtotal: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingQuoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_customers_api_v1_admin_customers__get: {
         parameters: {
             query?: {
@@ -5923,6 +6474,461 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TagChip"][];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_zones_api_v1_admin_shipping_zones_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingZoneListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_zone_api_v1_admin_shipping_zones_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShippingZoneCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingZoneDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_zone_api_v1_admin_shipping_zones__zone_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                zone_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingZoneDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_zone_api_v1_admin_shipping_zones__zone_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                zone_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShippingZoneUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingZoneDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_zone_api_v1_admin_shipping_zones__zone_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                zone_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_methods_api_v1_admin_shipping_methods_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingMethodListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_method_api_v1_admin_shipping_methods_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShippingMethodCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingMethodResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_method_api_v1_admin_shipping_methods__method_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                method_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingMethodResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_method_api_v1_admin_shipping_methods__method_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                method_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShippingMethodUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingMethodResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_method_api_v1_admin_shipping_methods__method_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                method_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_rates_api_v1_admin_shipping_rates_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by zone */
+                zone_id?: number | null;
+                /** @description Filter by method */
+                method_id?: number | null;
+                /** @description Filter by currency */
+                currency?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingRateListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_rate_api_v1_admin_shipping_rates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShippingRateCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingRateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_rate_api_v1_admin_shipping_rates__rate_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rate_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShippingRateUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShippingRateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_rate_api_v1_admin_shipping_rates__rate_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rate_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
