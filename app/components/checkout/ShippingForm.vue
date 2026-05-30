@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { countryOptions } from '#shared/utils/countries'
+import type { SupportedLocale } from '#shared/utils/countries'
 import { createShippingSchema } from '#shared/validators/checkout'
 import type { ShippingInput } from '#shared/validators/checkout'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
@@ -9,12 +11,26 @@ const props = defineProps<{
   initial?: Partial<ShippingInput>
   loading?: boolean
   error?: ProblemDetails | null
+  /** Disabled when the page-level submit guard hasn't yet got a method id. */
+  submitDisabled?: boolean
 }>()
 
-const emit = defineEmits<{ submit: [values: ShippingInput] }>()
+const emit = defineEmits<{
+  'submit': [values: ShippingInput]
+  /**
+   * Country changes are surfaced upward so the page can re-quote shipping for
+   * the new country without prop-drilling reactive form state in the other
+   * direction.
+   */
+  'update:country': [code: string]
+}>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const schema = computed(() => createShippingSchema(t))
+
+// USelect option list — localized by the current UI locale; sorted with PL
+// first per the project's PL-market default.
+const countryItems = computed(() => countryOptions(locale.value as SupportedLocale))
 
 const state = reactive<ShippingInput>({
   address: props.initial?.address ?? '',
@@ -32,6 +48,12 @@ watch(() => props.initial, (incoming) => {
   if (!state.postalCode && incoming.postalCode) state.postalCode = incoming.postalCode
   if (!state.country && incoming.country) state.country = incoming.country
 })
+
+// Push country up to the page (initial value + every change). The selector
+// re-quotes when this changes.
+watch(() => state.country, (code) => {
+  emit('update:country', code)
+}, { immediate: true })
 
 function onSubmit(event: { data: ShippingInput }) {
   emit('submit', event.data)
@@ -90,8 +112,10 @@ function onSubmit(event: { data: ShippingInput }) {
       name="country"
       required
     >
-      <UInput
+      <USelect
         v-model="state.country"
+        :items="countryItems"
+        :placeholder="t('checkout.shipping.countryPlaceholder')"
         class="w-full"
       />
     </UFormField>
@@ -112,6 +136,7 @@ function onSubmit(event: { data: ShippingInput }) {
       color="primary"
       block
       :loading="loading"
+      :disabled="submitDisabled"
     >
       {{ t('checkout.placeOrder') }}
     </UButton>
