@@ -110,6 +110,7 @@
       "processing": "Processing",
       "shipped": "Shipped",
       "delivered": "Delivered",
+      "partially_refunded": "Partially refunded",
       "cancelled": "Cancelled",
       "refunded": "Refunded"
     },
@@ -126,7 +127,12 @@
     },
     "refund": {
       "title": "Refund issued",
+      "partialTitle": "Partial refund issued",
       "intro": "Funds will be credited back to your original payment method within 5-10 business days. A corrective invoice has been emailed to you.",
+      "totalRefunded": "{refunded} of {total} refunded so far",
+      "items": {
+        "line": "{name} x {qty}"
+      },
       "reasonOptions": {
         "defective": "Defective item",
         "wrong_item": "Wrong item received",

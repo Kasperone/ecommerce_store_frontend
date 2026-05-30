@@ -818,17 +818,27 @@ export interface paths {
         put?: never;
         /**
          * Issue Refund
-         * @description Issue a refund against a paid/processing/shipped/delivered order (admin only).
+         * @description Issue a refund against a paid / processing / shipped / delivered / partially-refunded
+         *     order (admin only).
          *
-         *     v1 ships full refunds only — ``refund_in.amount`` must equal ``order.total``;
-         *     a partial refund 400s with the "not yet supported" message. ``restock=True``
-         *     writes one ``order_refunded`` inventory movement per line via the
-         *     ``apply_delta`` choke point (same per-line pattern as cancel). Always issues
-         *     a faktura korygująca **if** the order has a faktura (orders that went
-         *     ``pending → paid``); the KOR is gap-free + scoped to this transaction.
+         *     v2 accepts partial refunds: ``amount`` is validated against the running
+         *     total (``sum(prior refunds) + amount ≤ order.total``; 400 on over-refund).
+         *     Optional ``items`` records a per-line picker (``order_item_id, quantity``);
+         *     each pick must belong to the order and the cumulative qty across all
+         *     refunds for the same line is capped at ``order_item.quantity``. ``restock=True``
+         *     requires items (400 otherwise) and writes one ``order_refunded`` inventory
+         *     movement per picked line via the ``apply_delta`` choke point — the movement
+         *     quantity is the picked qty, NOT the original line qty.
+         *
+         *     Always issues a faktura korygująca **if** the order has a faktura; each
+         *     partial gets its own KOR with its own gap-free number.
+         *
+         *     Status flip: cumulative refunds == ``order.total`` (rounding-tolerant) →
+         *     ``refunded``; cumulative > 0 but < total → ``partially_refunded``.
          *
          *     Forward-only status workflow rules continue to apply: the admin PATCH
-         *     endpoint rejects an explicit ``status=refunded`` and points the caller here.
+         *     endpoint rejects explicit ``status=refunded`` / ``status=partially_refunded``
+         *     and points the caller here.
          */
         post: operations["issue_refund_api_v1_orders__order_id__refunds_post"];
         delete?: never;
@@ -3175,10 +3185,17 @@ export interface components {
         };
         /**
          * OrderStatus
-         * @description Order status enum
+         * @description Order status enum.
+         *
+         *     ``PARTIALLY_REFUNDED`` (v2 refunds) lives between the in-fulfilment statuses
+         *     and the terminal ``REFUNDED``: an order with ``sum(refunds) > 0 AND <
+         *     order.total`` carries this value, and only flips to ``REFUNDED`` once the
+         *     cumulative refund total hits ``order.total``. Stored on the PG enum type
+         *     via an ``ALTER TYPE … ADD VALUE`` migration (Postgres-native enums can't
+         *     cleanly remove values, so the downgrade leaves it in place).
          * @enum {string}
          */
-        OrderStatus: "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+        OrderStatus: "pending" | "paid" | "processing" | "shipped" | "delivered" | "partially_refunded" | "cancelled" | "refunded";
         /**
          * OrderUpdate
          * @description Schema for updating an order (admin only)
@@ -3649,11 +3666,17 @@ export interface components {
          * RefundCreate
          * @description Body for ``POST /api/v1/admin/orders/{id}/refunds``.
          *
-         *     ``amount`` is currency-scoped to the parent ``Order.currency``; v1 requires
-         *     it to equal ``order.total`` (full refund) — the CRUD raises
-         *     ``PartialRefundUnsupported`` otherwise. ``restock`` defaults False; the admin
-         *     dialog pre-selects True for pre-shipping statuses (D2) but always sends an
-         *     explicit boolean.
+         *     ``amount`` is currency-scoped to the parent ``Order.currency``; v2 lifts the
+         *     full-only guard and validates against the running-total
+         *     (``sum(prior refunds) + amount <= order.total``; CRUD raises
+         *     ``RefundOverError`` otherwise). ``restock`` defaults False; the admin dialog
+         *     pre-selects True for pre-shipping statuses (D2) but always sends an explicit
+         *     boolean. The CRUD additionally rejects ``restock=True`` with no ``items``
+         *     (D5) because there's nothing to put back.
+         *
+         *     ``items`` is optional — omitting it (or sending an empty list) records a
+         *     goodwill credit (free-form amount, no line attribution). Provided items get
+         *     a per-line cumulative-qty guard against double-refunding the same line.
          */
         RefundCreate: {
             /**
@@ -3677,6 +3700,63 @@ export interface components {
              * @default false
              */
             restock: boolean;
+            /**
+             * Items
+             * @description Optional per-line picker. Omit (or send empty) for a goodwill credit with no line attribution; required when ``restock=True``.
+             */
+            items?: components["schemas"]["RefundItemCreate"][] | null;
+        };
+        /**
+         * RefundItemCreate
+         * @description One picked line on a refund request.
+         *
+         *     ``order_item_id`` must reference a line on the parent order (validated in
+         *     the CRUD layer — the schema can't enforce cross-resource ownership). ``quantity``
+         *     is units coming back, must be > 0; per-line cumulative qty across all refunds
+         *     for the same line is capped at ``order_item.quantity`` (CRUD raises
+         *     ``RefundLineOverError`` otherwise).
+         */
+        RefundItemCreate: {
+            /** Order Item Id */
+            order_item_id: number;
+            /** Quantity */
+            quantity: number;
+        };
+        /**
+         * RefundItemResponse
+         * @description A refunded line on the response.
+         *
+         *     ``product_name``/``unit_price``/``line_subtotal`` are denormalised onto the
+         *     response from the joined ``order_item`` row (mirrors the v1 ``actor_email``
+         *     pattern); the FE renders the breakdown without a second round-trip per row.
+         *     ``line_subtotal = quantity * unit_price`` (computed in
+         *     ``_build_refund_item_response``).
+         */
+        RefundItemResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Refund Id */
+            refund_id: number;
+            /** Order Item Id */
+            order_item_id: number;
+            /** Quantity */
+            quantity: number;
+            /** Product Name */
+            product_name?: string | null;
+            /** Unit Price */
+            unit_price?: number | null;
+            /** Line Subtotal */
+            line_subtotal?: number | null;
         };
         /**
          * RefundResponse
@@ -3687,6 +3767,9 @@ export interface components {
          *     a second round-trip per row. ``note`` is intentionally included on the admin
          *     side; the customer-facing surface re-shapes the response client-side to drop it
          *     (privacy — admin notes are internal).
+         *
+         *     ``items`` is a (possibly empty) list of picked lines — empty means goodwill
+         *     credit.
          */
         RefundResponse: {
             /** Id */
@@ -3723,6 +3806,8 @@ export interface components {
             /** Actor Email */
             actor_email?: string | null;
             corrective_invoice?: components["schemas"]["CorrectiveInvoiceResponse"] | null;
+            /** Items */
+            items?: components["schemas"]["RefundItemResponse"][];
         };
         /**
          * RestockRequest
