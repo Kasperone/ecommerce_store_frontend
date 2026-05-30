@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OrderStatus, OrderUpdate } from '#shared/types/api'
+import type { OrderStatus, OrderUpdate, RefundCreate } from '#shared/types/api'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
 import { isCancellable, nextStatuses, statusColor } from '#shared/utils/orderStatus'
@@ -21,6 +21,7 @@ const { data: order, error: loadError, isLoading } = useOrderQuery(orderId)
 
 const updateMutation = useUpdateOrder()
 const cancelMutation = useCancelOrder()
+const refundMutation = useIssueRefund()
 
 // Edit fields, seeded from the loaded order.
 const statusModel = ref<OrderStatus | undefined>()
@@ -29,6 +30,16 @@ const paymentModel = ref('')
 const formError = ref<ProblemDetails | null>(null)
 const cancelOpen = ref(false)
 const cancelError = ref<ProblemDetails | null>(null)
+const refundOpen = ref(false)
+const refundError = ref<ProblemDetails | null>(null)
+
+// D3: which statuses can be refunded. Mirrors the backend's REFUNDABLE_STATUSES
+// set — the API re-validates, this is purely for UX (the button is hidden when
+// it would 400). Pending/cancelled/refunded are not refundable.
+const REFUNDABLE: OrderStatus[] = ['paid', 'processing', 'shipped', 'delivered']
+const canRefund = computed(
+  () => order.value != null && REFUNDABLE.includes(order.value.status),
+)
 
 watch(order, (o) => {
   if (!o) return
@@ -94,6 +105,23 @@ async function onCancelConfirm() {
   }
   catch (err) {
     cancelError.value = parseProblem(err)
+  }
+}
+
+async function onRefundSubmit(payload: RefundCreate) {
+  if (!order.value) return
+  refundError.value = null
+  try {
+    await refundMutation.mutateAsync({ orderId: order.value.id, refund: payload })
+    refundOpen.value = false
+    toast.add({
+      title: t('admin.orders.flashes.refundIssued'),
+      color: 'success',
+      icon: 'i-lucide-check',
+    })
+  }
+  catch (err) {
+    refundError.value = parseProblem(err)
   }
 }
 
@@ -287,17 +315,27 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
           </div>
 
           <template #footer>
-            <div class="flex items-center justify-between gap-3">
-              <UButton
-                v-if="canCancel"
-                color="error"
-                variant="soft"
-                icon="i-lucide-x-circle"
-                @click="cancelError = null; cancelOpen = true"
-              >
-                {{ $t('admin.orders.actions.cancel') }}
-              </UButton>
-              <span v-else />
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div class="flex items-center gap-2 flex-wrap">
+                <UButton
+                  v-if="canCancel"
+                  color="error"
+                  variant="soft"
+                  icon="i-lucide-x-circle"
+                  @click="cancelError = null; cancelOpen = true"
+                >
+                  {{ $t('admin.orders.actions.cancel') }}
+                </UButton>
+                <UButton
+                  v-if="canRefund"
+                  color="error"
+                  variant="soft"
+                  icon="i-lucide-undo-2"
+                  @click="refundError = null; refundOpen = true"
+                >
+                  {{ $t('admin.orders.refund.button') }}
+                </UButton>
+              </div>
               <div class="flex items-center gap-2">
                 <OrdersInvoiceDownloadButton
                   :order-id="order.id"
@@ -315,6 +353,11 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
             </div>
           </template>
         </UCard>
+
+        <AdminOrderRefundsSection
+          :refunds="order.refunds ?? []"
+          :currency="order.currency"
+        />
       </template>
 
       <UModal
@@ -350,6 +393,16 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
           </div>
         </template>
       </UModal>
+
+      <AdminOrderRefundDialog
+        v-if="order"
+        :order="order"
+        :open="refundOpen"
+        :loading="refundMutation.isLoading.value"
+        :error="refundError"
+        @update:open="(v) => { refundOpen = v; if (!v) refundError = null }"
+        @submit="onRefundSubmit"
+      />
     </div>
   </NuxtLayout>
 </template>

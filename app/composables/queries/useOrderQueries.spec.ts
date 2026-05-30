@@ -157,3 +157,58 @@ describe('useCreateOrder', () => {
     expect(options.body).toMatchObject({ currency: 'PLN', items: [{ product_id: 8, quantity: 2 }] })
   })
 })
+
+describe('useIssueRefund', () => {
+  it('POSTs /api/v1/orders/{id}/refunds with the refund body', async () => {
+    apiFetch.mockResolvedValue({
+      id: 5,
+      order_id: 7,
+      amount: 24.99,
+      reason: 'customer_request',
+    })
+    const { useIssueRefund } = await import('./useOrderQueries')
+
+    const result = await runInComponent(() => useIssueRefund()) as any
+    await result.mutateAsync({
+      orderId: 7,
+      refund: {
+        amount: 24.99,
+        reason: 'customer_request',
+        note: null,
+        restock: true,
+      },
+    })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/orders/7/refunds')
+    expect(options.method).toBe('POST')
+    expect(options.body).toMatchObject({
+      amount: 24.99,
+      reason: 'customer_request',
+      restock: true,
+    })
+  })
+})
+
+describe('useOrderRefundsQuery', () => {
+  it('fetches /api/v1/orders/{id}/refunds', async () => {
+    apiFetch.mockResolvedValue([])
+    const { useOrderRefundsQuery } = await import('./useOrderQueries')
+
+    await runInComponent(() => useOrderRefundsQuery(11))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(apiFetch).toHaveBeenCalledWith('/api/v1/orders/11/refunds')
+  })
+
+  it('does not fetch when id is undefined', async () => {
+    const { useOrderRefundsQuery } = await import('./useOrderQueries')
+
+    await runInComponent(() => useOrderRefundsQuery(undefined))
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(apiFetch).not.toHaveBeenCalled()
+  })
+})
