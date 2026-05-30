@@ -663,6 +663,7 @@
         "processing": "W realizacji",
         "shipped": "Wysłane",
         "delivered": "Dostarczone",
+        "partially_refunded": "Częściowo zwrócone",
         "cancelled": "Anulowane",
         "refunded": "Zwrócone"
       },
@@ -714,9 +715,16 @@
       "refund": {
         "button": "Wystaw zwrot",
         "title": "Wystaw zwrot",
-        "description": "W v1 tylko pełny zwrot. Zapisuje zwrot, opcjonalnie przywraca stan magazynowy i wystawia fakturę korygującą (KOR), gdy zamówienie ma fakturę.",
-        "amountReadOnly": "Kwota zwrotu",
-        "amountHint": "Zwroty częściowe pojawią się w v2 — v1 zwraca pełną kwotę zamówienia.",
+        "description": "Wybierz pozycje do zwrotu lub nadpisz kwotę dla kredytu kulancyjnego. Zapisuje zwrot, opcjonalnie przywraca stan magazynowy i wystawia fakturę korygującą (KOR), gdy zamówienie ma fakturę.",
+        "amount": "Kwota zwrotu",
+        "amountHint": "Wypełnia się automatycznie z wybranych pozycji powyżej. Nadpisz dla kredytu kulancyjnego ponad zwracane pozycje.",
+        "runningTotal": "Zwrócono dotąd {refunded} z {total} — pozostało {remaining}",
+        "linePicker": {
+          "title": "Pozycje do zwrotu",
+          "qtyAvailHint": "Wybierz liczbę zwracanych sztuk dla każdej pozycji. Sumy częściowe automatycznie wypełnią kwotę.",
+          "availableColumn": "{remaining} z {total} dostępnych",
+          "qtyAriaLabel": "Ilość do zwrotu dla {product}"
+        },
         "reason": "Powód",
         "reasonOptions": {
           "defective": "Wadliwy produkt",
@@ -730,7 +738,8 @@
         "notePlaceholder": "np. klient zgłosił, że paczka dotarła pusta",
         "noteHint": "Widoczna tylko dla administratorów — nigdy nie jest wysyłana do klienta.",
         "restock": "Przywróć stan magazynowy",
-        "restockHint": "Zapisuje ruch order_refunded dla każdej pozycji. Domyślnie włączone dla paid/processing; wyłączone dla shipped/delivered.",
+        "restockHint": "Zapisuje ruch order_refunded dla każdej wybranej pozycji. Domyślnie włączone dla paid/processing; wyłączone dla shipped/delivered.",
+        "restockNeedsItems": "Wybierz pozycje powyżej, aby włączyć przywrócenie stanu.",
         "submit": "Wystaw zwrot",
         "cancel": "Anuluj",
         "actorRemoved": "Usunięty administrator"
@@ -739,7 +748,10 @@
         "title": "Zwroty",
         "empty": "Brak wystawionych zwrotów.",
         "restockBadge": "Przywrócono stan",
-        "kor": "Faktura korygująca: {number}"
+        "kor": "Faktura korygująca: {number}",
+        "items": {
+          "line": "{name} x {qty}"
+        }
       },
       "flashes": {
         "updated": "Zamówienie zaktualizowane.",

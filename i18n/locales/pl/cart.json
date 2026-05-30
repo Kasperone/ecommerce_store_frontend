@@ -110,6 +110,7 @@
       "processing": "W realizacji",
       "shipped": "Wysłane",
       "delivered": "Dostarczone",
+      "partially_refunded": "Częściowo zwrócone",
       "cancelled": "Anulowane",
       "refunded": "Zwrócone"
     },
@@ -126,7 +127,12 @@
     },
     "refund": {
       "title": "Zwrot wystawiony",
+      "partialTitle": "Zwrot częściowy wystawiony",
       "intro": "Środki zostaną zwrócone tą samą metodą płatności w ciągu 5-10 dni roboczych. Wysłaliśmy fakturę korygującą e-mailem.",
+      "totalRefunded": "Zwrócono dotąd {refunded} z {total}",
+      "items": {
+        "line": "{name} x {qty}"
+      },
       "reasonOptions": {
         "defective": "Wadliwy produkt",
         "wrong_item": "Wysłano niewłaściwy produkt",

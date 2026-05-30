@@ -4,7 +4,8 @@
  *
  * Read-only list. Each row carries the amount + currency + reason badge +
  * actor email + date + the admin's internal note + a restock badge + (when
- * present) the issued KOR number. The customer-facing equivalent
+ * present) the issued KOR number + the v2 per-item breakdown (omitted for
+ * goodwill refunds with no line attribution). The customer-facing equivalent
  * (`<OrdersRefundsSection>`) intentionally drops the note + KOR ref —
  * privacy and to keep the legal copy in one place (the attached PDF).
  *
@@ -86,6 +87,23 @@ function reasonLabel(reason: string): string {
             </UBadge>
           </div>
         </div>
+
+        <!-- Per-item breakdown (v2). Omitted for goodwill refunds (items=[]). -->
+        <ul
+          v-if="refund.items && refund.items.length > 0"
+          class="ml-2 space-y-0.5 text-xs text-muted"
+          :data-testid="`refund-${refund.id}-items`"
+        >
+          <li
+            v-for="ri in refund.items"
+            :key="ri.id"
+          >
+            •
+            {{ t('admin.orders.refundsSection.items.line', {
+              name: ri.product_name ?? '—', qty: ri.quantity,
+            }) }}
+          </li>
+        </ul>
 
         <p
           v-if="refund.note"

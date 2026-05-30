@@ -37,6 +37,11 @@ export type OrderCreate = components['schemas']['OrderCreate']
 export type OrderUpdate = components['schemas']['OrderUpdate']
 export type RefundCreate = components['schemas']['RefundCreate']
 export type RefundResponse = components['schemas']['RefundResponse']
+// v2 per-line picker — RefundItemCreate (request) carries an `order_item_id` +
+// `quantity`; RefundItemResponse (response) additionally denormalises
+// `product_name` / `unit_price` / `line_subtotal` from the joined order_item row.
+export type RefundItemCreate = components['schemas']['RefundItemCreate']
+export type RefundItemResponse = components['schemas']['RefundItemResponse']
 // `reason` literal mirrors the backend enum + DB CHECK (cross-checked at import
 // time in `app/schemas/refund.py`); deriving it from RefundCreate keeps the
 // six allowed values in lock-step here.
