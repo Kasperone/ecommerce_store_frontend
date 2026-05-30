@@ -29,11 +29,21 @@ export interface ShippingQuoteParams {
   subtotal: number
   /**
    * Cart total weight in kg. When non-zero, weight-tiered rates resolve against
-   * this value so the displayed amount matches what the order will charge.
+   * ``max(weightKg, volumetricKg)`` where volumetricKg is computed server-side
+   * from `cartVolumeCm3` + the resolved zone's divisor.
    * Optional — 0 falls through to subtotal-only resolution, preserving the old
    * behaviour for carts without weighted products.
    */
   weightKg?: number
+  /**
+   * Cart total volume in cm³ (frontend pre-sums per-line
+   * `length × width × height × quantity`; lines missing any dimension
+   * contribute 0). The backend reads this scalar + looks up the resolved
+   * zone's `dim_divisor` to compute volumetric weight; the frontend never
+   * sees the divisor. Default 0 + zones with NULL divisor are the legacy
+   * path (actual weight only) — backwards-compatible.
+   */
+  cartVolumeCm3?: number
 }
 
 export function useShippingQuote(params: MaybeRefOrGetter<ShippingQuoteParams>) {
@@ -70,6 +80,10 @@ export function useShippingQuote(params: MaybeRefOrGetter<ShippingQuoteParams>) 
             // backend treats 0 as "skip the weight branch" so old behaviour
             // is preserved automatically.
             weight_kg: p.weightKg ?? 0,
+            // Same default rationale — the resolver only enters the
+            // volumetric branch when BOTH this is > 0 AND the resolved
+            // zone has a non-null dim_divisor.
+            cart_volume_cm3: p.cartVolumeCm3 ?? 0,
           },
           signal: controller.signal,
         },

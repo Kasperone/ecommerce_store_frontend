@@ -46,6 +46,10 @@ const state = reactive({
   is_active: true,
   sort_order: 0,
   country_codes: [] as string[],
+  // cm³/kg divisor for volumetric weight pricing. Undefined = "leave NULL"
+  // (the backend skips the volumetric branch — actual weight only). 5000 is
+  // the PL/EU ground default; 6000 international air; 4000 some express.
+  dim_divisor: undefined as number | undefined,
 })
 const error = ref<ProblemDetails | null>(null)
 
@@ -62,6 +66,7 @@ watch(
       state.is_active = props.zone.is_active
       state.sort_order = props.zone.sort_order
       state.country_codes = [...(props.initialCountryCodes ?? [])]
+      state.dim_divisor = props.zone.dim_divisor ?? undefined
     }
     else {
       state.name = ''
@@ -69,6 +74,7 @@ watch(
       state.is_active = true
       state.sort_order = 0
       state.country_codes = []
+      state.dim_divisor = undefined
     }
   },
   { immediate: true },
@@ -91,6 +97,10 @@ async function onSubmit() {
           is_active: state.is_active,
           sort_order: state.sort_order,
           country_codes: state.country_codes,
+          // `?? null` so clearing the field in the UI explicitly sends null
+          // (the backend understands the "absent vs explicitly null"
+          // distinction via model_fields_set — null means "turn off DIM").
+          dim_divisor: state.dim_divisor ?? null,
         },
       })
       toast.add({ title: t('admin.shipping.flashes.zoneUpdated') })
@@ -102,6 +112,7 @@ async function onSubmit() {
         is_active: state.is_active,
         sort_order: state.sort_order,
         country_codes: state.country_codes,
+        dim_divisor: state.dim_divisor ?? null,
       })
       toast.add({ title: t('admin.shipping.flashes.zoneCreated') })
     }
@@ -178,6 +189,19 @@ async function onSubmit() {
               value-key="value"
               :placeholder="t('admin.shipping.zones.countriesPlaceholder')"
               class="w-full"
+            />
+          </UFormField>
+
+          <UFormField
+            :label="t('admin.shipping.zones.dimDivisor')"
+            :hint="t('admin.shipping.zones.dimDivisorHint')"
+          >
+            <UInputNumber
+              v-model="state.dim_divisor"
+              :min="1"
+              :step="100"
+              :placeholder="t('admin.shipping.zones.dimDivisorPlaceholder')"
+              class="w-full sm:max-w-xs"
             />
           </UFormField>
         </form>

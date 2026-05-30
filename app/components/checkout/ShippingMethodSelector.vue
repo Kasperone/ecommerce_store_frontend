@@ -27,6 +27,14 @@ const props = defineProps<{
    * resolution preserved).
    */
   weightKg?: number
+  /**
+   * Cart total volume in cm³ (pre-summed by the checkout page from per-line
+   * `length × width × height × quantity`). Threaded through to the quote so
+   * the backend can compute `max(actual, volumetric)` against the resolved
+   * zone's divisor. Optional; defaults to 0 (legacy un-dimensioned carts +
+   * zones with NULL divisor stay on actual-weight pricing).
+   */
+  cartVolumeCm3?: number
   /** Currently-selected method id (lifted state). `null` until the user picks one. */
   modelValue: number | null
 }>()
@@ -49,6 +57,7 @@ const quoteParams = computed(() => ({
   currency: props.currency,
   subtotal: props.subtotal,
   weightKg: props.weightKg ?? 0,
+  cartVolumeCm3: props.cartVolumeCm3 ?? 0,
 }))
 
 const { methods, loading, failed } = useShippingQuote(quoteParams)

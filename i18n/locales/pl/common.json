@@ -510,7 +510,10 @@
         "stockCreateOnly": "Ustawia początkowy stan w domyślnym magazynie. Później zmień go w module Magazyn.",
         "stockEditViaInventory": "Stan jest zarządzany per magazyn w module Magazyn (korekta, uzupełnienie, przesunięcie).",
         "allowBackorder": "Pozwól zamawiać ponad dostępny stan (stan może być ujemny).",
-        "weightKg": "Fizyczna waga w kilogramach. Używana przez progi wagowe wysyłki do wyceny według wagi przesyłki; pozostaw puste, aby pominąć wagę przy zamówieniu."
+        "weightKg": "Fizyczna waga w kilogramach. Używana przez progi wagowe wysyłki do wyceny według wagi przesyłki; pozostaw puste, aby pominąć wagę przy zamówieniu.",
+        "lengthCm": "Długość paczki w centymetrach. Razem z szerokością i wysokością wyznacza wagę gabarytową; zwykle uzupełnia się wszystkie trzy wartości.",
+        "widthCm": "Szerokość paczki w centymetrach.",
+        "heightCm": "Wysokość paczki w centymetrach."
       },
       "placeholders": {
         "name": "Encyklopedia herbaty",
@@ -572,6 +575,9 @@
         "priceEur": "EUR",
         "stock": "Stan",
         "weightKg": "Waga (kg)",
+        "lengthCm": "Długość (cm)",
+        "widthCm": "Szerokość (cm)",
+        "heightCm": "Wysokość (cm)",
         "allowBackorder": "Zezwól na zamówienia oczekujące",
         "isActive": "Aktywny",
         "isFeatured": "Wyróżniony",
@@ -634,7 +640,9 @@
         "stockInteger": "Stan musi być liczbą całkowitą",
         "stockNegative": "Stan nie może być ujemny",
         "weightInvalid": "Waga musi być liczbą",
-        "weightNegative": "Waga nie może być ujemna"
+        "weightNegative": "Waga nie może być ujemna",
+        "dimensionInvalid": "Wymiar musi być liczbą",
+        "dimensionNegative": "Wymiar nie może być ujemny"
       }
     },
     "orders": {
@@ -862,6 +870,9 @@
         "countries": "Kraje",
         "countriesHint": "Kraj może należeć tylko do jednej strefy.",
         "countriesPlaceholder": "Wybierz kraje…",
+        "dimDivisor": "Dzielnik wagi gabarytowej (cm³/kg)",
+        "dimDivisorHint": "Standard przewoźnika: 5000 dla PL/EU lądowo, 6000 lotnicze międzynarodowe, 4000 niektóre ekspresy. Pozostaw puste, aby naliczać tylko po wadze rzeczywistej.",
+        "dimDivisorPlaceholder": "5000",
         "fields": {
           "name": "Nazwa",
           "countries": "Kraje",

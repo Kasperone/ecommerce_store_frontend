@@ -33,6 +33,13 @@ export interface CartItem {
   // (legacy product) — sums as 0 in the quote, matching the backend's
   // null-weight treatment.
   weightKg?: number | null
+  // Dimensions snapshotted so the checkout's shipping quote can compute
+  // cart volume (for the volumetric-weight branch) without re-fetching.
+  // Any of the three null/undefined → that line contributes 0 to cart
+  // volume (matches the backend's "any-dim NULL" safety).
+  lengthCm?: number | null
+  widthCm?: number | null
+  heightCm?: number | null
   quantity: number
 }
 
@@ -48,6 +55,9 @@ type AddableProduct = Pick<
   | 'stock'
   | 'allow_backorder'
   | 'weight_kg'
+  | 'length_cm'
+  | 'width_cm'
+  | 'height_cm'
 >
 
 const STORAGE_KEY = 'cart'
@@ -88,6 +98,9 @@ export const useCartStore = defineStore('cart', () => {
       stock: product.stock,
       allowBackorder: product.allow_backorder,
       weightKg: product.weight_kg ?? null,
+      lengthCm: product.length_cm ?? null,
+      widthCm: product.width_cm ?? null,
+      heightCm: product.height_cm ?? null,
       quantity: product.allow_backorder
         ? Math.max(quantity, 1)
         : Math.min(Math.max(quantity, 1), product.stock),
