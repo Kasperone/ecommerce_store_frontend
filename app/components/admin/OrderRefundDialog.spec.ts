@@ -163,6 +163,34 @@ describe('AdminOrderRefundDialog', () => {
     })
   })
 
+  it('forces restock=false in the submit payload even when the ref is true with no items picked', async () => {
+    // Regression for the live-verify bug: the open-flip's reset to D2 default
+    // (`restock=true` under status=paid) doesn't re-fire the `restockDisabled`
+    // watcher because the empty-picker truth didn't change. The dialog rendered
+    // the checkbox as disabled but submit still carried `restock=true` → BE D5
+    // 400. Fix: belt-and-suspenders force-off in `onSubmit` when items is null.
+    const wrapper = await mountSuspended(OrderRefundDialog, {
+      props: { order: makeOrder({ status: 'paid', total: 25.0 }), open: true },
+    })
+    // Force the ref to true to simulate the open-flip race; the submit handler
+    // must still send false because items is null.
+    ;(wrapper.vm as any).restock = true
+    ;(wrapper.vm as any).amount = 5.0
+    ;(wrapper.vm as any).amountOverridden = true
+    await new Promise(r => setTimeout(r, 0))
+    const submit = [...document.querySelectorAll('button')].find(
+      b => b.textContent?.trim() === 'Issue refund' && !b.disabled,
+    ) as HTMLButtonElement | undefined
+    submit!.click()
+    await new Promise(r => setTimeout(r, 0))
+    const emitted = wrapper.emitted('submit') as [unknown[]][]
+    expect(emitted![0]![0]).toMatchObject({
+      amount: 5.0,
+      items: null,
+      restock: false,
+    })
+  })
+
   it('emits items=null for a goodwill refund (free-form amount, no picks)', async () => {
     const wrapper = await mountSuspended(OrderRefundDialog, {
       props: { order: makeOrder({ total: 25.0 }), open: true },
