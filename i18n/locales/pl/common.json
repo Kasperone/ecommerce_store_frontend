@@ -99,7 +99,6 @@
       "coupons":    { "title": "Kupony",           "placeholder": "Tutaj znajdą się kody rabatowe, warunki i limity użycia. Wkrótce." },
       "banners":    { "title": "Banery",           "placeholder": "Tutaj znajdzie się zarządzanie banerami i blokami promocyjnymi. Wkrótce." },
       "campaigns":  { "title": "Kampanie",         "placeholder": "Tutaj znajdzie się segmentacja kampanii i odzyskiwanie porzuconych koszyków. Wkrótce." },
-      "shipping":   { "title": "Wysyłka",          "placeholder": "Tutaj znajdą się strefy wysyłki, taryfy i integracje z przewoźnikami. Wkrótce." },
       "reports":    { "title": "Raporty",          "placeholder": "Tutaj znajdą się raporty sprzedaży, VAT, magazynu i kohort. Wkrótce." },
       "settings":   { "title": "Ustawienia",       "placeholder": "Tutaj znajdą się dane sklepu, waluty, VAT, płatności i szablony e-maili. Wkrótce." },
       "staff":      { "title": "Personel i role",  "placeholder": "Tutaj znajdzie się lista administratorów i zarządzanie rolami. Wkrótce." }
@@ -836,6 +835,133 @@
         "save": "Zapisz",
         "cancel": "Anuluj",
         "close": "Zamknij"
+      }
+    },
+    "shipping": {
+      "title": "Wysyłka",
+      "subtitle": "Strefy, sposoby i taryfy dla kasy sklepu",
+      "tabs": {
+        "zones": "Strefy",
+        "methods": "Sposoby",
+        "rates": "Taryfy"
+      },
+      "zones": {
+        "new": "Nowa strefa",
+        "create": "Nowa strefa wysyłki",
+        "edit": "Edytuj strefę wysyłki",
+        "empty": "Brak stref. Utwórz pierwszą, aby zacząć naliczać koszty wysyłki.",
+        "name": "Nazwa",
+        "description": "Opis",
+        "descriptionPlaceholder": "Wewnętrzna notatka — niewidoczna dla klientów.",
+        "sortOrder": "Kolejność",
+        "active": "Aktywna",
+        "countries": "Kraje",
+        "countriesHint": "Kraj może należeć tylko do jednej strefy.",
+        "countriesPlaceholder": "Wybierz kraje…",
+        "fields": {
+          "name": "Nazwa",
+          "countries": "Kraje",
+          "rates": "Taryfy",
+          "sortOrder": "Kolejność",
+          "active": "Status",
+          "activeOn": "Aktywna",
+          "activeOff": "Nieaktywna"
+        },
+        "deleteConfirm": {
+          "title": "Usunąć strefę wysyłki?",
+          "body": "Usuwa „{name}” i wszystkie przypisane taryfy. Istniejące zamówienia zachowują zapis danych wysyłki."
+        }
+      },
+      "methods": {
+        "new": "Nowy sposób",
+        "create": "Nowy sposób wysyłki",
+        "edit": "Edytuj sposób wysyłki",
+        "empty": "Brak sposobów wysyłki. Utwórz pierwszy (np. Standard, Express).",
+        "name": "Nazwa",
+        "code": "Kod",
+        "codeHint": "Opcjonalny identyfikator przewoźnika — np. inpost_paczkomat, dpd_classic.",
+        "codePlaceholder": "standard",
+        "description": "Opis",
+        "sortOrder": "Kolejność",
+        "active": "Aktywny",
+        "fields": {
+          "name": "Nazwa",
+          "code": "Kod",
+          "sortOrder": "Kolejność",
+          "active": "Status",
+          "activeOn": "Aktywny",
+          "activeOff": "Nieaktywny"
+        },
+        "deleteConfirm": {
+          "title": "Usunąć sposób wysyłki?",
+          "body": "Usuwa „{name}” i wszystkie taryfy, które go używają. Istniejące zamówienia zachowują zapis danych wysyłki."
+        }
+      },
+      "rates": {
+        "new": "Nowa taryfa",
+        "create": "Nowa taryfa wysyłki",
+        "edit": "Edytuj taryfę wysyłki",
+        "empty": "Brak taryf pasujących do filtrów.",
+        "zone": "Strefa",
+        "zonePlaceholder": "Wybierz strefę…",
+        "method": "Sposób",
+        "methodPlaceholder": "Wybierz sposób…",
+        "currency": "Waluta",
+        "amount": "Kwota",
+        "amountHint": "Bazowa / zapasowa cena wysyłki w wybranej walucie.",
+        "freeAbove": "Bezpłatnie powyżej wartości koszyka",
+        "freeAboveHint": "Opcjonalne. Gdy wartość koszyka osiągnie ten próg, wysyłka jest bezpłatna.",
+        "clearFreeAbove": "Wyczyść",
+        "tiers": {
+          "title": "Skonfiguruj progi koszyka",
+          "hint": "Każdy próg nadpisuje bazową kwotę, gdy wartość koszyka osiąga jego granicę. Progi są ewaluowane po sprawdzeniu progu darmowej wysyłki.",
+          "minSubtotal": "Min. wartość",
+          "amount": "Kwota",
+          "add": "Dodaj próg",
+          "remove": "Usuń próg"
+        },
+        "preview": {
+          "title": "Podgląd",
+          "subtotal": "Wartość koszyka"
+        },
+        "filters": {
+          "zone": "Strefa",
+          "method": "Sposób",
+          "currency": "Waluta",
+          "allZones": "Wszystkie strefy",
+          "allMethods": "Wszystkie sposoby",
+          "allCurrencies": "Wszystkie waluty"
+        },
+        "fields": {
+          "zone": "Strefa",
+          "method": "Sposób",
+          "currency": "Waluta",
+          "amount": "Kwota",
+          "kind": "Cennik"
+        },
+        "pricingKind": {
+          "flat": "Stała",
+          "free_above": "Bezpłatna powyżej",
+          "tiered": "Progowa"
+        },
+        "deleteConfirm": {
+          "title": "Usunąć taryfę wysyłki?",
+          "body": "Usuwa taryfę {zone} × {method} × {currency}. Istniejące zamówienia pozostają bez zmian."
+        }
+      },
+      "flashes": {
+        "zoneCreated": "Strefa wysyłki utworzona.",
+        "zoneUpdated": "Strefa wysyłki zaktualizowana.",
+        "zoneDeleted": "Strefa wysyłki usunięta.",
+        "zoneDeleteError": "Nie udało się usunąć strefy. Spróbuj ponownie.",
+        "methodCreated": "Sposób wysyłki utworzony.",
+        "methodUpdated": "Sposób wysyłki zaktualizowany.",
+        "methodDeleted": "Sposób wysyłki usunięty.",
+        "methodDeleteError": "Nie udało się usunąć sposobu. Spróbuj ponownie.",
+        "rateCreated": "Taryfa wysyłki utworzona.",
+        "rateUpdated": "Taryfa wysyłki zaktualizowana.",
+        "rateDeleted": "Taryfa wysyłki usunięta.",
+        "rateDeleteError": "Nie udało się usunąć taryfy. Spróbuj ponownie."
       }
     }
   },
