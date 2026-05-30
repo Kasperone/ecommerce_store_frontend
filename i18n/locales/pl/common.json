@@ -710,9 +710,40 @@
         "confirm": "Anuluj zamówienie",
         "dismiss": "Zachowaj zamówienie"
       },
+      "refund": {
+        "button": "Wystaw zwrot",
+        "title": "Wystaw zwrot",
+        "description": "W v1 tylko pełny zwrot. Zapisuje zwrot, opcjonalnie przywraca stan magazynowy i wystawia fakturę korygującą (KOR), gdy zamówienie ma fakturę.",
+        "amountReadOnly": "Kwota zwrotu",
+        "amountHint": "Zwroty częściowe pojawią się w v2 — v1 zwraca pełną kwotę zamówienia.",
+        "reason": "Powód",
+        "reasonOptions": {
+          "defective": "Wadliwy produkt",
+          "wrong_item": "Wysłano niewłaściwy produkt",
+          "customer_request": "Na życzenie klienta",
+          "lost_in_transit": "Zaginął w transporcie",
+          "damaged_in_transit": "Uszkodzony w transporcie",
+          "other": "Inny"
+        },
+        "note": "Notatka wewnętrzna (opcjonalnie)",
+        "notePlaceholder": "np. klient zgłosił, że paczka dotarła pusta",
+        "noteHint": "Widoczna tylko dla administratorów — nigdy nie jest wysyłana do klienta.",
+        "restock": "Przywróć stan magazynowy",
+        "restockHint": "Zapisuje ruch order_refunded dla każdej pozycji. Domyślnie włączone dla paid/processing; wyłączone dla shipped/delivered.",
+        "submit": "Wystaw zwrot",
+        "cancel": "Anuluj",
+        "actorRemoved": "Usunięty administrator"
+      },
+      "refundsSection": {
+        "title": "Zwroty",
+        "empty": "Brak wystawionych zwrotów.",
+        "restockBadge": "Przywrócono stan",
+        "kor": "Faktura korygująca: {number}"
+      },
       "flashes": {
         "updated": "Zamówienie zaktualizowane.",
-        "cancelled": "Zamówienie anulowane."
+        "cancelled": "Zamówienie anulowane.",
+        "refundIssued": "Zwrot wystawiony."
       }
     },
     "customers": {

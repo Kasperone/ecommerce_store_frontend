@@ -709,9 +709,40 @@
         "confirm": "Cancel order",
         "dismiss": "Keep order"
       },
+      "refund": {
+        "button": "Issue refund",
+        "title": "Issue refund",
+        "description": "Full refund only in v1. Records the refund, optionally restocks, and issues a faktura korygująca (KOR) when the order has a faktura.",
+        "amountReadOnly": "Refund amount",
+        "amountHint": "Partial refunds coming in v2 — v1 refunds the order total.",
+        "reason": "Reason",
+        "reasonOptions": {
+          "defective": "Defective product",
+          "wrong_item": "Wrong item shipped",
+          "customer_request": "Customer request",
+          "lost_in_transit": "Lost in transit",
+          "damaged_in_transit": "Damaged in transit",
+          "other": "Other"
+        },
+        "note": "Internal note (optional)",
+        "notePlaceholder": "e.g. customer reported the box arrived empty",
+        "noteHint": "Visible to admins only — never sent to the customer.",
+        "restock": "Restore stock to inventory",
+        "restockHint": "Writes one order_refunded movement per line. Default on for paid/processing; off for shipped/delivered.",
+        "submit": "Issue refund",
+        "cancel": "Cancel",
+        "actorRemoved": "Removed admin"
+      },
+      "refundsSection": {
+        "title": "Refunds",
+        "empty": "No refunds issued.",
+        "restockBadge": "Restocked",
+        "kor": "Corrective invoice: {number}"
+      },
       "flashes": {
         "updated": "Order updated.",
-        "cancelled": "Order cancelled."
+        "cancelled": "Order cancelled.",
+        "refundIssued": "Refund issued."
       }
     },
     "customers": {

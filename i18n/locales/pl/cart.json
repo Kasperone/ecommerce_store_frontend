@@ -123,6 +123,18 @@
     "invoice": {
       "download": "Pobierz fakturę",
       "error": "Nie udało się pobrać faktury. Spróbuj ponownie."
+    },
+    "refund": {
+      "title": "Zwrot wystawiony",
+      "intro": "Środki zostaną zwrócone tą samą metodą płatności w ciągu 5-10 dni roboczych. Wysłaliśmy fakturę korygującą e-mailem.",
+      "reasonOptions": {
+        "defective": "Wadliwy produkt",
+        "wrong_item": "Wysłano niewłaściwy produkt",
+        "customer_request": "Na Twoją prośbę",
+        "lost_in_transit": "Zaginął w transporcie",
+        "damaged_in_transit": "Uszkodzony w transporcie",
+        "other": "Inny"
+      }
     }
   },
   "payment": {
