@@ -127,6 +127,8 @@ useHead({
         <OrdersRefundsSection
           :refunds="order.refunds ?? []"
           :currency="order.currency"
+          :status="order.status"
+          :order-total="order.total"
         />
 
         <section>

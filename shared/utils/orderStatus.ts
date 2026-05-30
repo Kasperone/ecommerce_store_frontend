@@ -15,22 +15,29 @@ export const ORDER_STATUSES: OrderStatus[] = [
   'processing',
   'shipped',
   'delivered',
+  'partially_refunded',
   'cancelled',
   'refunded',
 ]
 
-// Forward-only workflow. Terminal/stock-affecting states (cancelled, refunded)
-// are reached through the cancel endpoint, not the status dropdown.
+// Forward-only workflow. Terminal/stock-affecting states (cancelled, refunded,
+// partially_refunded) are reached through the cancel/refund endpoints, not the
+// status dropdown. `partially_refunded → refunded` only goes through the refund
+// endpoint too.
 const FORWARD_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   pending: ['paid', 'processing'],
   paid: ['processing', 'shipped'],
   processing: ['shipped'],
   shipped: ['delivered'],
   delivered: [],
+  partially_refunded: [],
   cancelled: [],
   refunded: [],
 }
 
+// D4: partially_refunded is NOT cancellable — once any refund issues, the only
+// forward path is another refund (which may bring the cumulative total to
+// order.total → REFUNDED). Cancel would lose the refund-history attribution.
 const CANCELLABLE: OrderStatus[] = ['pending', 'paid', 'processing', 'shipped']
 
 /** Statuses an admin may move an order to next (excludes the current one). */
@@ -51,6 +58,9 @@ const STATUS_COLORS: Record<OrderStatus, BadgeColor> = {
   processing: 'info',
   shipped: 'primary',
   delivered: 'success',
+  // `warning` chosen to sit between `paid` (info) and `refunded` (neutral) —
+  // the customer's badge reads as "paid, but some money came back".
+  partially_refunded: 'warning',
   cancelled: 'error',
   refunded: 'neutral',
 }

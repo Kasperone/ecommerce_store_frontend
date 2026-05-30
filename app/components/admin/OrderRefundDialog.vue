@@ -2,19 +2,32 @@
 /**
  * Admin "Issue refund" dialog.
  *
- * v1 ships **full refunds only** — the amount is rendered read-only as
- * `order.total` and submitted verbatim. Partial-refund UI is a v2 PR
- * (the backend schema already accepts any amount; route 400s for now).
+ * v2 ships the per-line refund picker + arbitrary amounts:
  *
- * Restock defaults per D2: on for `paid`/`processing` (goods haven't shipped),
- * off for `shipped`/`delivered` (we don't physically have them back).
+ * - Each order line shows "Qty available" (= `order_item.quantity` minus what
+ *   prior refunds already took for that line) and a `UInputNumber` for the qty
+ *   being refunded in THIS request. The displayed amount auto-fills from
+ *   `sum(picked × unit_price)`; the admin can override it to record a goodwill
+ *   credit on top of the returned items.
+ * - The running-total hint underneath the amount shows what has already been
+ *   refunded vs the order total + how much remains.
+ * - Restock defaults per D2 (on for pre-shipping statuses) and is disabled
+ *   when no items are picked (D5 backend guard, surfaced as UX).
+ * - The amount is capped at the remaining refundable balance via a max-prop;
+ *   over-refund + line-over-qty still 400 server-side as a defense-in-depth.
  *
- * Auto-imported as `<AdminOrderRefundDialog>` (pathPrefix prepends `admin/`
- * to the file name); the bare `<OrderRefundDialog>` name fails silently with
- * a Vue warn — see `pathprefix_bare_component_gotcha`.
+ * Auto-imported as `<AdminOrderRefundDialog>` (pathPrefix prepends `admin/`).
  */
 import { useI18n } from 'vue-i18n'
-import type { OrderStatus, OrderWithUser, RefundCreate, RefundReason } from '#shared/types/api'
+import type {
+  OrderItemResponse,
+  OrderStatus,
+  OrderWithUser,
+  RefundCreate,
+  RefundItemCreate,
+  RefundReason,
+  RefundResponse,
+} from '#shared/types/api'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 
 const props = defineProps<{
@@ -31,8 +44,6 @@ const emit = defineEmits<{
 
 const { t, locale } = useI18n()
 
-// D4: enum + free text. Build the select options + dropdown labels off the
-// REFUND_REASONS literal so adding a value is one i18n key + this array.
 const REFUND_REASONS: RefundReason[] = [
   'defective',
   'wrong_item',
@@ -49,15 +60,80 @@ const reasonOptions = computed(() =>
   })),
 )
 
-// Defaults — re-seeded whenever the dialog re-opens so a previous open's
-// inputs don't bleed in (the parent toggles `open` between issues).
+// ---------------------------------------------------------------------------
+// Running totals (computed from `order.refunds`)
+// ---------------------------------------------------------------------------
+
+/**
+ * Total amount already refunded across all prior refunds on this order.
+ * Read from the eager-loaded `order.refunds[]`; the backend re-validates
+ * against a fresh DB query so a stale value here is only a UX hint.
+ */
+const priorTotal = computed(() => {
+  const refunds = (props.order.refunds || []) as RefundResponse[]
+  return refunds.reduce((acc, r) => acc + (r.amount || 0), 0)
+})
+
+const remainingTotal = computed(() => {
+  const remaining = props.order.total - priorTotal.value
+  return remaining > 0 ? remaining : 0
+})
+
+/** Cumulative qty already refunded per `order_item_id` across all prior refunds. */
+const priorQtyByLine = computed(() => {
+  const refunds = (props.order.refunds || []) as RefundResponse[]
+  const acc: Record<number, number> = {}
+  for (const r of refunds) {
+    for (const ri of r.items || []) {
+      acc[ri.order_item_id] = (acc[ri.order_item_id] || 0) + ri.quantity
+    }
+  }
+  return acc
+})
+
+const lineRows = computed(() => {
+  const items = (props.order.items || []) as OrderItemResponse[]
+  return items.map((item) => {
+    const refunded = priorQtyByLine.value[item.id] || 0
+    const remainingQty = item.quantity - refunded
+    return {
+      id: item.id,
+      productName: item.product_name,
+      unitPrice: item.unit_price,
+      lineQty: item.quantity,
+      remainingQty: remainingQty > 0 ? remainingQty : 0,
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Reactive form state — re-seeded on every `open` flip
+// ---------------------------------------------------------------------------
+
 const reason = ref<RefundReason>('customer_request')
 const note = ref('')
 const restock = ref(true)
+/** Map of order_item.id → qty being refunded in THIS request. */
+const pickedQty = ref<Record<number, number>>({})
+/** Amount the admin sees / submits. Auto-fills from picker but can be overridden. */
+const amount = ref<number>(0)
+/**
+ * Whether the amount field has been touched manually since the picker changed.
+ * When true, the picker `watch` no longer overwrites the amount on every tick
+ * (so a goodwill bump-up doesn't get clobbered when the admin tweaks a qty).
+ */
+const amountOverridden = ref(false)
 
-// D2: prefer restock when goods haven't physically shipped yet.
 function defaultRestock(status: OrderStatus): boolean {
   return status === 'paid' || status === 'processing'
+}
+
+function resetPicker() {
+  const fresh: Record<number, number> = {}
+  for (const line of lineRows.value) {
+    fresh[line.id] = 0
+  }
+  pickedQty.value = fresh
 }
 
 watch(
@@ -67,30 +143,98 @@ watch(
     reason.value = 'customer_request'
     note.value = ''
     restock.value = defaultRestock(props.order.status)
+    resetPicker()
+    amount.value = 0
+    amountOverridden.value = false
   },
   { immediate: true },
 )
+
+// ---------------------------------------------------------------------------
+// Picker → amount auto-fill
+// ---------------------------------------------------------------------------
+
+const pickedSubtotal = computed(() =>
+  lineRows.value.reduce(
+    (acc, line) => acc + (pickedQty.value[line.id] || 0) * line.unitPrice,
+    0,
+  ),
+)
+
+const anyItemsPicked = computed(() =>
+  Object.values(pickedQty.value).some(q => q > 0),
+)
+
+watch(pickedSubtotal, (sub) => {
+  if (amountOverridden.value) return
+  amount.value = Math.round(sub * 100) / 100
+})
+
+function onAmountInput() {
+  // Mark the amount as overridden the moment the admin touches it directly so
+  // a later picker change doesn't clobber the goodwill bump-up.
+  amountOverridden.value = true
+}
+
+// ---------------------------------------------------------------------------
+// Derived UI bits
+// ---------------------------------------------------------------------------
+
+const moneyFmt = computed(
+  () => new Intl.NumberFormat(locale.value, {
+    style: 'currency',
+    currency: props.order.currency,
+  }),
+)
+
+function money(n: number): string {
+  return moneyFmt.value.format(n)
+}
+
+const runningTotalCopy = computed(() =>
+  t('admin.orders.refund.runningTotal', {
+    refunded: money(priorTotal.value),
+    total: money(props.order.total),
+    remaining: money(remainingTotal.value),
+  }),
+)
+
+const restockDisabled = computed(() => !anyItemsPicked.value)
+// When the picker is empty, restock can't be honored backend-side anyway
+// (D5 returns 400). Force-off so the submit payload matches what we render.
+// `immediate: true` so the very first mount under e.g. status=paid (D2 default
+// restock=true) sees the empty-picker truth and flips restock to false before
+// any submit fires.
+watch(restockDisabled, (disabled) => {
+  if (disabled) restock.value = false
+}, { immediate: true })
 
 const openModel = computed({
   get: () => props.open,
   set: value => emit('update:open', value),
 })
 
-const amountLabel = computed(() => {
-  // Same formatter the rest of the admin order detail uses — Intl.NumberFormat
-  // scoped to the order's own currency (multi-currency: orders never mix).
-  return new Intl.NumberFormat(locale.value, {
-    style: 'currency',
-    currency: props.order.currency,
-  }).format(props.order.total)
-})
+function buildItemsPayload(): RefundItemCreate[] | null {
+  const items: RefundItemCreate[] = []
+  for (const line of lineRows.value) {
+    const qty = pickedQty.value[line.id] || 0
+    if (qty > 0) {
+      items.push({ order_item_id: line.id, quantity: qty })
+    }
+  }
+  // Send `null` (not `[]`) for goodwill refunds — keeps the backend's
+  // `items=None` branch and `items=[]` branch identical in shape (the BE
+  // treats both as "no picker").
+  return items.length > 0 ? items : null
+}
 
 function onSubmit() {
   emit('submit', {
-    amount: props.order.total,
+    amount: amount.value,
     reason: reason.value,
     note: note.value.trim() || null,
     restock: restock.value,
+    items: buildItemsPayload(),
   })
 }
 </script>
@@ -110,19 +254,75 @@ function onSubmit() {
       />
 
       <form
-        class="space-y-4"
+        class="space-y-5"
         @submit.prevent="onSubmit"
       >
-        <!-- Amount (read-only in v1) -->
-        <UFormField :label="t('admin.orders.refund.amountReadOnly')">
-          <div
-            class="rounded-md border border-default bg-elevated px-3 py-2 font-mono text-sm"
-            data-testid="refund-amount-readonly"
-          >
-            {{ amountLabel }}
+        <!-- Per-line picker -->
+        <section data-testid="refund-line-picker">
+          <h3 class="mb-2 text-sm font-semibold">
+            {{ t('admin.orders.refund.linePicker.title') }}
+          </h3>
+          <p class="mb-2 text-xs text-muted">
+            {{ t('admin.orders.refund.linePicker.qtyAvailHint') }}
+          </p>
+          <div class="space-y-2">
+            <div
+              v-for="line in lineRows"
+              :key="line.id"
+              class="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 rounded-md border border-default bg-elevated px-3 py-2 text-sm"
+              :data-testid="`refund-line-${line.id}`"
+            >
+              <div class="font-medium">
+                {{ line.productName }}
+              </div>
+              <div
+                class="text-xs text-muted"
+                :data-testid="`refund-line-${line.id}-available`"
+              >
+                {{ t('admin.orders.refund.linePicker.availableColumn', {
+                  remaining: line.remainingQty, total: line.lineQty,
+                }) }}
+              </div>
+              <UInputNumber
+                v-model="pickedQty[line.id]"
+                :min="0"
+                :max="line.remainingQty"
+                :step="1"
+                class="w-28"
+                :data-testid="`refund-line-${line.id}-qty`"
+                :aria-label="t('admin.orders.refund.linePicker.qtyAriaLabel', {
+                  product: line.productName,
+                })"
+              />
+              <div
+                class="text-right font-mono text-xs text-muted"
+                :data-testid="`refund-line-${line.id}-subtotal`"
+              >
+                {{ money((pickedQty[line.id] || 0) * line.unitPrice) }}
+              </div>
+            </div>
           </div>
+        </section>
+
+        <!-- Amount (editable; auto-fills from picker, override for goodwill) -->
+        <UFormField :label="t('admin.orders.refund.amount')">
+          <UInputNumber
+            v-model="amount"
+            :min="0.01"
+            :max="remainingTotal || undefined"
+            :step="0.01"
+            class="w-full"
+            data-testid="refund-amount"
+            @update:model-value="onAmountInput"
+          />
           <p class="mt-1 text-xs text-muted">
             {{ t('admin.orders.refund.amountHint') }}
+          </p>
+          <p
+            class="mt-1 text-xs text-muted"
+            data-testid="refund-running-total"
+          >
+            {{ runningTotalCopy }}
           </p>
         </UFormField>
 
@@ -155,8 +355,11 @@ function onSubmit() {
 
         <UCheckbox
           v-model="restock"
+          :disabled="restockDisabled"
           :label="t('admin.orders.refund.restock')"
-          :description="t('admin.orders.refund.restockHint')"
+          :description="restockDisabled
+            ? t('admin.orders.refund.restockNeedsItems')
+            : t('admin.orders.refund.restockHint')"
           data-testid="refund-restock"
         />
       </form>
@@ -176,6 +379,7 @@ function onSubmit() {
           color="error"
           icon="i-lucide-undo-2"
           :loading="loading"
+          :disabled="amount <= 0"
           @click="onSubmit"
         >
           {{ t('admin.orders.refund.submit') }}

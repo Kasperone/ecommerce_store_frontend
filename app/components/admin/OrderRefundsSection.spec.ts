@@ -3,7 +3,22 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import OrderRefundsSection from './OrderRefundsSection.vue'
-import type { RefundResponse } from '#shared/types/api'
+import type { RefundItemResponse, RefundResponse } from '#shared/types/api'
+
+function makeItem(overrides: Partial<RefundItemResponse> = {}): RefundItemResponse {
+  return {
+    id: 91,
+    refund_id: 1,
+    order_item_id: 11,
+    quantity: 1,
+    product_name: 'Widget X',
+    unit_price: 12.5,
+    line_subtotal: 12.5,
+    created_at: '2026-05-30T10:00:00Z',
+    updated_at: '2026-05-30T10:00:00Z',
+    ...overrides,
+  } as RefundItemResponse
+}
 
 function makeRefund(overrides: Partial<RefundResponse> = {}): RefundResponse {
   return {
@@ -18,6 +33,7 @@ function makeRefund(overrides: Partial<RefundResponse> = {}): RefundResponse {
     actor_user_id: 42,
     actor_email: 'admin@example.com',
     corrective_invoice: null,
+    items: [],
     created_at: '2026-05-30T10:00:00Z',
     updated_at: '2026-05-30T10:00:00Z',
     ...overrides,
@@ -87,6 +103,26 @@ describe('AdminOrderRefundsSection', () => {
       },
     })
     expect(wrapper.text()).toContain('KOR/2026/00007')
+  })
+
+  it('renders the per-item breakdown when refund.items is non-empty', async () => {
+    const wrapper = await mountSuspended(OrderRefundsSection, {
+      props: {
+        refunds: [makeRefund({ items: [makeItem({ product_name: 'Widget X', quantity: 2 })] })],
+        currency: 'USD',
+      },
+    })
+    const breakdown = wrapper.find('[data-testid="refund-1-items"]')
+    expect(breakdown.exists()).toBe(true)
+    expect(breakdown.text()).toContain('Widget X')
+    expect(breakdown.text()).toContain('2')
+  })
+
+  it('omits the per-item breakdown for goodwill refunds (items=[])', async () => {
+    const wrapper = await mountSuspended(OrderRefundsSection, {
+      props: { refunds: [makeRefund({ items: [] })], currency: 'USD' },
+    })
+    expect(wrapper.find('[data-testid="refund-1-items"]').exists()).toBe(false)
   })
 
   it('falls back to a placeholder label when the issuing admin was removed', async () => {

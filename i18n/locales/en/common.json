@@ -662,6 +662,7 @@
         "processing": "Processing",
         "shipped": "Shipped",
         "delivered": "Delivered",
+        "partially_refunded": "Partially refunded",
         "cancelled": "Cancelled",
         "refunded": "Refunded"
       },
@@ -713,9 +714,16 @@
       "refund": {
         "button": "Issue refund",
         "title": "Issue refund",
-        "description": "Full refund only in v1. Records the refund, optionally restocks, and issues a faktura korygująca (KOR) when the order has a faktura.",
-        "amountReadOnly": "Refund amount",
-        "amountHint": "Partial refunds coming in v2 — v1 refunds the order total.",
+        "description": "Pick line items to refund, or override the amount for a goodwill credit. Records the refund, optionally restocks, and issues a faktura korygująca (KOR) when the order has a faktura.",
+        "amount": "Refund amount",
+        "amountHint": "Auto-fills from the picked items above. Override for a goodwill credit on top of returned items.",
+        "runningTotal": "{refunded} of {total} refunded so far — {remaining} remaining",
+        "linePicker": {
+          "title": "Items to refund",
+          "qtyAvailHint": "Pick the number of units coming back per line. Subtotals fill the amount automatically.",
+          "availableColumn": "{remaining} of {total} available",
+          "qtyAriaLabel": "Quantity to refund for {product}"
+        },
         "reason": "Reason",
         "reasonOptions": {
           "defective": "Defective product",
@@ -729,7 +737,8 @@
         "notePlaceholder": "e.g. customer reported the box arrived empty",
         "noteHint": "Visible to admins only — never sent to the customer.",
         "restock": "Restore stock to inventory",
-        "restockHint": "Writes one order_refunded movement per line. Default on for paid/processing; off for shipped/delivered.",
+        "restockHint": "Writes one order_refunded movement per picked line. Default on for paid/processing; off for shipped/delivered.",
+        "restockNeedsItems": "Pick items above to enable restock.",
         "submit": "Issue refund",
         "cancel": "Cancel",
         "actorRemoved": "Removed admin"
@@ -738,7 +747,10 @@
         "title": "Refunds",
         "empty": "No refunds issued.",
         "restockBadge": "Restocked",
-        "kor": "Corrective invoice: {number}"
+        "kor": "Corrective invoice: {number}",
+        "items": {
+          "line": "{name} x {qty}"
+        }
       },
       "flashes": {
         "updated": "Order updated.",
