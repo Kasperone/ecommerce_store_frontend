@@ -14,6 +14,7 @@ import { API_ENDPOINTS } from '#shared/constants/api'
 import type {
   CategoryTreeNode,
   CategoryWithProductCount,
+  LowestPriceResponse,
   ProductResponse,
   ProductWithCategory,
   PublicReviewListResponse,
@@ -88,6 +89,37 @@ export function useProductDetail(slug: string) {
   return useAsyncData(
     `storefront-product-${slug}`,
     () => apiFetch<ProductWithCategory>(`/api/v1/products/slug/${encodeURIComponent(slug)}`),
+  )
+}
+
+/**
+ * OMNIBUS (Directive 98/6 Art. 6a) — lowest price for ``productId`` in
+ * ``currency`` over the last 30 days.
+ *
+ * SSR-fetched so the legal comparison line is in the crawlable HTML alongside
+ * the price (the PDP must show this transparently — see the storefront PDP
+ * + ``<ShopOmnibusPrice>``). Refetches when the active currency changes.
+ *
+ * The backend returns ``lowest_price = null`` + ``since = null`` when no
+ * history exists (impossible for products created via the route chokepoint +
+ * the migration backfill, but possible for legacy edge cases). The display
+ * component renders nothing in that case.
+ *
+ * The composable is also used by the admin product form to render the
+ * "Lowest 30d: X.XX since DATE" decision-support hint next to each price input.
+ */
+export function useProductLowest30d(
+  productId: number,
+  currency: MaybeRefOrGetter<string>,
+) {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    `storefront-product-${productId}-lowest30d-${toValue(currency)}`,
+    () =>
+      apiFetch<LowestPriceResponse>(`/api/v1/products/${productId}/lowest-30d`, {
+        query: { currency: toValue(currency) },
+      }),
+    { watch: [() => toValue(currency)] },
   )
 }
 

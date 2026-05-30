@@ -105,5 +105,8 @@
   "currency": {
     "label": "Currency",
     "select": "Select currency"
+  },
+  "omnibus": {
+    "lowest30d": "Lowest price in 30 days: {price}"
   }
 }

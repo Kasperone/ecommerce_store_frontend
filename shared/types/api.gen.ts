@@ -434,6 +434,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/products/{product_id}/lowest-30d": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Lowest 30D
+         * @description OMNIBUS (Directive 98/6 Art. 6a) — lowest price for ``product_id`` in
+         *     ``currency`` over the last 30 days.
+         *
+         *     Public + unauthenticated: the answer is what the storefront PDP needs to
+         *     legally show next to a reduced price. Returns ``lowest_price = null`` +
+         *     ``since = null`` when no history exists for that (product, currency) — the
+         *     storefront then renders no comparison line.
+         */
+        get: operations["get_lowest_30d_api_v1_products__product_id__lowest_30d_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/categories/tree": {
         parameters: {
             query?: never;
@@ -2947,6 +2973,26 @@ export interface components {
             status: "in_stock" | "low_stock" | "out_of_stock" | "backorder";
         };
         /**
+         * LowestPriceResponse
+         * @description ``GET /products/{id}/lowest-30d?currency=PLN`` response.
+         *
+         *     ``lowest_price`` + ``since`` are nullable to express "no history exists for
+         *     this (product, currency) pair" — the storefront then renders no comparison
+         *     line. ``currency`` is always echoed back so the caller can read the payload
+         *     without re-quoting the query param.
+         */
+        LowestPriceResponse: {
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** Lowest Price */
+            lowest_price: number | null;
+            /** Since */
+            since: string | null;
+        };
+        /**
          * MyVotesResponse
          * @description The reviews the caller has voted "helpful" on for a given product.
          *
@@ -5388,6 +5434,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductWithCategory"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_lowest_30d_api_v1_products__product_id__lowest_30d_get: {
+        parameters: {
+            query: {
+                /** @description Currency to scope the lookup to */
+                currency: "USD" | "PLN" | "EUR";
+            };
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LowestPriceResponse"];
                 };
             };
             /** @description Validation Error */
