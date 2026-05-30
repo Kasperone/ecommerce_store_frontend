@@ -48,6 +48,12 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
       .int({ error: t('admin.products.errors.stockInteger', { default: 'Stock must be a whole number' }) })
       .min(0, { error: t('admin.products.errors.stockNegative', { default: 'Stock cannot be negative' }) })
       .default(0),
+    weight_kg: z.number({
+      error: t('admin.products.errors.weightInvalid', { default: 'Weight must be a number' }),
+    })
+      .nonnegative({ error: t('admin.products.errors.weightNegative', { default: 'Weight cannot be negative' }) })
+      .nullable()
+      .optional(),
     allow_backorder: z.boolean().default(false),
     is_active: z.boolean().default(true),
     is_featured: z.boolean().default(false),
@@ -89,6 +95,12 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
     stock: z.number()
       .int({ error: t('admin.products.errors.stockInteger', { default: 'Stock must be a whole number' }) })
       .min(0, { error: t('admin.products.errors.stockNegative', { default: 'Stock cannot be negative' }) })
+      .optional(),
+    weight_kg: z.number({
+      error: t('admin.products.errors.weightInvalid', { default: 'Weight must be a number' }),
+    })
+      .nonnegative({ error: t('admin.products.errors.weightNegative', { default: 'Weight cannot be negative' }) })
+      .nullable()
       .optional(),
     allow_backorder: z.boolean().optional(),
     is_active: z.boolean().optional(),

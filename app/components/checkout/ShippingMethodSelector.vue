@@ -21,6 +21,12 @@ const props = defineProps<{
   currency: CurrencyCode
   /** Cart subtotal in `currency` — drives free-above + tier resolution. */
   subtotal: number
+  /**
+   * Cart total weight in kg — drives weight-tier resolution. Optional; defaults
+   * to 0 (legacy NULL-weight carts → weight branch skipped, subtotal-only
+   * resolution preserved).
+   */
+  weightKg?: number
   /** Currently-selected method id (lifted state). `null` until the user picks one. */
   modelValue: number | null
 }>()
@@ -42,6 +48,7 @@ const quoteParams = computed(() => ({
   country: props.country,
   currency: props.currency,
   subtotal: props.subtotal,
+  weightKg: props.weightKg ?? 0,
 }))
 
 const { methods, loading, failed } = useShippingQuote(quoteParams)

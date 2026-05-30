@@ -22,6 +22,7 @@ export interface ProductFormPayload {
   price_pln: number | null
   price_eur: number | null
   stock: number
+  weight_kg: number | null
   allow_backorder: boolean
   is_active: boolean
   is_featured: boolean
@@ -56,6 +57,7 @@ interface FormState {
   price_pln: number | undefined
   price_eur: number | undefined
   stock: number
+  weight_kg: number | undefined
   allow_backorder: boolean
   is_active: boolean
   is_featured: boolean
@@ -73,6 +75,7 @@ const state = reactive<FormState>({
   price_pln: undefined,
   price_eur: undefined,
   stock: 0,
+  weight_kg: undefined,
   allow_backorder: false,
   is_active: true,
   is_featured: false,
@@ -103,6 +106,7 @@ watch(
       state.price_pln = product.price_pln ?? undefined
       state.price_eur = product.price_eur ?? undefined
       state.stock = product.stock
+      state.weight_kg = product.weight_kg ?? undefined
       state.allow_backorder = product.allow_backorder
       state.is_active = product.is_active
       state.is_featured = product.is_featured
@@ -120,6 +124,7 @@ watch(
       state.price_pln = undefined
       state.price_eur = undefined
       state.stock = 0
+      state.weight_kg = undefined
       state.allow_backorder = false
       state.is_active = true
       state.is_featured = false
@@ -161,6 +166,7 @@ async function validate(values: FormState): Promise<FormError[]> {
     price_usd: values.price_usd ?? null,
     price_pln: values.price_pln ?? null,
     price_eur: values.price_eur ?? null,
+    weight_kg: values.weight_kg ?? null,
   }
   const result = schema.value.safeParse(candidate)
   if (result.success) return []
@@ -182,6 +188,7 @@ function buildPayload(): ProductFormPayload {
     price_pln: state.price_pln ?? null,
     price_eur: state.price_eur ?? null,
     stock: state.stock,
+    weight_kg: state.weight_kg ?? null,
     allow_backorder: state.allow_backorder,
     is_active: state.is_active,
     is_featured: state.is_featured,
@@ -427,6 +434,21 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
       >
         {{ t('admin.products.hints.stockEditViaInventory') }}
       </p>
+
+      <UFormField
+        :label="t('admin.products.fields.weightKg')"
+        :hint="t('admin.products.hints.weightKg')"
+        name="weight_kg"
+        class="max-w-xs"
+      >
+        <UInputNumber
+          v-model="state.weight_kg"
+          :min="0"
+          :step="0.1"
+          :disabled="loading"
+          class="w-full"
+        />
+      </UFormField>
 
       <UFormField
         name="allow_backorder"

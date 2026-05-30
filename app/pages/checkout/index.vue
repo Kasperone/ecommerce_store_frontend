@@ -43,6 +43,13 @@ const subtotalAmount = computed(() =>
   }, 0),
 )
 
+// Cart total weight: NULL/missing weights contribute 0 — matches the backend's
+// `(product.weight_kg or 0) * quantity` sum at order create. Threaded into the
+// selector so a weight-tiered rate quotes the same amount the order will charge.
+const cartWeightKg = computed(() =>
+  cart.items.reduce((sum, item) => sum + (item.weightKg ?? 0) * item.quantity, 0),
+)
+
 // Mirror of the selector's chosen shipping amount (its second emit) so the
 // summary aside can show "Shipping: X · Total: subtotal + X" without the page
 // having to own a second `useShippingQuote` call.
@@ -152,6 +159,7 @@ async function placeOrder(shipping: ShippingInput) {
               :country="selectedCountry"
               :currency="currency"
               :subtotal="subtotalAmount"
+              :weight-kg="cartWeightKg"
               @update:method-amount="shippingAmount = $event"
             />
           </section>
