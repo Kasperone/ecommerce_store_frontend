@@ -98,7 +98,6 @@
       "coupons":    { "title": "Coupons",          "placeholder": "Discount codes, conditions, and usage caps will live here. Coming soon." },
       "banners":    { "title": "Banners",          "placeholder": "Homepage hero and promo-block CMS will live here. Coming soon." },
       "campaigns":  { "title": "Campaigns",        "placeholder": "Email campaign segmentation and abandoned-cart recovery will live here. Coming soon." },
-      "shipping":   { "title": "Shipping",         "placeholder": "Shipping zones, rate rules, and carrier integrations will live here. Coming soon." },
       "reports":    { "title": "Reports",          "placeholder": "Sales, VAT, inventory, and cohort reports will live here. Coming soon." },
       "settings":   { "title": "Settings",         "placeholder": "Store info, currencies, tax / VAT, payment methods, email templates will live here. Coming soon." },
       "staff":      { "title": "Staff & Roles",    "placeholder": "Admin user list and role management will live here. Coming soon." }
@@ -835,6 +834,133 @@
         "save": "Save",
         "cancel": "Cancel",
         "close": "Close"
+      }
+    },
+    "shipping": {
+      "title": "Shipping",
+      "subtitle": "Zones, methods, and rates for the storefront checkout",
+      "tabs": {
+        "zones": "Zones",
+        "methods": "Methods",
+        "rates": "Rates"
+      },
+      "zones": {
+        "new": "New zone",
+        "create": "New shipping zone",
+        "edit": "Edit shipping zone",
+        "empty": "No zones yet. Create one to start charging shipping.",
+        "name": "Name",
+        "description": "Description",
+        "descriptionPlaceholder": "Internal note — not shown to customers.",
+        "sortOrder": "Sort order",
+        "active": "Active",
+        "countries": "Countries",
+        "countriesHint": "A country can belong to only one zone.",
+        "countriesPlaceholder": "Pick countries…",
+        "fields": {
+          "name": "Name",
+          "countries": "Countries",
+          "rates": "Rates",
+          "sortOrder": "Order",
+          "active": "Status",
+          "activeOn": "Active",
+          "activeOff": "Inactive"
+        },
+        "deleteConfirm": {
+          "title": "Delete shipping zone?",
+          "body": "Removes “{name}” and every rate assigned to it. Existing orders keep their shipping snapshot."
+        }
+      },
+      "methods": {
+        "new": "New method",
+        "create": "New shipping method",
+        "edit": "Edit shipping method",
+        "empty": "No methods yet. Create one (e.g. Standard, Express).",
+        "name": "Name",
+        "code": "Code",
+        "codeHint": "Optional carrier identifier — e.g. inpost_paczkomat, dpd_classic.",
+        "codePlaceholder": "standard",
+        "description": "Description",
+        "sortOrder": "Sort order",
+        "active": "Active",
+        "fields": {
+          "name": "Name",
+          "code": "Code",
+          "sortOrder": "Order",
+          "active": "Status",
+          "activeOn": "Active",
+          "activeOff": "Inactive"
+        },
+        "deleteConfirm": {
+          "title": "Delete shipping method?",
+          "body": "Removes “{name}” and every rate that uses it. Existing orders keep their shipping snapshot."
+        }
+      },
+      "rates": {
+        "new": "New rate",
+        "create": "New shipping rate",
+        "edit": "Edit shipping rate",
+        "empty": "No rates match the current filters.",
+        "zone": "Zone",
+        "zonePlaceholder": "Pick a zone…",
+        "method": "Method",
+        "methodPlaceholder": "Pick a method…",
+        "currency": "Currency",
+        "amount": "Amount",
+        "amountHint": "Base / fallback shipping price in the chosen currency.",
+        "freeAbove": "Free above subtotal",
+        "freeAboveHint": "Optional. When the cart subtotal reaches this, shipping is zero.",
+        "clearFreeAbove": "Clear",
+        "tiers": {
+          "title": "Configure subtotal tiers",
+          "hint": "Each band overrides the base amount when the cart subtotal reaches its threshold. Bands are evaluated after the free-above check.",
+          "minSubtotal": "Min subtotal",
+          "amount": "Amount",
+          "add": "Add tier",
+          "remove": "Remove tier"
+        },
+        "preview": {
+          "title": "Preview",
+          "subtotal": "Subtotal"
+        },
+        "filters": {
+          "zone": "Zone",
+          "method": "Method",
+          "currency": "Currency",
+          "allZones": "All zones",
+          "allMethods": "All methods",
+          "allCurrencies": "All currencies"
+        },
+        "fields": {
+          "zone": "Zone",
+          "method": "Method",
+          "currency": "Currency",
+          "amount": "Amount",
+          "kind": "Pricing"
+        },
+        "pricingKind": {
+          "flat": "Flat",
+          "free_above": "Free above",
+          "tiered": "Tiered"
+        },
+        "deleteConfirm": {
+          "title": "Delete shipping rate?",
+          "body": "Removes the {zone} × {method} × {currency} rate. Existing orders are unaffected."
+        }
+      },
+      "flashes": {
+        "zoneCreated": "Shipping zone created.",
+        "zoneUpdated": "Shipping zone updated.",
+        "zoneDeleted": "Shipping zone deleted.",
+        "zoneDeleteError": "Couldn't delete the zone. Please try again.",
+        "methodCreated": "Shipping method created.",
+        "methodUpdated": "Shipping method updated.",
+        "methodDeleted": "Shipping method deleted.",
+        "methodDeleteError": "Couldn't delete the method. Please try again.",
+        "rateCreated": "Shipping rate created.",
+        "rateUpdated": "Shipping rate updated.",
+        "rateDeleted": "Shipping rate deleted.",
+        "rateDeleteError": "Couldn't delete the rate. Please try again."
       }
     }
   },
