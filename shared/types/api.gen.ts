@@ -772,6 +772,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orders/{order_id}/refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Order Refunds
+         * @description List refunds for an order, scoped to the caller (customer / admin).
+         *
+         *     Customers see only their own orders' refunds; admins see any. A non-existent
+         *     or not-owned order returns 404 (existence is not leaked). The customer
+         *     surface is expected to drop ``note`` client-side — that field is internal,
+         *     but the schema exposes it because the admin uses the same endpoint shape.
+         */
+        get: operations["list_order_refunds_api_v1_orders__order_id__refunds_get"];
+        put?: never;
+        /**
+         * Issue Refund
+         * @description Issue a refund against a paid/processing/shipped/delivered order (admin only).
+         *
+         *     v1 ships full refunds only — ``refund_in.amount`` must equal ``order.total``;
+         *     a partial refund 400s with the "not yet supported" message. ``restock=True``
+         *     writes one ``order_refunded`` inventory movement per line via the
+         *     ``apply_delta`` choke point (same per-line pattern as cancel). Always issues
+         *     a faktura korygująca **if** the order has a faktura (orders that went
+         *     ``pending → paid``); the KOR is gap-free + scoped to this transaction.
+         *
+         *     Forward-only status workflow rules continue to apply: the admin PATCH
+         *     endpoint rejects an explicit ``status=refunded`` and points the caller here.
+         */
+        post: operations["issue_refund_api_v1_orders__order_id__refunds_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/payu/orders/{order_id}": {
         parameters: {
             query?: never;
@@ -2428,6 +2467,37 @@ export interface components {
             product_count: number;
         };
         /**
+         * CorrectiveInvoiceResponse
+         * @description Summary of the issued faktura korygująca that accompanies a refund.
+         */
+        CorrectiveInvoiceResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Kor Number */
+            kor_number: string;
+            /** Year */
+            year: number;
+            /** Seq */
+            seq: number;
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /** Original Invoice Id */
+            original_invoice_id: number;
+        };
+        /**
          * CustomerAdminUpdate
          * @description Admin PATCH body — toggle verification / active state.
          */
@@ -3054,6 +3124,8 @@ export interface components {
             shipping_method_name?: string | null;
             /** Items */
             items?: components["schemas"]["OrderItemResponse"][];
+            /** Refunds */
+            refunds?: components["schemas"]["RefundResponse"][];
         };
         /**
          * OrderStatus
@@ -3126,6 +3198,8 @@ export interface components {
             shipping_method_name?: string | null;
             /** Items */
             items?: components["schemas"]["OrderItemResponse"][];
+            /** Refunds */
+            refunds?: components["schemas"]["RefundResponse"][];
             user: components["schemas"]["UserResponse"];
         };
         /**
@@ -3524,6 +3598,85 @@ export interface components {
             page_size: number;
             /** Pages */
             pages: number;
+        };
+        /**
+         * RefundCreate
+         * @description Body for ``POST /api/v1/admin/orders/{id}/refunds``.
+         *
+         *     ``amount`` is currency-scoped to the parent ``Order.currency``; v1 requires
+         *     it to equal ``order.total`` (full refund) — the CRUD raises
+         *     ``PartialRefundUnsupported`` otherwise. ``restock`` defaults False; the admin
+         *     dialog pre-selects True for pre-shipping statuses (D2) but always sends an
+         *     explicit boolean.
+         */
+        RefundCreate: {
+            /**
+             * Amount
+             * @description Refund amount in the order's currency.
+             */
+            amount: number;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "defective" | "wrong_item" | "customer_request" | "lost_in_transit" | "damaged_in_transit" | "other";
+            /**
+             * Note
+             * @description Optional internal note. Never shown to the customer.
+             */
+            note?: string | null;
+            /**
+             * Restock
+             * @description Write per-line `order_refunded` inventory movements when True.
+             * @default false
+             */
+            restock: boolean;
+        };
+        /**
+         * RefundResponse
+         * @description A refund row as the API returns it.
+         *
+         *     ``actor_email`` is denormalised onto the response (read from the eager-loaded
+         *     actor relationship by ``_build_refund_response``) so the admin UI doesn't need
+         *     a second round-trip per row. ``note`` is intentionally included on the admin
+         *     side; the customer-facing surface re-shapes the response client-side to drop it
+         *     (privacy — admin notes are internal).
+         */
+        RefundResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Order Id */
+            order_id: number;
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "defective" | "wrong_item" | "customer_request" | "lost_in_transit" | "damaged_in_transit" | "other";
+            /** Note */
+            note: string | null;
+            /** Restock */
+            restock: boolean;
+            /** Provider Refund Id */
+            provider_refund_id: string | null;
+            /** Actor User Id */
+            actor_user_id: number | null;
+            /** Actor Email */
+            actor_email?: string | null;
+            corrective_invoice?: components["schemas"]["CorrectiveInvoiceResponse"] | null;
         };
         /**
          * RestockRequest
@@ -5870,6 +6023,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_order_refunds_api_v1_orders__order_id__refunds_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefundResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    issue_refund_api_v1_orders__order_id__refunds_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefundCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefundResponse"];
                 };
             };
             /** @description Validation Error */

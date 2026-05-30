@@ -20,6 +20,8 @@ import type {
   OrderStatus,
   OrderUpdate,
   OrderWithUser,
+  RefundCreate,
+  RefundResponse,
 } from '#shared/types/api'
 
 export interface OrderListParams {
@@ -122,5 +124,51 @@ export function useCancelOrder() {
     mutation: (id: number) =>
       apiFetch<OrderResponse>(`/api/v1/orders/${id}/cancel`, { method: 'POST' }),
     onSuccess: () => queryCache.invalidateQueries({ key: [...ORDERS_NAMESPACE] }),
+  })
+}
+
+/**
+ * `POST /api/v1/orders/{id}/refunds` — admin-only refund issuance.
+ *
+ * v1 ships full-order refunds only — the backend 400s when amount differs from
+ * `order.total` (`PartialRefundUnsupported`). `restock=true` writes per-line
+ * `order_refunded` inventory movements via the apply_delta choke point. Always
+ * issues a faktura korygująca (KOR) when the order has a faktura. Invalidates
+ * the whole orders namespace on success so the order detail re-renders with
+ * `refunds` populated + the status badge flipped to `refunded`.
+ */
+export function useIssueRefund() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: ({ orderId, refund }: { orderId: number, refund: RefundCreate }) =>
+      apiFetch<RefundResponse>(`/api/v1/orders/${orderId}/refunds`, {
+        method: 'POST',
+        body: refund,
+      }),
+    onSuccess: () => queryCache.invalidateQueries({ key: [...ORDERS_NAMESPACE] }),
+  })
+}
+
+/**
+ * `GET /api/v1/orders/{id}/refunds` — scoped (customer sees own, admin sees any).
+ *
+ * Standalone fetcher used by the customer + admin order-detail surfaces; the
+ * order detail response also embeds the `refunds` array, so this is only needed
+ * when you want to re-read the list independently of the order's other fields.
+ * Client-only — same SSR-hydration rationale as `useOrderQuery`.
+ */
+export function useOrderRefundsQuery(id: MaybeRefOrGetter<number | undefined>) {
+  const { apiFetch } = useApi()
+  return useQuery({
+    key: () => [...ORDERS_NAMESPACE, 'refunds', toValue(id)],
+    query: () => {
+      const value = toValue(id)
+      if (value === undefined) {
+        return Promise.reject(new Error('Order id is required'))
+      }
+      return apiFetch<RefundResponse[]>(`/api/v1/orders/${value}/refunds`)
+    },
+    enabled: () => import.meta.client && toValue(id) !== undefined,
   })
 }

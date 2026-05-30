@@ -33,6 +33,13 @@ export type OrderWithUser = components['schemas']['OrderWithUser']
 export type OrderItemResponse = components['schemas']['OrderItemResponse']
 export type OrderCreate = components['schemas']['OrderCreate']
 export type OrderUpdate = components['schemas']['OrderUpdate']
+export type RefundCreate = components['schemas']['RefundCreate']
+export type RefundResponse = components['schemas']['RefundResponse']
+// `reason` literal mirrors the backend enum + DB CHECK (cross-checked at import
+// time in `app/schemas/refund.py`); deriving it from RefundCreate keeps the
+// six allowed values in lock-step here.
+export type RefundReason = RefundCreate['reason']
+export type CorrectiveInvoiceResponse = components['schemas']['CorrectiveInvoiceResponse']
 export type CustomerListItem = components['schemas']['CustomerListItem']
 export type CustomerListResponse = components['schemas']['CustomerListResponse']
 export type CustomerDetail = components['schemas']['CustomerDetail']

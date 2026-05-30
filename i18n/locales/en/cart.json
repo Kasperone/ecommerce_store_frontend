@@ -123,6 +123,18 @@
     "invoice": {
       "download": "Download invoice",
       "error": "Couldn't download the invoice. Please try again."
+    },
+    "refund": {
+      "title": "Refund issued",
+      "intro": "Funds will be credited back to your original payment method within 5-10 business days. A corrective invoice has been emailed to you.",
+      "reasonOptions": {
+        "defective": "Defective item",
+        "wrong_item": "Wrong item received",
+        "customer_request": "Per your request",
+        "lost_in_transit": "Lost in transit",
+        "damaged_in_transit": "Damaged in transit",
+        "other": "Other"
+      }
     }
   },
   "payment": {

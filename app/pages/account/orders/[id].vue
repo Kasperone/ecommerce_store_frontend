@@ -124,6 +124,11 @@ useHead({
           />
         </div>
 
+        <OrdersRefundsSection
+          :refunds="order.refunds ?? []"
+          :currency="order.currency"
+        />
+
         <section>
           <h2 class="mb-2 font-semibold">
             {{ t('orders.detail.items') }}
