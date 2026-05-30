@@ -50,6 +50,20 @@ const cartWeightKg = computed(() =>
   cart.items.reduce((sum, item) => sum + (item.weightKg ?? 0) * item.quantity, 0),
 )
 
+// Cart total volume in cm³ — pre-sum of per-line `l × w × h × qty` (any line
+// missing one of the three dimensions contributes 0, matching the backend's
+// `line_volume_cm3`). The backend's quote endpoint reads this scalar +
+// the resolved zone's `dim_divisor` to compute volumetric weight; the
+// frontend never sees the divisor. Models "one consolidated shipment" per
+// the dimensional-weight handoff's volume-aggregation choice (a).
+const cartVolumeCm3 = computed(() =>
+  cart.items.reduce(
+    (sum, item) =>
+      sum + (item.lengthCm ?? 0) * (item.widthCm ?? 0) * (item.heightCm ?? 0) * item.quantity,
+    0,
+  ),
+)
+
 // Mirror of the selector's chosen shipping amount (its second emit) so the
 // summary aside can show "Shipping: X · Total: subtotal + X" without the page
 // having to own a second `useShippingQuote` call.
@@ -160,6 +174,7 @@ async function placeOrder(shipping: ShippingInput) {
               :currency="currency"
               :subtotal="subtotalAmount"
               :weight-kg="cartWeightKg"
+              :cart-volume-cm3="cartVolumeCm3"
               @update:method-amount="shippingAmount = $event"
             />
           </section>

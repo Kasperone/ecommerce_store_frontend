@@ -956,9 +956,13 @@ export interface paths {
          * @description Return the available shipping methods + resolved prices for a checkout.
          *
          *     Each method's ``amount`` reflects the *resolved* shipping price for the
-         *     provided subtotal and (optional) cart weight — free-above triggered,
-         *     weight-tier band picked, subtotal-tier band picked, or the flat fallback.
-         *     The storefront renders it directly without re-running the resolver.
+         *     provided subtotal, actual cart weight, and (optional) cart volume —
+         *     free-above triggered, weight-tier band picked (against the billable
+         *     weight = ``max(actual, volumetric)``), subtotal-tier band picked, or the
+         *     flat fallback. The storefront renders it directly without re-running
+         *     the resolver. The divisor lookup + the ``max`` math live server-side
+         *     (per the dimensional-weight handoff D6) so the FE→BE contract stays a
+         *     single ``cart_volume_cm3`` scalar — the frontend never sees the divisor.
          */
         get: operations["quote_shipping_api_v1_shipping_quote_get"];
         put?: never;
@@ -3200,6 +3204,12 @@ export interface components {
             allow_backorder: boolean;
             /** Weight Kg */
             weight_kg?: number | null;
+            /** Length Cm */
+            length_cm?: number | null;
+            /** Width Cm */
+            width_cm?: number | null;
+            /** Height Cm */
+            height_cm?: number | null;
             /**
              * Is Active
              * @default true
@@ -3340,6 +3350,12 @@ export interface components {
             allow_backorder: boolean;
             /** Weight Kg */
             weight_kg?: number | null;
+            /** Length Cm */
+            length_cm?: number | null;
+            /** Width Cm */
+            width_cm?: number | null;
+            /** Height Cm */
+            height_cm?: number | null;
             /**
              * Is Active
              * @default true
@@ -3403,6 +3419,12 @@ export interface components {
             allow_backorder?: boolean | null;
             /** Weight Kg */
             weight_kg?: number | null;
+            /** Length Cm */
+            length_cm?: number | null;
+            /** Width Cm */
+            width_cm?: number | null;
+            /** Height Cm */
+            height_cm?: number | null;
             /** Is Active */
             is_active?: boolean | null;
             /** Is Featured */
@@ -3459,6 +3481,12 @@ export interface components {
             allow_backorder: boolean;
             /** Weight Kg */
             weight_kg?: number | null;
+            /** Length Cm */
+            length_cm?: number | null;
+            /** Width Cm */
+            width_cm?: number | null;
+            /** Height Cm */
+            height_cm?: number | null;
             /**
              * Is Active
              * @default true
@@ -3979,6 +4007,8 @@ export interface components {
              * @default 0
              */
             sort_order: number;
+            /** Dim Divisor */
+            dim_divisor?: number | null;
             /** Country Codes */
             country_codes?: string[];
         };
@@ -4006,6 +4036,8 @@ export interface components {
             sort_order: number;
             /** Country Codes */
             country_codes: string[];
+            /** Dim Divisor */
+            dim_divisor: number | null;
         };
         /** ShippingZoneListItem */
         ShippingZoneListItem: {
@@ -4033,6 +4065,8 @@ export interface components {
             country_count: number;
             /** Rate Count */
             rate_count: number;
+            /** Dim Divisor */
+            dim_divisor: number | null;
         };
         /** ShippingZoneListResponse */
         ShippingZoneListResponse: {
@@ -4059,6 +4093,8 @@ export interface components {
             sort_order?: number | null;
             /** Country Codes */
             country_codes?: string[] | null;
+            /** Dim Divisor */
+            dim_divisor?: number | null;
         };
         /**
          * StockAdjustRequest
@@ -6093,8 +6129,10 @@ export interface operations {
                 currency: "USD" | "PLN" | "EUR";
                 /** @description Cart subtotal in the asked currency */
                 subtotal: number;
-                /** @description Cart total weight in kg. When non-zero, weight-tiered rates resolve against this value (free-above → weight-tiers → subtotal-tiers → flat). Default 0 keeps storefronts that don't yet thread cart weight working — they get subtotal-only resolution. */
+                /** @description Cart total *actual* weight in kg. When non-zero, weight-tiered rates resolve against ``max(weight_kg, volumetric_kg)`` — see ``cart_volume_cm3`` for the volumetric branch. Default 0 keeps storefronts that don't yet thread cart weight working. */
                 weight_kg?: number;
+                /** @description Cart total volume in cm³ (frontend pre-sums per-line ``length_cm × width_cm × height_cm × qty``; any line missing a dimension contributes 0). When the resolved zone has a ``dim_divisor``, ``volumetric_kg = cart_volume_cm3 / dim_divisor`` and the resolver bills ``max(weight_kg, volumetric_kg)``. Default 0 + zones with NULL ``dim_divisor`` are the legacy path (actual weight only) — backwards-compatible. */
+                cart_volume_cm3?: number;
             };
             header?: never;
             path?: never;

@@ -54,6 +54,29 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
       .nonnegative({ error: t('admin.products.errors.weightNegative', { default: 'Weight cannot be negative' }) })
       .nullable()
       .optional(),
+    // Dimensions in cm — nullable + nonneg, mirroring weight_kg. The
+    // backend convention is "all three set or none"; the order-create
+    // resolver treats any-NULL as "no volumetric contribution" so a
+    // half-populated row stays harmless. Drives volumetric weight pricing
+    // alongside ShippingZone.dim_divisor.
+    length_cm: z.number({
+      error: t('admin.products.errors.dimensionInvalid', { default: 'Dimension must be a number' }),
+    })
+      .nonnegative({ error: t('admin.products.errors.dimensionNegative', { default: 'Dimension cannot be negative' }) })
+      .nullable()
+      .optional(),
+    width_cm: z.number({
+      error: t('admin.products.errors.dimensionInvalid', { default: 'Dimension must be a number' }),
+    })
+      .nonnegative({ error: t('admin.products.errors.dimensionNegative', { default: 'Dimension cannot be negative' }) })
+      .nullable()
+      .optional(),
+    height_cm: z.number({
+      error: t('admin.products.errors.dimensionInvalid', { default: 'Dimension must be a number' }),
+    })
+      .nonnegative({ error: t('admin.products.errors.dimensionNegative', { default: 'Dimension cannot be negative' }) })
+      .nullable()
+      .optional(),
     allow_backorder: z.boolean().default(false),
     is_active: z.boolean().default(true),
     is_featured: z.boolean().default(false),
@@ -100,6 +123,24 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
       error: t('admin.products.errors.weightInvalid', { default: 'Weight must be a number' }),
     })
       .nonnegative({ error: t('admin.products.errors.weightNegative', { default: 'Weight cannot be negative' }) })
+      .nullable()
+      .optional(),
+    length_cm: z.number({
+      error: t('admin.products.errors.dimensionInvalid', { default: 'Dimension must be a number' }),
+    })
+      .nonnegative({ error: t('admin.products.errors.dimensionNegative', { default: 'Dimension cannot be negative' }) })
+      .nullable()
+      .optional(),
+    width_cm: z.number({
+      error: t('admin.products.errors.dimensionInvalid', { default: 'Dimension must be a number' }),
+    })
+      .nonnegative({ error: t('admin.products.errors.dimensionNegative', { default: 'Dimension cannot be negative' }) })
+      .nullable()
+      .optional(),
+    height_cm: z.number({
+      error: t('admin.products.errors.dimensionInvalid', { default: 'Dimension must be a number' }),
+    })
+      .nonnegative({ error: t('admin.products.errors.dimensionNegative', { default: 'Dimension cannot be negative' }) })
       .nullable()
       .optional(),
     allow_backorder: z.boolean().optional(),

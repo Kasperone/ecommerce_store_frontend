@@ -509,7 +509,10 @@
         "stockCreateOnly": "Sets the initial stock in the default warehouse. Adjust it later from Inventory.",
         "stockEditViaInventory": "Stock is managed per warehouse from Inventory (adjust, restock, transfer).",
         "allowBackorder": "Let customers order beyond available stock (the level goes negative).",
-        "weightKg": "Physical weight in kilograms. Used by weight-tier shipping rates to price by parcel weight; leave empty to skip weight at checkout."
+        "weightKg": "Physical weight in kilograms. Used by weight-tier shipping rates to price by parcel weight; leave empty to skip weight at checkout.",
+        "lengthCm": "Box length in centimetres. Combined with width and height to compute volumetric weight; admins typically set all three together.",
+        "widthCm": "Box width in centimetres.",
+        "heightCm": "Box height in centimetres."
       },
       "placeholders": {
         "name": "Encyclopedia of Tea",
@@ -571,6 +574,9 @@
         "priceEur": "EUR",
         "stock": "Stock",
         "weightKg": "Weight (kg)",
+        "lengthCm": "Length (cm)",
+        "widthCm": "Width (cm)",
+        "heightCm": "Height (cm)",
         "allowBackorder": "Allow backorder",
         "isActive": "Active",
         "isFeatured": "Featured",
@@ -633,7 +639,9 @@
         "stockInteger": "Stock must be a whole number",
         "stockNegative": "Stock cannot be negative",
         "weightInvalid": "Weight must be a number",
-        "weightNegative": "Weight cannot be negative"
+        "weightNegative": "Weight cannot be negative",
+        "dimensionInvalid": "Dimension must be a number",
+        "dimensionNegative": "Dimension cannot be negative"
       }
     },
     "orders": {
@@ -861,6 +869,9 @@
         "countries": "Countries",
         "countriesHint": "A country can belong to only one zone.",
         "countriesPlaceholder": "Pick countries…",
+        "dimDivisor": "Volumetric weight divisor (cm³/kg)",
+        "dimDivisorHint": "Carrier standard: 5000 for PL/EU ground, 6000 international air, 4000 some express. Leave empty to bill by actual weight only.",
+        "dimDivisorPlaceholder": "5000",
         "fields": {
           "name": "Name",
           "countries": "Countries",
