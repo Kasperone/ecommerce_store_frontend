@@ -509,7 +509,8 @@
         "localeOptional": "Opcjonalne — w razie braku użyje wersji angielskiej",
         "stockCreateOnly": "Ustawia początkowy stan w domyślnym magazynie. Później zmień go w module Magazyn.",
         "stockEditViaInventory": "Stan jest zarządzany per magazyn w module Magazyn (korekta, uzupełnienie, przesunięcie).",
-        "allowBackorder": "Pozwól zamawiać ponad dostępny stan (stan może być ujemny)."
+        "allowBackorder": "Pozwól zamawiać ponad dostępny stan (stan może być ujemny).",
+        "weightKg": "Fizyczna waga w kilogramach. Używana przez progi wagowe wysyłki do wyceny według wagi przesyłki; pozostaw puste, aby pominąć wagę przy zamówieniu."
       },
       "placeholders": {
         "name": "Encyklopedia herbaty",
@@ -570,6 +571,7 @@
         "pricePln": "PLN",
         "priceEur": "EUR",
         "stock": "Stan",
+        "weightKg": "Waga (kg)",
         "allowBackorder": "Zezwól na zamówienia oczekujące",
         "isActive": "Aktywny",
         "isFeatured": "Wyróżniony",
@@ -630,7 +632,9 @@
         "stockRequired": "Stan jest wymagany",
         "stockInvalid": "Stan musi być liczbą",
         "stockInteger": "Stan musi być liczbą całkowitą",
-        "stockNegative": "Stan nie może być ujemny"
+        "stockNegative": "Stan nie może być ujemny",
+        "weightInvalid": "Waga musi być liczbą",
+        "weightNegative": "Waga nie może być ujemna"
       }
     },
     "orders": {
@@ -920,9 +924,18 @@
           "add": "Dodaj próg",
           "remove": "Usuń próg"
         },
+        "weightTiers": {
+          "title": "Skonfiguruj progi wagowe",
+          "hint": "Każdy próg nalicza swoją kwotę, gdy łączna waga koszyka mieści się w jego limicie. Progi wagowe są ewaluowane przed progami koszyka — waga wygrywa, gdy oba są ustawione.",
+          "maxWeightKg": "Maks. waga",
+          "amount": "Kwota",
+          "add": "Dodaj próg wagowy",
+          "remove": "Usuń próg wagowy"
+        },
         "preview": {
           "title": "Podgląd",
-          "subtotal": "Wartość koszyka"
+          "subtotal": "Wartość koszyka",
+          "weight": "Waga"
         },
         "filters": {
           "zone": "Strefa",

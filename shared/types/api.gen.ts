@@ -956,9 +956,9 @@ export interface paths {
          * @description Return the available shipping methods + resolved prices for a checkout.
          *
          *     Each method's ``amount`` reflects the *resolved* shipping price for the
-         *     provided subtotal (free-above triggered, tier band picked, or the flat
-         *     fallback) — the storefront renders it directly without re-running the
-         *     resolver.
+         *     provided subtotal and (optional) cart weight — free-above triggered,
+         *     weight-tier band picked, subtotal-tier band picked, or the flat fallback.
+         *     The storefront renders it directly without re-running the resolver.
          */
         get: operations["quote_shipping_api_v1_shipping_quote_get"];
         put?: never;
@@ -3198,6 +3198,8 @@ export interface components {
              * @default false
              */
             allow_backorder: boolean;
+            /** Weight Kg */
+            weight_kg?: number | null;
             /**
              * Is Active
              * @default true
@@ -3336,6 +3338,8 @@ export interface components {
              * @default false
              */
             allow_backorder: boolean;
+            /** Weight Kg */
+            weight_kg?: number | null;
             /**
              * Is Active
              * @default true
@@ -3397,6 +3401,8 @@ export interface components {
             low_stock_threshold?: number | null;
             /** Allow Backorder */
             allow_backorder?: boolean | null;
+            /** Weight Kg */
+            weight_kg?: number | null;
             /** Is Active */
             is_active?: boolean | null;
             /** Is Featured */
@@ -3451,6 +3457,8 @@ export interface components {
              * @default false
              */
             allow_backorder: boolean;
+            /** Weight Kg */
+            weight_kg?: number | null;
             /**
              * Is Active
              * @default true
@@ -3791,7 +3799,7 @@ export interface components {
              * Pricing Kind
              * @enum {string}
              */
-            pricing_kind: "flat" | "free_above" | "tiered";
+            pricing_kind: "flat" | "free_above" | "tiered" | "weight_tiered";
             /** Free Above Subtotal */
             free_above_subtotal: number | null;
         };
@@ -3822,6 +3830,8 @@ export interface components {
             free_above_subtotal?: number | null;
             /** Tiers */
             tiers?: components["schemas"]["ShippingRateTier"][] | null;
+            /** Weight Tiers */
+            weight_tiers?: components["schemas"]["ShippingRateWeightTier"][] | null;
             /** Zone Id */
             zone_id: number;
             /** Method Id */
@@ -3857,11 +3867,13 @@ export interface components {
             free_above_subtotal: number | null;
             /** Tiers */
             tiers: components["schemas"]["ShippingRateTier"][] | null;
+            /** Weight Tiers */
+            weight_tiers: components["schemas"]["ShippingRateWeightTier"][] | null;
             /**
              * Pricing Kind
              * @enum {string}
              */
-            pricing_kind: "flat" | "free_above" | "tiered";
+            pricing_kind: "flat" | "free_above" | "tiered" | "weight_tiered";
         };
         /** ShippingRateListResponse */
         ShippingRateListResponse: {
@@ -3902,6 +3914,8 @@ export interface components {
             free_above_subtotal: number | null;
             /** Tiers */
             tiers: components["schemas"]["ShippingRateTier"][] | null;
+            /** Weight Tiers */
+            weight_tiers: components["schemas"]["ShippingRateWeightTier"][] | null;
         };
         /**
          * ShippingRateTier
@@ -3928,6 +3942,26 @@ export interface components {
             free_above_subtotal?: number | null;
             /** Tiers */
             tiers?: components["schemas"]["ShippingRateTier"][] | null;
+            /** Weight Tiers */
+            weight_tiers?: components["schemas"]["ShippingRateWeightTier"][] | null;
+        };
+        /**
+         * ShippingRateWeightTier
+         * @description One band in a weight-priced shipping rate.
+         *
+         *     The resolver picks the cheapest band whose ``max_weight_kg`` covers the
+         *     cart's total weight (smallest ``max_weight_kg`` such that
+         *     ``max_weight_kg >= cart_weight``). Bands are stored sorted ascending by
+         *     ``max_weight_kg``; the CRUD canonicalises before persistence.
+         *
+         *     Why ``max_weight_kg`` (not ``min_weight_kg``): courier price-lists are
+         *     universally "up to X kg = $Y," so the schema mirrors how admins think.
+         */
+        ShippingRateWeightTier: {
+            /** Max Weight Kg */
+            max_weight_kg: number;
+            /** Amount */
+            amount: number;
         };
         /** ShippingZoneCreate */
         ShippingZoneCreate: {
@@ -6059,6 +6093,8 @@ export interface operations {
                 currency: "USD" | "PLN" | "EUR";
                 /** @description Cart subtotal in the asked currency */
                 subtotal: number;
+                /** @description Cart total weight in kg. When non-zero, weight-tiered rates resolve against this value (free-above → weight-tiers → subtotal-tiers → flat). Default 0 keeps storefronts that don't yet thread cart weight working — they get subtotal-only resolution. */
+                weight_kg?: number;
             };
             header?: never;
             path?: never;
