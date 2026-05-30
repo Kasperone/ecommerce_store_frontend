@@ -193,4 +193,63 @@ describe('ProductForm', () => {
     // The error-only suffix — the hint shares the prefix.
     expect(html).toMatch(/USD, PLN, or EUR/i)
   })
+
+  it('renders length / width / height inputs in the inventory section', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: { categories: baseCategories },
+    })
+    const html = wrapper.html()
+    expect(html).toContain('Length (cm)')
+    expect(html).toContain('Width (cm)')
+    expect(html).toContain('Height (cm)')
+  })
+
+  it('hydrates dimensions from an existing product', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: {
+        categories: baseCategories,
+        product: { ...baseProduct, length_cm: 60, width_cm: 60, height_cm: 30 },
+      },
+    })
+    // UInputNumber renders a text-type input; just confirm the values surface.
+    const html = wrapper.html()
+    expect(html).toMatch(/value="60"/)
+    expect(html).toMatch(/value="30"/)
+  })
+
+  it('emits null for unset dimensions on submit (legacy product path)', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: {
+        categories: baseCategories,
+        product: { ...baseProduct }, // no dims set
+      },
+    })
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    const emitted = wrapper.emitted('submit')
+    expect(emitted).toBeTruthy()
+    const payload = emitted![0]![0] as Record<string, unknown>
+    expect(payload.length_cm).toBeNull()
+    expect(payload.width_cm).toBeNull()
+    expect(payload.height_cm).toBeNull()
+  })
+
+  it('emits set dimensions on submit', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: {
+        categories: baseCategories,
+        product: { ...baseProduct, length_cm: 60, width_cm: 60, height_cm: 30 },
+      },
+    })
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    const emitted = wrapper.emitted('submit')
+    expect(emitted).toBeTruthy()
+    const payload = emitted![0]![0] as Record<string, unknown>
+    expect(payload.length_cm).toBe(60)
+    expect(payload.width_cm).toBe(60)
+    expect(payload.height_cm).toBe(30)
+  })
 })

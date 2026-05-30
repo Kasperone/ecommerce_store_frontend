@@ -136,4 +136,37 @@ describe('useCartStore', () => {
     cart.add(product()) // no weight_kg in fixture
     expect(cart.items[0]!.weightKg).toBeNull()
   })
+
+  it('snapshots dimensions on add (drives the checkout volumetric quote)', () => {
+    const cart = useCartStore()
+    cart.add(product({ id: 1, length_cm: 60, width_cm: 60, height_cm: 30 }))
+    expect(cart.items[0]).toMatchObject({
+      lengthCm: 60,
+      widthCm: 60,
+      heightCm: 30,
+    })
+  })
+
+  it('omitted dimensions snapshot as null (legacy products)', () => {
+    const cart = useCartStore()
+    cart.add(product()) // no length/width/height_cm in fixture
+    expect(cart.items[0]).toMatchObject({
+      lengthCm: null,
+      widthCm: null,
+      heightCm: null,
+    })
+  })
+
+  it('partially-set dimensions still snapshot each field independently', () => {
+    // Convention is "all three set or none," but a half-populated row from
+    // the API should still snapshot defensively — the backend resolver
+    // treats any-NULL as 0 volumetric contribution anyway.
+    const cart = useCartStore()
+    cart.add(product({ id: 1, length_cm: 60 })) // width + height missing
+    expect(cart.items[0]).toMatchObject({
+      lengthCm: 60,
+      widthCm: null,
+      heightCm: null,
+    })
+  })
 })

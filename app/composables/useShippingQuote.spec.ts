@@ -188,4 +188,44 @@ describe('useShippingQuote', () => {
       }),
     )
   })
+
+  it('threads cartVolumeCm3 through to the backend query (default 0)', async () => {
+    mockApiFetch.mockResolvedValue(sample)
+    const useShippingQuote = await load()
+    // No cartVolumeCm3 supplied → backend should receive 0 (the legacy
+    // un-dimensioned-cart path, volumetric branch skipped).
+    const params = ref({ country: 'PL', currency: 'PLN', subtotal: 10 })
+    useShippingQuote(params)
+    await vi.advanceTimersByTimeAsync(250)
+    expect(mockApiFetch).toHaveBeenCalledWith(
+      '/api/v1/shipping/quote',
+      expect.objectContaining({
+        query: expect.objectContaining({ cart_volume_cm3: 0 }),
+      }),
+    )
+  })
+
+  it('threads cartVolumeCm3 through when set (drives volumetric resolution)', async () => {
+    mockApiFetch.mockResolvedValue(sample)
+    const useShippingQuote = await load()
+    // 60×60×30 box: matches the handoff plan's walkthrough example.
+    const params = ref({
+      country: 'PL',
+      currency: 'PLN',
+      subtotal: 100,
+      weightKg: 0.5,
+      cartVolumeCm3: 108000,
+    })
+    useShippingQuote(params)
+    await vi.advanceTimersByTimeAsync(250)
+    expect(mockApiFetch).toHaveBeenCalledWith(
+      '/api/v1/shipping/quote',
+      expect.objectContaining({
+        query: expect.objectContaining({
+          weight_kg: 0.5,
+          cart_volume_cm3: 108000,
+        }),
+      }),
+    )
+  })
 })
