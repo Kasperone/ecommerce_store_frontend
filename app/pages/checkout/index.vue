@@ -22,12 +22,31 @@ useHead({ title: () => t('checkout.title') })
 const lastOrder = useState<OrderResponse | null>('checkout:lastOrder', () => null)
 const error = ref<ProblemDetails | null>(null)
 
+// Lifted state: country comes from the form, method id comes from the selector.
+// Both feed the quote endpoint; the selected method rides on the create-order
+// payload. Initial country falls back to the profile so a returning customer
+// gets re-quoted immediately on hard load.
+const selectedCountry = ref<string>(authStore.user?.shipping_country ?? '')
+const selectedMethodId = ref<number | null>(null)
+
 const initialShipping = computed<Partial<ShippingInput>>(() => ({
   address: authStore.user?.shipping_street ?? '',
   city: authStore.user?.shipping_city ?? '',
   postalCode: authStore.user?.shipping_postal_code ?? '',
   country: authStore.user?.shipping_country ?? '',
 }))
+
+const subtotalAmount = computed(() =>
+  cart.items.reduce((sum, item) => {
+    const picked = selectPrice(item, currency.value)
+    return sum + (picked ? picked.amount * item.quantity : 0)
+  }, 0),
+)
+
+// Mirror of the selector's chosen shipping amount (its second emit) so the
+// summary aside can show "Shipping: X · Total: subtotal + X" without the page
+// having to own a second `useShippingQuote` call.
+const shippingAmount = ref(0)
 
 const summaryLines = computed(() =>
   cart.items.map((item) => {
@@ -41,18 +60,18 @@ const summaryLines = computed(() =>
   }),
 )
 
-const subtotal = computed(() => {
-  const total = cart.items.reduce((sum, item) => {
-    const picked = selectPrice(item, currency.value)
-    return sum + (picked ? picked.amount * item.quantity : 0)
-  }, 0)
-  return formatMoney(total, currency.value, locale.value)
-})
+const subtotal = computed(() => formatMoney(subtotalAmount.value, currency.value, locale.value))
+const shippingFormatted = computed(() => formatMoney(shippingAmount.value, currency.value, locale.value))
+const total = computed(() =>
+  formatMoney(subtotalAmount.value + shippingAmount.value, currency.value, locale.value),
+)
 
 async function placeOrder(shipping: ShippingInput) {
   // Defense-in-depth: the form isn't rendered while impersonating, and the
   // backend guard 403s the POST anyway — but never attempt the write.
   if (authStore.isImpersonating) return
+  // Belt-and-braces: the form button is also disabled when this is null.
+  if (selectedMethodId.value == null) return
   error.value = null
   try {
     const order = await createOrder.mutateAsync({
@@ -60,6 +79,7 @@ async function placeOrder(shipping: ShippingInput) {
       shipping_city: shipping.city,
       shipping_postal_code: shipping.postalCode,
       shipping_country: shipping.country,
+      shipping_method_id: selectedMethodId.value,
       notes: shipping.notes?.trim() || undefined,
       currency: currency.value,
       items: cart.items.map(item => ({ product_id: item.productId, quantity: item.quantity })),
@@ -115,7 +135,7 @@ async function placeOrder(shipping: ShippingInput) {
           v-else
           class="grid gap-8 lg:grid-cols-2"
         >
-          <section>
+          <section class="space-y-4">
             <h2 class="mb-4 text-lg font-semibold">
               {{ t('checkout.shipping.heading') }}
             </h2>
@@ -123,7 +143,16 @@ async function placeOrder(shipping: ShippingInput) {
               :initial="initialShipping"
               :loading="createOrder.isLoading.value"
               :error="error"
+              :submit-disabled="selectedMethodId === null"
               @submit="placeOrder"
+              @update:country="selectedCountry = $event"
+            />
+            <CheckoutShippingMethodSelector
+              v-model="selectedMethodId"
+              :country="selectedCountry"
+              :currency="currency"
+              :subtotal="subtotalAmount"
+              @update:method-amount="shippingAmount = $event"
             />
           </section>
 
@@ -141,14 +170,19 @@ async function placeOrder(shipping: ShippingInput) {
                 <span class="font-medium">{{ line.lineTotal }}</span>
               </li>
             </ul>
-            <div
-              :class="[
-                'mt-3 flex items-center justify-between border-t border-gray-100 pt-3',
-                'font-medium dark:border-gray-800',
-              ]"
-            >
-              <span>{{ t('checkout.summary.total') }}</span>
-              <span>{{ subtotal }}</span>
+            <div class="mt-3 space-y-1 border-t border-gray-100 pt-3 dark:border-gray-800">
+              <div class="flex items-center justify-between text-sm text-muted">
+                <span>{{ t('checkout.summary.subtotal') }}</span>
+                <span>{{ subtotal }}</span>
+              </div>
+              <div class="flex items-center justify-between text-sm text-muted">
+                <span>{{ t('checkout.summary.shipping') }}</span>
+                <span>{{ shippingFormatted }}</span>
+              </div>
+              <div class="flex items-center justify-between pt-1 font-semibold">
+                <span>{{ t('checkout.summary.total') }}</span>
+                <span>{{ total }}</span>
+              </div>
             </div>
             <ULink
               :to="localePath('/cart')"

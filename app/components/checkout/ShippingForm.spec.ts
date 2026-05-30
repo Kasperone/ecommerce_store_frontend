@@ -6,7 +6,8 @@ import ShippingForm from './ShippingForm.vue'
 
 const AXE_OPTIONS = { rules: { region: { enabled: false } } }
 
-const filled = { address: '1 Main St', city: 'Town', postalCode: '00-001', country: 'Poland' }
+// country is now ISO-2 — emitted by the USelect populated from countries.ts.
+const filled = { address: '1 Main St', city: 'Town', postalCode: '00-001', country: 'PL' }
 
 async function flush(wrapper: { vm: { $nextTick: () => Promise<void> } }) {
   await new Promise(r => setTimeout(r, 0))

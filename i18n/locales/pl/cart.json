@@ -44,11 +44,20 @@
       "city": "Miasto",
       "postalCode": "Kod pocztowy",
       "country": "Kraj",
+      "countryPlaceholder": "Wybierz kraj",
       "notes": "Uwagi do zamówienia",
-      "notesPlaceholder": "Coś, o czym powinniśmy wiedzieć? (opcjonalnie)"
+      "notesPlaceholder": "Coś, o czym powinniśmy wiedzieć? (opcjonalnie)",
+      "selectMethod": "Sposób dostawy",
+      "selectCountryFirst": "Wybierz kraj, aby zobaczyć dostępne sposoby dostawy.",
+      "noMethods": "Nie wysyłamy jeszcze do kraju: {country}.",
+      "fetchError": "Nie udało się załadować sposobów dostawy. Spróbuj ponownie.",
+      "freeAbove": "Bezpłatnie od {amount}",
+      "free": "Bezpłatnie"
     },
     "summary": {
       "heading": "Podsumowanie zamówienia",
+      "subtotal": "Suma częściowa",
+      "shipping": "Dostawa",
       "total": "Razem"
     },
     "success": {
@@ -65,6 +74,7 @@
       "postalTooLong": "Kod pocztowy może mieć maksymalnie 20 znaków",
       "countryRequired": "Kraj jest wymagany",
       "countryTooLong": "Kraj może mieć maksymalnie 100 znaków",
+      "countryInvalid": "Wybierz kraj",
       "notesTooLong": "Uwagi mogą mieć maksymalnie 1000 znaków"
     }
   },
