@@ -122,4 +122,18 @@ describe('useCartStore', () => {
     cart.closeDrawer()
     expect(cart.isOpen).toBe(false)
   })
+
+  it('snapshots weight_kg on add (drives the checkout shipping quote)', () => {
+    const cart = useCartStore()
+    cart.add(product({ id: 1, weight_kg: 1.5 }))
+    cart.add(product({ id: 2, slug: 'gadget', weight_kg: null }))
+    expect(cart.items[0]!.weightKg).toBe(1.5)
+    expect(cart.items[1]!.weightKg).toBeNull()
+  })
+
+  it('omitted weight_kg snapshots as null (legacy products)', () => {
+    const cart = useCartStore()
+    cart.add(product()) // no weight_kg in fixture
+    expect(cart.items[0]!.weightKg).toBeNull()
+  })
 })

@@ -2,18 +2,20 @@
 /**
  * Create/edit a shipping rate (admin).
  *
- * The rate row carries three pricing shapes (mirrors the backend
+ * The rate row carries four pricing shapes (mirrors the backend
  * `ShippingRate` model):
  *   - `amount` (required, base/fallback)
  *   - `free_above_subtotal` (optional, zero-out trigger)
  *   - `tiers` (optional JSONB list of subtotal bands)
+ *   - `weight_tiers` (optional JSONB list of weight bands; added 2026-05-30)
  *
  * Most admins only ever fill `amount` + maybe `free_above_subtotal`. The
- * tiers UI hides behind a collapsed `<details>` "Configure subtotal tiers"
- * expander so the dialog stays glanceable. A small "preview" line at the
- * bottom shows the resolved shipping for a probe subtotal — the admin types
- * a cart subtotal and sees the exact same price the backend would charge
- * (uses the shared `applyShippingRate` TS port).
+ * two tier UIs hide behind collapsed `<details>` expanders so the dialog
+ * stays glanceable. A small "preview" line at the bottom shows the resolved
+ * shipping for a probe subtotal AND weight — the admin types both and sees
+ * the exact same price the backend would charge (uses the shared
+ * `applyShippingRate` TS port). Precedence: free-above → weight → subtotal
+ * → flat.
  *
  * The (zone, method, currency) UNIQUE-constraint conflict 400s on the wire;
  * the inline `<ErrorAlert>` surfaces the existing-combo message.
@@ -69,25 +71,32 @@ const state = reactive({
   currency: 'USD' as ShippingCurrency,
   amount: 0,
   free_above_subtotal: null as number | null,
-  // Tiers are edited as a dynamic list; on submit `[]` collapses to `null`.
+  // Subtotal tiers are edited as a dynamic list; on submit `[]` collapses to `null`.
   tiers: [] as { min_subtotal: number, amount: number }[],
+  // Weight tiers are edited as a dynamic list; on submit `[]` collapses to `null`.
+  weight_tiers: [] as { max_weight_kg: number, amount: number }[],
 })
 const tiersExpanded = ref(false)
+const weightTiersExpanded = ref(false)
 const previewSubtotal = ref(0)
+const previewWeightKg = ref(0)
 const error = ref<ProblemDetails | null>(null)
 
 const zoneOptions = computed(() => props.zones.map(z => ({ value: z.id, label: z.name })))
 const methodOptions = computed(() => props.methods.map(m => ({ value: m.id, label: m.name })))
 
-// Resolved shipping for the probe subtotal — same precedence as the backend.
+// Resolved shipping for the probe (subtotal, weight) pair — same precedence
+// as the backend: free-above → weight-tiers → subtotal-tiers → flat.
 const previewAmount = computed(() =>
   applyShippingRate(
     {
       amount: state.amount,
       free_above_subtotal: state.free_above_subtotal,
       tiers: state.tiers.length > 0 ? state.tiers : null,
+      weight_tiers: state.weight_tiers.length > 0 ? state.weight_tiers : null,
     },
     previewSubtotal.value,
+    previewWeightKg.value,
   ),
 )
 const previewFormatted = computed(() =>
@@ -100,7 +109,9 @@ watch(
     if (!isOpen) return
     error.value = null
     tiersExpanded.value = false
+    weightTiersExpanded.value = false
     previewSubtotal.value = 0
+    previewWeightKg.value = 0
     if (props.rate) {
       state.zone_id = props.rate.zone_id
       state.method_id = props.rate.method_id
@@ -111,7 +122,12 @@ watch(
         min_subtotal: t.min_subtotal,
         amount: t.amount,
       }))
+      state.weight_tiers = (props.rate.weight_tiers ?? []).map(t => ({
+        max_weight_kg: t.max_weight_kg,
+        amount: t.amount,
+      }))
       tiersExpanded.value = state.tiers.length > 0
+      weightTiersExpanded.value = state.weight_tiers.length > 0
     }
     else {
       state.zone_id = props.presetCombo?.zoneId ?? null
@@ -120,6 +136,7 @@ watch(
       state.amount = 0
       state.free_above_subtotal = null
       state.tiers = []
+      state.weight_tiers = []
     }
   },
   { immediate: true },
@@ -140,6 +157,19 @@ function removeTier(index: number) {
   state.tiers.splice(index, 1)
 }
 
+function addWeightTier() {
+  // Default the new band to "above the heaviest existing one"; admin tweaks.
+  // First band defaults to 1 kg so the admin has a sensible starting point
+  // rather than the inscrutable 0 kg (max_weight_kg must be > 0).
+  const lastMax = state.weight_tiers.reduce((m, b) => Math.max(m, b.max_weight_kg), 0)
+  const next = lastMax > 0 ? lastMax * 2 : 1
+  state.weight_tiers.push({ max_weight_kg: next, amount: state.amount })
+}
+
+function removeWeightTier(index: number) {
+  state.weight_tiers.splice(index, 1)
+}
+
 function clearFreeAbove() {
   state.free_above_subtotal = null
 }
@@ -158,6 +188,9 @@ async function onSubmit() {
   const tiers = state.tiers
     .filter(t => Number.isFinite(t.min_subtotal) && Number.isFinite(t.amount))
     .sort((a, b) => a.min_subtotal - b.min_subtotal)
+  const weightTiers = state.weight_tiers
+    .filter(t => Number.isFinite(t.max_weight_kg) && Number.isFinite(t.amount))
+    .sort((a, b) => a.max_weight_kg - b.max_weight_kg)
 
   try {
     if (props.rate) {
@@ -168,6 +201,7 @@ async function onSubmit() {
           amount: state.amount,
           free_above_subtotal: state.free_above_subtotal,
           tiers: tiers.length > 0 ? tiers : null,
+          weight_tiers: weightTiers.length > 0 ? weightTiers : null,
         },
       })
       toast.add({ title: t('admin.shipping.flashes.rateUpdated') })
@@ -180,6 +214,7 @@ async function onSubmit() {
         amount: state.amount,
         free_above_subtotal: state.free_above_subtotal,
         tiers: tiers.length > 0 ? tiers : null,
+        weight_tiers: weightTiers.length > 0 ? weightTiers : null,
       })
       toast.add({ title: t('admin.shipping.flashes.rateCreated') })
     }
@@ -342,19 +377,81 @@ async function onSubmit() {
             </div>
           </details>
 
+          <details
+            class="rounded-md border border-gray-200 p-3 dark:border-gray-800"
+            :open="weightTiersExpanded"
+            @toggle="weightTiersExpanded = ($event.target as HTMLDetailsElement).open"
+          >
+            <summary class="cursor-pointer text-sm font-medium">
+              {{ t('admin.shipping.rates.weightTiers.title') }}
+              <span class="ml-1 text-xs text-muted">
+                ({{ state.weight_tiers.length }})
+              </span>
+            </summary>
+            <div class="mt-3 space-y-2">
+              <p class="text-xs text-muted">
+                {{ t('admin.shipping.rates.weightTiers.hint') }}
+              </p>
+              <div
+                v-for="(tier, idx) in state.weight_tiers"
+                :key="idx"
+                class="flex items-center gap-2"
+              >
+                <UInputNumber
+                  v-model="tier.max_weight_kg"
+                  :min="0"
+                  :step="0.1"
+                  :placeholder="t('admin.shipping.rates.weightTiers.maxWeightKg')"
+                  class="flex-1"
+                />
+                <span class="text-muted">kg →</span>
+                <UInputNumber
+                  v-model="tier.amount"
+                  :min="0"
+                  :step="0.01"
+                  :placeholder="t('admin.shipping.rates.weightTiers.amount')"
+                  class="flex-1"
+                />
+                <UButton
+                  variant="ghost"
+                  size="sm"
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  :aria-label="t('admin.shipping.rates.weightTiers.remove')"
+                  @click="removeWeightTier(idx)"
+                />
+              </div>
+              <UButton
+                variant="outline"
+                size="sm"
+                icon="i-lucide-plus"
+                @click="addWeightTier"
+              >
+                {{ t('admin.shipping.rates.weightTiers.add') }}
+              </UButton>
+            </div>
+          </details>
+
           <div class="rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-900">
             <p class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
               {{ t('admin.shipping.rates.preview.title') }}
             </p>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <span class="text-muted">{{ t('admin.shipping.rates.preview.subtotal') }}:</span>
               <UInputNumber
                 v-model="previewSubtotal"
                 :min="0"
                 :step="0.01"
-                class="flex-1"
+                class="w-32"
               />
-              <span class="text-muted">→</span>
+              <span class="text-muted">{{ t('admin.shipping.rates.preview.weight') }}:</span>
+              <UInputNumber
+                v-model="previewWeightKg"
+                :min="0"
+                :step="0.1"
+                class="w-28"
+              />
+              <span class="text-muted">kg →</span>
               <span class="font-semibold">{{ previewFormatted }}</span>
             </div>
           </div>

@@ -28,6 +28,11 @@ export interface CartItem {
   // Snapshotted so the cart can allow quantities beyond stock for backorder
   // products without refetching. Older persisted carts lack it → treated as false.
   allowBackorder: boolean
+  // Snapshotted so the checkout's shipping quote can compute cart weight
+  // without re-fetching every product. null/undefined means "no weight set"
+  // (legacy product) — sums as 0 in the quote, matching the backend's
+  // null-weight treatment.
+  weightKg?: number | null
   quantity: number
 }
 
@@ -42,6 +47,7 @@ type AddableProduct = Pick<
   | 'price_eur'
   | 'stock'
   | 'allow_backorder'
+  | 'weight_kg'
 >
 
 const STORAGE_KEY = 'cart'
@@ -81,6 +87,7 @@ export const useCartStore = defineStore('cart', () => {
       price_eur: product.price_eur,
       stock: product.stock,
       allowBackorder: product.allow_backorder,
+      weightKg: product.weight_kg ?? null,
       quantity: product.allow_backorder
         ? Math.max(quantity, 1)
         : Math.min(Math.max(quantity, 1), product.stock),

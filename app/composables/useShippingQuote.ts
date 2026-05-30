@@ -27,6 +27,13 @@ export interface ShippingQuoteParams {
   currency: string
   /** Cart subtotal in `currency`, used by the resolver for tiers + free-above. */
   subtotal: number
+  /**
+   * Cart total weight in kg. When non-zero, weight-tiered rates resolve against
+   * this value so the displayed amount matches what the order will charge.
+   * Optional — 0 falls through to subtotal-only resolution, preserving the old
+   * behaviour for carts without weighted products.
+   */
+  weightKg?: number
 }
 
 export function useShippingQuote(params: MaybeRefOrGetter<ShippingQuoteParams>) {
@@ -59,6 +66,10 @@ export function useShippingQuote(params: MaybeRefOrGetter<ShippingQuoteParams>) 
             country: p.country,
             currency: p.currency,
             subtotal: p.subtotal,
+            // Default to 0 (legacy carts without weighted products). The
+            // backend treats 0 as "skip the weight branch" so old behaviour
+            // is preserved automatically.
+            weight_kg: p.weightKg ?? 0,
           },
           signal: controller.signal,
         },

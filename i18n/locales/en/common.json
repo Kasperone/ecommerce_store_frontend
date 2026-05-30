@@ -508,7 +508,8 @@
         "localeOptional": "Optional — falls back to English",
         "stockCreateOnly": "Sets the initial stock in the default warehouse. Adjust it later from Inventory.",
         "stockEditViaInventory": "Stock is managed per warehouse from Inventory (adjust, restock, transfer).",
-        "allowBackorder": "Let customers order beyond available stock (the level goes negative)."
+        "allowBackorder": "Let customers order beyond available stock (the level goes negative).",
+        "weightKg": "Physical weight in kilograms. Used by weight-tier shipping rates to price by parcel weight; leave empty to skip weight at checkout."
       },
       "placeholders": {
         "name": "Encyclopedia of Tea",
@@ -569,6 +570,7 @@
         "pricePln": "PLN",
         "priceEur": "EUR",
         "stock": "Stock",
+        "weightKg": "Weight (kg)",
         "allowBackorder": "Allow backorder",
         "isActive": "Active",
         "isFeatured": "Featured",
@@ -629,7 +631,9 @@
         "stockRequired": "Stock is required",
         "stockInvalid": "Stock must be a number",
         "stockInteger": "Stock must be a whole number",
-        "stockNegative": "Stock cannot be negative"
+        "stockNegative": "Stock cannot be negative",
+        "weightInvalid": "Weight must be a number",
+        "weightNegative": "Weight cannot be negative"
       }
     },
     "orders": {
@@ -919,9 +923,18 @@
           "add": "Add tier",
           "remove": "Remove tier"
         },
+        "weightTiers": {
+          "title": "Configure weight tiers",
+          "hint": "Each band charges its amount when the cart's total weight is at or below its max. Weight tiers are evaluated before subtotal tiers, so weight wins when both are set.",
+          "maxWeightKg": "Max weight",
+          "amount": "Amount",
+          "add": "Add weight tier",
+          "remove": "Remove weight tier"
+        },
         "preview": {
           "title": "Preview",
-          "subtotal": "Subtotal"
+          "subtotal": "Subtotal",
+          "weight": "Weight"
         },
         "filters": {
           "zone": "Zone",
