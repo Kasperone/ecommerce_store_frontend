@@ -92,10 +92,13 @@ const categoryTo = computed(() =>
             {{ displayName }}
           </h1>
 
-          <ShopPriceDisplay
-            :product="product"
-            size="lg"
-          />
+          <div>
+            <ShopPriceDisplay
+              :product="product"
+              size="lg"
+            />
+            <ShopOmnibusPrice :product="product" />
+          </div>
 
           <div class="flex flex-wrap items-center gap-2">
             <UBadge

@@ -512,7 +512,8 @@
         "weightKg": "Physical weight in kilograms. Used by weight-tier shipping rates to price by parcel weight; leave empty to skip weight at checkout.",
         "lengthCm": "Box length in centimetres. Combined with width and height to compute volumetric weight; admins typically set all three together.",
         "widthCm": "Box width in centimetres.",
-        "heightCm": "Box height in centimetres."
+        "heightCm": "Box height in centimetres.",
+        "lowest30d": "Lowest 30d: {price} (since {date})"
       },
       "placeholders": {
         "name": "Encyclopedia of Tea",

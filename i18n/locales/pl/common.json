@@ -513,7 +513,8 @@
         "weightKg": "Fizyczna waga w kilogramach. Używana przez progi wagowe wysyłki do wyceny według wagi przesyłki; pozostaw puste, aby pominąć wagę przy zamówieniu.",
         "lengthCm": "Długość paczki w centymetrach. Razem z szerokością i wysokością wyznacza wagę gabarytową; zwykle uzupełnia się wszystkie trzy wartości.",
         "widthCm": "Szerokość paczki w centymetrach.",
-        "heightCm": "Wysokość paczki w centymetrach."
+        "heightCm": "Wysokość paczki w centymetrach.",
+        "lowest30d": "Najniższa cena z 30 dni: {price} (od {date})"
       },
       "placeholders": {
         "name": "Encyklopedia herbaty",

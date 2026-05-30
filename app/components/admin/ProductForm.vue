@@ -400,42 +400,60 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <UFormField
-          :label="t('admin.products.fields.priceUsd')"
-          name="price_usd"
-        >
-          <UInputNumber
-            v-model="state.price_usd"
-            :min="0"
-            :step="0.01"
-            :disabled="loading"
-            class="w-full"
+        <div>
+          <UFormField
+            :label="t('admin.products.fields.priceUsd')"
+            name="price_usd"
+          >
+            <UInputNumber
+              v-model="state.price_usd"
+              :min="0"
+              :step="0.01"
+              :disabled="loading"
+              class="w-full"
+            />
+          </UFormField>
+          <AdminProductLowest30dHint
+            :product-id="product?.id"
+            currency="USD"
           />
-        </UFormField>
-        <UFormField
-          :label="t('admin.products.fields.pricePln')"
-          name="price_pln"
-        >
-          <UInputNumber
-            v-model="state.price_pln"
-            :min="0"
-            :step="0.01"
-            :disabled="loading"
-            class="w-full"
+        </div>
+        <div>
+          <UFormField
+            :label="t('admin.products.fields.pricePln')"
+            name="price_pln"
+          >
+            <UInputNumber
+              v-model="state.price_pln"
+              :min="0"
+              :step="0.01"
+              :disabled="loading"
+              class="w-full"
+            />
+          </UFormField>
+          <AdminProductLowest30dHint
+            :product-id="product?.id"
+            currency="PLN"
           />
-        </UFormField>
-        <UFormField
-          :label="t('admin.products.fields.priceEur')"
-          name="price_eur"
-        >
-          <UInputNumber
-            v-model="state.price_eur"
-            :min="0"
-            :step="0.01"
-            :disabled="loading"
-            class="w-full"
+        </div>
+        <div>
+          <UFormField
+            :label="t('admin.products.fields.priceEur')"
+            name="price_eur"
+          >
+            <UInputNumber
+              v-model="state.price_eur"
+              :min="0"
+              :step="0.01"
+              :disabled="loading"
+              class="w-full"
+            />
+          </UFormField>
+          <AdminProductLowest30dHint
+            :product-id="product?.id"
+            currency="EUR"
           />
-        </UFormField>
+        </div>
       </div>
 
       <UFormField

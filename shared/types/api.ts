@@ -25,6 +25,8 @@ export type ProductResponse = components['schemas']['ProductResponse']
 export type ProductWithCategory = components['schemas']['ProductWithCategory']
 export type ProductCreate = components['schemas']['ProductCreate']
 export type ProductUpdate = components['schemas']['ProductUpdate']
+// OMNIBUS (Directive 98/6 Art. 6a) — see useProductLowest30d + ShopOmnibusPrice.
+export type LowestPriceResponse = components['schemas']['LowestPriceResponse']
 export type OrderStatus = components['schemas']['OrderStatus']
 export type OrderListItem = components['schemas']['OrderListItem']
 export type OrderListResponse = components['schemas']['OrderListResponse']
