@@ -2,7 +2,7 @@
 import type { OrderStatus, OrderUpdate, RefundCreate } from '#shared/types/api'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
-import { isCancellable, nextStatuses, statusColor } from '#shared/utils/orderStatus'
+import { isCancellable, isRefundable, nextStatuses, statusColor } from '#shared/utils/orderStatus'
 
 definePageMeta({
   middleware: ['admin'],
@@ -35,10 +35,11 @@ const refundError = ref<ProblemDetails | null>(null)
 
 // D3: which statuses can be refunded. Mirrors the backend's REFUNDABLE_STATUSES
 // set — the API re-validates, this is purely for UX (the button is hidden when
-// it would 400). Pending/cancelled/refunded are not refundable.
-const REFUNDABLE: OrderStatus[] = ['paid', 'processing', 'shipped', 'delivered']
+// `isRefundable` mirrors the backend `REFUNDABLE_STATUSES` set in
+// `app/crud/refund.py`. v2 added `partially_refunded` to it because another
+// refund may bring the cumulative total to `order.total` → REFUNDED.
 const canRefund = computed(
-  () => order.value != null && REFUNDABLE.includes(order.value.status),
+  () => order.value != null && isRefundable(order.value.status),
 )
 
 watch(order, (o) => {

@@ -40,6 +40,14 @@ const FORWARD_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 // order.total → REFUNDED). Cancel would lose the refund-history attribution.
 const CANCELLABLE: OrderStatus[] = ['pending', 'paid', 'processing', 'shipped']
 
+// Mirrors the backend `REFUNDABLE_STATUSES` set in `app/crud/refund.py`.
+// `partially_refunded` is in here because another refund may bring the
+// cumulative total to `order.total` → status flips to REFUNDED. Pending,
+// cancelled, and (fully) refunded are NOT refundable.
+const REFUNDABLE: OrderStatus[] = [
+  'paid', 'processing', 'shipped', 'delivered', 'partially_refunded',
+]
+
 /** Statuses an admin may move an order to next (excludes the current one). */
 export function nextStatuses(current: OrderStatus): OrderStatus[] {
   return FORWARD_TRANSITIONS[current] ?? []
@@ -48,6 +56,11 @@ export function nextStatuses(current: OrderStatus): OrderStatus[] {
 /** Whether an order in this status can still be cancelled (admin). */
 export function isCancellable(status: OrderStatus): boolean {
   return CANCELLABLE.includes(status)
+}
+
+/** Whether an admin may issue a refund against an order in this status. */
+export function isRefundable(status: OrderStatus): boolean {
+  return REFUNDABLE.includes(status)
 }
 
 type BadgeColor = 'neutral' | 'primary' | 'success' | 'info' | 'warning' | 'error'
