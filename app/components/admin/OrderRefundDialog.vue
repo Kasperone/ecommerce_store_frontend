@@ -229,12 +229,19 @@ function buildItemsPayload(): RefundItemCreate[] | null {
 }
 
 function onSubmit() {
+  const items = buildItemsPayload()
+  // Force `restock=false` when nothing was picked. The on-screen checkbox is
+  // already disabled in that case (and the `restockDisabled` watcher zeroes
+  // the ref on mount), but the `open` re-seed bumps `restock` back to the D2
+  // default and the `restockDisabled` watcher won't re-fire if the empty-
+  // picker truth didn't change — leaving a stale `restock=true` in the
+  // payload that the backend rightly 400s (D5). Belt + suspenders.
   emit('submit', {
     amount: amount.value,
     reason: reason.value,
     note: note.value.trim() || null,
-    restock: restock.value,
-    items: buildItemsPayload(),
+    restock: restock.value && items !== null,
+    items,
   })
 }
 </script>
