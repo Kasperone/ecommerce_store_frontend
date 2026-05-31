@@ -346,6 +346,56 @@
         "deleted": "Kupon usunięty."
       }
     },
+    "reports": {
+      "title": "Raporty",
+      "subtitle": "Sprzedaż, najlepsze produkty, przychód wg kategorii i zwroty w zakresie dat",
+      "filters": {
+        "dateFrom": "Od",
+        "dateTo": "Do",
+        "granularity": "Szczegółowość"
+      },
+      "granularity": {
+        "day": "Dziennie",
+        "week": "Tygodniowo",
+        "month": "Miesięcznie"
+      },
+      "chart": {
+        "title": "Sprzedaż w czasie",
+        "summary": "{total} w zakresie",
+        "currencyLabel": "Waluta wykresu",
+        "barLabel": "{bucket}: przychód {amount}, zamówienia: {count}",
+        "weekOf": "Tydzień od {date}",
+        "noRevenue": "Brak przychodu w tym zakresie dat."
+      },
+      "topProducts": {
+        "title": "Najlepsze produkty",
+        "units": "sprzedano {count}",
+        "orders": "{count} zamówienie | {count} zamówienia | {count} zamówień",
+        "empty": "Brak sprzedaży w tym zakresie dat."
+      },
+      "byCategory": {
+        "title": "Przychód wg kategorii",
+        "units": "sprzedano {count}",
+        "uncategorized": "Bez kategorii",
+        "empty": "Brak sprzedaży w tym zakresie dat."
+      },
+      "refunds": {
+        "title": "Zwroty",
+        "count": "{count} zwrot | {count} zwroty | {count} zwrotów",
+        "fields": {
+          "currency": "Waluta",
+          "refunded": "Zwrócono",
+          "revenue": "Przychód",
+          "rate": "Wskaźnik"
+        },
+        "empty": "Brak zwrotów w tym zakresie dat."
+      },
+      "export": {
+        "button": "Eksportuj CSV",
+        "exporting": "Eksportowanie…",
+        "error": "Eksport nie powiódł się"
+      }
+    },
     "auditLog": {
       "title": "Dziennik zdarzeń",
       "subtitle": "Każde utworzenie, zmiana i usunięcie przez administratora w katalogu i operacjach",
