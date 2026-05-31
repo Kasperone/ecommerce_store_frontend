@@ -1594,6 +1594,116 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Sales Report
+         * @description Sales over time — per-bucket revenue (per currency) + order count.
+         *
+         *     Counts only revenue-status orders (paid/processing/shipped/delivered),
+         *     attributed by ``created_at``. Buckets are zero-filled across the range.
+         */
+        get: operations["get_sales_report_api_v1_admin_reports_sales_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/top-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Top Products Report
+         * @description Best-sellers by units sold over revenue-status orders in the range.
+         */
+        get: operations["get_top_products_report_api_v1_admin_reports_top_products_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/by-category": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Category Revenue Report
+         * @description Units + per-currency revenue per category over revenue-status orders.
+         *
+         *     Attribution follows the product's current category; products with no
+         *     category bucket under ``Uncategorized``.
+         */
+        get: operations["get_category_revenue_report_api_v1_admin_reports_by_category_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/refund-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Refund Summary Report
+         * @description Per-currency refunded total + count + rate (refunded / revenue) over the range.
+         */
+        get: operations["get_refund_summary_report_api_v1_admin_reports_refund_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/sales.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Sales Csv
+         * @description Download the sales series as a CSV file (admin only).
+         *
+         *     One row per bucket with a column per currency; RFC 4180, UTF-8 with BOM.
+         *     Generated on demand — no persistence, no audit row (read-only GET, like the
+         *     orders/invoice downloads).
+         */
+        get: operations["export_sales_csv_api_v1_admin_reports_sales_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reviews/": {
         parameters: {
             query?: never;
@@ -1692,6 +1802,60 @@ export interface paths {
          * @description Rename / recolor a tag (admin). 409 if a rename collides with another tag.
          */
         patch: operations["update_tag_api_v1_admin_tags__tag_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/coupons/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Coupons
+         * @description List coupons (newest first), filterable by active status and code substring.
+         */
+        get: operations["list_coupons_api_v1_admin_coupons__get"];
+        put?: never;
+        /**
+         * Create Coupon
+         * @description Create a coupon. ``code`` (stored UPPERCASE) must be unique → 409 on dup.
+         */
+        post: operations["create_coupon_api_v1_admin_coupons__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/coupons/{coupon_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Coupon
+         * @description Get one coupon by id.
+         */
+        get: operations["get_coupon_api_v1_admin_coupons__coupon_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Coupon
+         * @description Delete a coupon.
+         */
+        delete: operations["delete_coupon_api_v1_admin_coupons__coupon_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Coupon
+         * @description Update a coupon. ``code`` stays unique (409 on collision). The per-type
+         *     value/currency rule and the date window are re-validated against the merged
+         *     state (422 on conflict).
+         */
+        patch: operations["update_coupon_api_v1_admin_coupons__coupon_id__patch"];
         trace?: never;
     };
     "/api/v1/admin/warehouses/": {
@@ -2259,6 +2423,39 @@ export interface components {
             meta_description_pl?: string | null;
         };
         /**
+         * CategoryRevenueReport
+         * @description The by-category payload (read-only aggregate).
+         */
+        CategoryRevenueReport: {
+            /** Start */
+            start?: string | null;
+            /** End */
+            end?: string | null;
+            /** Rows */
+            rows: components["schemas"]["CategoryRevenueRow"][];
+        };
+        /**
+         * CategoryRevenueRow
+         * @description Revenue + units sold for one category over the window.
+         *
+         *     Attribution follows the product's **current** ``category_id`` (a product's
+         *     category can change; orders snapshot only name/sku, not the category).
+         *     Products with no category are bucketed under ``category_id = null`` /
+         *     ``name = "Uncategorized"``. ``revenue_by_currency`` is per-currency.
+         */
+        CategoryRevenueRow: {
+            /** Category Id */
+            category_id?: number | null;
+            /** Name */
+            name: string;
+            /** Units */
+            units: number;
+            /** Revenue By Currency */
+            revenue_by_currency: {
+                [key: string]: number;
+            };
+        };
+        /**
          * CategoryTreeNode
          * @description Recursive tree node for ``GET /categories/tree``.
          *
@@ -2532,6 +2729,132 @@ export interface components {
             issued_at: string;
             /** Original Invoice Id */
             original_invoice_id: number;
+        };
+        /**
+         * CouponCreate
+         * @description Request body for ``POST /api/v1/admin/coupons``.
+         */
+        CouponCreate: {
+            /** Code */
+            code: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Discount Type
+             * @enum {string}
+             */
+            discount_type: "percent" | "fixed";
+            /** Value */
+            value: number;
+            /** Currency */
+            currency?: ("USD" | "PLN" | "EUR") | null;
+            /** Min Order Amount */
+            min_order_amount?: number | null;
+            /** Max Uses */
+            max_uses?: number | null;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /**
+         * CouponListResponse
+         * @description Paginated coupon list.
+         */
+        CouponListResponse: {
+            /** Items */
+            items: components["schemas"]["CouponResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * CouponResponse
+         * @description A coupon row as the API returns it.
+         */
+        CouponResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Code */
+            code: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Discount Type
+             * @enum {string}
+             */
+            discount_type: "percent" | "fixed";
+            /** Value */
+            value: number;
+            /** Currency */
+            currency?: ("USD" | "PLN" | "EUR") | null;
+            /** Min Order Amount */
+            min_order_amount?: number | null;
+            /** Max Uses */
+            max_uses?: number | null;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Used Count */
+            used_count: number;
+        };
+        /**
+         * CouponUpdate
+         * @description Request body for ``PATCH /api/v1/admin/coupons/{id}`` (all fields optional).
+         *
+         *     Cross-field rules (value/currency by type, ``ends_at`` > ``starts_at``) are
+         *     re-validated in the route against the **merged** state, because a PATCH may
+         *     change only one half of a pair (e.g. flip ``discount_type`` without resending
+         *     ``currency``). ``used_count`` is intentionally absent — it's managed by the
+         *     redemption layer, not the admin form.
+         */
+        CouponUpdate: {
+            /** Code */
+            code?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Discount Type */
+            discount_type?: ("percent" | "fixed") | null;
+            /** Value */
+            value?: number | null;
+            /** Currency */
+            currency?: ("USD" | "PLN" | "EUR") | null;
+            /** Min Order Amount */
+            min_order_amount?: number | null;
+            /** Max Uses */
+            max_uses?: number | null;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /**
          * CustomerAdminUpdate
@@ -3810,6 +4133,42 @@ export interface components {
             items?: components["schemas"]["RefundItemResponse"][];
         };
         /**
+         * RefundSummary
+         * @description The refund-summary payload (read-only aggregate).
+         */
+        RefundSummary: {
+            /** Start */
+            start?: string | null;
+            /** End */
+            end?: string | null;
+            /** Refund Count */
+            refund_count: number;
+            /** Rows */
+            rows: components["schemas"]["RefundSummaryRow"][];
+        };
+        /**
+         * RefundSummaryRow
+         * @description Per-currency refund totals + the refund rate for one currency.
+         *
+         *     ``refunded`` sums recorded refund amounts (``refunds.amount``); ``revenue`` is
+         *     the comparable revenue-status order total in the same currency; ``rate`` is
+         *     ``refunded / revenue`` (0.0 when there is no revenue). ``refund_count`` counts
+         *     refund rows. Money is never summed across currencies, so the rate is computed
+         *     per currency too.
+         */
+        RefundSummaryRow: {
+            /** Currency */
+            currency: string;
+            /** Refunded */
+            refunded: number;
+            /** Refund Count */
+            refund_count: number;
+            /** Revenue */
+            revenue: number;
+            /** Rate */
+            rate: number;
+        };
+        /**
          * RestockRequest
          * @description Record incoming stock into a warehouse (a purchase-order / supplier receipt).
          *
@@ -3926,6 +4285,52 @@ export interface components {
             helpful_count: number;
             /** My Vote */
             my_vote: boolean;
+        };
+        /**
+         * SalesBucket
+         * @description One time bucket in the sales report.
+         *
+         *     ``bucket`` is the first calendar day of the bucket (the day itself for
+         *     ``day``, the Monday for ``week``, the 1st for ``month``). ``revenue`` is the
+         *     per-currency sum of revenue-status orders created in the bucket; ``orders``
+         *     is the count of those revenue-status orders. Buckets are zero-filled across
+         *     the requested range so the series has no gaps.
+         */
+        SalesBucket: {
+            /**
+             * Bucket
+             * Format: date
+             */
+            bucket: string;
+            /** Revenue */
+            revenue: {
+                [key: string]: number;
+            };
+            /** Orders */
+            orders: number;
+        };
+        /**
+         * SalesReport
+         * @description The sales-over-time payload (read-only aggregate).
+         */
+        SalesReport: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Granularity
+             * @enum {string}
+             */
+            granularity: "day" | "week" | "month";
+            /** Buckets */
+            buckets: components["schemas"]["SalesBucket"][];
         };
         /**
          * SalesTrendPoint
@@ -4587,6 +4992,45 @@ export interface components {
             units_sold: number;
             /** Order Count */
             order_count: number;
+        };
+        /**
+         * TopProductRow
+         * @description A best-seller over the window, ranked by units sold across revenue orders.
+         *
+         *     ``name``/``slug`` are the product's current values; ``name`` falls back to the
+         *     ``order_items`` snapshot if the product row was deleted, and ``slug`` is then
+         *     null. ``revenue_by_currency`` is the per-currency sum of this product's line
+         *     totals over revenue-status orders.
+         */
+        TopProductRow: {
+            /** Product Id */
+            product_id: number;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug?: string | null;
+            /** Units */
+            units: number;
+            /** Order Count */
+            order_count: number;
+            /** Revenue By Currency */
+            revenue_by_currency: {
+                [key: string]: number;
+            };
+        };
+        /**
+         * TopProductsReport
+         * @description The top-products payload (read-only aggregate).
+         */
+        TopProductsReport: {
+            /** Start */
+            start?: string | null;
+            /** End */
+            end?: string | null;
+            /** Limit */
+            limit: number;
+            /** Rows */
+            rows: components["schemas"]["TopProductRow"][];
         };
         /**
          * TransferRequest
@@ -7708,6 +8152,183 @@ export interface operations {
             };
         };
     };
+    get_sales_report_api_v1_admin_reports_sales_get: {
+        parameters: {
+            query: {
+                /** @description Range start (UTC calendar day, inclusive) */
+                start: string;
+                /** @description Range end (UTC calendar day, inclusive) */
+                end: string;
+                /** @description Bucket size: day|week|month */
+                granularity?: "day" | "week" | "month";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SalesReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_top_products_report_api_v1_admin_reports_top_products_get: {
+        parameters: {
+            query?: {
+                /** @description Range start (UTC day, inclusive) */
+                start?: string | null;
+                /** @description Range end (UTC day, inclusive) */
+                end?: string | null;
+                /** @description Max rows */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopProductsReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_category_revenue_report_api_v1_admin_reports_by_category_get: {
+        parameters: {
+            query?: {
+                /** @description Range start (UTC day, inclusive) */
+                start?: string | null;
+                /** @description Range end (UTC day, inclusive) */
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryRevenueReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_refund_summary_report_api_v1_admin_reports_refund_summary_get: {
+        parameters: {
+            query?: {
+                /** @description Range start (UTC day, inclusive) */
+                start?: string | null;
+                /** @description Range end (UTC day, inclusive) */
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefundSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_sales_csv_api_v1_admin_reports_sales_csv_get: {
+        parameters: {
+            query: {
+                /** @description Range start (UTC calendar day, inclusive) */
+                start: string;
+                /** @description Range end (UTC calendar day, inclusive) */
+                end: string;
+                /** @description Bucket size: day|week|month */
+                granularity?: "day" | "week" | "month";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sales report CSV export */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_reviews_api_v1_admin_reviews__get: {
         parameters: {
             query?: {
@@ -7947,6 +8568,170 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_coupons_api_v1_admin_coupons__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by active status */
+                is_active?: boolean | null;
+                /** @description Filter by code (contains, case-insensitive) */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_coupon_api_v1_admin_coupons__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_coupon_api_v1_admin_coupons__coupon_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                coupon_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_coupon_api_v1_admin_coupons__coupon_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                coupon_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_coupon_api_v1_admin_coupons__coupon_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                coupon_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponResponse"];
                 };
             };
             /** @description Validation Error */
