@@ -345,6 +345,56 @@
         "deleted": "Coupon deleted."
       }
     },
+    "reports": {
+      "title": "Reports",
+      "subtitle": "Sales, top products, revenue by category, and refunds over a date range",
+      "filters": {
+        "dateFrom": "From",
+        "dateTo": "To",
+        "granularity": "Granularity"
+      },
+      "granularity": {
+        "day": "Daily",
+        "week": "Weekly",
+        "month": "Monthly"
+      },
+      "chart": {
+        "title": "Sales over time",
+        "summary": "{total} in range",
+        "currencyLabel": "Chart currency",
+        "barLabel": "{bucket}: {amount} revenue, {count} orders",
+        "weekOf": "Week of {date}",
+        "noRevenue": "No revenue in this date range."
+      },
+      "topProducts": {
+        "title": "Top products",
+        "units": "{count} sold",
+        "orders": "{count} order | {count} orders",
+        "empty": "No sales in this date range."
+      },
+      "byCategory": {
+        "title": "Revenue by category",
+        "units": "{count} sold",
+        "uncategorized": "Uncategorized",
+        "empty": "No sales in this date range."
+      },
+      "refunds": {
+        "title": "Refunds",
+        "count": "{count} refund | {count} refunds",
+        "fields": {
+          "currency": "Currency",
+          "refunded": "Refunded",
+          "revenue": "Revenue",
+          "rate": "Rate"
+        },
+        "empty": "No refunds in this date range."
+      },
+      "export": {
+        "button": "Export CSV",
+        "exporting": "Exporting…",
+        "error": "Export failed"
+      }
+    },
     "auditLog": {
       "title": "Audit Log",
       "subtitle": "Every admin create, update, and delete across the catalog and operations",
