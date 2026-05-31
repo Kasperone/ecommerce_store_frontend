@@ -268,6 +268,84 @@
         "deleted": "Magazyn usunięty."
       }
     },
+    "coupons": {
+      "title": "Kupony",
+      "subtitle": "Twórz kody rabatowe i zarządzaj nimi, warunkami i limitami użycia",
+      "actions": {
+        "create": "Nowy kupon",
+        "edit": "Edytuj",
+        "delete": "Usuń"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne",
+        "search": "Szukaj",
+        "searchPlaceholder": "Szukaj po kodzie"
+      },
+      "fields": {
+        "code": "Kod",
+        "usedCount": "Użyto",
+        "startsAt": "Od",
+        "endsAt": "Do",
+        "status": "Status",
+        "discount": "Rabat"
+      },
+      "discountType": {
+        "percent": "Procentowy",
+        "fixed": "Kwotowy"
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "empty": {
+        "noCoupons": "Brak kuponów.",
+        "noResults": "Żaden kupon nie pasuje do filtrów."
+      },
+      "form": {
+        "createTitle": "Nowy kupon",
+        "editTitle": "Edytuj kupon",
+        "code": "Kod",
+        "codeHint": "Zapisywany wielkimi literami, musi być unikalny.",
+        "description": "Opis",
+        "discountType": "Typ rabatu",
+        "value": "Wartość",
+        "valuePercentHint": "Rabat procentowy, 1–100.",
+        "valueFixedHint": "Kwota rabatu w wybranej walucie.",
+        "currency": "Waluta",
+        "currencyHint": "Wymagana dla rabatu kwotowego.",
+        "minOrderAmount": "Minimalna wartość zamówienia",
+        "minOrderAmountHint": "Pozostaw puste, aby nie ustawiać minimum.",
+        "maxUses": "Maksymalna liczba użyć",
+        "maxUsesHint": "Pozostaw puste dla nieograniczonej liczby użyć.",
+        "startsAt": "Początek",
+        "endsAt": "Koniec",
+        "scheduleHint": "Opcjonalne. Koniec musi być po początku.",
+        "isActive": "Aktywny",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "errors": {
+        "codeRequired": "Kod jest wymagany.",
+        "valuePercentRange": "Procent musi mieścić się w zakresie 1–100.",
+        "valueFixedPositive": "Wartość musi być większa niż 0.",
+        "currencyRequired": "Waluta jest wymagana dla rabatu kwotowego.",
+        "endsBeforeStarts": "Data końca musi być późniejsza niż data początku."
+      },
+      "delete": {
+        "title": "Usuń kupon",
+        "confirm": "Usunąć kupon \"{code}\"? Tej operacji nie można cofnąć.",
+        "delete": "Usuń",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "created": "Kupon utworzony.",
+        "updated": "Kupon zaktualizowany.",
+        "deleted": "Kupon usunięty."
+      }
+    },
     "auditLog": {
       "title": "Dziennik zdarzeń",
       "subtitle": "Każde utworzenie, zmiana i usunięcie przez administratora w katalogu i operacjach",
