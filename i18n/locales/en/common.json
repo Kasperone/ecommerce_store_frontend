@@ -267,6 +267,84 @@
         "deleted": "Warehouse deleted."
       }
     },
+    "coupons": {
+      "title": "Coupons",
+      "subtitle": "Create and manage discount codes, conditions, and usage caps",
+      "actions": {
+        "create": "New coupon",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive",
+        "search": "Search",
+        "searchPlaceholder": "Search by code"
+      },
+      "fields": {
+        "code": "Code",
+        "usedCount": "Used",
+        "startsAt": "Starts",
+        "endsAt": "Ends",
+        "status": "Status",
+        "discount": "Discount"
+      },
+      "discountType": {
+        "percent": "Percentage",
+        "fixed": "Fixed amount"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "empty": {
+        "noCoupons": "No coupons yet.",
+        "noResults": "No coupons match your filters."
+      },
+      "form": {
+        "createTitle": "New coupon",
+        "editTitle": "Edit coupon",
+        "code": "Code",
+        "codeHint": "Stored uppercase, must be unique.",
+        "description": "Description",
+        "discountType": "Discount type",
+        "value": "Value",
+        "valuePercentHint": "Percentage off, 1–100.",
+        "valueFixedHint": "Fixed amount off in the chosen currency.",
+        "currency": "Currency",
+        "currencyHint": "Required for a fixed-amount discount.",
+        "minOrderAmount": "Minimum order amount",
+        "minOrderAmountHint": "Leave empty for no minimum.",
+        "maxUses": "Maximum uses",
+        "maxUsesHint": "Leave empty for unlimited redemptions.",
+        "startsAt": "Starts at",
+        "endsAt": "Ends at",
+        "scheduleHint": "Optional. End must be after start.",
+        "isActive": "Active",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "codeRequired": "Code is required.",
+        "valuePercentRange": "Percentage must be between 1 and 100.",
+        "valueFixedPositive": "Value must be greater than 0.",
+        "currencyRequired": "Currency is required for a fixed-amount discount.",
+        "endsBeforeStarts": "End date must be after the start date."
+      },
+      "delete": {
+        "title": "Delete coupon",
+        "confirm": "Delete coupon \"{code}\"? This cannot be undone.",
+        "delete": "Delete",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "created": "Coupon created.",
+        "updated": "Coupon updated.",
+        "deleted": "Coupon deleted."
+      }
+    },
     "auditLog": {
       "title": "Audit Log",
       "subtitle": "Every admin create, update, and delete across the catalog and operations",
