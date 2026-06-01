@@ -312,6 +312,40 @@
         "updated": "Staff member updated."
       }
     },
+    "settings": {
+      "title": "Store settings",
+      "subtitle": "Store identity and invoicing details used on invoices and emails",
+      "sections": {
+        "identity": "Store identity",
+        "invoicing": "Invoicing"
+      },
+      "fields": {
+        "storeName": "Store name",
+        "email": "Contact email",
+        "addressLine": "Address",
+        "postalCity": "Postal code & city",
+        "country": "Country",
+        "taxId": "Tax ID",
+        "invoiceVatRate": "VAT rate (%)"
+      },
+      "hints": {
+        "email": "Shown on invoices and used as the sender for store emails.",
+        "invoicing": "These details appear on customer invoices.",
+        "taxId": "VAT / company tax identifier, e.g. PL1234567890.",
+        "invoiceVatRate": "Gross-inclusive VAT rate applied to invoices, 0–100."
+      },
+      "actions": {
+        "save": "Save changes"
+      },
+      "errors": {
+        "required": "This field is required.",
+        "email": "Enter a valid email address.",
+        "vatRange": "VAT rate must be between 0 and 100."
+      },
+      "flashes": {
+        "saved": "Settings saved."
+      }
+    },
     "coupons": {
       "title": "Coupons",
       "subtitle": "Create and manage discount codes, conditions, and usage caps",
