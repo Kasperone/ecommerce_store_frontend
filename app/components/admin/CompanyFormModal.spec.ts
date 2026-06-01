@@ -37,6 +37,16 @@ mockNuxtImport('useUpdateCompany', () => () => ({
 }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 
+// The primary-contact picker queries the customers list remotely. Stub it with a
+// small fixed page so the picker has options without hitting the network.
+const customerItems = [
+  { id: 11, email: 'buyer@acme.test', company_name: 'Acme Corp' },
+  { id: 22, email: 'lead@globex.test', company_name: null },
+]
+mockNuxtImport('useCustomersQuery', () => () => ({
+  data: ref({ items: customerItems, total: customerItems.length }),
+}))
+
 beforeEach(() => {
   createMutate.mockReset().mockResolvedValue({})
   updateMutate.mockReset().mockResolvedValue({})
@@ -109,8 +119,46 @@ describe('CompanyFormModal', () => {
       phone: null,
       account_manager: null,
       notes: null,
+      primary_user_id: null,
     })
     expect(toastAdd).toHaveBeenCalled()
+  })
+
+  it('threads the picked primary contact id into the create payload', async () => {
+    const wrapper = await mountSuspended(CompanyFormModal, {
+      props: { open: true, company: null },
+    })
+    wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'Acme Corp')
+    // The single USelectMenu in the form is the primary-contact picker.
+    wrapper.findComponent({ name: 'USelectMenu' }).vm.$emit('update:modelValue', 22)
+    await tick()
+
+    clickSave()
+    await tick()
+
+    expect(createMutate.mock.calls[0]![0]).toMatchObject({ primary_user_id: 22 })
+  })
+
+  it('prefills the current primary contact email on edit and clears it', async () => {
+    await mountSuspended(CompanyFormModal, {
+      props: {
+        open: true,
+        company: { ...existing, primary_user_id: 11, primary_user_email: 'buyer@acme.test' },
+      },
+    })
+    expect(document.body.textContent).toContain('buyer@acme.test')
+
+    const clearBtn = document.querySelector(
+      '[data-testid="company-primary-contact-clear"]',
+    ) as HTMLButtonElement
+    expect(clearBtn).toBeTruthy()
+    clearBtn.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await tick()
+
+    clickSave()
+    await tick()
+
+    expect(updateMutate.mock.calls[0]![0].patch).toMatchObject({ primary_user_id: null })
   })
 
   it('rejects a blank name without calling the mutation', async () => {

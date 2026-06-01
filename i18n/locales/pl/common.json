@@ -471,7 +471,8 @@
         "taxId": "NIP",
         "email": "E-mail",
         "accountManager": "Opiekun klienta",
-        "status": "Status"
+        "status": "Status",
+        "primaryContact": "Kontakt główny"
       },
       "status": {
         "pending": "Oczekująca",
@@ -510,6 +511,14 @@
         "created": "Firma utworzona.",
         "updated": "Firma zaktualizowana.",
         "deleted": "Firma usunięta."
+      },
+      "primaryContact": {
+        "label": "Kontakt główny",
+        "hint": "Klient firmy, który będzie właścicielem zamówień utworzonych z jej ofert.",
+        "placeholder": "Brak kontaktu głównego",
+        "searchPlaceholder": "Szukaj klientów po e-mailu lub nazwisku…",
+        "clear": "Wyczyść kontakt główny",
+        "current": "Obecny: {email}"
       }
     },
     "reports": {
@@ -1567,6 +1576,15 @@
         "created": "Oferta utworzona.",
         "updated": "Oferta zaktualizowana.",
         "deleted": "Oferta usunięta."
+      },
+      "convert": {
+        "action": "Konwertuj na zamówienie",
+        "converted": "Zobacz utworzone zamówienie",
+        "confirmTitle": "Konwertować ofertę na zamówienie?",
+        "confirmBody": "Utworzy to oczekujące zamówienie dla kontaktu głównego firmy, zapisze pozycje i ceny z oferty oraz zarezerwuje stan magazynowy. Oferta pozostaje zaakceptowana i zostaje oznaczona jako skonwertowana.",
+        "confirm": "Konwertuj",
+        "dismiss": "Anuluj",
+        "flash": "Ofertę skonwertowano na zamówienie {number}."
       }
     }
   },

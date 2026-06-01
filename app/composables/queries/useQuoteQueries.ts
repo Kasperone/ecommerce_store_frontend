@@ -27,6 +27,10 @@ export type QuoteItemCreate = components['schemas']['QuoteItemCreate']
 export type QuoteItemResponse = components['schemas']['QuoteItemResponse']
 export type QuoteStatus = QuoteResponse['status']
 export type QuoteCurrency = QuoteCreate['currency']
+// Local-only (NOT re-exported): `OrderResponse` is the public auto-import from
+// `#shared/types/api`; aliasing it here without `export` keeps the convert
+// mutation's return type precise without shadowing that auto-import.
+type OrderResponse = components['schemas']['OrderResponse']
 
 const QUOTES_NAMESPACE = ['quotes'] as const
 
@@ -105,6 +109,29 @@ export function useUpdateQuote() {
         body: patch,
       }),
     onSuccess: () => queryCache.invalidateQueries({ key: [...QUOTES_NAMESPACE] }),
+  })
+}
+
+/**
+ * `POST /api/v1/admin/quotes/{id}/convert` — convert an accepted quote into a
+ * real pending order owned by the company's primary contact (201 `OrderResponse`).
+ *
+ * Eligibility is enforced server-side (the source of truth): 422 unless the quote
+ * is `accepted`, has ≥1 line, every line references a product, the company has a
+ * primary contact set, and stock is sufficient; 409 if already converted. Surface
+ * the returned `detail` verbatim. Invalidates both the `['quotes']` and `['orders']`
+ * namespaces so the converted quote + the new order refetch fresh.
+ */
+export function useConvertQuote() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: (id: number) =>
+      apiFetch<OrderResponse>(`/api/v1/admin/quotes/${id}/convert`, { method: 'POST' }),
+    onSuccess: () => {
+      void queryCache.invalidateQueries({ key: [...QUOTES_NAMESPACE] })
+      void queryCache.invalidateQueries({ key: ['orders'] })
+    },
   })
 }
 

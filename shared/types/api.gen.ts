@@ -4982,6 +4982,8 @@ export interface components {
             subtotal: number;
             /** Total */
             total: number;
+            /** Converted Order Id */
+            converted_order_id?: number | null;
             /** Items */
             items?: components["schemas"]["QuoteItemResponse"][];
         };

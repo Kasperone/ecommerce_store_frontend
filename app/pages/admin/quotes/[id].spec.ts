@@ -45,11 +45,13 @@ const quoteError = ref<unknown>(null)
 const quoteLoading = ref(false)
 const updateMutate = vi.fn().mockResolvedValue({ id: 9 })
 const deleteMutate = vi.fn().mockResolvedValue(null)
+const convertMutate = vi.fn().mockResolvedValue({ id: 42, order_number: 'ORD-42' })
 
 vi.mock('~/composables/queries/useQuoteQueries', () => ({
   useQuoteQuery: () => ({ data: quoteData, error: quoteError, isLoading: quoteLoading }),
   useUpdateQuote: () => ({ isLoading: ref(false), mutateAsync: updateMutate }),
   useDeleteQuote: () => ({ isLoading: ref(false), mutateAsync: deleteMutate }),
+  useConvertQuote: () => ({ isLoading: ref(false), mutateAsync: convertMutate }),
 }))
 
 mockNuxtImport('useRoute', () => () => ({ params: { id: '9' } }))
@@ -94,6 +96,7 @@ beforeEach(() => {
   quoteLoading.value = false
   updateMutate.mockClear()
   deleteMutate.mockClear()
+  convertMutate.mockClear().mockResolvedValue({ id: 42, order_number: 'ORD-42' })
   mockNavigate.mockClear()
 })
 
@@ -110,7 +113,9 @@ async function mountPage() {
         USelect: SelectStub,
         UInput: true,
         UTextarea: true,
-        UModal: true,
+        // PassThrough so the convert/delete confirm dialogs' footer buttons render
+        // (the component, not the modal teleport, is under test here).
+        UModal: PassThroughStub,
       },
     },
   })
@@ -146,6 +151,54 @@ describe('admin/quotes/[id] page', () => {
     // existing line set is left untouched.
     expect(arg.patch).toMatchObject({ status: 'sent', notes: 'Net 30', valid_until: '2026-12-31' })
     expect(arg.patch.items).toBeUndefined()
+  })
+
+  it('hides the Convert button when the quote is not accepted', async () => {
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="quote-convert"]').exists()).toBe(false)
+  })
+
+  it('shows the Convert button for an accepted, not-yet-converted quote', async () => {
+    quoteData.value = { ...QUOTE, status: 'accepted' }
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="quote-convert"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="quote-converted-link"]').exists()).toBe(false)
+  })
+
+  it('converts an accepted quote and navigates to the new order', async () => {
+    quoteData.value = { ...QUOTE, status: 'accepted' }
+    const wrapper = await mountPage()
+    // Open the confirm dialog, then confirm.
+    await wrapper.find('[data-testid="quote-convert"]').trigger('click')
+    await wrapper.find('[data-testid="quote-convert-confirm"]').trigger('click')
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(convertMutate).toHaveBeenCalledWith(9)
+    expect(mockNavigate).toHaveBeenCalledWith('/admin/orders/42')
+  })
+
+  it('surfaces a convert error in the dialog without navigating', async () => {
+    quoteData.value = { ...QUOTE, status: 'accepted' }
+    convertMutate.mockRejectedValueOnce({
+      data: { detail: 'set a primary contact on the company before converting' },
+    })
+    const wrapper = await mountPage()
+    await wrapper.find('[data-testid="quote-convert"]').trigger('click')
+    await wrapper.find('[data-testid="quote-convert-confirm"]').trigger('click')
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(wrapper.text()).toContain('set a primary contact on the company before converting')
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it('shows the converted-order link instead of the Convert button when converted', async () => {
+    quoteData.value = { ...QUOTE, status: 'accepted', converted_order_id: 42 }
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="quote-convert"]').exists()).toBe(false)
+    const link = wrapper.find('[data-testid="quote-converted-link"]')
+    expect(link.exists()).toBe(true)
+    await link.trigger('click')
+    expect(mockNavigate).toHaveBeenCalledWith('/admin/orders/42')
   })
 
   it('surfaces a 404 load error via ErrorAlert', async () => {

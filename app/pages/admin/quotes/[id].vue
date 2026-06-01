@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { QuoteStatus, QuoteUpdate } from '~/composables/queries/useQuoteQueries'
+import type { QuoteResponse, QuoteStatus, QuoteUpdate } from '~/composables/queries/useQuoteQueries'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
 import { QUOTE_STATUSES, quoteStatusColor } from '#shared/utils/quoteStatus'
@@ -22,6 +22,7 @@ const { data: quote, error: loadError, isLoading } = useQuoteQuery(quoteId)
 
 const updateMutation = useUpdateQuote()
 const deleteMutation = useDeleteQuote()
+const convertMutation = useConvertQuote()
 
 // Edit fields, seeded from the loaded quote.
 const statusModel = ref<QuoteStatus | undefined>()
@@ -30,6 +31,42 @@ const validUntilModel = ref('')
 const formError = ref<ProblemDetails | null>(null)
 const deleteOpen = ref(false)
 const deleteError = ref<ProblemDetails | null>(null)
+const convertOpen = ref(false)
+const convertError = ref<ProblemDetails | null>(null)
+
+// The conversion marker: once a quote is converted the backend sets
+// `converted_order_id` on it. NB the field may be absent from the response schema
+// (escalation E-QC-1) — read it behind an `in`-guard so this stays inert (always
+// null) until the backend exposes it, at which point the converted-state UI lights
+// up with no further change. The BE 409 still backstops a double-convert meanwhile.
+const convertedOrderId = computed<number | null>(() => {
+  const q = quote.value as (QuoteResponse & { converted_order_id?: number | null }) | undefined
+  if (!q || !('converted_order_id' in q)) return null
+  return q.converted_order_id ?? null
+})
+
+// Convert is offered only for an accepted, not-yet-converted quote.
+const canConvert = computed(() =>
+  quote.value?.status === 'accepted' && convertedOrderId.value === null,
+)
+
+async function onConvertConfirm() {
+  if (!quote.value) return
+  convertError.value = null
+  try {
+    const order = await convertMutation.mutateAsync(quote.value.id)
+    convertOpen.value = false
+    toast.add({
+      title: t('admin.quotes.convert.flash', { number: order.order_number }),
+      color: 'success',
+      icon: 'i-lucide-check',
+    })
+    await navigateTo(`/admin/orders/${order.id}`)
+  }
+  catch (err) {
+    convertError.value = parseProblem(err)
+  }
+}
 
 watch(quote, (q) => {
   if (!q) return
@@ -133,13 +170,34 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
               {{ quote.company_name ?? '—' }}
             </p>
           </div>
-          <UBadge
-            :color="quoteStatusColor(quote.status)"
-            variant="subtle"
-            size="lg"
-          >
-            {{ $t(`admin.quotes.status.${quote.status}`) }}
-          </UBadge>
+          <div class="flex items-center gap-3 flex-wrap">
+            <UBadge
+              :color="quoteStatusColor(quote.status)"
+              variant="subtle"
+              size="lg"
+            >
+              {{ $t(`admin.quotes.status.${quote.status}`) }}
+            </UBadge>
+            <UButton
+              v-if="canConvert"
+              color="primary"
+              icon="i-lucide-file-output"
+              data-testid="quote-convert"
+              @click="convertError = null; convertOpen = true"
+            >
+              {{ $t('admin.quotes.convert.action') }}
+            </UButton>
+            <UButton
+              v-else-if="convertedOrderId !== null"
+              color="success"
+              variant="soft"
+              icon="i-lucide-package-check"
+              data-testid="quote-converted-link"
+              @click="navigateTo(`/admin/orders/${convertedOrderId}`)"
+            >
+              {{ $t('admin.quotes.convert.converted') }}
+            </UButton>
+          </div>
         </header>
 
         <!-- Items -->
@@ -295,6 +353,42 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
               @click="onDeleteConfirm"
             >
               {{ $t('admin.quotes.delete.confirm') }}
+            </UButton>
+          </div>
+        </template>
+      </UModal>
+
+      <UModal
+        :open="convertOpen"
+        :title="$t('admin.quotes.convert.confirmTitle')"
+        :description="$t('admin.quotes.convert.confirmBody')"
+        :dismissible="!convertMutation.isLoading.value"
+        @update:open="(v) => { convertOpen = v; if (!v) convertError = null }"
+      >
+        <template #body>
+          <ErrorAlert
+            v-if="convertError"
+            :problem="convertError"
+            data-testid="quote-convert-error"
+          />
+        </template>
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              :disabled="convertMutation.isLoading.value"
+              @click="convertOpen = false"
+            >
+              {{ $t('admin.quotes.convert.dismiss') }}
+            </UButton>
+            <UButton
+              color="primary"
+              :loading="convertMutation.isLoading.value"
+              data-testid="quote-convert-confirm"
+              @click="onConvertConfirm"
+            >
+              {{ $t('admin.quotes.convert.confirm') }}
             </UButton>
           </div>
         </template>

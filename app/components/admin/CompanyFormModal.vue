@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDebounceFn } from '@vueuse/core'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import type {
   CompanyCreate,
@@ -46,6 +47,51 @@ const accountManager = ref('')
 const notes = ref('')
 const error = ref<ProblemDetails | null>(null)
 
+// Primary contact: the company's designated customer. Picking one binds its id to
+// `primary_user_id`; the converted order (QC) is owned by this real customer. The
+// picker searches the EXISTING `GET /admin/customers?search=` remotely (no new
+// lookup endpoint). Nullable — clearing it sends `primary_user_id: null`.
+const primaryUserId = ref<number | null>(null)
+// The current contact's email, shown alongside the picker even before any search
+// runs (the selected user may not be in the latest search page). Seeded from the
+// loaded company's denormalised `primary_user_email`.
+const primaryContactEmail = ref<string | null>(null)
+const contactSearch = ref('')
+const { data: customerPage } = useCustomersQuery(() => ({
+  search: contactSearch.value || undefined,
+  pageSize: 20,
+}))
+
+interface ContactOption { label: string, value: number }
+const contactOptions = computed<ContactOption[]>(() => {
+  const rows = customerPage.value?.items ?? []
+  const opts = rows.map(c => ({
+    label: c.company_name ? `${c.email} (${c.company_name})` : c.email,
+    value: c.id,
+  }))
+  // Keep the current selection addressable even when it's outside the search page
+  // (so the picker shows it as selected rather than blank).
+  if (
+    primaryUserId.value != null
+    && !opts.some(o => o.value === primaryUserId.value)
+  ) {
+    opts.unshift({
+      label: primaryContactEmail.value ?? `#${primaryUserId.value}`,
+      value: primaryUserId.value,
+    })
+  }
+  return opts
+})
+
+const onContactSearch = useDebounceFn((term: string) => {
+  contactSearch.value = term
+}, 250)
+
+function clearContact() {
+  primaryUserId.value = null
+  primaryContactEmail.value = null
+}
+
 const isEdit = computed(() => props.company !== null)
 const loading = computed(() => createCompany.isLoading.value || updateCompany.isLoading.value)
 
@@ -66,6 +112,9 @@ watch(
     status.value = c?.status ?? 'pending'
     accountManager.value = c?.account_manager ?? ''
     notes.value = c?.notes ?? ''
+    primaryUserId.value = c?.primary_user_id ?? null
+    primaryContactEmail.value = c?.primary_user_email ?? null
+    contactSearch.value = ''
   },
   // immediate so an already-open mount (and re-opens) prefill from the company prop.
   { immediate: true },
@@ -95,6 +144,7 @@ function buildCreateBody(): CompanyCreate | null {
     status: status.value,
     account_manager: trim(accountManager.value),
     notes: trim(notes.value),
+    primary_user_id: primaryUserId.value,
   }
 }
 
@@ -211,6 +261,43 @@ async function onSubmit() {
             v-model="accountManager"
             class="w-full"
           />
+        </UFormField>
+
+        <UFormField
+          :label="t('admin.companies.primaryContact.label')"
+          :help="t('admin.companies.primaryContact.hint')"
+          name="primary_user_id"
+        >
+          <div class="flex items-center gap-2">
+            <USelectMenu
+              v-model="primaryUserId"
+              :items="contactOptions"
+              value-key="value"
+              searchable
+              :placeholder="t('admin.companies.primaryContact.placeholder')"
+              :search-input="{ placeholder: t('admin.companies.primaryContact.searchPlaceholder') }"
+              class="w-full"
+              data-testid="company-primary-contact"
+              @update:search-term="onContactSearch"
+            />
+            <UButton
+              v-if="primaryUserId != null"
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              size="sm"
+              :aria-label="t('admin.companies.primaryContact.clear')"
+              data-testid="company-primary-contact-clear"
+              @click="clearContact"
+            />
+          </div>
+          <p
+            v-if="primaryContactEmail"
+            class="text-xs text-muted mt-1"
+            data-testid="company-primary-contact-current"
+          >
+            {{ t('admin.companies.primaryContact.current', { email: primaryContactEmail }) }}
+          </p>
         </UFormField>
 
         <UFormField
