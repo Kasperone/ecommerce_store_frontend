@@ -149,6 +149,21 @@ describe('useDeleteQuote', () => {
   })
 })
 
+describe('useConvertQuote', () => {
+  it('POSTs /api/v1/admin/quotes/{id}/convert and returns the order', async () => {
+    apiFetch.mockResolvedValue({ id: 42, order_number: 'ORD-1' })
+    const { useConvertQuote } = await import('./useQuoteQueries')
+
+    const result = (await runInComponent(() => useConvertQuote())) as any
+    const order = await result.mutateAsync(7)
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/quotes/7/convert')
+    expect(options.method).toBe('POST')
+    expect(order).toMatchObject({ id: 42, order_number: 'ORD-1' })
+  })
+})
+
 describe('useQuoteCompaniesQuery', () => {
   it('fetches /api/v1/admin/companies/ for the picker', async () => {
     apiFetch.mockResolvedValue({ items: [], total: 0 })

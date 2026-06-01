@@ -467,7 +467,8 @@
         "taxId": "Tax ID",
         "email": "Email",
         "accountManager": "Account manager",
-        "status": "Status"
+        "status": "Status",
+        "primaryContact": "Primary contact"
       },
       "status": {
         "pending": "Pending",
@@ -506,6 +507,14 @@
         "created": "Company created.",
         "updated": "Company updated.",
         "deleted": "Company deleted."
+      },
+      "primaryContact": {
+        "label": "Primary contact",
+        "hint": "The company customer who owns orders converted from its quotes.",
+        "placeholder": "No primary contact",
+        "searchPlaceholder": "Search customers by email or name…",
+        "clear": "Clear primary contact",
+        "current": "Current: {email}"
       }
     },
     "reports": {
@@ -1563,6 +1572,15 @@
         "created": "Quote created.",
         "updated": "Quote updated.",
         "deleted": "Quote deleted."
+      },
+      "convert": {
+        "action": "Convert to order",
+        "converted": "View converted order",
+        "confirmTitle": "Convert quote to order?",
+        "confirmBody": "This creates a pending order for the company’s primary contact, snapshots the quoted lines and prices, and reserves stock. The quote stays accepted and is marked as converted.",
+        "confirm": "Convert",
+        "dismiss": "Cancel",
+        "flash": "Quote converted to order {number}."
       }
     }
   },

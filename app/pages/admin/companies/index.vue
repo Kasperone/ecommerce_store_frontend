@@ -62,6 +62,7 @@ const columns: TableColumn<CompanyResponse>[] = [
   { accessorKey: 'tax_id', header: () => t('admin.companies.fields.taxId') },
   { accessorKey: 'email', header: () => t('admin.companies.fields.email') },
   { accessorKey: 'account_manager', header: () => t('admin.companies.fields.accountManager') },
+  { accessorKey: 'primary_user_email', header: () => t('admin.companies.fields.primaryContact') },
   { accessorKey: 'status', header: () => t('admin.companies.fields.status') },
   { id: 'actions', header: '' },
 ]
@@ -185,6 +186,9 @@ async function confirmDelete(id: number) {
         </template>
         <template #account_manager-cell="{ row }">
           <span class="text-sm text-muted">{{ row.original.account_manager || '—' }}</span>
+        </template>
+        <template #primary_user_email-cell="{ row }">
+          <span class="text-sm">{{ row.original.primary_user_email || '—' }}</span>
         </template>
         <template #status-cell="{ row }">
           <UBadge
