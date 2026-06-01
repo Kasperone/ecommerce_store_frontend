@@ -94,6 +94,8 @@ const columns: TableColumn<CampaignResponse>[] = [
   { id: 'actions', header: '' },
 ]
 
+const toast = useToast()
+
 // Create / edit modal.
 const formOpen = ref(false)
 const editing = ref<CampaignResponse | null>(null)
@@ -107,12 +109,39 @@ function openEdit(campaign: CampaignResponse) {
   formOpen.value = true
 }
 
+// Send confirmation (outward-facing — dispatches real email).
+const sendOpen = ref(false)
+const sendTarget = ref<CampaignResponse | null>(null)
+const sendError = ref<ProblemDetails | null>(null)
+const sendCampaign = useSendCampaign()
+
+function openSend(campaign: CampaignResponse) {
+  sendTarget.value = campaign
+  sendError.value = null
+  sendOpen.value = true
+}
+
+async function confirmSend(id: number) {
+  sendError.value = null
+  try {
+    await sendCampaign.mutateAsync(id)
+    toast.add({
+      title: t('admin.campaigns.flashes.sent'),
+      color: 'success',
+      icon: 'i-lucide-check',
+    })
+    sendOpen.value = false
+  }
+  catch (err) {
+    sendError.value = parseProblem(err)
+  }
+}
+
 // Delete confirmation.
 const deleteOpen = ref(false)
 const deleteTarget = ref<CampaignResponse | null>(null)
 const deleteError = ref<ProblemDetails | null>(null)
 const deleteCampaign = useDeleteCampaign()
-const toast = useToast()
 
 function openDelete(campaign: CampaignResponse) {
   deleteTarget.value = campaign
@@ -240,7 +269,25 @@ async function confirmDelete(id: number) {
           <span class="text-sm text-muted">{{ formatDate(row.original.sent_at) }}</span>
         </template>
         <template #actions-cell="{ row }">
-          <div class="flex justify-end gap-1">
+          <div class="flex justify-end items-center gap-1">
+            <UButton
+              v-if="row.original.status !== 'sent'"
+              color="primary"
+              variant="soft"
+              icon="i-lucide-send"
+              size="sm"
+              @click="openSend(row.original)"
+            >
+              {{ $t('admin.campaigns.actions.send') }}
+            </UButton>
+            <UBadge
+              v-else
+              color="success"
+              variant="subtle"
+              icon="i-lucide-check"
+            >
+              {{ $t('admin.campaigns.status.sent') }}
+            </UBadge>
             <UButton
               color="neutral"
               variant="ghost"
@@ -274,6 +321,15 @@ async function confirmDelete(id: number) {
         :open="formOpen"
         :campaign="editing"
         @update:open="(v) => (formOpen = v)"
+      />
+
+      <AdminCampaignSendConfirm
+        :open="sendOpen"
+        :campaign="sendTarget"
+        :loading="sendCampaign.isLoading.value"
+        :error="sendError"
+        @update:open="(v) => (sendOpen = v)"
+        @confirm="confirmSend"
       />
 
       <AdminCampaignDeleteConfirm

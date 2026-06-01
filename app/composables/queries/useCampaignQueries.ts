@@ -81,6 +81,24 @@ export function useUpdateCampaign() {
   })
 }
 
+/**
+ * `POST /api/v1/admin/campaigns/{id}/send` — send the campaign to its audience.
+ *
+ * OUTWARD-FACING: this dispatches real email to every resolved recipient.
+ * Only `draft` / `scheduled` campaigns may send; an already-`sent` campaign
+ * yields a 409 (surfaced to the caller). On success the campaign flips to
+ * `sent` with a `sent_at` timestamp.
+ */
+export function useSendCampaign() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: (id: number) =>
+      apiFetch<CampaignResponse>(`/api/v1/admin/campaigns/${id}/send`, { method: 'POST' }),
+    onSuccess: () => queryCache.invalidateQueries({ key: [...CAMPAIGNS_NAMESPACE] }),
+  })
+}
+
 /** `DELETE /api/v1/admin/campaigns/{id}` — remove a campaign. */
 export function useDeleteCampaign() {
   const { apiFetch } = useApi()
