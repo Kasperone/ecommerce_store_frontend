@@ -58,7 +58,8 @@
       "heading": "Podsumowanie zamówienia",
       "subtotal": "Suma częściowa",
       "shipping": "Dostawa",
-      "total": "Razem"
+      "total": "Razem",
+      "discount": "Rabat"
     },
     "success": {
       "title": "Zamówienie złożone!",
@@ -76,6 +77,13 @@
       "countryTooLong": "Kraj może mieć maksymalnie 100 znaków",
       "countryInvalid": "Wybierz kraj",
       "notesTooLong": "Uwagi mogą mieć maksymalnie 1000 znaków"
+    },
+    "coupon": {
+      "label": "Kod rabatowy",
+      "placeholder": "Kod rabatowy",
+      "apply": "Zastosuj",
+      "remove": "Usuń rabat",
+      "invalid": "Ten kod rabatowy jest nieprawidłowy."
     }
   },
   "orders": {
@@ -102,7 +110,8 @@
       "tax": "Podatek",
       "shippingCost": "Wysyłka",
       "total": "Razem",
-      "notes": "Uwagi"
+      "notes": "Uwagi",
+      "discount": "Rabat"
     },
     "status": {
       "pending": "Oczekujące",

@@ -183,6 +183,20 @@ useHead({
               <span class="text-muted">{{ t('orders.detail.subtotal') }}</span>
               <span>{{ money(order.subtotal) }}</span>
             </div>
+            <div
+              v-if="order.discount > 0"
+              class="flex justify-between py-1 text-sm text-primary"
+              data-testid="order-discount"
+            >
+              <span>
+                {{ t('orders.detail.discount') }}
+                <span
+                  v-if="order.coupon_code"
+                  class="text-muted"
+                >({{ order.coupon_code }})</span>
+              </span>
+              <span>−{{ money(order.discount) }}</span>
+            </div>
             <div class="flex justify-between py-1 text-sm">
               <span class="text-muted">{{ t('orders.detail.tax') }}</span>
               <span>{{ money(order.tax) }}</span>

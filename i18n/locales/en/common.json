@@ -994,7 +994,8 @@
         "changeStatus": "Status",
         "paymentMethod": "Payment method",
         "paymentPlaceholder": "e.g. stripe, payu",
-        "internalNotes": "Internal notes"
+        "internalNotes": "Internal notes",
+        "discount": "Discount"
       },
       "cancel": {
         "title": "Cancel order",

@@ -6,6 +6,7 @@ import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import type { ShippingInput } from '#shared/validators/checkout'
 import type { OrderResponse } from '#shared/types/api'
+import type { AppliedCoupon } from '~/components/checkout/CouponField.vue'
 
 definePageMeta({ middleware: 'user' })
 
@@ -69,6 +70,12 @@ const cartVolumeCm3 = computed(() =>
 // having to own a second `useShippingQuote` call.
 const shippingAmount = ref(0)
 
+// Applied discount code (lifted from CouponField). The field validates against
+// the live subtotal/currency and re-validates on changes, so this discount is
+// always consistent with what the backend will re-compute at order create.
+const appliedCoupon = ref<AppliedCoupon | null>(null)
+const discountAmount = computed(() => appliedCoupon.value?.discountAmount ?? 0)
+
 const summaryLines = computed(() =>
   cart.items.map((item) => {
     const picked = selectPrice(item, currency.value)
@@ -83,8 +90,13 @@ const summaryLines = computed(() =>
 
 const subtotal = computed(() => formatMoney(subtotalAmount.value, currency.value, locale.value))
 const shippingFormatted = computed(() => formatMoney(shippingAmount.value, currency.value, locale.value))
+const discountFormatted = computed(() => formatMoney(discountAmount.value, currency.value, locale.value))
 const total = computed(() =>
-  formatMoney(subtotalAmount.value + shippingAmount.value, currency.value, locale.value),
+  formatMoney(
+    subtotalAmount.value - discountAmount.value + shippingAmount.value,
+    currency.value,
+    locale.value,
+  ),
 )
 
 async function placeOrder(shipping: ShippingInput) {
@@ -103,6 +115,7 @@ async function placeOrder(shipping: ShippingInput) {
       shipping_method_id: selectedMethodId.value,
       notes: shipping.notes?.trim() || undefined,
       currency: currency.value,
+      coupon_code: appliedCoupon.value?.code,
       items: cart.items.map(item => ({ product_id: item.productId, quantity: item.quantity })),
     })
     lastOrder.value = order
@@ -193,10 +206,31 @@ async function placeOrder(shipping: ShippingInput) {
                 <span class="font-medium">{{ line.lineTotal }}</span>
               </li>
             </ul>
+            <div class="mt-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+              <CheckoutCouponField
+                v-model="appliedCoupon"
+                :subtotal="subtotalAmount"
+                :currency="currency"
+              />
+            </div>
             <div class="mt-3 space-y-1 border-t border-gray-100 pt-3 dark:border-gray-800">
               <div class="flex items-center justify-between text-sm text-muted">
                 <span>{{ t('checkout.summary.subtotal') }}</span>
                 <span>{{ subtotal }}</span>
+              </div>
+              <div
+                v-if="discountAmount > 0"
+                class="flex items-center justify-between text-sm text-primary"
+                data-testid="summary-discount"
+              >
+                <span>
+                  {{ t('checkout.summary.discount') }}
+                  <span
+                    v-if="appliedCoupon"
+                    class="text-muted"
+                  >({{ appliedCoupon.code }})</span>
+                </span>
+                <span>−{{ discountFormatted }}</span>
               </div>
               <div class="flex items-center justify-between text-sm text-muted">
                 <span>{{ t('checkout.summary.shipping') }}</span>
