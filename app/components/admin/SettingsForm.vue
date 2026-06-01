@@ -57,12 +57,16 @@ watch(
 // backend also 422s out-of-range values; those surface via <ErrorAlert>.
 const schema = computed(() =>
   z.object({
+    // store_name is the one always-present field (seeded with a default); the
+    // rest are optional — store_config is seeded blank and the backend accepts
+    // empty for every field (partial PATCH, server_default=''). Only the email
+    // *format* is validated, and only when a value is entered.
     store_name: z.string().min(1, t('admin.settings.errors.required')),
-    address_line: z.string().min(1, t('admin.settings.errors.required')),
-    postal_city: z.string().min(1, t('admin.settings.errors.required')),
-    country: z.string().min(1, t('admin.settings.errors.required')),
-    tax_id: z.string().min(1, t('admin.settings.errors.required')),
-    email: z.string().email(t('admin.settings.errors.email')),
+    address_line: z.string(),
+    postal_city: z.string(),
+    country: z.string(),
+    tax_id: z.string(),
+    email: z.string().email(t('admin.settings.errors.email')).or(z.literal('')),
     invoice_vat_rate: z
       .number({ message: t('admin.settings.errors.vatRange') })
       .min(0, t('admin.settings.errors.vatRange'))
@@ -130,7 +134,6 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
         :label="t('admin.settings.fields.email')"
         :help="t('admin.settings.hints.email')"
         name="email"
-        required
       >
         <UInput
           v-model="state.email"
@@ -143,7 +146,6 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
       <UFormField
         :label="t('admin.settings.fields.addressLine')"
         name="address_line"
-        required
       >
         <UInput
           v-model="state.address_line"
@@ -156,7 +158,6 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
         <UFormField
           :label="t('admin.settings.fields.postalCity')"
           name="postal_city"
-          required
         >
           <UInput
             v-model="state.postal_city"
@@ -168,7 +169,6 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
         <UFormField
           :label="t('admin.settings.fields.country')"
           name="country"
-          required
         >
           <UInput
             v-model="state.country"
@@ -193,7 +193,6 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
         :label="t('admin.settings.fields.taxId')"
         :help="t('admin.settings.hints.taxId')"
         name="tax_id"
-        required
         class="max-w-md"
       >
         <UInput
