@@ -1817,5 +1817,11 @@
   "authExtra": {
     "agreeTo": "By continuing, you agree to our",
     "noAccount": "Don't have an account?"
+  },
+  "home": {
+    "banners": {
+      "heroLabel": "Featured promotions",
+      "promoLabel": "Promotions"
+    }
   }
 }
