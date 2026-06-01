@@ -1406,7 +1406,8 @@
       "actions": {
         "create": "Nowa kampania",
         "edit": "Edytuj",
-        "delete": "Usuń"
+        "delete": "Usuń",
+        "send": "Wyślij"
       },
       "filters": {
         "status": "Status",
@@ -1467,7 +1468,16 @@
       "flashes": {
         "created": "Kampania utworzona.",
         "updated": "Kampania zaktualizowana.",
-        "deleted": "Kampania usunięta."
+        "deleted": "Kampania usunięta.",
+        "sent": "Kampania wysłana."
+      },
+      "send": {
+        "title": "Wyślij kampanię",
+        "confirmBody": "Wysłać kampanię „{name}\" do odbiorców z grupy {audience} teraz?",
+        "warningTitle": "To wysyła prawdziwe wiadomości e-mail",
+        "warningBody": "Każdy odbiorca z tej grupy otrzyma tę wiadomość natychmiast. Tej operacji nie można cofnąć.",
+        "send": "Wyślij teraz",
+        "cancel": "Anuluj"
       }
     },
     "quotes": {
