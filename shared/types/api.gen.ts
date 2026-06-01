@@ -1858,6 +1858,79 @@ export interface paths {
         patch: operations["update_coupon_api_v1_admin_coupons__coupon_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/staff/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Staff
+         * @description List ADMIN-role users (the staff roster), newest first, paginated.
+         *
+         *     ``search`` matches email / first name / last name (case-insensitive). The
+         *     role filter is fixed to ADMIN — this endpoint is the admin roster, not a
+         *     general user browser (use ``/admin/customers`` for that).
+         */
+        get: operations["list_staff_api_v1_admin_staff__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Staff
+         * @description Set a user's ``role`` and/or ``is_active`` (admin).
+         *
+         *     Both guards run against the **merged** target state (a PATCH may send only
+         *     one field): the acting admin can't demote/deactivate themselves, and the
+         *     last active admin can't be demoted or deactivated.
+         */
+        patch: operations["update_staff_api_v1_admin_staff__user_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Settings
+         * @description Get the current store settings (the single ``id=1`` config row).
+         */
+        get: operations["get_settings_api_v1_admin_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Settings
+         * @description Update store settings (partial). Only the fields sent are changed;
+         *     ``invoice_vat_rate`` must be 0-100 (422 otherwise). Writes an audit row.
+         */
+        patch: operations["update_settings_api_v1_admin_settings_patch"];
+        trace?: never;
+    };
     "/api/v1/admin/warehouses/": {
         parameters: {
             query?: never;
@@ -4786,6 +4859,67 @@ export interface components {
             dim_divisor?: number | null;
         };
         /**
+         * StaffListResponse
+         * @description Paginated staff list.
+         */
+        StaffListResponse: {
+            /** Items */
+            items: components["schemas"]["StaffResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * StaffResponse
+         * @description A staff (admin-or-promotable user) row as the API returns it.
+         *
+         *     ``TimestampSchema`` supplies ``id`` / ``created_at`` / ``updated_at``.
+         */
+        StaffResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Email */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            role: components["schemas"]["UserRole"];
+            /** Is Active */
+            is_active: boolean;
+            /** Is Verified */
+            is_verified: boolean;
+        };
+        /**
+         * StaffUpdate
+         * @description Request body for ``PATCH /api/v1/admin/staff/{user_id}`` (all optional).
+         *
+         *     Either field may be sent on its own. ``role`` promotes/demotes between
+         *     ``CUSTOMER`` and ``ADMIN``; ``is_active`` toggles login access. The route
+         *     enforces the self-lockout and last-active-admin guards against the merged
+         *     state.
+         */
+        StaffUpdate: {
+            role?: components["schemas"]["UserRole"] | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
          * StockAdjustRequest
          * @description Manual stock adjustment body (per warehouse).
          *
@@ -4820,6 +4954,61 @@ export interface components {
             quantity: number;
             /** Is Default */
             is_default: boolean;
+        };
+        /**
+         * StoreConfigResponse
+         * @description The store-config row as the API returns it (includes ``id`` + timestamps).
+         */
+        StoreConfigResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Store Name */
+            store_name: string;
+            /** Address Line */
+            address_line: string;
+            /** Postal City */
+            postal_city: string;
+            /** Country */
+            country: string;
+            /** Tax Id */
+            tax_id: string;
+            /** Email */
+            email: string;
+            /** Invoice Vat Rate */
+            invoice_vat_rate: number;
+        };
+        /**
+         * StoreConfigUpdate
+         * @description Request body for ``PATCH /api/v1/admin/settings`` (all fields optional).
+         *
+         *     Only the fields explicitly sent are applied. ``invoice_vat_rate`` is bounded
+         *     0-100 (mirrors the model CHECK constraint).
+         */
+        StoreConfigUpdate: {
+            /** Store Name */
+            store_name?: string | null;
+            /** Address Line */
+            address_line?: string | null;
+            /** Postal City */
+            postal_city?: string | null;
+            /** Country */
+            country?: string | null;
+            /** Tax Id */
+            tax_id?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Invoice Vat Rate */
+            invoice_vat_rate?: number | null;
         };
         /**
          * StripeCheckoutResponse
@@ -8732,6 +8921,128 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CouponResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_staff_api_v1_admin_staff__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Search email / first / last name */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_staff_api_v1_admin_staff__user_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_settings_api_v1_admin_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreConfigResponse"];
+                };
+            };
+        };
+    };
+    update_settings_api_v1_admin_settings_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreConfigUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreConfigResponse"];
                 };
             };
             /** @description Validation Error */

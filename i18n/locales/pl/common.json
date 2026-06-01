@@ -268,6 +268,51 @@
         "deleted": "Magazyn usunięty."
       }
     },
+    "staff": {
+      "title": "Personel i role",
+      "subtitle": "Zarządzaj użytkownikami administracyjnymi, ich rolą i dostępem do logowania",
+      "actions": {
+        "edit": "Edytuj rolę"
+      },
+      "filters": {
+        "search": "Szukaj",
+        "searchPlaceholder": "Imię lub e-mail"
+      },
+      "fields": {
+        "name": "Imię i nazwisko",
+        "email": "E-mail",
+        "role": "Rola",
+        "status": "Status",
+        "createdAt": "Dołączył(a)"
+      },
+      "roles": {
+        "admin": "Administrator",
+        "customer": "Klient"
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "badges": {
+        "you": "Ty",
+        "unverified": "Niezweryfikowany"
+      },
+      "empty": {
+        "noStaff": "Brak członków personelu.",
+        "noResults": "Brak personelu pasującego do wyszukiwania."
+      },
+      "dialog": {
+        "title": "Edytuj {name}",
+        "role": "Rola",
+        "active": "Aktywny",
+        "activeHint": "Nieaktywni użytkownicy nie mogą się logować.",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "updated": "Członek personelu zaktualizowany."
+      }
+    },
     "coupons": {
       "title": "Kupony",
       "subtitle": "Twórz kody rabatowe i zarządzaj nimi, warunkami i limitami użycia",
