@@ -118,6 +118,20 @@ const items = computed<NavigationMenuItem[]>(() => {
             />
           </UTooltip>
 
+          <UTooltip
+            v-if="!authStore.isAdmin"
+            :text="t('header.accountSettings')"
+          >
+            <UButton
+              color="neutral"
+              variant="ghost"
+              class="ml-2 px-2 cursor-pointer"
+              :aria-label="t('header.accountSettings')"
+              to="/account/settings"
+              icon="i-lucide-settings"
+            />
+          </UTooltip>
+
           <UTooltip :text="t('header.logout')">
             <UButton
               color="neutral"
