@@ -15,7 +15,8 @@
     "logout": "Logout",
     "search": "Search products...",
     "signUp": "Sign up",
-    "toggleLang": "Switch language"
+    "toggleLang": "Switch language",
+    "accountSettings": "Account settings"
   },
   "admin": {
     "dashboard": "Admin Dashboard",
@@ -1601,6 +1602,17 @@
       "pl": "Polish",
       "saved": "Email language updated.",
       "error": "Could not update email language."
+    },
+    "settings": {
+      "title": "Account settings",
+      "subtitle": "Manage your profile, security, addresses and preferences.",
+      "nav": {
+        "profile": "Profile",
+        "security": "Security",
+        "addresses": "Addresses",
+        "preferences": "Preferences",
+        "privacy": "Privacy"
+      }
     }
   },
   "navigation": {
