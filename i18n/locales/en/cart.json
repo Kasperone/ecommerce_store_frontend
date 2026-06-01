@@ -58,7 +58,8 @@
       "heading": "Order summary",
       "subtotal": "Subtotal",
       "shipping": "Shipping",
-      "total": "Total"
+      "total": "Total",
+      "discount": "Discount"
     },
     "success": {
       "title": "Order placed!",
@@ -76,6 +77,13 @@
       "countryTooLong": "Country must be 100 characters or fewer",
       "countryInvalid": "Select a country",
       "notesTooLong": "Notes must be 1000 characters or fewer"
+    },
+    "coupon": {
+      "label": "Discount code",
+      "placeholder": "Discount code",
+      "apply": "Apply",
+      "remove": "Remove discount",
+      "invalid": "This coupon code is not valid."
     }
   },
   "orders": {
@@ -102,7 +110,8 @@
       "tax": "Tax",
       "shippingCost": "Shipping",
       "total": "Total",
-      "notes": "Notes"
+      "notes": "Notes",
+      "discount": "Discount"
     },
     "status": {
       "pending": "Pending",
