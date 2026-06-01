@@ -88,6 +88,45 @@ describe('SettingsForm', () => {
     expect(wrapper.emitted('submit')).toBeFalsy()
   })
 
+  it('saves with blank optional identity fields (the seeded store_config state)', async () => {
+    // store_config is seeded with only store_name + invoice_vat_rate; the rest
+    // are blank and optional (the backend accepts empty). The form must NOT block
+    // save on the blank identity fields — regression for the over-strict required
+    // schema that made the seeded settings page unsaveable.
+    const seeded = {
+      ...config,
+      address_line: '',
+      postal_city: '',
+      country: '',
+      tax_id: '',
+      email: '',
+    }
+    const wrapper = await mountSuspended(SettingsForm, { props: { config: seeded } })
+    const vat = wrapper.findAllComponents({ name: 'UInputNumber' })[0]!
+    vat.vm.$emit('update:modelValue', 7)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    const submits = wrapper.emitted('submit')
+    expect(submits).toBeTruthy()
+    expect(submits![0]![0]).toMatchObject({ invoice_vat_rate: 7, email: '', postal_city: '' })
+  })
+
+  it('blocks save when an email is entered but malformed', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    // Second UInput is email (identity section, after store_name).
+    const inputs = wrapper.findAllComponents({ name: 'UInput' })
+    inputs[1]!.vm.$emit('update:modelValue', 'not-an-email')
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(wrapper.emitted('submit')).toBeFalsy()
+  })
+
   it('renders an ErrorAlert when a server error is passed (e.g. a 422)', async () => {
     const wrapper = await mountSuspended(SettingsForm, {
       props: {
