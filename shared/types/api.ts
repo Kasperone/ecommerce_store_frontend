@@ -13,9 +13,10 @@ export type CategoryResponse = components['schemas']['CategoryResponse']
 export type CategoryWithProductCount = components['schemas']['CategoryWithProductCount']
 export type CategoryCreate = components['schemas']['CategoryCreate']
 export type CategoryUpdate = components['schemas']['CategoryUpdate']
-// `CategoryTreeNode` is recursive — openapi-typescript splits it into
-// Input/Output variants. Frontend consumers read the Output one.
-export type CategoryTreeNode = components['schemas']['CategoryTreeNode-Output']
+// `CategoryTreeNode` is recursive. FastAPI 0.136+ no longer splits it into
+// Input/Output variants (input and output shapes are identical), so it is a
+// single `CategoryTreeNode` schema.
+export type CategoryTreeNode = components['schemas']['CategoryTreeNode']
 export type CategoryDeletePreview = components['schemas']['CategoryDeletePreview']
 export type CategoryHeroResponse = components['schemas']['CategoryHeroResponse']
 export type CategoryHeroAltUpdate = components['schemas']['CategoryHeroAltUpdate']

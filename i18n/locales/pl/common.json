@@ -426,6 +426,8 @@
         "minOrderAmountHint": "Pozostaw puste, aby nie ustawiać minimum.",
         "maxUses": "Maksymalna liczba użyć",
         "maxUsesHint": "Pozostaw puste dla nieograniczonej liczby użyć.",
+        "perUserLimit": "Maks. użyć na klienta",
+        "perUserLimitHint": "Pozostaw puste, aby nie ograniczać na klienta. Niezależne od łącznego limitu.",
         "startsAt": "Początek",
         "endsAt": "Koniec",
         "scheduleHint": "Opcjonalne. Koniec musi być po początku.",
