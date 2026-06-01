@@ -124,6 +124,20 @@ describe('useUpdateCampaign', () => {
   })
 })
 
+describe('useSendCampaign', () => {
+  it('POSTs /api/v1/admin/campaigns/{id}/send', async () => {
+    apiFetch.mockResolvedValue({ id: 9, name: 'Spring', status: 'sent' })
+    const { useSendCampaign } = await import('./useCampaignQueries')
+
+    const result = (await runInComponent(() => useSendCampaign())) as any
+    await result.mutateAsync(9)
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/campaigns/9/send')
+    expect(options.method).toBe('POST')
+  })
+})
+
 describe('useDeleteCampaign', () => {
   it('DELETEs /api/v1/admin/campaigns/{id}', async () => {
     apiFetch.mockResolvedValue(null)

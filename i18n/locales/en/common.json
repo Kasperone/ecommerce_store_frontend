@@ -1402,7 +1402,8 @@
       "actions": {
         "create": "New campaign",
         "edit": "Edit",
-        "delete": "Delete"
+        "delete": "Delete",
+        "send": "Send"
       },
       "filters": {
         "status": "Status",
@@ -1463,7 +1464,16 @@
       "flashes": {
         "created": "Campaign created.",
         "updated": "Campaign updated.",
-        "deleted": "Campaign deleted."
+        "deleted": "Campaign deleted.",
+        "sent": "Campaign sent."
+      },
+      "send": {
+        "title": "Send campaign",
+        "confirmBody": "Send campaign \"{name}\" to the {audience} audience now?",
+        "warningTitle": "This sends real email",
+        "warningBody": "Every recipient in the audience receives this email immediately. This action cannot be undone.",
+        "send": "Send now",
+        "cancel": "Cancel"
       }
     },
     "quotes": {
