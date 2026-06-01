@@ -93,14 +93,38 @@
       }
     },
     "pages": {
-      "companies":  { "title": "Companies (B2B)",  "placeholder": "B2B company directory, approvals, account managers will live here. Coming soon." },
-      "quotes":     { "title": "Quotes (B2B)",     "placeholder": "B2B quote requests, negotiation, conversion to order will live here. Coming soon." },
-      "coupons":    { "title": "Coupons",          "placeholder": "Discount codes, conditions, and usage caps will live here. Coming soon." },
-      "banners":    { "title": "Banners",          "placeholder": "Homepage hero and promo-block CMS will live here. Coming soon." },
-      "campaigns":  { "title": "Campaigns",        "placeholder": "Email campaign segmentation and abandoned-cart recovery will live here. Coming soon." },
-      "reports":    { "title": "Reports",          "placeholder": "Sales, VAT, inventory, and cohort reports will live here. Coming soon." },
-      "settings":   { "title": "Settings",         "placeholder": "Store info, currencies, tax / VAT, payment methods, email templates will live here. Coming soon." },
-      "staff":      { "title": "Staff & Roles",    "placeholder": "Admin user list and role management will live here. Coming soon." }
+      "companies": {
+        "title": "Companies (B2B)",
+        "placeholder": "B2B company directory, approvals, account managers will live here. Coming soon."
+      },
+      "quotes": {
+        "title": "Quotes (B2B)",
+        "placeholder": "B2B quote requests, negotiation, conversion to order will live here. Coming soon."
+      },
+      "coupons": {
+        "title": "Coupons",
+        "placeholder": "Discount codes, conditions, and usage caps will live here. Coming soon."
+      },
+      "banners": {
+        "title": "Banners",
+        "placeholder": "Homepage hero and promo-block CMS will live here. Coming soon."
+      },
+      "campaigns": {
+        "title": "Campaigns",
+        "placeholder": "Email campaign segmentation and abandoned-cart recovery will live here. Coming soon."
+      },
+      "reports": {
+        "title": "Reports",
+        "placeholder": "Sales, VAT, inventory, and cohort reports will live here. Coming soon."
+      },
+      "settings": {
+        "title": "Settings",
+        "placeholder": "Store info, currencies, tax / VAT, payment methods, email templates will live here. Coming soon."
+      },
+      "staff": {
+        "title": "Staff & Roles",
+        "placeholder": "Admin user list and role management will live here. Coming soon."
+      }
     },
     "inventory": {
       "title": "Inventory",
@@ -1296,6 +1320,79 @@
         "rateUpdated": "Shipping rate updated.",
         "rateDeleted": "Shipping rate deleted.",
         "rateDeleteError": "Couldn't delete the rate. Please try again."
+      }
+    },
+    "banners": {
+      "title": "Banners",
+      "subtitle": "Manage homepage hero slides and promo-strip banners",
+      "actions": {
+        "create": "New banner",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive",
+        "placement": "Placement",
+        "allPlacements": "All placements"
+      },
+      "fields": {
+        "title": "Banner",
+        "placement": "Placement",
+        "sortOrder": "Order",
+        "startsAt": "Starts",
+        "endsAt": "Ends",
+        "status": "Status"
+      },
+      "placement": {
+        "home_hero": "Home hero",
+        "promo_strip": "Promo strip"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "empty": {
+        "noBanners": "No banners yet.",
+        "noResults": "No banners match your filters."
+      },
+      "form": {
+        "createTitle": "New banner",
+        "editTitle": "Edit banner",
+        "title": "Title",
+        "subtitle": "Subtitle",
+        "imageUrl": "Image URL",
+        "imageUrlHint": "Full URL of the banner image.",
+        "linkUrl": "Link URL",
+        "linkUrlHint": "Optional. Where the banner links when clicked.",
+        "placement": "Placement",
+        "sortOrder": "Sort order",
+        "sortOrderHint": "Lower numbers show first.",
+        "startsAt": "Starts at",
+        "endsAt": "Ends at",
+        "scheduleHint": "Optional. End must be after start.",
+        "isActive": "Active",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "titleRequired": "Title is required.",
+        "imageUrlRequired": "Image URL is required.",
+        "placementRequired": "Placement is required.",
+        "endsBeforeStarts": "End date must be after the start date."
+      },
+      "delete": {
+        "title": "Delete banner",
+        "confirm": "Delete banner \"{title}\"? This cannot be undone.",
+        "delete": "Delete",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "created": "Banner created.",
+        "updated": "Banner updated.",
+        "deleted": "Banner deleted."
       }
     }
   },

@@ -93,15 +93,42 @@
       }
     },
     "pages": {
-      "products":   { "title": "Produkty",         "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce." },
-      "companies":  { "title": "Firmy (B2B)",      "placeholder": "Tutaj znajdzie się katalog firm B2B, akceptacja kont i opiekunowie. Wkrótce." },
-      "quotes":     { "title": "Oferty (B2B)",     "placeholder": "Tutaj znajdzie się obsługa zapytań ofertowych i konwersja w zamówienia. Wkrótce." },
-      "coupons":    { "title": "Kupony",           "placeholder": "Tutaj znajdą się kody rabatowe, warunki i limity użycia. Wkrótce." },
-      "banners":    { "title": "Banery",           "placeholder": "Tutaj znajdzie się zarządzanie banerami i blokami promocyjnymi. Wkrótce." },
-      "campaigns":  { "title": "Kampanie",         "placeholder": "Tutaj znajdzie się segmentacja kampanii i odzyskiwanie porzuconych koszyków. Wkrótce." },
-      "reports":    { "title": "Raporty",          "placeholder": "Tutaj znajdą się raporty sprzedaży, VAT, magazynu i kohort. Wkrótce." },
-      "settings":   { "title": "Ustawienia",       "placeholder": "Tutaj znajdą się dane sklepu, waluty, VAT, płatności i szablony e-maili. Wkrótce." },
-      "staff":      { "title": "Personel i role",  "placeholder": "Tutaj znajdzie się lista administratorów i zarządzanie rolami. Wkrótce." }
+      "products": {
+        "title": "Produkty",
+        "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce."
+      },
+      "companies": {
+        "title": "Firmy (B2B)",
+        "placeholder": "Tutaj znajdzie się katalog firm B2B, akceptacja kont i opiekunowie. Wkrótce."
+      },
+      "quotes": {
+        "title": "Oferty (B2B)",
+        "placeholder": "Tutaj znajdzie się obsługa zapytań ofertowych i konwersja w zamówienia. Wkrótce."
+      },
+      "coupons": {
+        "title": "Kupony",
+        "placeholder": "Tutaj znajdą się kody rabatowe, warunki i limity użycia. Wkrótce."
+      },
+      "banners": {
+        "title": "Banery",
+        "placeholder": "Tutaj znajdzie się zarządzanie banerami i blokami promocyjnymi. Wkrótce."
+      },
+      "campaigns": {
+        "title": "Kampanie",
+        "placeholder": "Tutaj znajdzie się segmentacja kampanii i odzyskiwanie porzuconych koszyków. Wkrótce."
+      },
+      "reports": {
+        "title": "Raporty",
+        "placeholder": "Tutaj znajdą się raporty sprzedaży, VAT, magazynu i kohort. Wkrótce."
+      },
+      "settings": {
+        "title": "Ustawienia",
+        "placeholder": "Tutaj znajdą się dane sklepu, waluty, VAT, płatności i szablony e-maili. Wkrótce."
+      },
+      "staff": {
+        "title": "Personel i role",
+        "placeholder": "Tutaj znajdzie się lista administratorów i zarządzanie rolami. Wkrótce."
+      }
     },
     "inventory": {
       "title": "Magazyn",
@@ -1297,6 +1324,79 @@
         "rateUpdated": "Taryfa wysyłki zaktualizowana.",
         "rateDeleted": "Taryfa wysyłki usunięta.",
         "rateDeleteError": "Nie udało się usunąć taryfy. Spróbuj ponownie."
+      }
+    },
+    "banners": {
+      "title": "Banery",
+      "subtitle": "Zarządzaj slajdami hero na stronie głównej i banerami promocyjnymi",
+      "actions": {
+        "create": "Nowy baner",
+        "edit": "Edytuj",
+        "delete": "Usuń"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne",
+        "placement": "Umiejscowienie",
+        "allPlacements": "Wszystkie umiejscowienia"
+      },
+      "fields": {
+        "title": "Baner",
+        "placement": "Umiejscowienie",
+        "sortOrder": "Kolejność",
+        "startsAt": "Od",
+        "endsAt": "Do",
+        "status": "Status"
+      },
+      "placement": {
+        "home_hero": "Hero strony głównej",
+        "promo_strip": "Pasek promocyjny"
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "empty": {
+        "noBanners": "Brak banerów.",
+        "noResults": "Żaden baner nie pasuje do filtrów."
+      },
+      "form": {
+        "createTitle": "Nowy baner",
+        "editTitle": "Edytuj baner",
+        "title": "Tytuł",
+        "subtitle": "Podtytuł",
+        "imageUrl": "URL obrazu",
+        "imageUrlHint": "Pełny adres URL obrazu banera.",
+        "linkUrl": "URL odnośnika",
+        "linkUrlHint": "Opcjonalne. Dokąd prowadzi baner po kliknięciu.",
+        "placement": "Umiejscowienie",
+        "sortOrder": "Kolejność sortowania",
+        "sortOrderHint": "Niższe liczby wyświetlają się jako pierwsze.",
+        "startsAt": "Początek",
+        "endsAt": "Koniec",
+        "scheduleHint": "Opcjonalne. Koniec musi być po początku.",
+        "isActive": "Aktywny",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "errors": {
+        "titleRequired": "Tytuł jest wymagany.",
+        "imageUrlRequired": "URL obrazu jest wymagany.",
+        "placementRequired": "Umiejscowienie jest wymagane.",
+        "endsBeforeStarts": "Data końca musi być późniejsza niż data początku."
+      },
+      "delete": {
+        "title": "Usuń baner",
+        "confirm": "Usunąć baner \"{title}\"? Tej operacji nie można cofnąć.",
+        "delete": "Usuń",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "created": "Baner utworzony.",
+        "updated": "Baner zaktualizowany.",
+        "deleted": "Baner usunięty."
       }
     }
   },
