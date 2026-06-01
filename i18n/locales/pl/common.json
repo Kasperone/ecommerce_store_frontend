@@ -15,7 +15,8 @@
     "logout": "Wyloguj",
     "search": "Szukaj produktów...",
     "signUp": "Zarejestruj się",
-    "toggleLang": "Zmień język"
+    "toggleLang": "Zmień język",
+    "accountSettings": "Ustawienia konta"
   },
   "admin": {
     "dashboard": "Panel administratora",
@@ -1605,6 +1606,17 @@
       "pl": "Polski",
       "saved": "Zaktualizowano język wiadomości e-mail.",
       "error": "Nie udało się zaktualizować języka wiadomości e-mail."
+    },
+    "settings": {
+      "title": "Ustawienia konta",
+      "subtitle": "Zarządzaj profilem, bezpieczeństwem, adresami i preferencjami.",
+      "nav": {
+        "profile": "Profil",
+        "security": "Bezpieczeństwo",
+        "addresses": "Adresy",
+        "preferences": "Preferencje",
+        "privacy": "Prywatność"
+      }
     }
   },
   "navigation": {
