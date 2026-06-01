@@ -196,6 +196,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Sessions
+         * @description List the caller's active login sessions (live ``refresh_tokens`` rows).
+         *
+         *     Only the authenticated user's sessions are returned, newest-first, and
+         *     only those that are neither revoked nor expired. The session whose ``jti``
+         *     matches the caller's refresh cookie is flagged ``current=True``; a
+         *     missing or invalid cookie means no row is current.
+         */
+        get: operations["list_sessions_api_v1_auth_sessions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke Session
+         * @description Revoke one of the caller's active sessions by id.
+         *
+         *     Owner-gated: a row that belongs to another user, an unknown id, or a row
+         *     that is already revoked/expired (i.e. not an active session) all return
+         *     404 — never 403 — so the endpoint can't be used to enumerate session ids.
+         *
+         *     Revoking the *current* session is allowed and not special-cased: the next
+         *     /refresh will fail and the client logs out. This does NOT clear the
+         *     refresh cookie (that is the client's /logout responsibility).
+         */
+        delete: operations["revoke_session_api_v1_auth_sessions__session_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/verify-email": {
         parameters: {
             query?: never;
@@ -2506,6 +2559,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Preferences
+         * @description Return the caller's own preferences (currency + locale).
+         */
+        get: operations["get_preferences_api_v1_me_preferences_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Preferences
+         * @description Partially update the caller's preferences.
+         *
+         *     Only fields present in the body change; an explicit ``preferred_currency: null``
+         *     clears the preference. Unknown currency/locale codes are rejected with 422 by the
+         *     request schema.
+         */
+        patch: operations["update_preferences_api_v1_me_preferences_patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4394,6 +4475,34 @@ export interface components {
             redirect_uri: string;
         };
         /**
+         * PreferencesResponse
+         * @description The caller's own preferences snapshot (shape shared by GET + PATCH).
+         */
+        PreferencesResponse: {
+            /** Preferred Currency */
+            preferred_currency?: ("USD" | "PLN" | "EUR") | null;
+            /**
+             * Locale
+             * @enum {string}
+             */
+            locale: "en" | "pl";
+        };
+        /**
+         * PreferencesUpdate
+         * @description Partial update of the caller's preferences.
+         *
+         *     Only fields explicitly present in the request body are applied. Distinguishing
+         *     "absent" from an explicit ``null`` matters: ``preferred_currency: null`` clears
+         *     the preference, while omitting it leaves the stored value unchanged. The route
+         *     inspects ``model_fields_set`` to tell the two apart.
+         */
+        PreferencesUpdate: {
+            /** Preferred Currency */
+            preferred_currency?: ("USD" | "PLN" | "EUR") | null;
+            /** Locale */
+            locale?: ("en" | "pl") | null;
+        };
+        /**
          * ProductCreate
          * @description Schema for creating a product
          */
@@ -5364,6 +5473,33 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
+        };
+        /**
+         * SessionResponse
+         * @description A single active login session (one ``refresh_tokens`` row).
+         *
+         *     ``current`` is True for the row whose ``jti`` matches the caller's refresh
+         *     cookie. It is computed in the route handler, not derived from the ORM model.
+         */
+        SessionResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created Ip */
+            created_ip: string | null;
+            /** User Agent */
+            user_agent: string | null;
+            /** Current */
+            current: boolean;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
         };
         /** ShippingMethodCreate */
         ShippingMethodCreate: {
@@ -6637,6 +6773,66 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GenericMessage"];
+                };
+            };
+        };
+    };
+    list_sessions_api_v1_auth_sessions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                refresh_token?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_session_api_v1_auth_sessions__session_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -11267,6 +11463,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReviewVoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_preferences_api_v1_me_preferences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreferencesResponse"];
+                };
+            };
+        };
+    };
+    update_preferences_api_v1_me_preferences_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreferencesUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreferencesResponse"];
                 };
             };
             /** @description Validation Error */
