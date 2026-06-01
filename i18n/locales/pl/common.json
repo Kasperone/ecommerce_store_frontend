@@ -1398,6 +1398,76 @@
         "updated": "Baner zaktualizowany.",
         "deleted": "Baner usunięty."
       }
+    },
+    "campaigns": {
+      "title": "Kampanie",
+      "subtitle": "Twórz kampanie e-mail i zarządzaj nimi, odbiorcami i harmonogramem",
+      "actions": {
+        "create": "Nowa kampania",
+        "edit": "Edytuj",
+        "delete": "Usuń"
+      },
+      "filters": {
+        "status": "Status",
+        "audience": "Odbiorcy",
+        "all": "Wszystkie",
+        "search": "Szukaj",
+        "searchPlaceholder": "Szukaj po nazwie"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "audience": "Odbiorcy",
+        "status": "Status",
+        "scheduledAt": "Zaplanowano",
+        "sentAt": "Wysłano"
+      },
+      "audience": {
+        "all": "Wszyscy",
+        "customers": "Klienci",
+        "b2b": "Firmy (B2B)"
+      },
+      "status": {
+        "draft": "Szkic",
+        "scheduled": "Zaplanowana",
+        "sent": "Wysłana"
+      },
+      "empty": {
+        "noCampaigns": "Brak kampanii.",
+        "noResults": "Żadna kampania nie pasuje do filtrów."
+      },
+      "form": {
+        "createTitle": "Nowa kampania",
+        "editTitle": "Edytuj kampanię",
+        "name": "Nazwa",
+        "nameHint": "Nazwa wewnętrzna, widoczna na tej liście.",
+        "subject": "Temat",
+        "subjectHint": "Temat wiadomości widoczny dla odbiorców.",
+        "audience": "Odbiorcy",
+        "status": "Status",
+        "body": "Treść",
+        "bodyHint": "Opcjonalna treść wiadomości e-mail.",
+        "scheduledAt": "Zaplanowano na",
+        "scheduledAtHint": "Wymagane, gdy status to Zaplanowana.",
+        "sentAt": "Wysłano",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "errors": {
+        "nameRequired": "Nazwa jest wymagana.",
+        "subjectRequired": "Temat jest wymagany.",
+        "scheduledAtRequired": "Data zaplanowania jest wymagana, gdy status to Zaplanowana."
+      },
+      "delete": {
+        "title": "Usuń kampanię",
+        "confirm": "Usunąć kampanię \"{name}\"? Tej operacji nie można cofnąć.",
+        "delete": "Usuń",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "created": "Kampania utworzona.",
+        "updated": "Kampania zaktualizowana.",
+        "deleted": "Kampania usunięta."
+      }
     }
   },
   "account": {
