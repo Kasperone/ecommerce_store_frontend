@@ -2797,18 +2797,12 @@ export interface components {
         };
         /** Body_upload_category_hero_api_v1_categories__category_id__hero_post */
         Body_upload_category_hero_api_v1_categories__category_id__hero_post: {
-            /**
-             * File
-             * Format: binary
-             */
+            /** File */
             file: string;
         };
         /** Body_upload_product_image_api_v1_products__product_id__images_post */
         Body_upload_product_image_api_v1_products__product_id__images_post: {
-            /**
-             * File
-             * Format: binary
-             */
+            /** File */
             file: string;
         };
         /**
@@ -3121,7 +3115,7 @@ export interface components {
          *
          *     Children are pre-sorted by ``(sort_order, id)`` from the CRUD layer.
          */
-        "CategoryTreeNode-Input": {
+        CategoryTreeNode: {
             /** Id */
             id: number;
             /**
@@ -3184,78 +3178,7 @@ export interface components {
              */
             product_count: number;
             /** Children */
-            children?: components["schemas"]["CategoryTreeNode-Input"][];
-        };
-        /**
-         * CategoryTreeNode
-         * @description Recursive tree node for ``GET /categories/tree``.
-         *
-         *     Children are pre-sorted by ``(sort_order, id)`` from the CRUD layer.
-         */
-        "CategoryTreeNode-Output": {
-            /** Id */
-            id: number;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
-            /** Hero Image Url */
-            hero_image_url?: string | null;
-            /** Hero Image Alt */
-            hero_image_alt?: string | null;
-            /** Hero Width */
-            hero_width?: number | null;
-            /** Hero Height */
-            hero_height?: number | null;
-            /** Hero Bytes */
-            hero_bytes?: number | null;
-            /** Hero Mime */
-            hero_mime?: string | null;
-            /** Name */
-            name: string;
-            /** Slug */
-            slug: string;
-            /** Description */
-            description?: string | null;
-            /**
-             * Is Active
-             * @default true
-             */
-            is_active: boolean;
-            /** Parent Id */
-            parent_id?: number | null;
-            /**
-             * Sort Order
-             * @default 0
-             */
-            sort_order: number;
-            /** Name Pl */
-            name_pl?: string | null;
-            /** Slug Pl */
-            slug_pl?: string | null;
-            /** Description Pl */
-            description_pl?: string | null;
-            /** Meta Title */
-            meta_title?: string | null;
-            /** Meta Description */
-            meta_description?: string | null;
-            /** Meta Title Pl */
-            meta_title_pl?: string | null;
-            /** Meta Description Pl */
-            meta_description_pl?: string | null;
-            /**
-             * Product Count
-             * @default 0
-             */
-            product_count: number;
-            /** Children */
-            children?: components["schemas"]["CategoryTreeNode-Output"][];
+            children?: components["schemas"]["CategoryTreeNode"][];
         };
         /**
          * CategoryUpdate
@@ -6374,6 +6297,10 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
         /**
          * WarehouseCreate
@@ -7167,7 +7094,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CategoryTreeNode-Output"][];
+                    "application/json": components["schemas"]["CategoryTreeNode"][];
                 };
             };
             /** @description Validation Error */
@@ -7429,7 +7356,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CategoryTreeNode-Output"][];
+                    "application/json": components["schemas"]["CategoryTreeNode"][];
                 };
             };
             /** @description Validation Error */
