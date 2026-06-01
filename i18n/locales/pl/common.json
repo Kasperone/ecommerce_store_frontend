@@ -425,6 +425,66 @@
         "deleted": "Kupon usunięty."
       }
     },
+    "companies": {
+      "title": "Firmy (B2B)",
+      "subtitle": "Zarządzaj katalogiem firm B2B, zatwierdzeniami i opiekunami klienta",
+      "actions": {
+        "create": "Nowa firma",
+        "edit": "Edytuj",
+        "delete": "Usuń"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "Wszystkie",
+        "search": "Szukaj",
+        "searchPlaceholder": "Szukaj po nazwie lub NIP"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "taxId": "NIP",
+        "email": "E-mail",
+        "accountManager": "Opiekun klienta",
+        "status": "Status"
+      },
+      "status": {
+        "pending": "Oczekująca",
+        "approved": "Zatwierdzona",
+        "rejected": "Odrzucona"
+      },
+      "empty": {
+        "noCompanies": "Brak firm.",
+        "noResults": "Żadna firma nie pasuje do filtrów."
+      },
+      "form": {
+        "createTitle": "Nowa firma",
+        "editTitle": "Edytuj firmę",
+        "name": "Nazwa",
+        "taxId": "NIP",
+        "taxIdHint": "Numer identyfikacji podatkowej (NIP / VAT).",
+        "email": "E-mail",
+        "phone": "Telefon",
+        "status": "Status",
+        "accountManager": "Opiekun klienta",
+        "accountManagerHint": "Wewnętrzny opiekun tego konta.",
+        "notes": "Notatki",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "errors": {
+        "nameRequired": "Nazwa jest wymagana."
+      },
+      "delete": {
+        "title": "Usuń firmę",
+        "confirm": "Usunąć firmę \"{name}\"? Tej operacji nie można cofnąć.",
+        "delete": "Usuń",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "created": "Firma utworzona.",
+        "updated": "Firma zaktualizowana.",
+        "deleted": "Firma usunięta."
+      }
+    },
     "reports": {
       "title": "Raporty",
       "subtitle": "Sprzedaż, najlepsze produkty, przychód wg kategorii i zwroty w zakresie dat",
