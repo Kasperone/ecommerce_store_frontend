@@ -1,0 +1,106 @@
+// @vitest-environment nuxt
+import { beforeEach, describe, expect, it } from 'vitest'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { axe } from 'vitest-axe'
+import SettingsForm from './SettingsForm.vue'
+
+/**
+ * The settings form is a single-record edit form: it prefills from the loaded
+ * `config` prop, and on Save emits the edited body for the parent page to PATCH.
+ * The query/mutation URL+verb mapping is pinned in `useSettingsQueries.spec.ts`;
+ * here we assert prefill, the emitted patch, client-side VAT validation, and
+ * that a server error (e.g. a 422) surfaces via <ErrorAlert>.
+ *
+ * The form renders inline (not teleported), so we query through the wrapper's
+ * own element, not `document` — `mountSuspended` mounts to a detached container.
+ */
+
+const AXE_OPTIONS = {
+  rules: {
+    'aria-hidden-focus': { enabled: false },
+    'label': { enabled: false },
+    // UInputNumber renders a button-wrapped visually-hidden input → axe flags
+    // nested-interactive; library rendering artifact, same posture as elsewhere.
+    'nested-interactive': { enabled: false },
+    // This is a bare form fragment in the test, not a full page — the page
+    // shell provides the <main> landmark. Skip the page-level region rule.
+    'region': { enabled: false },
+  },
+}
+
+const config = {
+  id: 1,
+  store_name: 'Acme Store',
+  address_line: '1 Market St',
+  postal_city: '00-001 Warsaw',
+  country: 'Poland',
+  tax_id: 'PL1234567890',
+  email: 'shop@acme.test',
+  invoice_vat_rate: 23,
+  created_at: '2026-05-28T00:00:00Z',
+  updated_at: '2026-05-28T00:00:00Z',
+}
+
+beforeEach(() => {
+  document.body.innerHTML = ''
+})
+
+describe('SettingsForm', () => {
+  it('prefills the inputs from the loaded config', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
+    expect(values).toContain('Acme Store')
+    expect(values).toContain('shop@acme.test')
+    expect(values).toContain('PL1234567890')
+    expect(values).toContain('Poland')
+    expect(values).toContain('23')
+  })
+
+  it('emits the edited body on save', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    const inputs = wrapper.findAllComponents({ name: 'UInput' })
+    // First UInput is store_name (identity section, top field).
+    inputs[0]!.vm.$emit('update:modelValue', 'Acme Renamed')
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    const submits = wrapper.emitted('submit')
+    expect(submits).toBeTruthy()
+    expect(submits![0]![0]).toMatchObject({
+      store_name: 'Acme Renamed',
+      email: 'shop@acme.test',
+      tax_id: 'PL1234567890',
+      invoice_vat_rate: 23,
+    })
+  })
+
+  it('blocks save and does not emit when the VAT rate is out of range', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    const vat = wrapper.findAllComponents({ name: 'UInputNumber' })[0]!
+    vat.vm.$emit('update:modelValue', 150)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(wrapper.emitted('submit')).toBeFalsy()
+  })
+
+  it('renders an ErrorAlert when a server error is passed (e.g. a 422)', async () => {
+    const wrapper = await mountSuspended(SettingsForm, {
+      props: {
+        config,
+        error: { title: 'invoice_vat_rate must be between 0 and 100', status: 422 },
+      },
+    })
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('invoice_vat_rate must be between 0 and 100')
+  })
+
+  it('is axe-clean', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    expect(await axe(wrapper.element, AXE_OPTIONS)).toHaveNoViolations()
+  })
+})

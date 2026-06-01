@@ -313,6 +313,40 @@
         "updated": "Członek personelu zaktualizowany."
       }
     },
+    "settings": {
+      "title": "Ustawienia sklepu",
+      "subtitle": "Dane sklepu i dane do faktur używane na fakturach i w e-mailach",
+      "sections": {
+        "identity": "Dane sklepu",
+        "invoicing": "Fakturowanie"
+      },
+      "fields": {
+        "storeName": "Nazwa sklepu",
+        "email": "E-mail kontaktowy",
+        "addressLine": "Adres",
+        "postalCity": "Kod pocztowy i miasto",
+        "country": "Kraj",
+        "taxId": "NIP",
+        "invoiceVatRate": "Stawka VAT (%)"
+      },
+      "hints": {
+        "email": "Widoczny na fakturach i używany jako nadawca e-maili sklepu.",
+        "invoicing": "Te dane pojawiają się na fakturach klientów.",
+        "taxId": "Identyfikator podatkowy VAT / NIP, np. PL1234567890.",
+        "invoiceVatRate": "Stawka VAT (brutto) stosowana na fakturach, 0–100."
+      },
+      "actions": {
+        "save": "Zapisz zmiany"
+      },
+      "errors": {
+        "required": "To pole jest wymagane.",
+        "email": "Podaj prawidłowy adres e-mail.",
+        "vatRange": "Stawka VAT musi mieścić się w zakresie 0–100."
+      },
+      "flashes": {
+        "saved": "Ustawienia zapisane."
+      }
+    },
     "coupons": {
       "title": "Kupony",
       "subtitle": "Twórz kody rabatowe i zarządzaj nimi, warunkami i limitami użycia",
