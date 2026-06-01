@@ -1612,6 +1612,24 @@
         "addresses": "Addresses",
         "preferences": "Preferences",
         "privacy": "Privacy"
+      },
+      "profile": {
+        "title": "Profile",
+        "subtitle": "Update your name and contact details.",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "phone": "Phone",
+        "phoneHint": "Optional. Used for delivery questions about your orders.",
+        "email": "Email",
+        "emailHint": "Your email cannot be changed here.",
+        "save": "Save changes",
+        "saved": "Profile updated.",
+        "error": "Could not update your profile.",
+        "errors": {
+          "firstNameRequired": "First name is required",
+          "lastNameRequired": "Last name is required",
+          "phoneInvalid": "Enter a valid phone number"
+        }
       }
     }
   },
