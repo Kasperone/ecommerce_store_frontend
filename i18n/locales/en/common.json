@@ -267,6 +267,51 @@
         "deleted": "Warehouse deleted."
       }
     },
+    "staff": {
+      "title": "Staff & Roles",
+      "subtitle": "Manage admin users, their role, and login access",
+      "actions": {
+        "edit": "Edit role"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Name or email"
+      },
+      "fields": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "createdAt": "Joined"
+      },
+      "roles": {
+        "admin": "Admin",
+        "customer": "Customer"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "badges": {
+        "you": "You",
+        "unverified": "Unverified"
+      },
+      "empty": {
+        "noStaff": "No staff members yet.",
+        "noResults": "No staff match your search."
+      },
+      "dialog": {
+        "title": "Edit {name}",
+        "role": "Role",
+        "active": "Active",
+        "activeHint": "Inactive users cannot log in.",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "updated": "Staff member updated."
+      }
+    },
     "coupons": {
       "title": "Coupons",
       "subtitle": "Create and manage discount codes, conditions, and usage caps",
