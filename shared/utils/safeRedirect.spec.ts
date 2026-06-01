@@ -54,6 +54,33 @@ describe('safeRedirect — rejected shapes return fallback', () => {
       expect(safeRedirect(input, FALLBACK)).toBe(FALLBACK)
     },
   )
+
+  it.each(['/\\evil.example', '/\\/evil.example', '\\\\evil.example'])(
+    'backslash that browsers normalize to // (%s) → fallback',
+    (input) => {
+      expect(safeRedirect(input, FALLBACK)).toBe(FALLBACK)
+    },
+  )
+
+  it.each([
+    ['percent-encoded backslash', '/%5Cevil.example'],
+    ['percent-encoded tab', '/%09/evil.example'],
+  ])('percent-encoded bypass (%s) → fallback', (_label, input) => {
+    expect(safeRedirect(input, FALLBACK)).toBe(FALLBACK)
+  })
+
+  it.each([
+    ['literal tab in scheme', '/foo\tbar'],
+    ['literal newline', '/foo\nbar'],
+    ['literal CR', '/foo\rbar'],
+    ['tab-split javascript scheme', 'java\tscript:alert(1)'],
+  ])('control character (%s) → fallback', (_label, input) => {
+    expect(safeRedirect(input, FALLBACK)).toBe(FALLBACK)
+  })
+
+  it('malformed percent-encoding → fallback', () => {
+    expect(safeRedirect('/%E0%A4%A', FALLBACK)).toBe(FALLBACK)
+  })
 })
 
 describe('safeRedirect — accepted shapes return target verbatim', () => {

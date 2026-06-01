@@ -49,6 +49,7 @@ const value = ref<number | null>(null)
 const currency = ref<CouponCurrency | null>(null)
 const minOrderAmount = ref<number | null>(null)
 const maxUses = ref<number | null>(null)
+const perUserLimit = ref<number | null>(null)
 const startsAt = ref('')
 const endsAt = ref('')
 const isActive = ref(true)
@@ -99,6 +100,7 @@ watch(
     currency.value = c?.currency ?? null
     minOrderAmount.value = c?.min_order_amount ?? null
     maxUses.value = c?.max_uses ?? null
+    perUserLimit.value = c?.per_user_limit ?? null
     startsAt.value = toLocalInput(c?.starts_at)
     endsAt.value = toLocalInput(c?.ends_at)
     isActive.value = c?.is_active ?? true
@@ -152,6 +154,7 @@ function buildCreateBody(): CouponCreate | null {
     currency: isPercent.value ? null : currency.value,
     min_order_amount: minOrderAmount.value,
     max_uses: maxUses.value,
+    per_user_limit: perUserLimit.value,
     starts_at: startsIso,
     ends_at: endsIso,
     is_active: isActive.value,
@@ -289,6 +292,19 @@ async function onSubmit() {
           >
             <UInputNumber
               v-model="maxUses"
+              :min="1"
+              :step="1"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField
+            :label="t('admin.coupons.form.perUserLimit')"
+            :help="t('admin.coupons.form.perUserLimitHint')"
+            name="per_user_limit"
+          >
+            <UInputNumber
+              v-model="perUserLimit"
               :min="1"
               :step="1"
               class="w-full"
