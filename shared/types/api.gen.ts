@@ -872,6 +872,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/banners/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Active Banners
+         * @description List active, in-window banners for the storefront (public, no auth).
+         */
+        get: operations["list_active_banners_api_v1_banners__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/payu/orders/{order_id}": {
         parameters: {
             query?: never;
@@ -1937,6 +1957,37 @@ export interface paths {
         patch: operations["update_campaign_api_v1_admin_campaigns__campaign_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/campaigns/{campaign_id}/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send Campaign
+         * @description Send a campaign to its resolved audience, then mark it ``sent``.
+         *
+         *     Only ``draft`` / ``scheduled`` campaigns may send (409 if already ``sent``).
+         *     The audience (``all`` / ``customers`` / ``b2b``) is resolved to recipient
+         *     emails, then each is mailed **best-effort** inside a per-recipient
+         *     try/except — one bad address never aborts the run (mirrors the order-email
+         *     best-effort posture); failures are logged. On completion the campaign flips
+         *     to ``sent`` with ``sent_at`` stamped, alongside an audit row, in one
+         *     transaction.
+         *
+         *     OUTWARD-FACING: this dispatches real email via Resend. Tests mock
+         *     ``app.core.email.send_email`` — no live sends in pytest.
+         */
+        post: operations["send_campaign_api_v1_admin_campaigns__campaign_id__send_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/companies/": {
         parameters: {
             query?: never;
@@ -1953,7 +2004,8 @@ export interface paths {
         /**
          * Create Company
          * @description Create a company. ``status`` defaults to ``pending`` (an unknown status 422s,
-         *     enforced by the schema).
+         *     enforced by the schema). A supplied ``primary_user_id`` must reference an existing
+         *     user (422 otherwise).
          */
         post: operations["create_company_api_v1_admin_companies__post"];
         delete?: never;
@@ -2105,6 +2157,39 @@ export interface paths {
          *     recomputed; omit ``items`` to leave the lines untouched.
          */
         patch: operations["update_quote_api_v1_admin_quotes__quote_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/quotes/{quote_id}/convert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convert Quote
+         * @description Convert an **accepted** quote into a pending order.
+         *
+         *     The order is owned by the company's **primary contact customer**
+         *     (``company.primary_user_id``) — the real customer, so emails / order history /
+         *     invoices are correct — NOT the converting admin (the admin is only the audit
+         *     actor). Line items snapshot the live product name/sku and honour the **quoted**
+         *     unit price + quantity (no re-pricing); stock is decremented from the default
+         *     warehouse like a normal order; ``shipping``/``discount``/``tax`` are 0 and no
+         *     shipping method is set (the admin sets one later).
+         *
+         *     Eligibility (else error): quote not found → 404; ``status != 'accepted'`` →
+         *     422; already converted → 409; no items → 422; any free-text line (no
+         *     ``product_id``) → 422; company has no primary contact → 422; insufficient
+         *     stock on any line (no backorder) → 422.
+         */
+        post: operations["convert_quote_api_v1_admin_quotes__quote_id__convert_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/staff/": {
@@ -2585,6 +2670,33 @@ export interface components {
             page_size: number;
             /** Pages */
             pages: number;
+        };
+        /**
+         * BannerPublic
+         * @description Slim banner shape for the public storefront read endpoint.
+         *
+         *     Exposes only what a customer-facing renderer needs — no audit timestamps,
+         *     no display-window bounds, and no ``is_active`` (the public endpoint only
+         *     ever returns active, in-window banners, so the flag carries no signal).
+         */
+        BannerPublic: {
+            /** Id */
+            id: number;
+            /** Title */
+            title: string;
+            /** Subtitle */
+            subtitle?: string | null;
+            /** Image Url */
+            image_url: string;
+            /** Link Url */
+            link_url?: string | null;
+            /**
+             * Placement
+             * @enum {string}
+             */
+            placement: "home_hero" | "promo_strip";
+            /** Sort Order */
+            sort_order: number;
         };
         /**
          * BannerResponse
@@ -3270,6 +3382,8 @@ export interface components {
             account_manager?: string | null;
             /** Notes */
             notes?: string | null;
+            /** Primary User Id */
+            primary_user_id?: number | null;
         };
         /**
          * CompanyListResponse
@@ -3293,6 +3407,8 @@ export interface components {
          *
          *     Includes at least ``{ id, name, status }`` (id + timestamps come from
          *     ``TimestampSchema``) — the stable contract the quotes vertical FKs against.
+         *     ``primary_user_email`` is a read-only denormalised display value (the
+         *     designated contact's email, or ``null`` when none is set).
          */
         CompanyResponse: {
             /** Id */
@@ -3325,6 +3441,10 @@ export interface components {
             account_manager?: string | null;
             /** Notes */
             notes?: string | null;
+            /** Primary User Id */
+            primary_user_id?: number | null;
+            /** Primary User Email */
+            primary_user_email?: string | null;
         };
         /**
          * CompanyUpdate
@@ -3348,6 +3468,8 @@ export interface components {
             account_manager?: string | null;
             /** Notes */
             notes?: string | null;
+            /** Primary User Id */
+            primary_user_id?: number | null;
         };
         /**
          * CorrectiveInvoiceResponse
@@ -7759,6 +7881,38 @@ export interface operations {
             };
         };
     };
+    list_active_banners_api_v1_banners__get: {
+        parameters: {
+            query?: {
+                /** @description Optional placement filter; omit for all placements. */
+                placement?: ("home_hero" | "promo_strip") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BannerPublic"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     create_payu_checkout_api_v1_payments_payu_orders__order_id__post: {
         parameters: {
             query?: never;
@@ -9959,6 +10113,37 @@ export interface operations {
             };
         };
     };
+    send_campaign_api_v1_admin_campaigns__campaign_id__send_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaign_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_companies_api_v1_admin_companies__get: {
         parameters: {
             query?: {
@@ -10438,6 +10623,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QuoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    convert_quote_api_v1_admin_quotes__quote_id__convert_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
                 };
             };
             /** @description Validation Error */
