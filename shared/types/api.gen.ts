@@ -847,6 +847,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/coupons/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate Coupon
+         * @description Preview a coupon's discount against the posted subtotal + currency.
+         *
+         *     200 with the computed discount when eligible; 400 with the failure reason
+         *     (expired / inactive / min-order-not-met / currency-mismatch / usage-exhausted
+         *     / not-found) otherwise. No state is mutated — ``used_count`` is bumped only at
+         *     order create.
+         */
+        post: operations["validate_coupon_api_v1_coupons_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/payu/orders/{order_id}": {
         parameters: {
             query?: never;
@@ -3482,6 +3507,49 @@ export interface components {
             is_active?: boolean | null;
         };
         /**
+         * CouponValidateRequest
+         * @description Request body for ``POST /api/v1/coupons/validate`` (checkout preview).
+         *
+         *     ``subtotal`` is the storefront's current goods total in ``currency``; the
+         *     discount is always computed against the subtotal (never shipping). The code is
+         *     uppercased so the lookup matches the canonical stored value regardless of how
+         *     the customer typed it.
+         */
+        CouponValidateRequest: {
+            /** Code */
+            code: string;
+            /** Subtotal */
+            subtotal: number;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+        };
+        /**
+         * CouponValidateResponse
+         * @description Preview of a valid coupon's effect on the posted subtotal.
+         *
+         *     Advisory only — the order-create path re-validates and re-computes against the
+         *     server-side subtotal, so a stale preview can never let an invalid code through.
+         */
+        CouponValidateResponse: {
+            /** Code */
+            code: string;
+            /**
+             * Discount Type
+             * @enum {string}
+             */
+            discount_type: "percent" | "fixed";
+            /** Discount Amount */
+            discount_amount: number;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+        };
+        /**
          * CustomerAdminUpdate
          * @description Admin PATCH body — toggle verification / active state.
          */
@@ -3986,6 +4054,8 @@ export interface components {
             currency: string;
             /** Shipping Method Id */
             shipping_method_id: number;
+            /** Coupon Code */
+            coupon_code?: string | null;
         };
         /**
          * OrderItemCreate
@@ -4051,6 +4121,11 @@ export interface components {
             status: components["schemas"]["OrderStatus"];
             /** Subtotal */
             subtotal: number;
+            /**
+             * Discount
+             * @default 0
+             */
+            discount: number;
             /** Total */
             total: number;
             /** Currency */
@@ -4114,6 +4189,13 @@ export interface components {
             tax: number;
             /** Shipping */
             shipping: number;
+            /**
+             * Discount
+             * @default 0
+             */
+            discount: number;
+            /** Coupon Code */
+            coupon_code?: string | null;
             /** Total */
             total: number;
             /** Currency */
@@ -4195,6 +4277,13 @@ export interface components {
             tax: number;
             /** Shipping */
             shipping: number;
+            /**
+             * Discount
+             * @default 0
+             */
+            discount: number;
+            /** Coupon Code */
+            coupon_code?: string | null;
             /** Total */
             total: number;
             /** Currency */
@@ -7624,6 +7713,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RefundResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validate_coupon_api_v1_coupons_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponValidateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponValidateResponse"];
                 };
             };
             /** @description Validation Error */

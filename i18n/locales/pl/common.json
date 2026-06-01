@@ -998,7 +998,8 @@
         "changeStatus": "Status",
         "paymentMethod": "Metoda płatności",
         "paymentPlaceholder": "np. stripe, payu",
-        "internalNotes": "Notatki wewnętrzne"
+        "internalNotes": "Notatki wewnętrzne",
+        "discount": "Rabat"
       },
       "cancel": {
         "title": "Anuluj zamówienie",

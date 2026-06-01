@@ -254,6 +254,20 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
                 </dt>
                 <dd>{{ formatMoney(order.subtotal, order.currency) }}</dd>
               </div>
+              <div
+                v-if="order.discount > 0"
+                class="flex justify-between text-primary"
+                data-testid="admin-order-discount"
+              >
+                <dt>
+                  {{ $t('admin.orders.detail.discount') }}
+                  <span
+                    v-if="order.coupon_code"
+                    class="text-muted"
+                  >({{ order.coupon_code }})</span>
+                </dt>
+                <dd>−{{ formatMoney(order.discount, order.currency) }}</dd>
+              </div>
               <div class="flex justify-between">
                 <dt class="text-muted">
                   {{ $t('admin.orders.detail.tax') }}
