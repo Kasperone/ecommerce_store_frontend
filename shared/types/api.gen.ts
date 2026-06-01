@@ -1804,6 +1804,168 @@ export interface paths {
         patch: operations["update_tag_api_v1_admin_tags__tag_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/banners/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Banners
+         * @description List banners (by sort_order then newest), filterable by active status and placement.
+         */
+        get: operations["list_banners_api_v1_admin_banners__get"];
+        put?: never;
+        /**
+         * Create Banner
+         * @description Create a banner.
+         */
+        post: operations["create_banner_api_v1_admin_banners__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/banners/{banner_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Banner
+         * @description Get one banner by id.
+         */
+        get: operations["get_banner_api_v1_admin_banners__banner_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Banner
+         * @description Delete a banner.
+         */
+        delete: operations["delete_banner_api_v1_admin_banners__banner_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Banner
+         * @description Update a banner. The date window is re-validated against the merged state
+         *     (422 on conflict) — a PATCH may set one half of the starts/ends pair.
+         */
+        patch: operations["update_banner_api_v1_admin_banners__banner_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/campaigns/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Campaigns
+         * @description List campaigns (newest first), filterable by status, audience, and name substring.
+         */
+        get: operations["list_campaigns_api_v1_admin_campaigns__get"];
+        put?: never;
+        /**
+         * Create Campaign
+         * @description Create a campaign. ``status`` defaults to ``draft``; a ``scheduled`` status
+         *     requires ``scheduled_at`` (422 otherwise, enforced by the schema).
+         */
+        post: operations["create_campaign_api_v1_admin_campaigns__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/campaigns/{campaign_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Campaign
+         * @description Get one campaign by id.
+         */
+        get: operations["get_campaign_api_v1_admin_campaigns__campaign_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Campaign
+         * @description Delete a campaign.
+         */
+        delete: operations["delete_campaign_api_v1_admin_campaigns__campaign_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Campaign
+         * @description Update a campaign. The ``scheduled``-requires-``scheduled_at`` rule is
+         *     re-validated against the merged state (422 on conflict), because a PATCH may
+         *     flip the status or clear the schedule without resending the other field.
+         */
+        patch: operations["update_campaign_api_v1_admin_campaigns__campaign_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/companies/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Companies
+         * @description List companies (newest first), filterable by status and a name/tax-id substring.
+         */
+        get: operations["list_companies_api_v1_admin_companies__get"];
+        put?: never;
+        /**
+         * Create Company
+         * @description Create a company. ``status`` defaults to ``pending`` (an unknown status 422s,
+         *     enforced by the schema).
+         */
+        post: operations["create_company_api_v1_admin_companies__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/companies/{company_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Company
+         * @description Get one company by id.
+         */
+        get: operations["get_company_api_v1_admin_companies__company_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Company
+         * @description Delete a company.
+         */
+        delete: operations["delete_company_api_v1_admin_companies__company_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Company
+         * @description Update a company (partial). Only fields sent are applied; ``status`` stays
+         *     constrained to the allowed set (422 on an unknown value, enforced by the schema).
+         */
+        patch: operations["update_company_api_v1_admin_companies__company_id__patch"];
+        trace?: never;
+    };
     "/api/v1/admin/coupons/": {
         parameters: {
             query?: never;
@@ -1856,6 +2018,68 @@ export interface paths {
          *     state (422 on conflict).
          */
         patch: operations["update_coupon_api_v1_admin_coupons__coupon_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/quotes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Quotes
+         * @description List quotes (newest first), filterable by status and company.
+         *
+         *     Rows carry the company name + totals (no line items — fetch a single quote
+         *     for those).
+         */
+        get: operations["list_quotes_api_v1_admin_quotes__get"];
+        put?: never;
+        /**
+         * Create Quote
+         * @description Create a quote with its line items.
+         *
+         *     The server computes each ``line_total`` + the ``subtotal`` / ``total``.
+         *     404s if ``company_id`` does not exist; 422 if ``items`` is empty (enforced by
+         *     the schema). Status defaults to ``draft``.
+         */
+        post: operations["create_quote_api_v1_admin_quotes__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/quotes/{quote_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Quote
+         * @description Get one quote by id, with its nested line items.
+         */
+        get: operations["get_quote_api_v1_admin_quotes__quote_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Quote
+         * @description Delete a quote (its line items cascade).
+         */
+        delete: operations["delete_quote_api_v1_admin_quotes__quote_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Quote
+         * @description Update a quote (partial). Only fields sent are applied; ``status`` /
+         *     ``currency`` stay constrained to the allowed sets (422 on an unknown value).
+         *     If ``items`` is provided, the whole line set is replaced and totals
+         *     recomputed; omit ``items`` to leave the lines untouched.
+         */
+        patch: operations["update_quote_api_v1_admin_quotes__quote_id__patch"];
         trace?: never;
     };
     "/api/v1/admin/staff/": {
@@ -2288,6 +2512,128 @@ export interface components {
             /** Pages */
             pages: number;
         };
+        /**
+         * BannerCreate
+         * @description Request body for ``POST /api/v1/admin/banners``.
+         */
+        BannerCreate: {
+            /** Title */
+            title: string;
+            /** Subtitle */
+            subtitle?: string | null;
+            /** Image Url */
+            image_url: string;
+            /** Link Url */
+            link_url?: string | null;
+            /**
+             * Placement
+             * @enum {string}
+             */
+            placement: "home_hero" | "promo_strip";
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /**
+         * BannerListResponse
+         * @description Paginated banner list.
+         */
+        BannerListResponse: {
+            /** Items */
+            items: components["schemas"]["BannerResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * BannerResponse
+         * @description A banner row as the API returns it.
+         */
+        BannerResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Title */
+            title: string;
+            /** Subtitle */
+            subtitle?: string | null;
+            /** Image Url */
+            image_url: string;
+            /** Link Url */
+            link_url?: string | null;
+            /**
+             * Placement
+             * @enum {string}
+             */
+            placement: "home_hero" | "promo_strip";
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /**
+         * BannerUpdate
+         * @description Request body for ``PATCH /api/v1/admin/banners/{id}`` (all fields optional).
+         *
+         *     The date-window rule (``ends_at`` > ``starts_at``) is re-validated in the
+         *     route against the **merged** state, because a PATCH may set only one half of
+         *     the pair (e.g. send ``ends_at`` without resending ``starts_at``).
+         */
+        BannerUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Subtitle */
+            subtitle?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /** Link Url */
+            link_url?: string | null;
+            /** Placement */
+            placement?: ("home_hero" | "promo_strip") | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
         /** Body_login_api_v1_auth_login_post */
         Body_login_api_v1_auth_login_post: {
             /** Grant Type */
@@ -2351,6 +2697,110 @@ export interface components {
         BulkReorderRequest: {
             /** Items */
             items: components["schemas"]["BulkReorderItem"][];
+        };
+        /**
+         * CampaignCreate
+         * @description Request body for ``POST /api/v1/admin/campaigns``.
+         */
+        CampaignCreate: {
+            /** Name */
+            name: string;
+            /** Subject */
+            subject: string;
+            /**
+             * Audience
+             * @enum {string}
+             */
+            audience: "all" | "customers" | "b2b";
+            /**
+             * Status
+             * @default draft
+             * @enum {string}
+             */
+            status: "draft" | "scheduled" | "sent";
+            /** Body */
+            body?: string | null;
+            /** Scheduled At */
+            scheduled_at?: string | null;
+        };
+        /**
+         * CampaignListResponse
+         * @description Paginated campaign list.
+         */
+        CampaignListResponse: {
+            /** Items */
+            items: components["schemas"]["CampaignResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * CampaignResponse
+         * @description A campaign row as the API returns it.
+         */
+        CampaignResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Subject */
+            subject: string;
+            /**
+             * Audience
+             * @enum {string}
+             */
+            audience: "all" | "customers" | "b2b";
+            /**
+             * Status
+             * @default draft
+             * @enum {string}
+             */
+            status: "draft" | "scheduled" | "sent";
+            /** Body */
+            body?: string | null;
+            /** Scheduled At */
+            scheduled_at?: string | null;
+            /** Sent At */
+            sent_at?: string | null;
+        };
+        /**
+         * CampaignUpdate
+         * @description Request body for ``PATCH /api/v1/admin/campaigns/{id}`` (all fields optional).
+         *
+         *     The ``scheduled``-requires-``scheduled_at`` rule is re-validated in the route
+         *     against the **merged** state, because a PATCH may set ``status=scheduled``
+         *     without resending ``scheduled_at`` (or clear ``scheduled_at`` on an
+         *     already-scheduled campaign). ``sent_at`` is intentionally absent — it's
+         *     managed by the future send layer, not the admin form.
+         */
+        CampaignUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Subject */
+            subject?: string | null;
+            /** Audience */
+            audience?: ("all" | "customers" | "b2b") | null;
+            /** Status */
+            status?: ("draft" | "scheduled" | "sent") | null;
+            /** Body */
+            body?: string | null;
+            /** Scheduled At */
+            scheduled_at?: string | null;
         };
         /**
          * CategoryCreate
@@ -2771,6 +3221,108 @@ export interface components {
              * @default 0
              */
             product_count: number;
+        };
+        /**
+         * CompanyCreate
+         * @description Request body for ``POST /api/v1/admin/companies``.
+         */
+        CompanyCreate: {
+            /** Name */
+            name: string;
+            /** Tax Id */
+            tax_id?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /**
+             * Status
+             * @default pending
+             * @enum {string}
+             */
+            status: "pending" | "approved" | "rejected";
+            /** Account Manager */
+            account_manager?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * CompanyListResponse
+         * @description Paginated company list.
+         */
+        CompanyListResponse: {
+            /** Items */
+            items: components["schemas"]["CompanyResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * CompanyResponse
+         * @description A company row as the API returns it.
+         *
+         *     Includes at least ``{ id, name, status }`` (id + timestamps come from
+         *     ``TimestampSchema``) — the stable contract the quotes vertical FKs against.
+         */
+        CompanyResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Tax Id */
+            tax_id?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /**
+             * Status
+             * @default pending
+             * @enum {string}
+             */
+            status: "pending" | "approved" | "rejected";
+            /** Account Manager */
+            account_manager?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * CompanyUpdate
+         * @description Request body for ``PATCH /api/v1/admin/companies/{id}`` (all fields optional).
+         *
+         *     Only fields explicitly sent are applied. ``status`` stays constrained to the
+         *     allowed set by the literal.
+         */
+        CompanyUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Tax Id */
+            tax_id?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Status */
+            status?: ("pending" | "approved" | "rejected") | null;
+            /** Account Manager */
+            account_manager?: string | null;
+            /** Notes */
+            notes?: string | null;
         };
         /**
          * CorrectiveInvoiceResponse
@@ -4057,6 +4609,191 @@ export interface components {
             page_size: number;
             /** Pages */
             pages: number;
+        };
+        /**
+         * QuoteCreate
+         * @description Request body for ``POST /api/v1/admin/quotes``.
+         *
+         *     ``items`` must be non-empty (min_length=1 → 422 on an empty list). The
+         *     ``company_id`` is validated for existence in the route (404 if missing).
+         *     ``subtotal`` / ``total`` are computed server-side and are not accepted here.
+         */
+        QuoteCreate: {
+            /** Company Id */
+            company_id: number;
+            /**
+             * Currency
+             * @default USD
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** Valid Until */
+            valid_until?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Items */
+            items: components["schemas"]["QuoteItemCreate"][];
+        };
+        /**
+         * QuoteItemCreate
+         * @description A single line on a quote-create / quote-replace body.
+         *
+         *     The client supplies the description, quantity, unit price, and an optional
+         *     catalog ``product_id`` link. ``line_total`` is computed server-side, so it is
+         *     intentionally absent here.
+         */
+        QuoteItemCreate: {
+            /** Description */
+            description: string;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price: number;
+            /** Product Id */
+            product_id?: number | null;
+        };
+        /**
+         * QuoteItemResponse
+         * @description A quote line as the API returns it (includes the computed ``line_total``).
+         */
+        QuoteItemResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Quote Id */
+            quote_id: number;
+            /** Product Id */
+            product_id: number | null;
+            /** Description */
+            description: string;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price: number;
+            /** Line Total */
+            line_total: number;
+        };
+        /**
+         * QuoteListItem
+         * @description Lightweight quote row for list views (company name + totals, no items).
+         */
+        QuoteListItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Company Id */
+            company_id: number;
+            /** Company Name */
+            company_name?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "sent" | "accepted" | "rejected" | "expired";
+            /** Currency */
+            currency: string;
+            /** Valid Until */
+            valid_until: string | null;
+            /** Subtotal */
+            subtotal: number;
+            /** Total */
+            total: number;
+            /** Item Count */
+            item_count: number;
+        };
+        /**
+         * QuoteListResponse
+         * @description Paginated quote list.
+         */
+        QuoteListResponse: {
+            /** Items */
+            items: components["schemas"]["QuoteListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * QuoteResponse
+         * @description A full quote as the API returns it (header + nested ``items``).
+         */
+        QuoteResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Company Id */
+            company_id: number;
+            /** Company Name */
+            company_name?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "sent" | "accepted" | "rejected" | "expired";
+            /** Currency */
+            currency: string;
+            /** Valid Until */
+            valid_until: string | null;
+            /** Notes */
+            notes: string | null;
+            /** Subtotal */
+            subtotal: number;
+            /** Total */
+            total: number;
+            /** Items */
+            items?: components["schemas"]["QuoteItemResponse"][];
+        };
+        /**
+         * QuoteUpdate
+         * @description Request body for ``PATCH /api/v1/admin/quotes/{id}`` (all fields optional).
+         *
+         *     Only fields explicitly sent are applied. ``status`` stays constrained to the
+         *     allowed set by the literal (any → any transition is allowed in MVP). If
+         *     ``items`` is provided (non-empty), the whole line set is replaced and the
+         *     totals recomputed; omit ``items`` to leave the lines untouched.
+         */
+        QuoteUpdate: {
+            /** Status */
+            status?: ("draft" | "sent" | "accepted" | "rejected" | "expired") | null;
+            /** Currency */
+            currency?: ("USD" | "PLN" | "EUR") | null;
+            /** Valid Until */
+            valid_until?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Items */
+            items?: components["schemas"]["QuoteItemCreate"][] | null;
         };
         /**
          * RefundCreate
@@ -8770,6 +9507,500 @@ export interface operations {
             };
         };
     };
+    list_banners_api_v1_admin_banners__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by active status */
+                is_active?: boolean | null;
+                /** @description Filter by placement */
+                placement?: ("home_hero" | "promo_strip") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BannerListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_banner_api_v1_admin_banners__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BannerCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BannerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_banner_api_v1_admin_banners__banner_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                banner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BannerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_banner_api_v1_admin_banners__banner_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                banner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_banner_api_v1_admin_banners__banner_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                banner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BannerUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BannerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_campaigns_api_v1_admin_campaigns__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by lifecycle status */
+                status?: ("draft" | "scheduled" | "sent") | null;
+                /** @description Filter by audience */
+                audience?: ("all" | "customers" | "b2b") | null;
+                /** @description Filter by name (contains, case-insensitive) */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_campaign_api_v1_admin_campaigns__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_campaign_api_v1_admin_campaigns__campaign_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaign_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_campaign_api_v1_admin_campaigns__campaign_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaign_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_campaign_api_v1_admin_campaigns__campaign_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                campaign_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_companies_api_v1_admin_companies__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by directory status */
+                status?: ("pending" | "approved" | "rejected") | null;
+                /** @description Filter by name or tax id (contains, case-insensitive) */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_company_api_v1_admin_companies__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_company_api_v1_admin_companies__company_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                company_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_company_api_v1_admin_companies__company_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                company_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_company_api_v1_admin_companies__company_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                company_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_coupons_api_v1_admin_coupons__get: {
         parameters: {
             query?: {
@@ -8921,6 +10152,170 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CouponResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_quotes_api_v1_admin_quotes__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by quote status */
+                status?: ("draft" | "sent" | "accepted" | "rejected" | "expired") | null;
+                /** @description Filter by company id */
+                company_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_quote_api_v1_admin_quotes__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuoteCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quote_api_v1_admin_quotes__quote_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_quote_api_v1_admin_quotes__quote_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_quote_api_v1_admin_quotes__quote_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuoteUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"];
                 };
             };
             /** @description Validation Error */
