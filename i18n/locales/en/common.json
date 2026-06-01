@@ -424,6 +424,66 @@
         "deleted": "Coupon deleted."
       }
     },
+    "companies": {
+      "title": "Companies (B2B)",
+      "subtitle": "Manage the B2B company directory, approvals, and account managers",
+      "actions": {
+        "create": "New company",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "search": "Search",
+        "searchPlaceholder": "Search by name or tax id"
+      },
+      "fields": {
+        "name": "Name",
+        "taxId": "Tax ID",
+        "email": "Email",
+        "accountManager": "Account manager",
+        "status": "Status"
+      },
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "empty": {
+        "noCompanies": "No companies yet.",
+        "noResults": "No companies match your filters."
+      },
+      "form": {
+        "createTitle": "New company",
+        "editTitle": "Edit company",
+        "name": "Name",
+        "taxId": "Tax ID",
+        "taxIdHint": "VAT / tax identification number.",
+        "email": "Email",
+        "phone": "Phone",
+        "status": "Status",
+        "accountManager": "Account manager",
+        "accountManagerHint": "Internal owner for this account.",
+        "notes": "Notes",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "nameRequired": "Name is required."
+      },
+      "delete": {
+        "title": "Delete company",
+        "confirm": "Delete company \"{name}\"? This cannot be undone.",
+        "delete": "Delete",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "created": "Company created.",
+        "updated": "Company updated.",
+        "deleted": "Company deleted."
+      }
+    },
     "reports": {
       "title": "Reports",
       "subtitle": "Sales, top products, revenue by category, and refunds over a date range",
