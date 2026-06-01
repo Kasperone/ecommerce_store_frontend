@@ -1468,6 +1468,95 @@
         "updated": "Kampania zaktualizowana.",
         "deleted": "Kampania usunięta."
       }
+    },
+    "quotes": {
+      "title": "Oferty",
+      "subtitle": "Twórz i zarządzaj ofertami cenowymi B2B dla firm",
+      "actions": {
+        "create": "Nowa oferta",
+        "view": "Podgląd",
+        "save": "Zapisz zmiany",
+        "delete": "Usuń",
+        "back": "Powrót do ofert"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "company": "Firma",
+        "allCompanies": "Wszystkie firmy"
+      },
+      "fields": {
+        "id": "Oferta",
+        "company": "Firma",
+        "status": "Status",
+        "items": "Pozycje",
+        "validUntil": "Ważna do",
+        "total": "Razem"
+      },
+      "status": {
+        "draft": "Szkic",
+        "sent": "Wysłana",
+        "accepted": "Zaakceptowana",
+        "rejected": "Odrzucona",
+        "expired": "Wygasła"
+      },
+      "empty": {
+        "noQuotes": "Brak ofert.",
+        "noResults": "Żadna oferta nie pasuje do filtrów."
+      },
+      "create": {
+        "title": "Nowa oferta",
+        "subtitle": "Wybierz firmę, ustaw walutę i dodaj pozycje."
+      },
+      "form": {
+        "company": "Firma",
+        "companyPlaceholder": "Wybierz firmę",
+        "currency": "Waluta",
+        "validUntil": "Ważna do",
+        "validUntilHint": "Opcjonalnie. Data wygaśnięcia oferty.",
+        "notes": "Notatki",
+        "lineItems": "Pozycje",
+        "create": "Utwórz ofertę",
+        "cancel": "Anuluj"
+      },
+      "lineItems": {
+        "description": "Opis",
+        "descriptionPlaceholder": "np. Konsultacje — 10 godzin",
+        "quantity": "Ilość",
+        "unitPrice": "Cena jedn.",
+        "lineTotal": "Wartość",
+        "subtotal": "Suma częściowa",
+        "add": "Dodaj pozycję",
+        "remove": "Usuń pozycję"
+      },
+      "detail": {
+        "title": "Oferta #{id}",
+        "heading": "Oferta #{id}",
+        "loading": "Wczytywanie oferty…",
+        "items": "Pozycje",
+        "noItems": "Ta oferta nie ma pozycji.",
+        "subtotal": "Suma częściowa",
+        "total": "Razem",
+        "manage": "Zarządzaj",
+        "changeStatus": "Status",
+        "validUntil": "Ważna do",
+        "notes": "Notatki"
+      },
+      "delete": {
+        "title": "Usuń ofertę",
+        "body": "Trwale usuwa ofertę wraz z pozycjami. Tej operacji nie można cofnąć.",
+        "confirm": "Usuń ofertę",
+        "dismiss": "Anuluj"
+      },
+      "errors": {
+        "companyRequired": "Wybierz firmę dla tej oferty.",
+        "itemsRequired": "Dodaj co najmniej jedną pozycję z opisem."
+      },
+      "flashes": {
+        "created": "Oferta utworzona.",
+        "updated": "Oferta zaktualizowana.",
+        "deleted": "Oferta usunięta."
+      }
     }
   },
   "account": {

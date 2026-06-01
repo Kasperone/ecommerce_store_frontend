@@ -1464,6 +1464,95 @@
         "updated": "Campaign updated.",
         "deleted": "Campaign deleted."
       }
+    },
+    "quotes": {
+      "title": "Quotes",
+      "subtitle": "Create and manage B2B price quotes for companies",
+      "actions": {
+        "create": "New quote",
+        "view": "View",
+        "save": "Save changes",
+        "delete": "Delete",
+        "back": "Back to quotes"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "company": "Company",
+        "allCompanies": "All companies"
+      },
+      "fields": {
+        "id": "Quote",
+        "company": "Company",
+        "status": "Status",
+        "items": "Lines",
+        "validUntil": "Valid until",
+        "total": "Total"
+      },
+      "status": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      },
+      "empty": {
+        "noQuotes": "No quotes yet.",
+        "noResults": "No quotes match your filters."
+      },
+      "create": {
+        "title": "New quote",
+        "subtitle": "Pick a company, set the currency, and add line items."
+      },
+      "form": {
+        "company": "Company",
+        "companyPlaceholder": "Select a company",
+        "currency": "Currency",
+        "validUntil": "Valid until",
+        "validUntilHint": "Optional. The date this quote expires.",
+        "notes": "Notes",
+        "lineItems": "Line items",
+        "create": "Create quote",
+        "cancel": "Cancel"
+      },
+      "lineItems": {
+        "description": "Description",
+        "descriptionPlaceholder": "e.g. Consulting — 10 hours",
+        "quantity": "Qty",
+        "unitPrice": "Unit price",
+        "lineTotal": "Line total",
+        "subtotal": "Subtotal",
+        "add": "Add line",
+        "remove": "Remove line"
+      },
+      "detail": {
+        "title": "Quote #{id}",
+        "heading": "Quote #{id}",
+        "loading": "Loading quote…",
+        "items": "Line items",
+        "noItems": "This quote has no line items.",
+        "subtotal": "Subtotal",
+        "total": "Total",
+        "manage": "Manage",
+        "changeStatus": "Status",
+        "validUntil": "Valid until",
+        "notes": "Notes"
+      },
+      "delete": {
+        "title": "Delete quote",
+        "body": "This permanently removes the quote and its line items. This cannot be undone.",
+        "confirm": "Delete quote",
+        "dismiss": "Cancel"
+      },
+      "errors": {
+        "companyRequired": "Select a company for this quote.",
+        "itemsRequired": "Add at least one line item with a description."
+      },
+      "flashes": {
+        "created": "Quote created.",
+        "updated": "Quote updated.",
+        "deleted": "Quote deleted."
+      }
     }
   },
   "account": {
