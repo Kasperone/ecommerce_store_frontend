@@ -1394,6 +1394,76 @@
         "updated": "Banner updated.",
         "deleted": "Banner deleted."
       }
+    },
+    "campaigns": {
+      "title": "Campaigns",
+      "subtitle": "Create and manage email campaigns, audiences, and scheduling",
+      "actions": {
+        "create": "New campaign",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "status": "Status",
+        "audience": "Audience",
+        "all": "All",
+        "search": "Search",
+        "searchPlaceholder": "Search by name"
+      },
+      "fields": {
+        "name": "Name",
+        "audience": "Audience",
+        "status": "Status",
+        "scheduledAt": "Scheduled",
+        "sentAt": "Sent"
+      },
+      "audience": {
+        "all": "Everyone",
+        "customers": "Customers",
+        "b2b": "Business (B2B)"
+      },
+      "status": {
+        "draft": "Draft",
+        "scheduled": "Scheduled",
+        "sent": "Sent"
+      },
+      "empty": {
+        "noCampaigns": "No campaigns yet.",
+        "noResults": "No campaigns match your filters."
+      },
+      "form": {
+        "createTitle": "New campaign",
+        "editTitle": "Edit campaign",
+        "name": "Name",
+        "nameHint": "Internal name, shown in this list.",
+        "subject": "Subject",
+        "subjectHint": "The email subject line recipients see.",
+        "audience": "Audience",
+        "status": "Status",
+        "body": "Body",
+        "bodyHint": "Optional email body content.",
+        "scheduledAt": "Scheduled at",
+        "scheduledAtHint": "Required when the status is Scheduled.",
+        "sentAt": "Sent at",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "nameRequired": "Name is required.",
+        "subjectRequired": "Subject is required.",
+        "scheduledAtRequired": "A scheduled date is required when the status is Scheduled."
+      },
+      "delete": {
+        "title": "Delete campaign",
+        "confirm": "Delete campaign \"{name}\"? This cannot be undone.",
+        "delete": "Delete",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "created": "Campaign created.",
+        "updated": "Campaign updated.",
+        "deleted": "Campaign deleted."
+      }
     }
   },
   "account": {
