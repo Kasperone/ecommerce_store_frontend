@@ -1616,6 +1616,24 @@
         "addresses": "Adresy",
         "preferences": "Preferencje",
         "privacy": "Prywatność"
+      },
+      "profile": {
+        "title": "Profil",
+        "subtitle": "Zaktualizuj swoje imię i dane kontaktowe.",
+        "firstName": "Imię",
+        "lastName": "Nazwisko",
+        "phone": "Telefon",
+        "phoneHint": "Opcjonalnie. Używany do pytań dotyczących dostawy Twoich zamówień.",
+        "email": "Adres e-mail",
+        "emailHint": "Adresu e-mail nie można tutaj zmienić.",
+        "save": "Zapisz zmiany",
+        "saved": "Zaktualizowano profil.",
+        "error": "Nie udało się zaktualizować profilu.",
+        "errors": {
+          "firstNameRequired": "Imię jest wymagane",
+          "lastNameRequired": "Nazwisko jest wymagane",
+          "phoneInvalid": "Wpisz prawidłowy numer telefonu"
+        }
       }
     }
   },
