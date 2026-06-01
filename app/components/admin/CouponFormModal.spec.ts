@@ -118,6 +118,27 @@ describe('CouponFormModal', () => {
     expect(toastAdd).toHaveBeenCalled()
   })
 
+  it('submits per_user_limit alongside max_uses (flexible coupon)', async () => {
+    const wrapper = await mountSuspended(CouponFormModal, {
+      props: { open: true, coupon: null },
+    })
+    wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'FLEX')
+    const numbers = wrapper.findAllComponents({ name: 'UInputNumber' })
+    numbers[0]!.vm.$emit('update:modelValue', 10) // value
+    numbers[2]!.vm.$emit('update:modelValue', 1000) // max_uses
+    numbers[3]!.vm.$emit('update:modelValue', 2) // per_user_limit
+    await tick()
+
+    clickSave()
+    await tick()
+
+    expect(createMutate).toHaveBeenCalledTimes(1)
+    expect(createMutate.mock.calls[0]![0]).toMatchObject({
+      max_uses: 1000,
+      per_user_limit: 2,
+    })
+  })
+
   it('rejects a percent value outside 1–100 without calling the mutation', async () => {
     const wrapper = await mountSuspended(CouponFormModal, {
       props: { open: true, coupon: null },

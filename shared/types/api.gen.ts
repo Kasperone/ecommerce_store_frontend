@@ -862,8 +862,9 @@ export interface paths {
          *
          *     200 with the computed discount when eligible; 400 with the failure reason
          *     (expired / inactive / min-order-not-met / currency-mismatch / usage-exhausted
-         *     / not-found) otherwise. No state is mutated — ``used_count`` is bumped only at
-         *     order create.
+         *     / per-user-exhausted / not-found) otherwise. No state is mutated —
+         *     ``used_count`` is bumped only at order create. The authenticated user is
+         *     passed through so the preview reflects the per-user cap.
          */
         post: operations["validate_coupon_api_v1_coupons_validate_post"];
         delete?: never;
@@ -3447,6 +3448,8 @@ export interface components {
             min_order_amount?: number | null;
             /** Max Uses */
             max_uses?: number | null;
+            /** Per User Limit */
+            per_user_limit?: number | null;
             /** Starts At */
             starts_at?: string | null;
             /** Ends At */
@@ -3507,6 +3510,8 @@ export interface components {
             min_order_amount?: number | null;
             /** Max Uses */
             max_uses?: number | null;
+            /** Per User Limit */
+            per_user_limit?: number | null;
             /** Starts At */
             starts_at?: string | null;
             /** Ends At */
@@ -3544,6 +3549,8 @@ export interface components {
             min_order_amount?: number | null;
             /** Max Uses */
             max_uses?: number | null;
+            /** Per User Limit */
+            per_user_limit?: number | null;
             /** Starts At */
             starts_at?: string | null;
             /** Ends At */

@@ -422,6 +422,8 @@
         "minOrderAmountHint": "Leave empty for no minimum.",
         "maxUses": "Maximum uses",
         "maxUsesHint": "Leave empty for unlimited redemptions.",
+        "perUserLimit": "Max uses per customer",
+        "perUserLimitHint": "Leave empty for no per-customer limit. Independent of the total cap.",
         "startsAt": "Starts at",
         "endsAt": "Ends at",
         "scheduleHint": "Optional. End must be after start.",
