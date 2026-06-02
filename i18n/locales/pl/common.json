@@ -1660,7 +1660,9 @@
         "addresses": "Adresy",
         "preferences": "Preferencje",
         "privacy": "Prywatność",
-        "company": "Firma"
+        "company": "Firma",
+        "team": "Zespol",
+        "b2bSection": "Firma"
       },
       "profile": {
         "title": "Profil",
@@ -1886,6 +1888,91 @@
           "countryTooLong": "Kraj może mieć maksymalnie 100 znaków",
           "stateTooLong": "Województwo może mieć maksymalnie 100 znaków",
           "currencyInvalid": "Użyj trzyliterowego kodu waluty, np. PLN"
+        }
+      },
+      "team": {
+        "title": "Zespol",
+        "subtitle": "Zarzadzaj dostepem do konta Twojej firmy.",
+        "notB2B": "Zarzadzanie zespolem jest dostepne tylko dla kont firmowych.",
+        "backToAccount": "Powrot do konta",
+        "readOnly": {
+          "title": "Tylko podglad",
+          "body": "Tylko administrator firmy moze zapraszac osoby lub zmieniac role."
+        },
+        "invite": {
+          "title": "Zapros czlonka",
+          "hint": "Ta osoba musi juz miec konto. Zapros ja, podajac adres e-mail i wybierajac role.",
+          "email": "E-mail",
+          "emailPlaceholder": "imie{'@'}firma.com",
+          "role": "Rola",
+          "submit": "Zapros",
+          "success": "Zaproszenie wyslane.",
+          "error": "Nie udalo sie wyslac zaproszenia.",
+          "errors": {
+            "emailRequired": "E-mail jest wymagany",
+            "emailInvalid": "Podaj prawidlowy adres e-mail",
+            "noAccount": "Nie znaleziono konta dla tego adresu e-mail — osoba musi najpierw sie zarejestrowac, wtedy bedzie mozna ja zaprosic.",
+            "alreadyMember": "Ta osoba jest juz czlonkiem tej firmy."
+          }
+        },
+        "roster": {
+          "title": "Czlonkowie"
+        },
+        "roleChanged": "Rola zaktualizowana.",
+        "roles": {
+          "COMPANY_ADMIN": "Administrator",
+          "BUYER": "Kupujacy",
+          "APPROVER": "Zatwierdzajacy",
+          "VIEWER": "Obserwator"
+        },
+        "statuses": {
+          "active": "Aktywny",
+          "invited": "Zaproszony",
+          "suspended": "Zawieszony"
+        },
+        "table": {
+          "caption": "Czlonkowie zespolu firmy",
+          "member": "Czlonek",
+          "role": "Rola",
+          "status": "Status",
+          "actions": "Akcje",
+          "roleFor": "Rola dla {name}",
+          "loading": "Ladowanie czlonkow…",
+          "empty": "Brak czlonkow.",
+          "unknownMember": "Nieznany czlonek"
+        },
+        "actions": {
+          "suspend": "Zawies",
+          "suspendLabel": "Zawies {name}",
+          "reactivate": "Przywroc",
+          "reactivateLabel": "Przywroc {name}",
+          "remove": "Usun",
+          "removeLabel": "Usun {name}"
+        },
+        "confirm": {
+          "cancel": "Anuluj",
+          "remove": {
+            "title": "Usun czlonka",
+            "body": "Usunac {name} z firmy? Osoba natychmiast straci dostep.",
+            "confirm": "Usun",
+            "success": "Czlonek usuniety."
+          },
+          "suspend": {
+            "title": "Zawies czlonka",
+            "body": "Zawiesic {name}? Pozostaje w zespole, ale traci dostep do czasu przywrocenia.",
+            "confirm": "Zawies",
+            "success": "Czlonek zawieszony."
+          },
+          "reactivate": {
+            "title": "Przywroc czlonka",
+            "body": "Przywrocic {name}? Osoba odzyska dostep do konta firmy.",
+            "confirm": "Przywroc",
+            "success": "Czlonek przywrocony."
+          }
+        },
+        "errors": {
+          "lastAdmin": "Nie mozna zdegradowac, zawiesic ani usunac ostatniego administratora firmy.",
+          "actionFailed": "Nie udalo sie wykonac tej akcji."
         }
       }
     }
