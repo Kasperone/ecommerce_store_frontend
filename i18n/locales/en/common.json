@@ -1697,6 +1697,43 @@
           "cancel": "Cancel",
           "error": "Could not sign out everywhere. Please try again."
         }
+      },
+      "privacy": {
+        "title": "Privacy & data",
+        "subtitle": "Manage your marketing choices, download your data, or delete your account.",
+        "consents": {
+          "title": "Marketing preferences",
+          "marketing_email": {
+            "label": "Marketing email",
+            "hint": "Receive offers and product news by email."
+          },
+          "newsletter": {
+            "label": "Newsletter",
+            "hint": "Subscribe to our periodic newsletter."
+          },
+          "saved": "Your marketing preferences were updated.",
+          "error": "Could not update your marketing preferences."
+        },
+        "export": {
+          "title": "Download your data",
+          "hint": "Get a copy of your personal data — profile, addresses, orders, and consent history — as a JSON file.",
+          "button": "Download my data",
+          "success": "Your data export has started downloading.",
+          "error": "Could not export your data. Please try again."
+        },
+        "delete": {
+          "title": "Delete account",
+          "hint": "Permanently delete your account. This anonymizes your personal data and cannot be undone.",
+          "button": "Delete my account",
+          "confirmTitle": "Delete your account?",
+          "confirmBody": "This permanently anonymizes your personal data and signs you out everywhere. Your past orders are kept for legal and tax reasons, but with your personal details removed.",
+          "warningTitle": "This cannot be undone",
+          "warningBody": "Once confirmed, your account is anonymized immediately and you will not be able to sign back in.",
+          "confirm": "Delete account",
+          "cancel": "Cancel",
+          "success": "Your account has been deleted.",
+          "error": "Could not delete your account. Please try again."
+        }
       }
     }
   },
