@@ -1738,6 +1738,65 @@
           "success": "Twoje konto zostało usunięte.",
           "error": "Nie udało się usunąć konta. Spróbuj ponownie."
         }
+      },
+      "addresses": {
+        "title": "Adresy",
+        "subtitle": "Zarządzaj zapisanymi adresami dostawy i rozliczeniowymi.",
+        "add": "Dodaj adres",
+        "addTitle": "Dodaj adres",
+        "editTitle": "Edytuj adres",
+        "loading": "Wczytywanie adresów…",
+        "empty": "Nie masz jeszcze zapisanych adresów.",
+        "created": "Adres dodany.",
+        "updated": "Adres zaktualizowany.",
+        "deleted": "Adres usunięty.",
+        "saveError": "Nie udało się zapisać adresu.",
+        "deleteError": "Nie udało się usunąć adresu.",
+        "defaultShippingSet": "Domyślny adres dostawy zaktualizowany.",
+        "defaultBillingSet": "Domyślny adres rozliczeniowy zaktualizowany.",
+        "cancel": "Anuluj",
+        "delete": "Usuń",
+        "deleteConfirmTitle": "Usunąć ten adres?",
+        "deleteConfirmBody": "Ten adres zostanie trwale usunięty z Twojej książki adresowej.",
+        "card": {
+          "defaultShipping": "Domyślna dostawa",
+          "defaultBilling": "Domyślne rozliczenie",
+          "edit": "Edytuj adres",
+          "delete": "Usuń adres",
+          "makeDefaultShipping": "Ustaw jako domyślny adres dostawy",
+          "makeDefaultBilling": "Ustaw jako domyślny adres rozliczeniowy"
+        },
+        "form": {
+          "label": "Etykieta",
+          "labelHint": "Opcjonalnie. Nazwa, po której rozpoznasz ten adres, np. „Dom” lub „Biuro”.",
+          "recipientName": "Imię i nazwisko odbiorcy",
+          "street": "Ulica i numer",
+          "city": "Miasto",
+          "postalCode": "Kod pocztowy",
+          "country": "Kraj",
+          "countryPlaceholder": "Wybierz kraj",
+          "state": "Województwo / region",
+          "phone": "Telefon",
+          "defaultShipping": "Ustaw jako mój domyślny adres dostawy",
+          "defaultBilling": "Ustaw jako mój domyślny adres rozliczeniowy",
+          "cancel": "Anuluj",
+          "save": "Zapisz adres"
+        },
+        "errors": {
+          "labelTooLong": "Etykieta może mieć maksymalnie 100 znaków",
+          "recipientRequired": "Imię i nazwisko odbiorcy jest wymagane",
+          "recipientTooLong": "Imię i nazwisko odbiorcy może mieć maksymalnie 255 znaków",
+          "streetRequired": "Ulica jest wymagana",
+          "streetTooLong": "Ulica może mieć maksymalnie 255 znaków",
+          "cityRequired": "Miasto jest wymagane",
+          "cityTooLong": "Miasto może mieć maksymalnie 100 znaków",
+          "postalRequired": "Kod pocztowy jest wymagany",
+          "postalTooLong": "Kod pocztowy może mieć maksymalnie 20 znaków",
+          "countryRequired": "Kraj jest wymagany",
+          "countryInvalid": "Wybierz kraj",
+          "stateTooLong": "Województwo może mieć maksymalnie 100 znaków",
+          "phoneInvalid": "Podaj prawidłowy numer telefonu"
+        }
       }
     }
   },

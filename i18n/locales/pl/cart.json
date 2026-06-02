@@ -54,6 +54,11 @@
       "freeAbove": "Bezpłatnie od {amount}",
       "free": "Bezpłatnie"
     },
+    "address": {
+      "savedLabel": "Użyj zapisanego adresu",
+      "savedHint": "Wybierz zapisany adres, aby wypełnić formularz, lub wpisz nowy.",
+      "enterNew": "Wpisz nowy adres"
+    },
     "summary": {
       "heading": "Podsumowanie zamówienia",
       "subtotal": "Suma częściowa",
