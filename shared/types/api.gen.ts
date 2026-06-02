@@ -2688,6 +2688,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/quotes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List My Quotes
+         * @description List the caller's company's quotes (newest first).
+         *
+         *     Returns an empty list for a non-B2B caller (no company → no quotes) rather than
+         *     erroring — the FE gates the surface on ``GET /companies/me`` anyway.
+         */
+        get: operations["list_my_quotes_api_v1_quotes__get"];
+        put?: never;
+        /**
+         * Request Quote
+         * @description Request a quote from the cart.
+         *
+         *     The server prices each line from the current product price in
+         *     ``payload.currency`` (a client-sent price is ignored). 403 ``not_b2b`` if the
+         *     caller is no company's primary contact; 422 if a line references a
+         *     missing/inactive product (or ``items`` is empty — enforced by the schema).
+         *     status starts ``requested``; ``requested_by_user_id`` = caller.
+         */
+        post: operations["request_quote_api_v1_quotes__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quotes/{quote_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Quote
+         * @description Get one of the caller's company's quotes. Cross-company/unknown → 404.
+         */
+        get: operations["get_my_quote_api_v1_quotes__quote_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quotes/{quote_id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept My Quote
+         * @description Accept a ``sent`` quote (→ ``accepted``).
+         *
+         *     Only a ``sent`` quote may be accepted (409 otherwise). Cross-company/unknown →
+         *     404. Conversion stays admin-only — accepting does not create an order.
+         */
+        post: operations["accept_my_quote_api_v1_quotes__quote_id__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quotes/{quote_id}/quote.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download My Quote Pdf
+         * @description Download one of the caller's company's quotes as a PDF. Cross-company → 404.
+         */
+        get: operations["download_my_quote_pdf_api_v1_quotes__quote_id__quote_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/companies/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Company
+         * @description The caller's company (resolved via primary contact), else 404.
+         *
+         *     404 means "you are not a B2B account" — the FE uses it to gate the quote-request
+         *     surfaces.
+         */
+        get: operations["get_my_company_api_v1_companies_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -5226,7 +5345,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "draft" | "sent" | "accepted" | "rejected" | "expired";
+            status: "draft" | "requested" | "sent" | "accepted" | "rejected" | "expired";
             /** Currency */
             currency: string;
             /** Valid Until */
@@ -5255,6 +5374,39 @@ export interface components {
             pages: number;
         };
         /**
+         * QuoteRequestCreate
+         * @description Request body for ``POST /api/v1/quotes`` (customer quote request).
+         *
+         *     ``items`` must be non-empty (min_length=1 → 422). ``currency`` selects which
+         *     per-currency product price the server uses for every line. ``notes`` is an
+         *     optional free-form message to the seller.
+         */
+        QuoteRequestCreate: {
+            /**
+             * Currency
+             * @default USD
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** Items */
+            items: components["schemas"]["QuoteRequestItem"][];
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * QuoteRequestItem
+         * @description A single requested line: a catalog product + a quantity.
+         *
+         *     No price — the server prices the line from the live product in the requested
+         *     currency (``unit_price`` is deliberately absent so a client cannot inject one).
+         */
+        QuoteRequestItem: {
+            /** Product Id */
+            product_id: number;
+            /** Quantity */
+            quantity: number;
+        };
+        /**
          * QuoteResponse
          * @description A full quote as the API returns it (header + nested ``items``).
          */
@@ -5279,7 +5431,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "draft" | "sent" | "accepted" | "rejected" | "expired";
+            status: "draft" | "requested" | "sent" | "accepted" | "rejected" | "expired";
             /** Currency */
             currency: string;
             /** Valid Until */
@@ -5306,7 +5458,7 @@ export interface components {
          */
         QuoteUpdate: {
             /** Status */
-            status?: ("draft" | "sent" | "accepted" | "rejected" | "expired") | null;
+            status?: ("draft" | "requested" | "sent" | "accepted" | "rejected" | "expired") | null;
             /** Currency */
             currency?: ("USD" | "PLN" | "EUR") | null;
             /** Valid Until */
@@ -10879,7 +11031,7 @@ export interface operations {
                 page?: number;
                 page_size?: number;
                 /** @description Filter by quote status */
-                status?: ("draft" | "sent" | "accepted" | "rejected" | "expired") | null;
+                status?: ("draft" | "requested" | "sent" | "accepted" | "rejected" | "expired") | null;
                 /** @description Filter by company id */
                 company_id?: number | null;
             };
@@ -11951,6 +12103,176 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_my_quotes_api_v1_quotes__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"][];
+                };
+            };
+        };
+    };
+    request_quote_api_v1_quotes__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuoteRequestCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_quote_api_v1_quotes__quote_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_my_quote_api_v1_quotes__quote_id__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_my_quote_pdf_api_v1_quotes__quote_id__quote_pdf_get: {
+        parameters: {
+            query?: {
+                /** @description Quote language */
+                lang?: "en" | "pl";
+            };
+            header?: never;
+            path: {
+                quote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Quote PDF */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_company_api_v1_companies_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyResponse"];
                 };
             };
         };
