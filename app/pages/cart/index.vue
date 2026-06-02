@@ -81,6 +81,7 @@ const subtotal = computed(() => {
             >
               {{ t('cart.actions.checkout') }}
             </UButton>
+            <AccountQuotesCartCta />
             <UButton
               class="mt-2"
               color="neutral"

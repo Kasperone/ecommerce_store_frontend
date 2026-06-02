@@ -1590,6 +1590,50 @@
   "account": {
     "dashboard": "My Account",
     "signedInAs": "Signed in as",
+    "quotes": {
+      "title": "Quotes",
+      "subtitle": "View and accept the price quotes prepared for your company.",
+      "accountCard": "View and accept your B2B price quotes.",
+      "numberPrefix": "QT-",
+      "empty": "You don't have any quotes yet.",
+      "emptyCta": "Browse products",
+      "notB2B": "Quotes are available to business accounts only.",
+      "backToAccount": "Back to my account",
+      "back": "Back to quotes",
+      "view": "View quote",
+      "fields": {
+        "requested": "Requested",
+        "validUntil": "Valid until"
+      },
+      "status": {
+        "draft": "Draft",
+        "requested": "Requested",
+        "sent": "Sent",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "expired": "Expired"
+      },
+      "detail": {
+        "title": "Quote QT-{id}",
+        "requestedOn": "Requested on {date}",
+        "items": "Items",
+        "each": "{price} each",
+        "notes": "Notes",
+        "subtotal": "Subtotal",
+        "total": "Total"
+      },
+      "pdf": {
+        "download": "Download PDF",
+        "error": "Could not download the quote PDF."
+      },
+      "accept": {
+        "button": "Accept quote",
+        "title": "Accept this quote?",
+        "body": "Accepting confirms the quoted prices. Our team will follow up to finalise your order.",
+        "dismiss": "Cancel",
+        "confirm": "Accept quote"
+      }
+    },
     "placeholderTitle": "Welcome",
     "placeholderBody": "Your account features will appear here (orders, profile, addresses, payment methods).",
     "preferences": {

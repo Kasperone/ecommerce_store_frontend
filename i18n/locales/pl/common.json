@@ -1594,6 +1594,50 @@
   "account": {
     "dashboard": "Moje konto",
     "signedInAs": "Zalogowano jako",
+    "quotes": {
+      "title": "Wyceny",
+      "subtitle": "Przeglądaj i akceptuj wyceny przygotowane dla Twojej firmy.",
+      "accountCard": "Przeglądaj i akceptuj swoje wyceny B2B.",
+      "numberPrefix": "QT-",
+      "empty": "Nie masz jeszcze żadnych wycen.",
+      "emptyCta": "Przeglądaj produkty",
+      "notB2B": "Wyceny są dostępne tylko dla kont firmowych.",
+      "backToAccount": "Powrót do mojego konta",
+      "back": "Powrót do wycen",
+      "view": "Zobacz wycenę",
+      "fields": {
+        "requested": "Zgłoszono",
+        "validUntil": "Ważna do"
+      },
+      "status": {
+        "draft": "Wersja robocza",
+        "requested": "Zgłoszona",
+        "sent": "Wysłana",
+        "accepted": "Zaakceptowana",
+        "rejected": "Odrzucona",
+        "expired": "Wygasła"
+      },
+      "detail": {
+        "title": "Wycena QT-{id}",
+        "requestedOn": "Zgłoszono {date}",
+        "items": "Pozycje",
+        "each": "{price} za szt.",
+        "notes": "Uwagi",
+        "subtotal": "Suma częściowa",
+        "total": "Razem"
+      },
+      "pdf": {
+        "download": "Pobierz PDF",
+        "error": "Nie udało się pobrać PDF wyceny."
+      },
+      "accept": {
+        "button": "Akceptuj wycenę",
+        "title": "Zaakceptować tę wycenę?",
+        "body": "Akceptacja potwierdza wyceniane ceny. Nasz zespół skontaktuje się, aby sfinalizować zamówienie.",
+        "dismiss": "Anuluj",
+        "confirm": "Akceptuj wycenę"
+      }
+    },
     "placeholderTitle": "Witaj",
     "placeholderBody": "Funkcje konta pojawią się tutaj (zamówienia, profil, adresy, metody płatności).",
     "preferences": {
