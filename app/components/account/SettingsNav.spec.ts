@@ -5,21 +5,28 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import SettingsNav from './SettingsNav.vue'
 
 /**
- * The settings nav exposes the five core sub-routes as real anchor links with
- * accessible labels, regardless of whether each target page exists yet. This is
- * the contract B-fe / C-fe / D-fe consume.
+ * The settings nav exposes all five core sub-routes as real anchor links with
+ * accessible labels, regardless of whether each target page exists yet. This
+ * is the contract B-fe / C-fe / D-fe consume.
  *
- * Wave D adds B2B-gated entries (Comp-fe's `company`, Team-fe's `team`) that
- * only appear for company members (`isB2B`). The gate composable is stubbed so
- * the core-route assertions stay deterministic and the gated entry is covered
- * for both states.
+ * Wave D adds a B2B-gated section: `company` for any company member (Comp-fe)
+ * and `team` for COMPANY_ADMIN only (Team-fe). The company context is mocked;
+ * it defaults to non-B2B and is flipped per-test for the B2B coverage.
  */
 
 const isB2B = ref(false)
-mockNuxtImport('useCompanyContext', () => () => ({ isB2B }))
+const companyRef = ref<{ role: string } | null>(null)
+
+mockNuxtImport('useCompanyContext', () => () => ({
+  company: companyRef,
+  isB2B,
+  isResolving: ref(false),
+  error: ref(null),
+}))
 
 beforeEach(() => {
   isB2B.value = false
+  companyRef.value = null
 })
 
 describe('AccountSettingsNav', () => {
@@ -67,5 +74,32 @@ describe('AccountSettingsNav', () => {
     const nav = wrapper.find('nav')
     expect(nav.exists()).toBe(true)
     expect(nav.attributes('aria-label')).toBeTruthy()
+  })
+})
+
+describe('AccountSettingsNav — B2B team entry (Team-fe)', () => {
+  it('shows the Team link for a COMPANY_ADMIN business account', async () => {
+    isB2B.value = true
+    companyRef.value = { role: 'COMPANY_ADMIN' }
+    const wrapper = await mountSuspended(SettingsNav)
+    const hrefs = wrapper.findAll('a').map(l => l.attributes('href'))
+    expect(hrefs).toContain('/account/settings/team')
+    expect(wrapper.text()).toContain('Team')
+  })
+
+  it('hides the Team link for a non-admin business account', async () => {
+    isB2B.value = true
+    companyRef.value = { role: 'BUYER' }
+    const wrapper = await mountSuspended(SettingsNav)
+    const hrefs = wrapper.findAll('a').map(l => l.attributes('href'))
+    expect(hrefs).not.toContain('/account/settings/team')
+  })
+
+  it('hides the Team link for a non-business account', async () => {
+    isB2B.value = false
+    companyRef.value = null
+    const wrapper = await mountSuspended(SettingsNav)
+    const hrefs = wrapper.findAll('a').map(l => l.attributes('href'))
+    expect(hrefs).not.toContain('/account/settings/team')
   })
 })
