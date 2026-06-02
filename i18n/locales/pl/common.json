@@ -1634,6 +1634,26 @@
           "lastNameRequired": "Nazwisko jest wymagane",
           "phoneInvalid": "Wpisz prawidłowy numer telefonu"
         }
+      },
+      "preferences": {
+        "title": "Preferencje",
+        "subtitle": "Wybierz walutę zakupów i język, w którym wysyłamy wiadomości e-mail.",
+        "currency": {
+          "title": "Waluta",
+          "label": "Waluta zakupów",
+          "hint": "Ceny w całym sklepie są wyświetlane w tej walucie. Ustawienie podąża za Twoim kontem na różnych urządzeniach.",
+          "saved": "Zaktualizowano preferowaną walutę.",
+          "error": "Nie udało się zaktualizować preferowanej waluty."
+        },
+        "emailLanguage": {
+          "title": "Język wiadomości e-mail",
+          "label": "Język wiadomości e-mail",
+          "hint": "Język, którego używamy w potwierdzeniach zamówień i innych wiadomościach.",
+          "en": "Angielski",
+          "pl": "Polski",
+          "saved": "Zaktualizowano język wiadomości e-mail.",
+          "error": "Nie udało się zaktualizować języka wiadomości e-mail."
+        }
       }
     }
   },
