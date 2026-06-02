@@ -2568,7 +2568,7 @@ export interface paths {
         };
         /**
          * Get Preferences
-         * @description Return the caller's own preferences (currency + locale).
+         * @description Return the caller's own preferences (currency + locale + consents map).
          */
         get: operations["get_preferences_api_v1_me_preferences_get"];
         put?: never;
@@ -2582,15 +2582,242 @@ export interface paths {
          *
          *     Only fields present in the body change; an explicit ``preferred_currency: null``
          *     clears the preference. Unknown currency/locale codes are rejected with 422 by the
-         *     request schema.
+         *     request schema. Each entry in the optional ``consents`` map appends a new row to
+         *     the append-only consent log (never an UPDATE), capturing source + ip + user_agent.
          */
         patch: operations["update_preferences_api_v1_me_preferences_patch"];
+        trace?: never;
+    };
+    "/api/v1/me/data-export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Export My Data
+         * @description Return the caller's full personal-data export (GDPR Art. 15/20).
+         *
+         *     Owner-scoped: profile + addresses + orders (with items) + consent trail. Auth
+         *     secrets (password hash, reset-token hash, TOTP secret) are never included.
+         */
+        post: operations["export_my_data_api_v1_me_data_export_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/account-deletion-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Account Deletion
+         * @description Request account deletion (GDPR Art. 17) — soft-delete, applied immediately.
+         *
+         *     Stamps ``deletion_requested_at`` and anonymizes PII in place (name/phone/email,
+         *     shipping + company fields), deletes the address book, and revokes all refresh
+         *     tokens. Order/invoice rows are KEPT for tax retention. No purge job runs — the
+         *     5-year retention window is documented only (D-B-4 / D-ACCT-1).
+         */
+        post: operations["request_account_deletion_api_v1_me_account_deletion_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/addresses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Addresses
+         * @description Return the caller's own addresses (default-shipping first, then newest).
+         */
+        get: operations["list_addresses_api_v1_addresses_get"];
+        put?: never;
+        /**
+         * Create Address
+         * @description Create an address for the caller.
+         *
+         *     The first address a user creates auto-becomes both defaults; otherwise the
+         *     posted ``is_default_*`` flags apply (clearing the matching flag on the
+         *     caller's other rows).
+         */
+        post: operations["create_address_api_v1_addresses_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/addresses/{address_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Address
+         * @description Update one of the caller's addresses. Unknown/cross-user id → 404.
+         */
+        put: operations["update_address_api_v1_addresses__address_id__put"];
+        post?: never;
+        /**
+         * Delete Address
+         * @description Delete one of the caller's addresses. Unknown/cross-user id → 404.
+         */
+        delete: operations["delete_address_api_v1_addresses__address_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AccountDeletionResponse
+         * @description Acknowledgement of an account-deletion request (Art. 17 soft-delete).
+         */
+        AccountDeletionResponse: {
+            /**
+             * Deletion Requested At
+             * Format: date-time
+             */
+            deletion_requested_at: string;
+            /** Anonymized At */
+            anonymized_at?: string | null;
+            /**
+             * Detail
+             * @default Your account has been anonymized.
+             */
+            detail: string;
+        };
+        /**
+         * AddressCreate
+         * @description Request body for ``POST /api/v1/addresses``.
+         */
+        AddressCreate: {
+            /** Label */
+            label?: string | null;
+            /** Recipient Name */
+            recipient_name: string;
+            /** Street */
+            street: string;
+            /** City */
+            city: string;
+            /** Postal Code */
+            postal_code: string;
+            /** Country */
+            country: string;
+            /** State */
+            state?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /**
+             * Is Default Shipping
+             * @default false
+             */
+            is_default_shipping: boolean;
+            /**
+             * Is Default Billing
+             * @default false
+             */
+            is_default_billing: boolean;
+        };
+        /**
+         * AddressResponse
+         * @description An address row as the API returns it.
+         */
+        AddressResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Label */
+            label?: string | null;
+            /** Recipient Name */
+            recipient_name: string;
+            /** Street */
+            street: string;
+            /** City */
+            city: string;
+            /** Postal Code */
+            postal_code: string;
+            /** Country */
+            country: string;
+            /** State */
+            state?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /**
+             * Is Default Shipping
+             * @default false
+             */
+            is_default_shipping: boolean;
+            /**
+             * Is Default Billing
+             * @default false
+             */
+            is_default_billing: boolean;
+            /** User Id */
+            user_id: number;
+        };
+        /**
+         * AddressUpdate
+         * @description Request body for ``PUT /api/v1/addresses/{id}`` (all fields optional).
+         *
+         *     Only fields present in the body change. The ``is_default_*`` flags, when set
+         *     to ``True``, clear the same flag on the caller's other rows (enforced in the
+         *     CRUD layer). Setting a flag ``False`` does not promote another row.
+         */
+        AddressUpdate: {
+            /** Label */
+            label?: string | null;
+            /** Recipient Name */
+            recipient_name?: string | null;
+            /** Street */
+            street?: string | null;
+            /** City */
+            city?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            /** Country */
+            country?: string | null;
+            /** State */
+            state?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Is Default Shipping */
+            is_default_shipping?: boolean | null;
+            /** Is Default Billing */
+            is_default_billing?: boolean | null;
+        };
         /**
          * AdminReviewListItem
          * @description A review row for the admin moderation list (joins product + author).
@@ -3941,6 +4168,32 @@ export interface components {
             low_stock: components["schemas"]["LowStockItem"][];
         };
         /**
+         * DataExportResponse
+         * @description GDPR Art. 15/20 export — the caller's full personal-data snapshot.
+         *
+         *     Loosely typed (``dict``/``list[dict]``) on purpose: this is a
+         *     machine-readable dump for the data subject, not a long-lived API contract, so
+         *     it can carry whatever columns the source rows expose without a schema lockstep.
+         */
+        DataExportResponse: {
+            /** User */
+            user: {
+                [key: string]: unknown;
+            };
+            /** Addresses */
+            addresses: {
+                [key: string]: unknown;
+            }[];
+            /** Orders */
+            orders: {
+                [key: string]: unknown;
+            }[];
+            /** Consents */
+            consents: {
+                [key: string]: unknown;
+            }[];
+        };
+        /**
          * EmailResend
          * @description Schema for resending verification email
          */
@@ -4477,6 +4730,10 @@ export interface components {
         /**
          * PreferencesResponse
          * @description The caller's own preferences snapshot (shape shared by GET + PATCH).
+         *
+         *     ``consents`` is the latest-per-type map computed from the append-only
+         *     ``user_consents`` log (e.g. ``{"marketing_email": true}``); types the user has
+         *     never touched are simply absent. Currency/locale unchanged from Wave A.
          */
         PreferencesResponse: {
             /** Preferred Currency */
@@ -4486,6 +4743,10 @@ export interface components {
              * @enum {string}
              */
             locale: "en" | "pl";
+            /** Consents */
+            consents?: {
+                [key: string]: boolean;
+            };
         };
         /**
          * PreferencesUpdate
@@ -4495,12 +4756,20 @@ export interface components {
          *     "absent" from an explicit ``null`` matters: ``preferred_currency: null`` clears
          *     the preference, while omitting it leaves the stored value unchanged. The route
          *     inspects ``model_fields_set`` to tell the two apart.
+         *
+         *     ``consents`` is an optional partial map of ``{consent_type: granted}``; each
+         *     provided entry appends a new row to the append-only consent log (never an
+         *     UPDATE). Omitting it leaves the consent state untouched.
          */
         PreferencesUpdate: {
             /** Preferred Currency */
             preferred_currency?: ("USD" | "PLN" | "EUR") | null;
             /** Locale */
             locale?: ("en" | "pl") | null;
+            /** Consents */
+            consents?: {
+                [key: string]: boolean;
+            } | null;
         };
         /**
          * ProductCreate
@@ -11517,6 +11786,163 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PreferencesResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_my_data_api_v1_me_data_export_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataExportResponse"];
+                };
+            };
+        };
+    };
+    request_account_deletion_api_v1_me_account_deletion_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDeletionResponse"];
+                };
+            };
+        };
+    };
+    list_addresses_api_v1_addresses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponse"][];
+                };
+            };
+        };
+    };
+    create_address_api_v1_addresses_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddressCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_address_api_v1_addresses__address_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                address_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddressUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_address_api_v1_addresses__address_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                address_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
