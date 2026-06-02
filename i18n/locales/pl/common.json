@@ -1654,6 +1654,53 @@
           "saved": "Zaktualizowano język wiadomości e-mail.",
           "error": "Nie udało się zaktualizować języka wiadomości e-mail."
         }
+      },
+      "security": {
+        "title": "Bezpieczeństwo",
+        "subtitle": "Zmień hasło i zarządzaj urządzeniami, na których jesteś zalogowany.",
+        "password": {
+          "title": "Zmień hasło",
+          "current": "Obecne hasło",
+          "new": "Nowe hasło",
+          "newHint": "Co najmniej 8 znaków.",
+          "confirm": "Potwierdź nowe hasło",
+          "save": "Zaktualizuj hasło",
+          "saved": "Zaktualizowano hasło.",
+          "error": "Nie udało się zaktualizować hasła.",
+          "errors": {
+            "currentRequired": "Wpisz swoje obecne hasło",
+            "tooShort": "Musi mieć co najmniej 8 znaków",
+            "mismatch": "Hasła nie są takie same"
+          }
+        },
+        "sessions": {
+          "title": "Aktywne sesje",
+          "subtitle": "To są urządzenia obecnie zalogowane na Twoim koncie.",
+          "caption": "Twoje aktywne sesje logowania",
+          "device": "Urządzenie",
+          "ip": "Adres IP",
+          "signedIn": "Zalogowano",
+          "expires": "Wygasa",
+          "actions": "Akcje",
+          "current": "To urządzenie",
+          "unknownDevice": "Nieznane urządzenie",
+          "loading": "Ładowanie sesji…",
+          "empty": "Brak aktywnych sesji.",
+          "revoke": "Wyloguj",
+          "revokeLabel": "Wyloguj tę sesję",
+          "revoked": "Sesja została wylogowana.",
+          "revokeError": "Nie udało się wylogować tej sesji.",
+          "cancel": "Anuluj",
+          "revokeConfirmTitle": "Wylogować tę sesję?",
+          "revokeConfirmBody": "To urządzenie zostanie wylogowane i będzie wymagać ponownego logowania."
+        },
+        "signOutAll": {
+          "button": "Wyloguj wszędzie",
+          "confirmTitle": "Wylogować ze wszystkich urządzeń?",
+          "confirmBody": "Zostaniesz wylogowany na każdym urządzeniu, w tym na tym, i będziesz musiał zalogować się ponownie.",
+          "cancel": "Anuluj",
+          "error": "Nie udało się wylogować wszędzie. Spróbuj ponownie."
+        }
       }
     }
   },
