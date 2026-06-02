@@ -1656,7 +1656,9 @@
         "addresses": "Addresses",
         "preferences": "Preferences",
         "privacy": "Privacy",
-        "company": "Company"
+        "company": "Company",
+        "team": "Team",
+        "b2bSection": "Business"
       },
       "profile": {
         "title": "Profile",
@@ -1882,6 +1884,91 @@
           "countryTooLong": "Country must be 100 characters or fewer",
           "stateTooLong": "State must be 100 characters or fewer",
           "currencyInvalid": "Use a 3-letter currency code, e.g. USD"
+        }
+      },
+      "team": {
+        "title": "Team",
+        "subtitle": "Manage who can access your company account.",
+        "notB2B": "Team management is available for business accounts only.",
+        "backToAccount": "Back to account",
+        "readOnly": {
+          "title": "View only",
+          "body": "Only a company admin can invite people or change roles."
+        },
+        "invite": {
+          "title": "Invite a member",
+          "hint": "The person must already have an account. Invite them by email and pick a role.",
+          "email": "Email",
+          "emailPlaceholder": "name{'@'}company.com",
+          "role": "Role",
+          "submit": "Invite",
+          "success": "Invitation sent.",
+          "error": "Could not send the invitation.",
+          "errors": {
+            "emailRequired": "Email is required",
+            "emailInvalid": "Enter a valid email address",
+            "noAccount": "No account found for that email — they must register first, then you can invite them.",
+            "alreadyMember": "That person is already a member of this company."
+          }
+        },
+        "roster": {
+          "title": "Members"
+        },
+        "roleChanged": "Role updated.",
+        "roles": {
+          "COMPANY_ADMIN": "Admin",
+          "BUYER": "Buyer",
+          "APPROVER": "Approver",
+          "VIEWER": "Viewer"
+        },
+        "statuses": {
+          "active": "Active",
+          "invited": "Invited",
+          "suspended": "Suspended"
+        },
+        "table": {
+          "caption": "Company team members",
+          "member": "Member",
+          "role": "Role",
+          "status": "Status",
+          "actions": "Actions",
+          "roleFor": "Role for {name}",
+          "loading": "Loading members…",
+          "empty": "No members yet.",
+          "unknownMember": "Unknown member"
+        },
+        "actions": {
+          "suspend": "Suspend",
+          "suspendLabel": "Suspend {name}",
+          "reactivate": "Reactivate",
+          "reactivateLabel": "Reactivate {name}",
+          "remove": "Remove",
+          "removeLabel": "Remove {name}"
+        },
+        "confirm": {
+          "cancel": "Cancel",
+          "remove": {
+            "title": "Remove member",
+            "body": "Remove {name} from the company? They will lose access immediately.",
+            "confirm": "Remove",
+            "success": "Member removed."
+          },
+          "suspend": {
+            "title": "Suspend member",
+            "body": "Suspend {name}? They keep their place on the team but lose access until reactivated.",
+            "confirm": "Suspend",
+            "success": "Member suspended."
+          },
+          "reactivate": {
+            "title": "Reactivate member",
+            "body": "Reactivate {name}? They will regain access to the company account.",
+            "confirm": "Reactivate",
+            "success": "Member reactivated."
+          }
+        },
+        "errors": {
+          "lastAdmin": "You cannot demote, suspend, or remove the last company admin.",
+          "actionFailed": "Could not complete that action."
         }
       }
     }
