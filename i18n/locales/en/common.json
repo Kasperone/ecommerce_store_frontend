@@ -1655,7 +1655,8 @@
         "security": "Security",
         "addresses": "Addresses",
         "preferences": "Preferences",
-        "privacy": "Privacy"
+        "privacy": "Privacy",
+        "company": "Company"
       },
       "profile": {
         "title": "Profile",
@@ -1836,6 +1837,51 @@
           "countryInvalid": "Select a country",
           "stateTooLong": "State must be 100 characters or fewer",
           "phoneInvalid": "Enter a valid phone number"
+        }
+      },
+      "company": {
+        "title": "Company",
+        "subtitle": "Manage your company profile and billing details.",
+        "loading": "Loading company…",
+        "notAMember": "This account is not linked to a business. Companies are managed by your administrator.",
+        "readOnlyNotice": "Only a company administrator can edit these details.",
+        "pendingTitle": "Company pending approval",
+        "pendingBody": "Your company is awaiting approval. You can update its details in the meantime.",
+        "save": "Save changes",
+        "saved": "Company profile updated.",
+        "saveError": "Could not update the company profile.",
+        "noChanges": "No changes to save.",
+        "status": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        },
+        "fields": {
+          "taxId": "Tax ID",
+          "regon": "REGON",
+          "email": "Billing email",
+          "phone": "Phone",
+          "street": "Billing street",
+          "city": "City",
+          "postalCode": "Postal code",
+          "country": "Country",
+          "state": "State / province",
+          "defaultCurrency": "Default currency",
+          "defaultCurrencyHint": "A 3-letter currency code, e.g. USD, EUR or PLN.",
+          "defaultCurrencyPlaceholder": "USD"
+        },
+        "errors": {
+          "taxIdTooLong": "Tax ID must be 64 characters or fewer",
+          "regonTooLong": "REGON must be 64 characters or fewer",
+          "emailInvalid": "Enter a valid email address",
+          "emailTooLong": "Email must be 255 characters or fewer",
+          "phoneInvalid": "Enter a valid phone number",
+          "streetTooLong": "Street must be 255 characters or fewer",
+          "cityTooLong": "City must be 100 characters or fewer",
+          "postalTooLong": "Postal code must be 20 characters or fewer",
+          "countryTooLong": "Country must be 100 characters or fewer",
+          "stateTooLong": "State must be 100 characters or fewer",
+          "currencyInvalid": "Use a 3-letter currency code, e.g. USD"
         }
       }
     }
@@ -2079,6 +2125,13 @@
       "enterNewPassword": "Enter your new password",
       "confirmNewPassword": "Confirm new password",
       "tokenMissing": "Reset link is missing or malformed."
+    },
+    "businessSignup": {
+      "title": "Register as a business",
+      "subtitle": "Create a business account. Your company will be reviewed before approval.",
+      "submit": "Create business account",
+      "success": "Business account created",
+      "successDescription": "Check your email to verify your account. Your company will be reviewed by our team."
     }
   },
   "authExtra": {

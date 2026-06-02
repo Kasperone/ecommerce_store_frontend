@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
     BASE: '/api/v1/auth',
     LOGIN: '/api/v1/auth/login', // POST - OAuth2 token login
     REGISTER: '/api/v1/auth/register', // POST - Register new user
+    REGISTER_BUSINESS: '/api/v1/auth/register-business', // POST - B2B self-signup (user + pending company)
     ME: '/api/v1/auth/me', // GET - Get current user
     UPDATE_ME: '/api/v1/auth/me', // PUT - Update current user
     REFRESH: '/api/v1/auth/refresh', // POST - Rotate refresh cookie + new access token
