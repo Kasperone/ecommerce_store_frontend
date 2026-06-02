@@ -32,6 +32,10 @@
       "added": "Added to cart",
       "removed": "Removed from cart",
       "updated": "Cart updated"
+    },
+    "requestQuote": {
+      "button": "Request a quote",
+      "error": "Could not request a quote. Please try again."
     }
   },
   "checkout": {

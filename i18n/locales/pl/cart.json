@@ -32,6 +32,10 @@
       "added": "Dodano do koszyka",
       "removed": "Usunięto z koszyka",
       "updated": "Zaktualizowano koszyk"
+    },
+    "requestQuote": {
+      "button": "Poproś o wycenę",
+      "error": "Nie udało się poprosić o wycenę. Spróbuj ponownie."
     }
   },
   "checkout": {
