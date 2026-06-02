@@ -17,11 +17,15 @@ import { narrowFetchError } from '~/utils/apiError'
  * Auth Store
  *
  * The access token lives in memory only — the refresh cookie (HttpOnly,
- * SameSite=Strict, path=/api/v1/auth) is the only piece of credential
- * material that survives a tab close. On boot, the auth plugin calls
- * `tryRestoreSession()` which posts to /auth/refresh; the browser sends
- * the cookie automatically and we either get a fresh access token back
- * or a 401 (still logged out).
+ * SameSite=Strict, Path=/ so it rides on every same-origin request incl. the
+ * SSR page load) is the only piece of credential material that survives a tab
+ * close. On boot, the auth plugin calls `tryRestoreSession()`:
+ *   - client → POST /auth/refresh (the browser sends the cookie; rotates it)
+ *   - server (SSR) → POST /auth/refresh/ssr with the forwarded cookie + the
+ *     X-SSR-Secret header — validates and mints an access token WITHOUT
+ *     rotating, so there's no Set-Cookie-replay/rotation race to mismatch on
+ *     hydration (falls back to the rotating /auth/refresh if no secret is set).
+ * Either way we get a fresh access token back or a 401 (still logged out).
  *
  * Concurrent refresh attempts share a single in-flight promise so a
  * burst of simultaneous 401s only triggers one /refresh call.
@@ -303,7 +307,7 @@ export const useAuthStore = defineStore('auth', () => {
         if (import.meta.server) {
           // Capture Nuxt-context handles synchronously, BEFORE the first
           // await. Nitro's unctx-driven async context can drop after
-          // `await $fetch.raw(...)`, after which `useRequestEvent`,
+          // `await $fetch(...)`, after which `useRequestEvent`,
           // `useRuntimeConfig`, and `useApi` (transitively via
           // `useRuntimeConfig`) all throw "A composable that requires
           // access to the Nuxt instance was called outside of a plugin, …".
@@ -317,48 +321,70 @@ export const useAuthStore = defineStore('auth', () => {
           }
           const config = useRuntimeConfig()
           const apiBaseURL = config.public.apiBase as string
+          const ssrSecret = config.ssrSharedSecret as string
 
-          const response = await $fetch.raw<TokenResponse>(
-            AUTH_ENDPOINTS.REFRESH,
-            {
+          // Adopt a freshly-minted access token + load the user. Inlined
+          // (not `fetchUser` → `useApi`) because `useApi()` calls
+          // `useRuntimeConfig()`, which throws post-await for the same reason
+          // the handles above are hoisted.
+          const adoptAccessToken = async (token: string): Promise<boolean> => {
+            setAccessToken(token)
+            if (!user.value) {
+              try {
+                user.value = await $fetch<UserResponse>(AUTH_ENDPOINTS.ME, {
+                  method: 'GET',
+                  baseURL: apiBaseURL,
+                  headers: { Authorization: `Bearer ${token}` },
+                })
+              }
+              catch {
+                clearSession()
+                return false
+              }
+            }
+            return true
+          }
+
+          if (ssrSecret) {
+            // Preferred path: validate the cookie and mint an access token
+            // WITHOUT rotating it. Nothing rotates, so there's no Set-Cookie to
+            // replay and no rotation/replay race — this is the fix for the
+            // hard-reload hydration mismatch (and the spurious /login redirects).
+            // A non-2xx throws and is caught by the outer catch → logged-out
+            // render, client restores after hydration.
+            const body = await $fetch<TokenResponse>(AUTH_ENDPOINTS.REFRESH_SSR, {
               method: 'POST',
               baseURL: apiBaseURL,
-              headers: { cookie: incomingCookie },
-            },
-          )
+              headers: { 'cookie': incomingCookie, 'X-SSR-Secret': ssrSecret },
+            })
+            if (!body?.access_token) {
+              clearSession()
+              return false
+            }
+            return adoptAccessToken(body.access_token)
+          }
 
+          // Legacy fallback (no SSR secret configured): the rotating
+          // /auth/refresh with Set-Cookie replay. Kept so unconfigured envs
+          // don't regress; removable once SSR_SHARED_SECRET is provisioned
+          // everywhere.
+          const response = await $fetch.raw<TokenResponse>(AUTH_ENDPOINTS.REFRESH, {
+            method: 'POST',
+            baseURL: apiBaseURL,
+            headers: { cookie: incomingCookie },
+          })
           const setCookies = response.headers.getSetCookie?.() ?? []
           if (event) {
             for (const cookie of setCookies) {
               appendResponseHeader(event, 'set-cookie', cookie)
             }
           }
-
           const body = response._data as TokenResponse | undefined
           if (!body?.access_token) {
             clearSession()
             return false
           }
-          setAccessToken(body.access_token)
-          if (!user.value) {
-            // Inline /me fetch with the captured baseURL + freshly-issued
-            // bearer. We can't reuse the regular `fetchUser` → `useApi`
-            // codepath here because `useApi()` internally calls
-            // `useRuntimeConfig()`, which would throw post-await for the
-            // same reason `useRequestEvent` did before the hoist above.
-            try {
-              user.value = await $fetch<UserResponse>(AUTH_ENDPOINTS.ME, {
-                method: 'GET',
-                baseURL: apiBaseURL,
-                headers: { Authorization: `Bearer ${body.access_token}` },
-              })
-            }
-            catch {
-              clearSession()
-              return false
-            }
-          }
-          return true
+          return adoptAccessToken(body.access_token)
         }
 
         // Client: browser handles cookies; the existing authBaseFetch
