@@ -1650,6 +1650,53 @@
           "saved": "Email language updated.",
           "error": "Could not update email language."
         }
+      },
+      "security": {
+        "title": "Security",
+        "subtitle": "Change your password and manage where you're signed in.",
+        "password": {
+          "title": "Change password",
+          "current": "Current password",
+          "new": "New password",
+          "newHint": "At least 8 characters.",
+          "confirm": "Confirm new password",
+          "save": "Update password",
+          "saved": "Password updated.",
+          "error": "Could not update your password.",
+          "errors": {
+            "currentRequired": "Enter your current password",
+            "tooShort": "Must be at least 8 characters",
+            "mismatch": "Passwords do not match"
+          }
+        },
+        "sessions": {
+          "title": "Active sessions",
+          "subtitle": "These are the devices currently signed in to your account.",
+          "caption": "Your active login sessions",
+          "device": "Device",
+          "ip": "IP address",
+          "signedIn": "Signed in",
+          "expires": "Expires",
+          "actions": "Actions",
+          "current": "This device",
+          "unknownDevice": "Unknown device",
+          "loading": "Loading sessions…",
+          "empty": "No active sessions.",
+          "revoke": "Revoke",
+          "revokeLabel": "Revoke this session",
+          "revoked": "Session revoked.",
+          "revokeError": "Could not revoke that session.",
+          "cancel": "Cancel",
+          "revokeConfirmTitle": "Revoke this session?",
+          "revokeConfirmBody": "That device will be signed out and will need to log in again."
+        },
+        "signOutAll": {
+          "button": "Sign out everywhere",
+          "confirmTitle": "Sign out of all devices?",
+          "confirmBody": "You'll be signed out on every device, including this one, and will need to log in again.",
+          "cancel": "Cancel",
+          "error": "Could not sign out everywhere. Please try again."
+        }
       }
     }
   },
