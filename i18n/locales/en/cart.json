@@ -54,6 +54,11 @@
       "freeAbove": "Free over {amount}",
       "free": "Free"
     },
+    "address": {
+      "savedLabel": "Use a saved address",
+      "savedHint": "Pick a saved address to prefill the form, or enter a new one.",
+      "enterNew": "Enter a new address"
+    },
     "summary": {
       "heading": "Order summary",
       "subtotal": "Subtotal",
