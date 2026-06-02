@@ -87,9 +87,11 @@ const StubCoupon = defineComponent({ setup: () => () => h('div', 'coupon') })
 
 const tick = () => new Promise(r => setTimeout(r, 0))
 
+const mounted: { unmount: () => void }[] = []
+
 async function mountPage() {
   const CheckoutPage = (await import('./index.vue')).default
-  return mountSuspended(CheckoutPage, {
+  const wrapper = await mountSuspended(CheckoutPage, {
     global: {
       stubs: {
         NuxtLayout: PassThroughStub,
@@ -99,6 +101,8 @@ async function mountPage() {
       },
     },
   })
+  mounted.push(wrapper)
+  return wrapper
 }
 
 beforeEach(() => {
@@ -106,6 +110,12 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  // Unmount each wrapper so Vue tears down its (possibly teleported) nodes cleanly
+  // BEFORE the DOM is wiped. Clearing document.body first leaves Vue holding
+  // detached nodes; a deferred patch then reads `nextSibling` of a node whose
+  // parent is gone and throws an unhandled TypeError (happy-dom teleport gotcha) —
+  // which passes locally but fails the CI Vitest job.
+  while (mounted.length) mounted.pop()!.unmount()
   document.body.innerHTML = ''
 })
 
