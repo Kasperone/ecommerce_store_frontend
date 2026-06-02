@@ -75,6 +75,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/register-business": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register Business
+         * @description Self-register a B2B account (Wave D / D-D-5).
+         *
+         *     Atomically creates the user (``UserRole.CUSTOMER``) + a ``pending`` company +
+         *     an active ``COMPANY_ADMIN`` membership for that user, in one transaction. The
+         *     company stays ``pending`` until an admin approves it via the existing admin
+         *     Companies UI (open registration + manual approval). The user then goes
+         *     through the normal email-verification path (reuses the ``register`` email
+         *     flow), and the response is **anti-enumeration**: the same generic 200 body is
+         *     returned whether the email is free or already taken (a duplicate sends the
+         *     "already registered" notice out of band and creates nothing).
+         *
+         *     - **email**, **password**, **first_name**, **last_name**, **phone**: the
+         *       personal account (same rules as ``/register``).
+         *     - **company_name** (required), **company_tax_id** (optional): the company.
+         */
+        post: operations["register_business_api_v1_auth_register_business_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -2793,10 +2826,12 @@ export interface paths {
         };
         /**
          * Get My Company
-         * @description The caller's company (resolved via primary contact), else 404.
+         * @description The caller's company + B2B role (resolved via membership), else 404.
          *
-         *     404 means "you are not a B2B account" — the FE uses it to gate the quote-request
-         *     surfaces.
+         *     404 means "you are not a B2B account" — the FE uses it to gate the B2B
+         *     surfaces. The response carries the caller's ``role`` so the FE can role-gate
+         *     (VIEWER read-only; BUYER request quotes + checkout; COMPANY_ADMIN profile +
+         *     team).
          */
         get: operations["get_my_company_api_v1_companies_me_get"];
         put?: never;
@@ -2804,7 +2839,78 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /**
+         * Update My Company
+         * @description Update the caller's company profile (Wave D / D-D-4) — **COMPANY_ADMIN only**.
+         *
+         *     ``require_company_admin`` gates this: a non-member 404s and a member who is
+         *     not a COMPANY_ADMIN (BUYER/APPROVER/VIEWER) gets a 403. The editable fields
+         *     are the narrow profile allow-list (contact + billing + ``default_currency``);
+         *     ``name`` / ``status`` / ``primary_user_id`` are admin-directory concerns and
+         *     are not exposed here. Returns the updated company with the caller's ``role``
+         *     (same shape as ``GET /companies/me``).
+         */
+        patch: operations["update_my_company_api_v1_companies_me_patch"];
+        trace?: never;
+    };
+    "/api/v1/companies/me/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Members
+         * @description List the caller's company's team (newest first). Any active member may read.
+         */
+        get: operations["list_members_api_v1_companies_me_users_get"];
+        put?: never;
+        /**
+         * Invite Member
+         * @description Invite a user (by email) to the caller's company with a B2B role (COMPANY_ADMIN only).
+         *
+         *     The email must resolve to an existing user account (the membership links to
+         *     it) → otherwise 404. A user who is already a member of this company → 409. On
+         *     success a membership is created in the ``invited`` status (no access until
+         *     accepted/activated) and returned (201).
+         */
+        post: operations["invite_member_api_v1_companies_me_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/companies/me/users/{member_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Member
+         * @description Remove a member from the caller's company (COMPANY_ADMIN only).
+         *
+         *     Refuses removing the company's last active COMPANY_ADMIN (→ 409). A
+         *     cross-company ``member_id`` → 404. Returns 204 on success.
+         */
+        delete: operations["remove_member_api_v1_companies_me_users__member_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Member
+         * @description Change a member's role and/or status (COMPANY_ADMIN only).
+         *
+         *     Promote/demote (``role``) and suspend/reactivate (``status``). The
+         *     last-active-admin guard refuses a demote or suspend that would orphan the
+         *     company (→ 409). A cross-company ``member_id`` → 404.
+         */
+        patch: operations["update_member_api_v1_companies_me_users__member_id__patch"];
         trace?: never;
     };
 }
@@ -3256,6 +3362,37 @@ export interface components {
         BulkReorderRequest: {
             /** Items */
             items: components["schemas"]["BulkReorderItem"][];
+        };
+        /**
+         * BusinessRegister
+         * @description Request body for ``POST /api/v1/auth/register-business`` (Wave D / D-D-5).
+         *
+         *     Open B2B self-signup: the personal account fields (mirroring the normal
+         *     ``register`` — email + strong password + name) plus the minimal company
+         *     identity (``company_name`` required, ``company_tax_id`` optional). One call
+         *     creates the user (``UserRole.CUSTOMER``) + a ``pending`` company + an active
+         *     ``COMPANY_ADMIN`` membership; the company stays ``pending`` until an admin
+         *     approves it. The user still goes through email verification, and the response
+         *     is anti-enumeration (same generic body whether the email is free or taken).
+         */
+        BusinessRegister: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Password */
+            password: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Phone */
+            phone?: string | null;
+            /** Company Name */
+            company_name: string;
+            /** Company Tax Id */
+            company_tax_id?: string | null;
         };
         /**
          * CampaignCreate
@@ -3735,6 +3872,20 @@ export interface components {
             notes?: string | null;
             /** Primary User Id */
             primary_user_id?: number | null;
+            /** Regon */
+            regon?: string | null;
+            /** Billing Address Street */
+            billing_address_street?: string | null;
+            /** Billing Address City */
+            billing_address_city?: string | null;
+            /** Billing Address Postal Code */
+            billing_address_postal_code?: string | null;
+            /** Billing Address Country */
+            billing_address_country?: string | null;
+            /** Billing Address State */
+            billing_address_state?: string | null;
+            /** Default Currency */
+            default_currency?: string | null;
         };
         /**
          * CompanyListResponse
@@ -3751,6 +3902,183 @@ export interface components {
             page_size: number;
             /** Pages */
             pages: number;
+        };
+        /**
+         * CompanyMeResponse
+         * @description The caller's own company on ``GET /companies/me`` (Wave D).
+         *
+         *     Extends ``CompanyResponse`` with the caller's B2B ``role`` so the frontend can
+         *     role-gate the B2B surfaces (VIEWER read-only; BUYER request quotes + checkout;
+         *     COMPANY_ADMIN profile + team). Built from a ``CompanyMembership`` (the company
+         *     fields come from ``membership.company`` via ``from_attributes``; ``role`` is
+         *     set explicitly by the route).
+         */
+        CompanyMeResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Tax Id */
+            tax_id?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /**
+             * Status
+             * @default pending
+             * @enum {string}
+             */
+            status: "pending" | "approved" | "rejected";
+            /** Account Manager */
+            account_manager?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Primary User Id */
+            primary_user_id?: number | null;
+            /** Regon */
+            regon?: string | null;
+            /** Billing Address Street */
+            billing_address_street?: string | null;
+            /** Billing Address City */
+            billing_address_city?: string | null;
+            /** Billing Address Postal Code */
+            billing_address_postal_code?: string | null;
+            /** Billing Address Country */
+            billing_address_country?: string | null;
+            /** Billing Address State */
+            billing_address_state?: string | null;
+            /** Default Currency */
+            default_currency?: string | null;
+            /** Primary User Email */
+            primary_user_email?: string | null;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER";
+        };
+        /**
+         * CompanyMemberInvite
+         * @description Request body for ``POST /api/v1/companies/me/users`` (invite by email + role).
+         *
+         *     ``email`` must resolve to an existing user account (the membership links to it);
+         *     ``role`` is the B2B role to grant. ``COMPANY_ADMIN`` is invitable (a company can
+         *     have several admins). The route creates an ``invited`` membership.
+         */
+        CompanyMemberInvite: {
+            /** Email */
+            email: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER";
+        };
+        /**
+         * CompanyMemberResponse
+         * @description A ``company_users`` row as the team API returns it.
+         *
+         *     ``user_id`` is the linked account; ``user_email`` / ``user_name`` are read-only
+         *     denormalised display values from the linked ``User`` (resolved by the route so
+         *     the FE roster doesn't need a second fetch). ``invited_email`` / ``invited_at``
+         *     are populated for rows created via an invite, ``None`` otherwise.
+         */
+        CompanyMemberResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Company Id */
+            company_id: number;
+            /** User Id */
+            user_id: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "invited" | "suspended";
+            /** Invited Email */
+            invited_email?: string | null;
+            /** Invited At */
+            invited_at?: string | null;
+            /** User Email */
+            user_email?: string | null;
+            /** User Name */
+            user_name?: string | null;
+        };
+        /**
+         * CompanyMemberUpdate
+         * @description Request body for ``PATCH /api/v1/companies/me/users/{id}`` (role / status).
+         *
+         *     Both fields optional — a PATCH may change just the role (e.g. promote to
+         *     COMPANY_ADMIN) or just the status (e.g. ``suspended`` to deactivate, ``active``
+         *     to reactivate). At least one must be provided (else the PATCH is a no-op → 422).
+         *     The last-COMPANY_ADMIN guard lives in the route.
+         */
+        CompanyMemberUpdate: {
+            /** Role */
+            role?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER") | null;
+            /** Status */
+            status?: ("active" | "invited" | "suspended") | null;
+        };
+        /**
+         * CompanyProfileUpdate
+         * @description Request body for ``PATCH /api/v1/companies/me`` — the COMPANY_ADMIN-editable
+         *     company-profile fields (Wave D / D-D-4).
+         *
+         *     Deliberately a **narrow** allow-list: a COMPANY_ADMIN may edit the company's
+         *     own contact + billing profile, but NOT ``name`` / ``status`` /
+         *     ``account_manager`` / ``primary_user_id`` (those are admin-directory concerns
+         *     — ``status`` is the approval gate; the primary contact + account manager are
+         *     set by staff). All fields are optional; only those explicitly sent are
+         *     applied (``exclude_unset`` in the CRUD). ``default_currency`` is normalised to
+         *     upper-case; an empty/blank string for any field clears it to ``None``.
+         */
+        CompanyProfileUpdate: {
+            /** Tax Id */
+            tax_id?: string | null;
+            /** Regon */
+            regon?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Billing Address Street */
+            billing_address_street?: string | null;
+            /** Billing Address City */
+            billing_address_city?: string | null;
+            /** Billing Address Postal Code */
+            billing_address_postal_code?: string | null;
+            /** Billing Address Country */
+            billing_address_country?: string | null;
+            /** Billing Address State */
+            billing_address_state?: string | null;
+            /** Default Currency */
+            default_currency?: string | null;
         };
         /**
          * CompanyResponse
@@ -3794,6 +4122,20 @@ export interface components {
             notes?: string | null;
             /** Primary User Id */
             primary_user_id?: number | null;
+            /** Regon */
+            regon?: string | null;
+            /** Billing Address Street */
+            billing_address_street?: string | null;
+            /** Billing Address City */
+            billing_address_city?: string | null;
+            /** Billing Address Postal Code */
+            billing_address_postal_code?: string | null;
+            /** Billing Address Country */
+            billing_address_country?: string | null;
+            /** Billing Address State */
+            billing_address_state?: string | null;
+            /** Default Currency */
+            default_currency?: string | null;
             /** Primary User Email */
             primary_user_email?: string | null;
         };
@@ -7007,6 +7349,39 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UserCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericMessage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    register_business_api_v1_auth_register_business_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BusinessRegister"];
             };
         };
         responses: {
@@ -12272,7 +12647,157 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CompanyResponse"];
+                    "application/json": components["schemas"]["CompanyMeResponse"];
+                };
+            };
+        };
+    };
+    update_my_company_api_v1_companies_me_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyProfileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyMeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_members_api_v1_companies_me_users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyMemberResponse"][];
+                };
+            };
+        };
+    };
+    invite_member_api_v1_companies_me_users_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyMemberInvite"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyMemberResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_member_api_v1_companies_me_users__member_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                member_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_member_api_v1_companies_me_users__member_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                member_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyMemberUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyMemberResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
