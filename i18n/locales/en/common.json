@@ -1630,6 +1630,26 @@
           "lastNameRequired": "Last name is required",
           "phoneInvalid": "Enter a valid phone number"
         }
+      },
+      "preferences": {
+        "title": "Preferences",
+        "subtitle": "Choose your shopping currency and the language we email you in.",
+        "currency": {
+          "title": "Currency",
+          "label": "Shopping currency",
+          "hint": "Prices across the store show in this currency. It follows your account across devices.",
+          "saved": "Currency preference updated.",
+          "error": "Could not update your currency preference."
+        },
+        "emailLanguage": {
+          "title": "Email language",
+          "label": "Email language",
+          "hint": "The language we use for order confirmations and other emails.",
+          "en": "English",
+          "pl": "Polish",
+          "saved": "Email language updated.",
+          "error": "Could not update email language."
+        }
       }
     }
   },
