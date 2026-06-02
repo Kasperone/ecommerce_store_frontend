@@ -58,14 +58,17 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
   isLoading.value = true
   errorMessage.value = ''
 
-  const result = await authStore.register(payload.data, locale.value as 'en' | 'pl')
+  // B2B self-signup: creates the user + a pending company + a COMPANY_ADMIN
+  // membership (POST /auth/register-business), distinct from the personal
+  // `register`. The company stays pending until an admin approves it.
+  const result = await authStore.registerBusiness(payload.data)
 
   isLoading.value = false
 
   if (result.success) {
     toast.add({
-      title: t('auth.registrationSuccess'),
-      description: t('auth.registrationSuccessDescription'),
+      title: t('auth.businessSignup.success'),
+      description: t('auth.businessSignup.successDescription'),
       color: 'success',
       icon: 'i-lucide-check-circle',
     })
@@ -105,8 +108,11 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
         />
       </div>
       <h2 class="text-xl text-pretty font-semibold text-highlighted">
-        {{ t('auth.business') }}
+        {{ t('auth.businessSignup.title') }}
       </h2>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        {{ t('auth.businessSignup.subtitle') }}
+      </p>
     </div>
     <UAuthForm
       ref="authFormRef"
