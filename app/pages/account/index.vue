@@ -8,6 +8,7 @@ definePageMeta({
 const { t } = useI18n()
 const authStore = useAuthStore()
 const localePath = useLocalePath()
+const { isB2B } = useCompanyContext()
 
 useHead({
   titleTemplate: '%s | Account',
@@ -51,6 +52,36 @@ useHead({
           </div>
         </UCard>
       </NuxtLink>
+
+      <ClientOnly>
+        <NuxtLink
+          v-if="isB2B"
+          :to="localePath('/account/quotes')"
+          class="mt-6 block"
+          data-testid="quotes-nav-card"
+        >
+          <UCard class="transition hover:ring-2 hover:ring-primary">
+            <div class="flex items-center gap-4">
+              <UIcon
+                name="i-lucide-file-text"
+                class="size-8 text-primary"
+              />
+              <div>
+                <h2 class="font-semibold">
+                  {{ t('account.quotes.title') }}
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ t('account.quotes.accountCard') }}
+                </p>
+              </div>
+              <UIcon
+                name="i-lucide-chevron-right"
+                class="ml-auto size-5 text-muted"
+              />
+            </div>
+          </UCard>
+        </NuxtLink>
+      </ClientOnly>
 
       <NuxtLink
         :to="localePath('/account/settings')"

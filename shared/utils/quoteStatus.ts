@@ -14,6 +14,7 @@ export type QuoteStatus = components['schemas']['QuoteResponse']['status']
 
 export const QUOTE_STATUSES: QuoteStatus[] = [
   'draft',
+  'requested',
   'sent',
   'accepted',
   'rejected',
@@ -24,6 +25,7 @@ type BadgeColor = 'neutral' | 'primary' | 'success' | 'info' | 'warning' | 'erro
 
 const STATUS_COLORS: Record<QuoteStatus, BadgeColor> = {
   draft: 'neutral',
+  requested: 'primary',
   sent: 'info',
   accepted: 'success',
   rejected: 'error',
