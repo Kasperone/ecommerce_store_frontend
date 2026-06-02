@@ -34,10 +34,11 @@ export function useCompanyProfileQuery(enabled?: () => boolean) {
   const { apiFetch } = useApi()
   return useQuery({
     key: () => [...COMPANY_PROFILE_NAMESPACE],
-    query: () => apiFetch<CompanyMe>('/api/v1/companies/me'),
+    query: () => apiFetch<CompanyMe | null>('/api/v1/companies/me'),
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client && (enabled ? enabled() : true),
-    // A 404 (not a B2B member) is an expected outcome, not a transient error.
+    // Not-a-B2B-member is a 200 + null body (an expected outcome), not a
+    // transient error — nothing to retry.
     retry: false,
   })
 }

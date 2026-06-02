@@ -267,7 +267,7 @@ defineExpose({ localizedCountries })
             <UTable
               :data="zones"
               :columns="zoneColumns"
-              :empty="{ label: t('admin.shipping.zones.empty') }"
+              :empty="t('admin.shipping.zones.empty')"
             >
               <template #is_active-cell="{ row }">
                 <UBadge :color="row.original.is_active ? 'success' : 'neutral'">
@@ -315,7 +315,7 @@ defineExpose({ localizedCountries })
             <UTable
               :data="methods"
               :columns="methodColumns"
-              :empty="{ label: t('admin.shipping.methods.empty') }"
+              :empty="t('admin.shipping.methods.empty')"
             >
               <template #is_active-cell="{ row }">
                 <UBadge :color="row.original.is_active ? 'success' : 'neutral'">
@@ -402,7 +402,7 @@ defineExpose({ localizedCountries })
             <UTable
               :data="rates"
               :columns="rateColumns"
-              :empty="{ label: t('admin.shipping.rates.empty') }"
+              :empty="t('admin.shipping.rates.empty')"
             >
               <template #amount-cell="{ row }">
                 {{ row.original.amount.toFixed(2) }} {{ row.original.currency }}
