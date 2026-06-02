@@ -1701,6 +1701,43 @@
           "cancel": "Anuluj",
           "error": "Nie udało się wylogować wszędzie. Spróbuj ponownie."
         }
+      },
+      "privacy": {
+        "title": "Prywatność i dane",
+        "subtitle": "Zarządzaj zgodami marketingowymi, pobierz swoje dane lub usuń konto.",
+        "consents": {
+          "title": "Preferencje marketingowe",
+          "marketing_email": {
+            "label": "E-mail marketingowy",
+            "hint": "Otrzymuj oferty i nowości produktowe pocztą e-mail."
+          },
+          "newsletter": {
+            "label": "Newsletter",
+            "hint": "Zapisz się do naszego okresowego newslettera."
+          },
+          "saved": "Twoje preferencje marketingowe zostały zaktualizowane.",
+          "error": "Nie udało się zaktualizować preferencji marketingowych."
+        },
+        "export": {
+          "title": "Pobierz swoje dane",
+          "hint": "Pobierz kopię swoich danych osobowych — profil, adresy, zamówienia i historię zgód — w pliku JSON.",
+          "button": "Pobierz moje dane",
+          "success": "Rozpoczęto pobieranie eksportu Twoich danych.",
+          "error": "Nie udało się wyeksportować danych. Spróbuj ponownie."
+        },
+        "delete": {
+          "title": "Usuń konto",
+          "hint": "Trwale usuń swoje konto. Spowoduje to anonimizację danych osobowych i jest nieodwracalne.",
+          "button": "Usuń moje konto",
+          "confirmTitle": "Usunąć konto?",
+          "confirmBody": "Ta operacja trwale anonimizuje Twoje dane osobowe i wylogowuje Cię wszędzie. Dotychczasowe zamówienia są zachowywane ze względów prawnych i podatkowych, ale z usuniętymi danymi osobowymi.",
+          "warningTitle": "Tej operacji nie można cofnąć",
+          "warningBody": "Po potwierdzeniu Twoje konto zostanie natychmiast zanonimizowane i nie będzie można się ponownie zalogować.",
+          "confirm": "Usuń konto",
+          "cancel": "Anuluj",
+          "success": "Twoje konto zostało usunięte.",
+          "error": "Nie udało się usunąć konta. Spróbuj ponownie."
+        }
       }
     }
   },
