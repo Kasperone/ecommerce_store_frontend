@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatMoney, selectPrice } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
@@ -7,6 +7,7 @@ import type { ProblemDetails } from '#shared/utils/problemDetails'
 import type { ShippingInput } from '#shared/validators/checkout'
 import type { OrderResponse } from '#shared/types/api'
 import type { AppliedCoupon } from '~/components/checkout/CouponField.vue'
+import { useAddressesQuery } from '~/composables/queries/useAddresses'
 
 definePageMeta({ middleware: 'user' })
 
@@ -16,6 +17,33 @@ const cart = useCartStore()
 const authStore = useAuthStore()
 const { currency } = useCurrencyPreference()
 const createOrder = useCreateOrder()
+
+// Saved address book (client-gated authed read). A returning customer can pick a
+// saved address to prefill the shipping form; the default-shipping address is
+// pre-selected. `null` means "enter a new address" (falls back to the profile
+// fields). Guests / first-time buyers see an empty list → the picker hides.
+const { data: savedAddresses } = useAddressesQuery()
+const selectedAddressId = ref<number | null>(null)
+
+// Once the address book resolves, default the picker to the default-shipping
+// address (only while the customer hasn't made a choice yet).
+const pickerTouched = ref(false)
+watch(savedAddresses, (list) => {
+  if (pickerTouched.value || !list?.length) return
+  const def = list.find(a => a.is_default_shipping) ?? null
+  selectedAddressId.value = def?.id ?? null
+}, { immediate: true })
+
+function onPickAddress(id: number | null) {
+  pickerTouched.value = true
+  selectedAddressId.value = id
+}
+
+const selectedAddress = computed(() =>
+  selectedAddressId.value == null
+    ? null
+    : (savedAddresses.value?.find(a => a.id === selectedAddressId.value) ?? null),
+)
 
 useHead({ title: () => t('checkout.title') })
 
@@ -30,12 +58,36 @@ const error = ref<ProblemDetails | null>(null)
 const selectedCountry = ref<string>(authStore.user?.shipping_country ?? '')
 const selectedMethodId = ref<number | null>(null)
 
-const initialShipping = computed<Partial<ShippingInput>>(() => ({
-  address: authStore.user?.shipping_street ?? '',
-  city: authStore.user?.shipping_city ?? '',
-  postalCode: authStore.user?.shipping_postal_code ?? '',
-  country: authStore.user?.shipping_country ?? '',
-}))
+// Prefill source: a chosen saved address wins; otherwise fall back to the
+// profile's stored shipping fields (returning-customer convenience on hard load).
+const initialShipping = computed<Partial<ShippingInput>>(() => {
+  const picked = selectedAddress.value
+  if (picked) {
+    return {
+      address: picked.street,
+      city: picked.city,
+      postalCode: picked.postal_code,
+      country: picked.country,
+    }
+  }
+  return {
+    address: authStore.user?.shipping_street ?? '',
+    city: authStore.user?.shipping_city ?? '',
+    postalCode: authStore.user?.shipping_postal_code ?? '',
+    country: authStore.user?.shipping_country ?? '',
+  }
+})
+
+// Remount the shipping form whenever the prefill source switches so the picked
+// address fully repopulates the fields (the form only backfills empties on its
+// own `initial` watch — keying forces a clean re-seed).
+const shippingFormKey = computed(() => `addr-${selectedAddressId.value ?? 'new'}`)
+
+// Keep the lifted country in sync when a saved address is picked so shipping
+// re-quotes for the new country without waiting for the form's own emit.
+watch(selectedAddress, (addr) => {
+  if (addr) selectedCountry.value = addr.country
+})
 
 const subtotalAmount = computed(() =>
   cart.items.reduce((sum, item) => {
@@ -173,7 +225,14 @@ async function placeOrder(shipping: ShippingInput) {
             <h2 class="mb-4 text-lg font-semibold">
               {{ t('checkout.shipping.heading') }}
             </h2>
+            <AccountAddressesAddressPicker
+              v-if="(savedAddresses?.length ?? 0) > 0"
+              :addresses="savedAddresses ?? []"
+              :model-value="selectedAddressId"
+              @update:model-value="onPickAddress"
+            />
             <CheckoutShippingForm
+              :key="shippingFormKey"
               :initial="initialShipping"
               :loading="createOrder.isLoading.value"
               :error="error"

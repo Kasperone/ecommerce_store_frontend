@@ -1734,6 +1734,65 @@
           "success": "Your account has been deleted.",
           "error": "Could not delete your account. Please try again."
         }
+      },
+      "addresses": {
+        "title": "Addresses",
+        "subtitle": "Manage your saved shipping and billing addresses.",
+        "add": "Add address",
+        "addTitle": "Add an address",
+        "editTitle": "Edit address",
+        "loading": "Loading addresses…",
+        "empty": "You have no saved addresses yet.",
+        "created": "Address added.",
+        "updated": "Address updated.",
+        "deleted": "Address deleted.",
+        "saveError": "Could not save the address.",
+        "deleteError": "Could not delete the address.",
+        "defaultShippingSet": "Default shipping address updated.",
+        "defaultBillingSet": "Default billing address updated.",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleteConfirmTitle": "Delete this address?",
+        "deleteConfirmBody": "This address will be permanently removed from your address book.",
+        "card": {
+          "defaultShipping": "Default shipping",
+          "defaultBilling": "Default billing",
+          "edit": "Edit address",
+          "delete": "Delete address",
+          "makeDefaultShipping": "Set as default shipping",
+          "makeDefaultBilling": "Set as default billing"
+        },
+        "form": {
+          "label": "Label",
+          "labelHint": "Optional. A name to recognise this address, e.g. \"Home\" or \"Office\".",
+          "recipientName": "Recipient name",
+          "street": "Street address",
+          "city": "City",
+          "postalCode": "Postal code",
+          "country": "Country",
+          "countryPlaceholder": "Select a country",
+          "state": "State / province",
+          "phone": "Phone",
+          "defaultShipping": "Use as my default shipping address",
+          "defaultBilling": "Use as my default billing address",
+          "cancel": "Cancel",
+          "save": "Save address"
+        },
+        "errors": {
+          "labelTooLong": "Label must be 100 characters or fewer",
+          "recipientRequired": "Recipient name is required",
+          "recipientTooLong": "Recipient name must be 255 characters or fewer",
+          "streetRequired": "Street is required",
+          "streetTooLong": "Street must be 255 characters or fewer",
+          "cityRequired": "City is required",
+          "cityTooLong": "City must be 100 characters or fewer",
+          "postalRequired": "Postal code is required",
+          "postalTooLong": "Postal code must be 20 characters or fewer",
+          "countryRequired": "Country is required",
+          "countryInvalid": "Select a country",
+          "stateTooLong": "State must be 100 characters or fewer",
+          "phoneInvalid": "Enter a valid phone number"
+        }
       }
     }
   },
