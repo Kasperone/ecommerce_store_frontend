@@ -4,11 +4,15 @@ import { useI18n } from 'vue-i18n'
 import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
+import type { OrderWithUser } from '#shared/types/api'
 
 definePageMeta({ middleware: 'user' })
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
+const { apiFetch } = useApi()
+const toast = useToast()
+const { reorder } = useReorder()
 
 useHead({ title: () => t('orders.title') })
 
@@ -21,6 +25,35 @@ const pageSize = computed(() => data.value?.page_size ?? 10)
 
 function placedOn(iso: string) {
   return new Date(iso).toLocaleDateString(locale.value)
+}
+
+// List rows (`OrderListItem`) carry no line items, so "Buy again" fetches the
+// order detail first, then re-resolves each line's current product/price/stock.
+const reorderingId = ref<number | null>(null)
+
+async function onReorder(orderId: number) {
+  reorderingId.value = orderId
+  try {
+    const detail = await apiFetch<OrderWithUser>(`/api/v1/orders/${orderId}`)
+    await reorder(
+      detail.items.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        product_name: item.product_name,
+      })),
+    )
+  }
+  catch {
+    toast.add({
+      title: t('orders.reorder.toast.noneTitle'),
+      description: t('orders.reorder.toast.none'),
+      color: 'error',
+      icon: 'i-lucide-alert-circle',
+    })
+  }
+  finally {
+    reorderingId.value = null
+  }
 }
 </script>
 
@@ -77,32 +110,47 @@ function placedOn(iso: string) {
           <li
             v-for="order in orders"
             :key="order.id"
+            :class="[
+              'flex flex-wrap items-center justify-between gap-3 p-4',
+              'hover:bg-gray-50 dark:hover:bg-gray-900',
+            ]"
           >
             <NuxtLink
               :to="localePath(`/account/orders/${order.id}`)"
-              :class="[
-                'flex flex-wrap items-center justify-between gap-3 p-4',
-                'hover:bg-gray-50 dark:hover:bg-gray-900',
-              ]"
+              class="flex min-w-0 flex-1 flex-col gap-1"
             >
-              <div class="flex flex-col gap-1">
-                <span class="font-mono font-medium">{{ order.order_number }}</span>
-                <span class="text-xs text-muted">
-                  {{ t('orders.fields.placed') }}: {{ placedOn(order.created_at) }}
-                  · {{ order.item_count }} {{ t('orders.fields.items') }}
-                </span>
-              </div>
-              <div class="flex items-center gap-4">
-                <OrdersStatusBadge :status="order.status" />
-                <span class="font-medium">
-                  {{ formatMoney(order.total, order.currency as CurrencyCode, locale) }}
-                </span>
+              <span class="font-mono font-medium">{{ order.order_number }}</span>
+              <span class="text-xs text-muted">
+                {{ t('orders.fields.placed') }}: {{ placedOn(order.created_at) }}
+                · {{ order.item_count }} {{ t('orders.fields.items') }}
+              </span>
+            </NuxtLink>
+            <div class="flex items-center gap-4">
+              <OrdersStatusBadge :status="order.status" />
+              <span class="font-medium">
+                {{ formatMoney(order.total, order.currency as CurrencyCode, locale) }}
+              </span>
+              <UButton
+                color="primary"
+                variant="soft"
+                size="xs"
+                icon="i-lucide-repeat"
+                :loading="reorderingId === order.id"
+                :aria-label="t('orders.reorder.button')"
+                @click="onReorder(order.id)"
+              >
+                {{ t('orders.reorder.button') }}
+              </UButton>
+              <NuxtLink
+                :to="localePath(`/account/orders/${order.id}`)"
+                :aria-label="t('orders.viewOrder')"
+              >
                 <UIcon
                   name="i-lucide-chevron-right"
                   class="size-4 text-muted"
                 />
-              </div>
-            </NuxtLink>
+              </NuxtLink>
+            </div>
           </li>
         </ul>
 

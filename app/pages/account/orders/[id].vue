@@ -19,6 +19,7 @@ const id = computed(() => {
 
 const { data: order, error } = useOrderQuery(id)
 const cancelMutation = useCancelOrder()
+const { reorder, isReordering } = useReorder()
 
 const cancelOpen = ref(false)
 const cancelError = ref<ProblemDetails | null>(null)
@@ -28,6 +29,17 @@ const canPay = computed(() => order.value?.status === 'pending')
 
 function money(value: number) {
   return order.value ? formatMoney(value, order.value.currency as CurrencyCode, locale.value) : ''
+}
+
+async function onReorder() {
+  if (!order.value) return
+  await reorder(
+    order.value.items.map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      product_name: item.product_name,
+    })),
+  )
 }
 
 async function confirmCancel() {
@@ -97,6 +109,16 @@ useHead({
               :order-number="order.order_number"
               size="sm"
             />
+            <UButton
+              color="primary"
+              variant="soft"
+              size="sm"
+              icon="i-lucide-repeat"
+              :loading="isReordering"
+              @click="onReorder"
+            >
+              {{ t('orders.reorder.button') }}
+            </UButton>
             <UButton
               v-if="canCancel"
               color="error"

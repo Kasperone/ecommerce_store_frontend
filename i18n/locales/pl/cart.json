@@ -134,6 +134,17 @@
       "download": "Pobierz fakturę",
       "error": "Nie udało się pobrać faktury. Spróbuj ponownie."
     },
+    "reorder": {
+      "button": "Kup ponownie",
+      "toast": {
+        "allAddedTitle": "Dodano do koszyka",
+        "allAdded": "Dodano {count} pozycji do koszyka w aktualnych cenach.",
+        "partialTitle": "Dodano część pozycji",
+        "partial": "Dodano {added} pozycji; pominięto {skipped}, które są już niedostępne.",
+        "noneTitle": "Nie dodano nic",
+        "none": "Żadna z tych pozycji nie jest teraz dostępna do kupienia."
+      }
+    },
     "refund": {
       "title": "Zwrot wystawiony",
       "partialTitle": "Zwrot częściowy wystawiony",
