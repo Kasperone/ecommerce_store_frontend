@@ -6,19 +6,31 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const route = useRoute()
 
+// B2B gate: only company members see the company/team sections (D-D-6). The
+// composable is client-gated and returns `isB2B` false for non-members.
+const { isB2B } = useCompanyContext()
+
 interface NavItem {
   key: string
   to: string
   icon: string
 }
 
-const items = computed<NavItem[]>(() => [
-  { key: 'profile', to: localePath('/account/settings/profile'), icon: 'i-lucide-user' },
-  { key: 'security', to: localePath('/account/settings/security'), icon: 'i-lucide-lock' },
-  { key: 'addresses', to: localePath('/account/settings/addresses'), icon: 'i-lucide-map-pin' },
-  { key: 'preferences', to: localePath('/account/settings/preferences'), icon: 'i-lucide-settings-2' },
-  { key: 'privacy', to: localePath('/account/settings/privacy'), icon: 'i-lucide-shield' },
-])
+const items = computed<NavItem[]>(() => {
+  const base: NavItem[] = [
+    { key: 'profile', to: localePath('/account/settings/profile'), icon: 'i-lucide-user' },
+    { key: 'security', to: localePath('/account/settings/security'), icon: 'i-lucide-lock' },
+    { key: 'addresses', to: localePath('/account/settings/addresses'), icon: 'i-lucide-map-pin' },
+    { key: 'preferences', to: localePath('/account/settings/preferences'), icon: 'i-lucide-settings-2' },
+    { key: 'privacy', to: localePath('/account/settings/privacy'), icon: 'i-lucide-shield' },
+  ]
+  // --- B2B-gated entries (appended for company members only) ---
+  // Comp-fe owns this `company` line; Team-fe appends its `team` line here too.
+  if (isB2B.value) {
+    base.push({ key: 'company', to: localePath('/account/settings/company'), icon: 'i-lucide-building' })
+  }
+  return base
+})
 
 function isActive(to: string) {
   return route.path === to

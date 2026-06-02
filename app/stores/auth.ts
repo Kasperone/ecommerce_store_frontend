@@ -184,6 +184,44 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /**
+   * B2B self-signup (Wave D / D-D-5). Posts `POST /auth/register-business`,
+   * which creates the user + a `pending` company + an active COMPANY_ADMIN
+   * membership in one transaction, then sends the verification email. The
+   * response is anti-enumeration (always a generic 200 whether the email is
+   * free or taken), so a 2xx is treated as success exactly like `register`;
+   * the company-address fields the business form collects have no home on this
+   * endpoint and are intentionally dropped (only name + tax id are persisted).
+   */
+  const registerBusiness = async (data: BusinessSignUpFormData) => {
+    try {
+      const { apiFetch } = useApi()
+      const response = await apiFetch<MessageResponse>(AUTH_ENDPOINTS.REGISTER_BUSINESS, {
+        method: 'POST',
+        body: {
+          email: data.email,
+          password: data.password,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          phone: data.phone || null,
+          company_name: data.companyName,
+          company_tax_id: data.companyTaxId || null,
+        },
+      })
+
+      return { success: true, data: response } as ApiResponse<MessageResponse>
+    }
+    catch (error) {
+      const { data } = narrowFetchError(error)
+      const detail = typeof data?.detail === 'string' ? data.detail : null
+      return {
+        success: false,
+        error: detail ?? 'Registration failed. Please try again.',
+        raw: error,
+      } as ApiResponse<MessageResponse>
+    }
+  }
+
   const login = async (email: string, password: string) => {
     try {
       const fetcher = authBaseFetch()
@@ -591,6 +629,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Actions
     register,
+    registerBusiness,
     login,
     logout,
     startImpersonation,

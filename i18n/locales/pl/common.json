@@ -1659,7 +1659,8 @@
         "security": "Bezpieczeństwo",
         "addresses": "Adresy",
         "preferences": "Preferencje",
-        "privacy": "Prywatność"
+        "privacy": "Prywatność",
+        "company": "Firma"
       },
       "profile": {
         "title": "Profil",
@@ -1840,6 +1841,51 @@
           "countryInvalid": "Wybierz kraj",
           "stateTooLong": "Województwo może mieć maksymalnie 100 znaków",
           "phoneInvalid": "Podaj prawidłowy numer telefonu"
+        }
+      },
+      "company": {
+        "title": "Firma",
+        "subtitle": "Zarządzaj profilem firmy i danymi do rozliczeń.",
+        "loading": "Wczytywanie firmy…",
+        "notAMember": "To konto nie jest powiązane z firmą. Firmami zarządza Twój administrator.",
+        "readOnlyNotice": "Tylko administrator firmy może edytować te dane.",
+        "pendingTitle": "Firma oczekuje na zatwierdzenie",
+        "pendingBody": "Twoja firma oczekuje na zatwierdzenie. W międzyczasie możesz zaktualizować jej dane.",
+        "save": "Zapisz zmiany",
+        "saved": "Zaktualizowano profil firmy.",
+        "saveError": "Nie udało się zaktualizować profilu firmy.",
+        "noChanges": "Brak zmian do zapisania.",
+        "status": {
+          "pending": "Oczekuje",
+          "approved": "Zatwierdzona",
+          "rejected": "Odrzucona"
+        },
+        "fields": {
+          "taxId": "NIP",
+          "regon": "REGON",
+          "email": "E-mail do rozliczeń",
+          "phone": "Telefon",
+          "street": "Ulica do rozliczeń",
+          "city": "Miasto",
+          "postalCode": "Kod pocztowy",
+          "country": "Kraj",
+          "state": "Województwo",
+          "defaultCurrency": "Domyślna waluta",
+          "defaultCurrencyHint": "Trzyliterowy kod waluty, np. USD, EUR lub PLN.",
+          "defaultCurrencyPlaceholder": "PLN"
+        },
+        "errors": {
+          "taxIdTooLong": "NIP może mieć maksymalnie 64 znaki",
+          "regonTooLong": "REGON może mieć maksymalnie 64 znaki",
+          "emailInvalid": "Podaj prawidłowy adres e-mail",
+          "emailTooLong": "E-mail może mieć maksymalnie 255 znaków",
+          "phoneInvalid": "Podaj prawidłowy numer telefonu",
+          "streetTooLong": "Ulica może mieć maksymalnie 255 znaków",
+          "cityTooLong": "Miasto może mieć maksymalnie 100 znaków",
+          "postalTooLong": "Kod pocztowy może mieć maksymalnie 20 znaków",
+          "countryTooLong": "Kraj może mieć maksymalnie 100 znaków",
+          "stateTooLong": "Województwo może mieć maksymalnie 100 znaków",
+          "currencyInvalid": "Użyj trzyliterowego kodu waluty, np. PLN"
         }
       }
     }
@@ -2083,6 +2129,13 @@
       "enterNewPassword": "Podaj nowe hasło",
       "confirmNewPassword": "Potwierdź nowe hasło",
       "tokenMissing": "Link do resetowania jest niepoprawny lub niekompletny."
+    },
+    "businessSignup": {
+      "title": "Zarejestruj firmę",
+      "subtitle": "Załóż konto firmowe. Twoja firma zostanie zweryfikowana przed zatwierdzeniem.",
+      "submit": "Załóż konto firmowe",
+      "success": "Konto firmowe utworzone",
+      "successDescription": "Sprawdź swoją skrzynkę e-mail, aby zweryfikować konto. Twoja firma zostanie sprawdzona przez nasz zespół."
     }
   },
   "authExtra": {

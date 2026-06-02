@@ -384,6 +384,80 @@ describe('useAuthStore', () => {
     })
   })
 
+  describe('registerBusiness', () => {
+    it('posts the business payload (name + tax id) to /auth/register-business', async () => {
+      routeFetch({
+        '/auth/register-business': () => ({ message: 'check your email' }),
+      })
+
+      const store = await loadStore()
+      const result = await store.registerBusiness({
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        email: 'ada@acme.test',
+        phone: '+48 22 123 45 67',
+        password: 'Sup3rSecret!',
+        confirmPassword: 'Sup3rSecret!',
+        companyName: 'Acme Corp',
+        companyTaxId: 'PL1234567890',
+      } as any)
+
+      expect(result.success).toBe(true)
+      const call = mockFetch.mock.calls.find(([url]: any[]) =>
+        String(url).includes('/auth/register-business'),
+      )
+      expect(call).toBeDefined()
+      const opts = call![1]
+      expect(opts.method).toBe('POST')
+      expect(opts.body).toEqual({
+        email: 'ada@acme.test',
+        password: 'Sup3rSecret!',
+        first_name: 'Ada',
+        last_name: 'Lovelace',
+        phone: '+48 22 123 45 67',
+        company_name: 'Acme Corp',
+        company_tax_id: 'PL1234567890',
+      })
+      // The business-address fields the form collects have no home here.
+      expect(opts.body).not.toHaveProperty('company_address_street')
+    })
+
+    it('sends null for an omitted optional phone / tax id', async () => {
+      routeFetch({ '/auth/register-business': () => ({ message: 'ok' }) })
+      const store = await loadStore()
+      await store.registerBusiness({
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        email: 'ada@acme.test',
+        password: 'Sup3rSecret!',
+        confirmPassword: 'Sup3rSecret!',
+        companyName: 'Acme Corp',
+      } as any)
+      const call = mockFetch.mock.calls.find(([url]: any[]) =>
+        String(url).includes('/auth/register-business'),
+      )
+      expect(call![1].body).toMatchObject({ phone: null, company_tax_id: null })
+    })
+
+    it('returns the backend error detail on failure', async () => {
+      mockFetch.mockImplementationOnce(() =>
+        Promise.reject({ data: { detail: 'Password is too weak' } }),
+      )
+      const store = await loadStore()
+      const result = await store.registerBusiness({
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        email: 'ada@acme.test',
+        password: 'weak',
+        confirmPassword: 'weak',
+        companyName: 'Acme Corp',
+      } as any)
+
+      expect(result.success).toBe(false)
+      if (!result.success) expect(result.error).toBe('Password is too weak')
+    })
+  })
+
   describe('updateProfile', () => {
     it('PUTs /auth/me and refreshes the local user from the response', async () => {
       routeFetch({
