@@ -18,11 +18,6 @@ const validPersonalPayload = {
   phone: null,
   password: 'Sup3rSecret!',
   confirmPassword: 'Sup3rSecret!',
-  shippingStreet: null,
-  shippingCity: null,
-  shippingPostalCode: null,
-  shippingCountry: null,
-  shippingState: null,
 }
 
 const validBusinessPayload = {

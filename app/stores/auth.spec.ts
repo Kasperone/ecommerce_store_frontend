@@ -319,11 +319,6 @@ describe('useAuthStore', () => {
         phone: '+1234',
         password: 'Sup3rSecret!',
         confirmPassword: 'Sup3rSecret!',
-        shippingStreet: 'Main 1',
-        shippingCity: 'London',
-        shippingPostalCode: 'SW1',
-        shippingCountry: 'UK',
-        shippingState: null,
       } as any)
 
       expect(result.success).toBe(true)
@@ -337,11 +332,6 @@ describe('useAuthStore', () => {
         first_name: 'Ada',
         last_name: 'Lovelace',
         password: 'Sup3rSecret!',
-        shipping_street: 'Main 1',
-        shipping_city: 'London',
-        shipping_postal_code: 'SW1',
-        shipping_country: 'UK',
-        shipping_state: null,
       })
       expect(opts.body).not.toHaveProperty('company_name')
     })
