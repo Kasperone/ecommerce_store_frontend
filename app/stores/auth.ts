@@ -152,17 +152,6 @@ export const useAuthStore = defineStore('auth', () => {
           // Seed the email-language preference from the UI language at signup;
           // changeable later on the account page.
           locale,
-          ...('companyName' in data && data.companyName
-            ? {
-                company_name: data.companyName,
-                company_tax_id: data.companyTaxId,
-                company_address_street: data.companyAddressStreet,
-                company_address_city: data.companyAddressCity,
-                company_address_postal_code: data.companyAddressPostalCode,
-                company_address_country: data.companyAddressCountry,
-                company_address_state: data.companyAddressState || null,
-              }
-            : {}),
         },
       })
 
