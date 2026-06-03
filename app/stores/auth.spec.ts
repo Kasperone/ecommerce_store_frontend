@@ -375,7 +375,7 @@ describe('useAuthStore', () => {
   })
 
   describe('registerBusiness', () => {
-    it('posts the business payload (name + tax id) to /auth/register-business', async () => {
+    it('posts the business payload (incl. company address) to /auth/register-business', async () => {
       routeFetch({
         '/auth/register-business': () => ({ message: 'check your email' }),
       })
@@ -390,6 +390,11 @@ describe('useAuthStore', () => {
         confirmPassword: 'Sup3rSecret!',
         companyName: 'Acme Corp',
         companyTaxId: 'PL1234567890',
+        companyAddressStreet: '1 Commerce St',
+        companyAddressCity: 'Warsaw',
+        companyAddressPostalCode: '00-001',
+        companyAddressCountry: 'PL',
+        companyAddressState: 'Mazowieckie',
       } as any)
 
       expect(result.success).toBe(true)
@@ -407,9 +412,12 @@ describe('useAuthStore', () => {
         phone: '+48 22 123 45 67',
         company_name: 'Acme Corp',
         company_tax_id: 'PL1234567890',
+        company_address_street: '1 Commerce St',
+        company_address_city: 'Warsaw',
+        company_address_postal_code: '00-001',
+        company_address_country: 'PL',
+        company_address_state: 'Mazowieckie',
       })
-      // The business-address fields the form collects have no home here.
-      expect(opts.body).not.toHaveProperty('company_address_street')
     })
 
     it('sends null for an omitted optional phone / tax id', async () => {
@@ -426,7 +434,11 @@ describe('useAuthStore', () => {
       const call = mockFetch.mock.calls.find(([url]: any[]) =>
         String(url).includes('/auth/register-business'),
       )
-      expect(call![1].body).toMatchObject({ phone: null, company_tax_id: null })
+      expect(call![1].body).toMatchObject({
+        phone: null,
+        company_tax_id: null,
+        company_address_street: null,
+      })
     })
 
     it('returns the backend error detail on failure', async () => {
