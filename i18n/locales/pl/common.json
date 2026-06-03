@@ -2127,18 +2127,6 @@
     "enterYourPhone": "Wprowadź numer telefonu",
     "confirmPassword": "Potwierdź hasło",
     "confirmYourPassword": "Potwierdź swoje hasło",
-    "shipping": {
-      "street": "Ulica",
-      "enterStreet": "Wprowadź ulicę",
-      "city": "Miasto",
-      "enterCity": "Wprowadź miasto",
-      "postalCode": "Kod pocztowy",
-      "enterPostalCode": "Wprowadź kod pocztowy",
-      "country": "Kraj",
-      "enterCountry": "Wprowadź kraj",
-      "state": "Województwo",
-      "enterState": "Wprowadź województwo"
-    },
     "company": {
       "name": "Nazwa firmy",
       "enterName": "Wprowadź nazwę firmy",

@@ -27,11 +27,6 @@ const fields = computed<AuthFormField[]>(() => {
     { name: 'phone', type: 'text', label: t('auth.phone'), placeholder: t('auth.enterYourPhone'), required: false },
     { name: 'password', type: 'password', label: t('auth.password'), placeholder: t('auth.enterYourPassword') },
     { name: 'confirmPassword', type: 'password', label: t('auth.confirmPassword'), placeholder: t('auth.confirmYourPassword') },
-    { name: 'shippingStreet', type: 'text', label: t('auth.shipping.street'), placeholder: t('auth.shipping.enterStreet'), required: false },
-    { name: 'shippingCity', type: 'text', label: t('auth.shipping.city'), placeholder: t('auth.shipping.enterCity'), required: false },
-    { name: 'shippingPostalCode', type: 'text', label: t('auth.shipping.postalCode'), placeholder: t('auth.shipping.enterPostalCode'), required: false },
-    { name: 'shippingCountry', type: 'text', label: t('auth.shipping.country'), placeholder: t('auth.shipping.enterCountry'), required: false },
-    { name: 'shippingState', type: 'text', label: t('auth.shipping.state'), placeholder: t('auth.shipping.enterState'), required: false },
   ]
 })
 
