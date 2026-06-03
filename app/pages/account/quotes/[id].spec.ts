@@ -48,12 +48,20 @@ function makeQuote(overrides: Partial<Quote> = {}): Quote {
 const quoteData = ref<Quote | undefined>(makeQuote())
 const acceptMutate = vi.fn()
 const acceptLoading = ref(false)
+const convertMutate = vi.fn()
+const convertLoading = ref(false)
 const mockDownload = vi.fn()
+// `mockNuxtImport` hoists its factory above module consts, so the navigateTo spy
+// must be hoisted too (frontend testing rule — vi.hoisted for shared mocks).
+const { mockNavigate } = vi.hoisted(() => ({ mockNavigate: vi.fn() }))
 
 vi.mock('~/composables/queries/useQuotes', () => ({
   useMyQuoteQuery: () => ({ data: quoteData, error: ref(null) }),
   useAcceptQuote: () => ({ mutateAsync: acceptMutate, isLoading: acceptLoading }),
+  useConvertMyQuote: () => ({ mutateAsync: convertMutate, isLoading: convertLoading }),
 }))
+
+mockNuxtImport('navigateTo', () => mockNavigate)
 
 mockNuxtImport('useDownloadQuote', () => () => ({
   download: mockDownload,
@@ -82,6 +90,7 @@ const tick = () => new Promise(r => setTimeout(r, 0))
 beforeEach(() => {
   quoteData.value = makeQuote()
   acceptLoading.value = false
+  convertLoading.value = false
   mockDownload.mockResolvedValue(null)
 })
 
@@ -135,6 +144,33 @@ describe('account quote detail page', () => {
     await tick()
     wrapper.unmount()
     expect(acceptMutate).toHaveBeenCalledWith(9)
+  })
+
+  it('offers the convert action on an `accepted`, not-yet-converted quote', async () => {
+    quoteData.value = makeQuote({ status: 'accepted', converted_order_id: null })
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="convert-quote"]').exists()).toBe(true)
+  })
+
+  it('hides the convert action once the quote is already converted', async () => {
+    quoteData.value = makeQuote({ status: 'accepted', converted_order_id: 5 })
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="convert-quote"]').exists()).toBe(false)
+  })
+
+  it('converts and navigates to the new order on confirm', async () => {
+    convertMutate.mockResolvedValue({ id: 42 })
+    quoteData.value = makeQuote({ status: 'accepted', converted_order_id: null })
+    const wrapper = await mountPage()
+    click(wrapper.find('[data-testid="convert-quote"]').element)
+    await tick()
+    const confirm = document.body.querySelector('[data-testid="convert-quote-confirm"]')
+    expect(confirm).not.toBeNull()
+    click(confirm as Element)
+    await tick()
+    wrapper.unmount()
+    expect(convertMutate).toHaveBeenCalledWith(9)
+    expect(mockNavigate).toHaveBeenCalled()
   })
 
   it('declares the \'user\' middleware', () => {

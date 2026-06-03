@@ -2788,9 +2788,40 @@ export interface paths {
          * @description Accept a ``sent`` quote (→ ``accepted``).
          *
          *     Only a ``sent`` quote may be accepted (409 otherwise). Cross-company/unknown →
-         *     404. Conversion stays admin-only — accepting does not create an order.
+         *     404. Accepting does not create an order — convert separately via
+         *     ``POST /quotes/{id}/convert``.
          */
         post: operations["accept_my_quote_api_v1_quotes__quote_id__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quotes/{quote_id}/convert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convert My Quote
+         * @description Convert one of the caller's company's **accepted** quotes into a pending order.
+         *
+         *     Self-service counterpart to the admin convert. The order is owned by the company's
+         *     primary contact — the caller — so order history, emails and invoices attribute
+         *     correctly. Line items honour the **quoted** unit price + quantity (no re-pricing);
+         *     stock is decremented from the default warehouse like a normal order;
+         *     ``shipping``/``discount``/``tax`` are 0 and no shipping method is set (set at
+         *     fulfilment).
+         *
+         *     Cross-company / unknown quote → 404. ``status != 'accepted'`` → 422; already
+         *     converted → 409; no items / any free-text line / insufficient stock → 422.
+         */
+        post: operations["convert_my_quote_api_v1_quotes__quote_id__convert_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2826,12 +2857,21 @@ export interface paths {
         };
         /**
          * Get My Company
-         * @description The caller's company + B2B role (resolved via membership), else 404.
+         * @description The caller's company + B2B role, or a **null body** if they're not B2B.
          *
-         *     404 means "you are not a B2B account" — the FE uses it to gate the B2B
-         *     surfaces. The response carries the caller's ``role`` so the FE can role-gate
-         *     (VIEWER read-only; BUYER request quotes + checkout; COMPANY_ADMIN profile +
-         *     team).
+         *     Returns 200 with the company for a B2B account and **200 with ``null``** for
+         *     a non-member — deliberately NOT 404. This is the caller asking about their
+         *     OWN membership (not resource enumeration), and the FE probes it on every
+         *     authed page to gate the B2B surfaces, so a 404 would spam the browser
+         *     console on every cold load. The FE treats a null body as "not a B2B
+         *     account". (Intentional routes — team CRUD, profile PATCH — keep 404 for
+         *     non-members via ``get_current_company_member``/``require_company_admin``.)
+         *
+         *     The response carries the caller's ``role`` so the FE can role-gate (VIEWER
+         *     read-only; BUYER request quotes + checkout; COMPANY_ADMIN profile + team).
+         *     Resolved via the active ``company_users`` membership; a denormalized primary
+         *     contact with no membership row still resolves as COMPANY_ADMIN (Wave-C
+         *     backward-compat — see ``crud_company_user.get_active_membership``).
          */
         get: operations["get_my_company_api_v1_companies_me_get"];
         put?: never;
@@ -2868,12 +2908,17 @@ export interface paths {
         put?: never;
         /**
          * Invite Member
-         * @description Invite a user (by email) to the caller's company with a B2B role (COMPANY_ADMIN only).
+         * @description Invite someone (by email) to the caller's company with a B2B role (COMPANY_ADMIN only).
          *
-         *     The email must resolve to an existing user account (the membership links to
-         *     it) → otherwise 404. A user who is already a member of this company → 409. On
-         *     success a membership is created in the ``invited`` status (no access until
-         *     accepted/activated) and returned (201).
+         *     Two cases, both creating an ``invited``-status membership (no access until
+         *     activated) and returning it (201):
+         *
+         *     - **Existing account** → the membership links to it. Already a member of this
+         *       company → 409.
+         *     - **No account yet** → a *pending email-invite* is staged (``user_id`` NULL,
+         *       ``invited_email`` set) and an invite email is sent best-effort; the row is
+         *       bound to the account when that address registers. A pending invite for the
+         *       same email already exists → 409.
          */
         post: operations["invite_member_api_v1_companies_me_users_post"];
         delete?: never;
@@ -3989,9 +4034,11 @@ export interface components {
          * CompanyMemberResponse
          * @description A ``company_users`` row as the team API returns it.
          *
-         *     ``user_id`` is the linked account; ``user_email`` / ``user_name`` are read-only
-         *     denormalised display values from the linked ``User`` (resolved by the route so
-         *     the FE roster doesn't need a second fetch). ``invited_email`` / ``invited_at``
+         *     ``user_id`` is the linked account, or ``None`` for a **pending email-invite**
+         *     to an address with no account yet (bound when that address registers).
+         *     ``user_email`` / ``user_name`` are read-only denormalised display values from
+         *     the linked ``User`` (resolved by the route so the FE roster doesn't need a
+         *     second fetch; ``None`` for a pending invite). ``invited_email`` / ``invited_at``
          *     are populated for rows created via an invite, ``None`` otherwise.
          */
         CompanyMemberResponse: {
@@ -4010,7 +4057,7 @@ export interface components {
             /** Company Id */
             company_id: number;
             /** User Id */
-            user_id: number;
+            user_id?: number | null;
             /**
              * Role
              * @enum {string}
@@ -4419,16 +4466,6 @@ export interface components {
             /** Is Verified */
             is_verified: boolean;
             role: components["schemas"]["UserRole"];
-            /** Shipping Street */
-            shipping_street?: string | null;
-            /** Shipping City */
-            shipping_city?: string | null;
-            /** Shipping Postal Code */
-            shipping_postal_code?: string | null;
-            /** Shipping Country */
-            shipping_country?: string | null;
-            /** Shipping State */
-            shipping_state?: string | null;
             /** Company Name */
             company_name?: string | null;
             /** Company Tax Id */
@@ -4483,8 +4520,6 @@ export interface components {
             is_locked: boolean;
             /** Company Name */
             company_name?: string | null;
-            /** Shipping Country */
-            shipping_country?: string | null;
             /**
              * Order Count
              * @default 0
@@ -7062,16 +7097,6 @@ export interface components {
             locale: "en" | "pl";
             /** Password */
             password: string;
-            /** Shipping Street */
-            shipping_street?: string | null;
-            /** Shipping City */
-            shipping_city?: string | null;
-            /** Shipping Postal Code */
-            shipping_postal_code?: string | null;
-            /** Shipping Country */
-            shipping_country?: string | null;
-            /** Shipping State */
-            shipping_state?: string | null;
             /** Company Name */
             company_name?: string | null;
             /** Company Tax Id */
@@ -7126,16 +7151,6 @@ export interface components {
             /** Is Verified */
             is_verified: boolean;
             role: components["schemas"]["UserRole"];
-            /** Shipping Street */
-            shipping_street?: string | null;
-            /** Shipping City */
-            shipping_city?: string | null;
-            /** Shipping Postal Code */
-            shipping_postal_code?: string | null;
-            /** Shipping Country */
-            shipping_country?: string | null;
-            /** Shipping State */
-            shipping_state?: string | null;
             /** Company Name */
             company_name?: string | null;
             /** Company Tax Id */
@@ -7170,16 +7185,6 @@ export interface components {
             phone?: string | null;
             /** Locale */
             locale?: ("en" | "pl") | null;
-            /** Shipping Street */
-            shipping_street?: string | null;
-            /** Shipping City */
-            shipping_city?: string | null;
-            /** Shipping Postal Code */
-            shipping_postal_code?: string | null;
-            /** Shipping Country */
-            shipping_country?: string | null;
-            /** Shipping State */
-            shipping_state?: string | null;
             /** Company Name */
             company_name?: string | null;
             /** Company Tax Id */
@@ -12597,6 +12602,37 @@ export interface operations {
             };
         };
     };
+    convert_my_quote_api_v1_quotes__quote_id__convert_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     download_my_quote_pdf_api_v1_quotes__quote_id__quote_pdf_get: {
         parameters: {
             query?: {
@@ -12647,7 +12683,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CompanyMeResponse"];
+                    "application/json": components["schemas"]["CompanyMeResponse"] | null;
                 };
             };
         };

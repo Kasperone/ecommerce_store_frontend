@@ -103,7 +103,6 @@ const columns: TableColumn<CustomerListItem>[] = [
   { accessorKey: 'status', header: () => t('admin.customers.fields.status') },
   { accessorKey: 'order_count', header: () => t('admin.customers.fields.orders') },
   { accessorKey: 'tags', header: () => t('admin.customers.fields.tags') },
-  { accessorKey: 'shipping_country', header: () => t('admin.customers.fields.country') },
   { id: 'actions', header: '' },
 ]
 </script>
@@ -260,9 +259,6 @@ const columns: TableColumn<CustomerListItem>[] = [
               class="text-muted text-xs"
             >—</span>
           </div>
-        </template>
-        <template #shipping_country-cell="{ row }">
-          <span class="text-sm text-muted">{{ row.original.shipping_country ?? '-' }}</span>
         </template>
         <template #actions-cell="{ row }">
           <div class="flex justify-end">
