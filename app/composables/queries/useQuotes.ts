@@ -10,6 +10,7 @@
  * - `POST /api/v1/quotes/`             → request a quote from cart lines (201)
  * - `GET  /api/v1/quotes/{id}`         → one quote with nested items (404 cross-company)
  * - `POST /api/v1/quotes/{id}/accept`  → accept a `sent` quote (→ `accepted`; 409 else)
+ * - `POST /api/v1/quotes/{id}/convert` → convert an `accepted` quote → pending order (201)
  *
  * The collection route carries a **trailing slash** (FastAPI 307s the slashless
  * form through the h3 proxy); item routes carry none.
@@ -30,6 +31,7 @@ import type { components } from '#shared/types/api.gen'
 export type Quote = components['schemas']['QuoteResponse']
 export type QuoteItem = components['schemas']['QuoteItemResponse']
 export type QuoteRequestCreate = components['schemas']['QuoteRequestCreate']
+export type Order = components['schemas']['OrderResponse']
 
 const MY_QUOTES_NAMESPACE = ['my-quotes'] as const
 
@@ -91,6 +93,24 @@ export function useAcceptQuote() {
   return useMutation({
     mutation: (id: number) =>
       apiFetch<Quote>(`/api/v1/quotes/${id}/accept`, { method: 'POST' }),
+    onSuccess: () => queryCache.invalidateQueries({ key: [...MY_QUOTES_NAMESPACE] }),
+  })
+}
+
+/**
+ * `POST /api/v1/quotes/{id}/convert` — self-serve convert an `accepted` quote
+ * into a pending order owned by the caller (the company's primary contact).
+ *
+ * 422 if the quote isn't `accepted` or lacks stock; 409 if already converted;
+ * 404 cross-company. Returns the created order. Invalidates the namespace so the
+ * list + detail reflect the new `converted_order_id`.
+ */
+export function useConvertMyQuote() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: (id: number) =>
+      apiFetch<Order>(`/api/v1/quotes/${id}/convert`, { method: 'POST' }),
     onSuccess: () => queryCache.invalidateQueries({ key: [...MY_QUOTES_NAMESPACE] }),
   })
 }

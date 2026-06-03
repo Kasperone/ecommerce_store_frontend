@@ -53,13 +53,13 @@ const error = ref<ProblemDetails | null>(null)
 
 // Lifted state: country comes from the form, method id comes from the selector.
 // Both feed the quote endpoint; the selected method rides on the create-order
-// payload. Initial country falls back to the profile so a returning customer
-// gets re-quoted immediately on hard load.
-const selectedCountry = ref<string>(authStore.user?.shipping_country ?? '')
+// payload. Starts empty — a picked saved address sets it (watch below).
+const selectedCountry = ref<string>('')
 const selectedMethodId = ref<number | null>(null)
 
-// Prefill source: a chosen saved address wins; otherwise fall back to the
-// profile's stored shipping fields (returning-customer convenience on hard load).
+// Prefill source: a chosen saved address populates the form; otherwise the
+// fields start empty. The saved-address picker is the prefill mechanism now —
+// the old inline profile shipping snapshot (users.shipping_*) was dropped.
 const initialShipping = computed<Partial<ShippingInput>>(() => {
   const picked = selectedAddress.value
   if (picked) {
@@ -70,12 +70,7 @@ const initialShipping = computed<Partial<ShippingInput>>(() => {
       country: picked.country,
     }
   }
-  return {
-    address: authStore.user?.shipping_street ?? '',
-    city: authStore.user?.shipping_city ?? '',
-    postalCode: authStore.user?.shipping_postal_code ?? '',
-    country: authStore.user?.shipping_country ?? '',
-  }
+  return { address: '', city: '', postalCode: '', country: '' }
 })
 
 // Remount the shipping form whenever the prefill source switches so the picked

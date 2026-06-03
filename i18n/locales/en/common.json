@@ -1633,6 +1633,13 @@
         "body": "Accepting confirms the quoted prices. Our team will follow up to finalise your order.",
         "dismiss": "Cancel",
         "confirm": "Accept quote"
+      },
+      "convert": {
+        "button": "Convert to order",
+        "title": "Convert this quote to an order?",
+        "body": "This creates a pending order from the accepted quote — the quoted prices are kept and stock is reserved. You'll be taken to the new order.",
+        "dismiss": "Cancel",
+        "confirm": "Convert to order"
       }
     },
     "placeholderTitle": "Welcome",
@@ -1898,18 +1905,18 @@
         },
         "invite": {
           "title": "Invite a member",
-          "hint": "The person must already have an account. Invite them by email and pick a role.",
+          "hint": "Invite someone by email and pick a role. If they don't have an account yet, they'll join your team once they sign up with that email.",
           "email": "Email",
           "emailPlaceholder": "name{'@'}company.com",
           "role": "Role",
           "submit": "Invite",
           "success": "Invitation sent.",
+          "pendingSuccess": "Invitation sent — they'll join your team once they create an account with that email.",
           "error": "Could not send the invitation.",
           "errors": {
             "emailRequired": "Email is required",
             "emailInvalid": "Enter a valid email address",
-            "noAccount": "No account found for that email — they must register first, then you can invite them.",
-            "alreadyMember": "That person is already a member of this company."
+            "alreadyMember": "That email is already a member or has a pending invite."
           }
         },
         "roster": {

@@ -1637,6 +1637,13 @@
         "body": "Akceptacja potwierdza wyceniane ceny. Nasz zespół skontaktuje się, aby sfinalizować zamówienie.",
         "dismiss": "Anuluj",
         "confirm": "Akceptuj wycenę"
+      },
+      "convert": {
+        "button": "Zamień na zamówienie",
+        "title": "Zamienić tę wycenę na zamówienie?",
+        "body": "Tworzy oczekujące zamówienie z zaakceptowanej wyceny — wyceniane ceny zostają zachowane, a stan magazynowy zarezerwowany. Zostaniesz przeniesiony do nowego zamówienia.",
+        "dismiss": "Anuluj",
+        "confirm": "Zamień na zamówienie"
       }
     },
     "placeholderTitle": "Witaj",
@@ -1902,18 +1909,18 @@
         },
         "invite": {
           "title": "Zapros czlonka",
-          "hint": "Ta osoba musi juz miec konto. Zapros ja, podajac adres e-mail i wybierajac role.",
+          "hint": "Zapros osobę, podając adres e-mail i wybierając rolę. Jeśli nie ma jeszcze konta, dołączy do zespołu po rejestracji na ten adres.",
           "email": "E-mail",
           "emailPlaceholder": "imie{'@'}firma.com",
           "role": "Rola",
           "submit": "Zapros",
           "success": "Zaproszenie wyslane.",
+          "pendingSuccess": "Zaproszenie wysłane — osoba dołączy do zespołu po założeniu konta na ten adres e-mail.",
           "error": "Nie udalo sie wyslac zaproszenia.",
           "errors": {
             "emailRequired": "E-mail jest wymagany",
             "emailInvalid": "Podaj prawidlowy adres e-mail",
-            "noAccount": "Nie znaleziono konta dla tego adresu e-mail — osoba musi najpierw sie zarejestrowac, wtedy bedzie mozna ja zaprosic.",
-            "alreadyMember": "Ta osoba jest juz czlonkiem tej firmy."
+            "alreadyMember": "Ten adres e-mail jest już członkiem lub ma oczekujące zaproszenie."
           }
         },
         "roster": {

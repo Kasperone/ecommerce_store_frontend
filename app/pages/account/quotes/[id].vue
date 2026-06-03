@@ -19,13 +19,21 @@ const id = computed(() => {
 
 const { data: quote, error } = useMyQuoteQuery(id)
 const acceptMutation = useAcceptQuote()
+const convertMutation = useConvertMyQuote()
 
 const acceptOpen = ref(false)
 const acceptError = ref<ProblemDetails | null>(null)
+const convertOpen = ref(false)
+const convertError = ref<ProblemDetails | null>(null)
 
 // Only a `sent` quote can be accepted by the customer (the server enforces it
 // too — 409 otherwise). The status helper is the single source of the literal.
 const canAccept = computed(() => quote.value?.status === 'sent')
+// An `accepted` quote not yet converted can be self-served into a pending order.
+// The server re-checks (422 wrong state / lacks stock, 409 already converted).
+const canConvert = computed(
+  () => quote.value?.status === 'accepted' && !quote.value?.converted_order_id,
+)
 
 function money(value: number) {
   return quote.value ? formatMoney(value, quote.value.currency as CurrencyCode, locale.value) : ''
@@ -44,6 +52,19 @@ async function confirmAccept() {
   }
   catch (err) {
     acceptError.value = parseProblem(err)
+  }
+}
+
+async function confirmConvert() {
+  if (!id.value) return
+  convertError.value = null
+  try {
+    const order = await convertMutation.mutateAsync(id.value)
+    convertOpen.value = false
+    await navigateTo(localePath(`/account/orders/${order.id}`))
+  }
+  catch (err) {
+    convertError.value = parseProblem(err)
   }
 }
 
@@ -112,6 +133,16 @@ useHead({
               @click="acceptOpen = true; acceptError = null"
             >
               {{ t('account.quotes.accept.button') }}
+            </UButton>
+            <UButton
+              v-if="canConvert"
+              color="primary"
+              size="sm"
+              icon="i-lucide-shopping-cart"
+              data-testid="convert-quote"
+              @click="convertOpen = true; convertError = null"
+            >
+              {{ t('account.quotes.convert.button') }}
             </UButton>
           </div>
         </header>
@@ -210,6 +241,38 @@ useHead({
             @click="confirmAccept"
           >
             {{ t('account.quotes.accept.confirm') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+
+    <UModal
+      v-model:open="convertOpen"
+      :title="t('account.quotes.convert.title')"
+      :description="t('account.quotes.convert.body')"
+    >
+      <template #body>
+        <ErrorAlert
+          v-if="convertError"
+          :problem="convertError"
+        />
+      </template>
+      <template #footer>
+        <div class="flex w-full justify-end gap-2">
+          <UButton
+            color="neutral"
+            variant="soft"
+            @click="convertOpen = false"
+          >
+            {{ t('account.quotes.convert.dismiss') }}
+          </UButton>
+          <UButton
+            color="primary"
+            :loading="convertMutation.isLoading.value"
+            data-testid="convert-quote-confirm"
+            @click="confirmConvert"
+          >
+            {{ t('account.quotes.convert.confirm') }}
           </UButton>
         </div>
       </template>
