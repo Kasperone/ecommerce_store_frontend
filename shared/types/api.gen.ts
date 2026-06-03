@@ -99,7 +99,8 @@ export interface paths {
          *
          *     - **email**, **password**, **first_name**, **last_name**, **phone**: the
          *       personal account (same rules as ``/register``).
-         *     - **company_name** (required), **company_tax_id** (optional): the company.
+         *     - **company_name** (required), **company_tax_id** + **company_address_*** (optional):
+         *       the company. The address is persisted on the user for invoice rendering.
          */
         post: operations["register_business_api_v1_auth_register_business_post"];
         delete?: never;
@@ -3414,7 +3415,8 @@ export interface components {
          *
          *     Open B2B self-signup: the personal account fields (mirroring the normal
          *     ``register`` — email + strong password + name) plus the minimal company
-         *     identity (``company_name`` required, ``company_tax_id`` optional). One call
+         *     identity (``company_name`` required; ``company_tax_id`` + an optional company
+         *     address). One call
          *     creates the user (``UserRole.CUSTOMER``) + a ``pending`` company + an active
          *     ``COMPANY_ADMIN`` membership; the company stays ``pending`` until an admin
          *     approves it. The user still goes through email verification, and the response
@@ -3438,6 +3440,16 @@ export interface components {
             company_name: string;
             /** Company Tax Id */
             company_tax_id?: string | null;
+            /** Company Address Street */
+            company_address_street?: string | null;
+            /** Company Address City */
+            company_address_city?: string | null;
+            /** Company Address Postal Code */
+            company_address_postal_code?: string | null;
+            /** Company Address Country */
+            company_address_country?: string | null;
+            /** Company Address State */
+            company_address_state?: string | null;
         };
         /**
          * CampaignCreate
