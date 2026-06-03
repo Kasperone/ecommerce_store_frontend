@@ -190,6 +190,11 @@ export const useAuthStore = defineStore('auth', () => {
           phone: data.phone || null,
           company_name: data.companyName,
           company_tax_id: data.companyTaxId || null,
+          company_address_street: data.companyAddressStreet || null,
+          company_address_city: data.companyAddressCity || null,
+          company_address_postal_code: data.companyAddressPostalCode || null,
+          company_address_country: data.companyAddressCountry || null,
+          company_address_state: data.companyAddressState || null,
         },
       })
 
