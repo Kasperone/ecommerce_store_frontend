@@ -2123,18 +2123,6 @@
     "enterYourPhone": "Enter your phone number",
     "confirmPassword": "Confirm password",
     "confirmYourPassword": "Confirm your password",
-    "shipping": {
-      "street": "Street",
-      "enterStreet": "Enter street",
-      "city": "City",
-      "enterCity": "Enter city",
-      "postalCode": "Postal code",
-      "enterPostalCode": "Enter postal code",
-      "country": "Country",
-      "enterCountry": "Enter country",
-      "state": "State/Province",
-      "enterState": "Enter state or province"
-    },
     "company": {
       "name": "Company name",
       "enterName": "Enter company name",

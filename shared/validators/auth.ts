@@ -64,12 +64,6 @@ export const createPersonalSignUpSchema = (t: TranslateFunction) =>
     confirmPassword: z.string({
       error: issue => issue.input === undefined ? t('auth.errors.confirmPasswordRequired', { default: 'Confirm password is required' }) : `Invalid input`,
     }),
-    // Shipping fields
-    shippingStreet: optionalNullableString(),
-    shippingCity: optionalNullableString(),
-    shippingPostalCode: optionalNullableString(),
-    shippingCountry: optionalNullableString(),
-    shippingState: optionalNullableString(),
   }).superRefine((val, ctx) => {
     if (val.password !== val.confirmPassword) {
       ctx.addIssue({
