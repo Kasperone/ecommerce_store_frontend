@@ -7097,20 +7097,6 @@ export interface components {
             locale: "en" | "pl";
             /** Password */
             password: string;
-            /** Company Name */
-            company_name?: string | null;
-            /** Company Tax Id */
-            company_tax_id?: string | null;
-            /** Company Address Street */
-            company_address_street?: string | null;
-            /** Company Address City */
-            company_address_city?: string | null;
-            /** Company Address Postal Code */
-            company_address_postal_code?: string | null;
-            /** Company Address Country */
-            company_address_country?: string | null;
-            /** Company Address State */
-            company_address_state?: string | null;
         };
         /**
          * UserResponse
