@@ -239,31 +239,6 @@ useHead({ title: () => t('admin.customers.detail.title', { email: customer.value
               </div>
             </dl>
           </UCard>
-
-          <!-- Shipping -->
-          <UCard>
-            <template #header>
-              <h2 class="font-semibold">
-                {{ $t('admin.customers.detail.shipping') }}
-              </h2>
-            </template>
-            <address
-              v-if="customer.shipping_city || customer.shipping_country"
-              class="not-italic text-sm space-y-0.5"
-            >
-              <div v-if="customer.shipping_street">
-                {{ customer.shipping_street }}
-              </div>
-              <div>{{ customer.shipping_postal_code }} {{ customer.shipping_city }}</div>
-              <div>{{ customer.shipping_country }}</div>
-            </address>
-            <p
-              v-else
-              class="text-muted text-sm"
-            >
-              {{ $t('admin.customers.detail.noShipping') }}
-            </p>
-          </UCard>
         </div>
 
         <!-- Company (B2B) -->

@@ -23,9 +23,10 @@ import type {
  * backend's own gate — non-admins get a 403 on mutations, but we never show them).
  *
  * The page owns the query, the mutations, the confirm modal, and surfaces the
- * backend errors as friendly copy: an invite to an unknown email 404s (D-D-7 —
- * "no account found for that email; they must register first"); demoting /
- * suspending / removing the last active COMPANY_ADMIN 409s.
+ * backend errors as friendly copy: an invite to an address with no account yet
+ * succeeds as a pending invite (bound when they register, D-D-7); a duplicate
+ * (already a member, or an already-pending email) 409s; demoting / suspending /
+ * removing the last active COMPANY_ADMIN 409s.
  */
 
 definePageMeta({ middleware: 'user' })
@@ -52,18 +53,18 @@ async function onInvite(values: CompanyMemberInvite) {
   inviting.value = true
   inviteError.value = null
   try {
-    await invite.mutateAsync(values)
-    toast.add({ title: t('account.settings.team.invite.success'), color: 'success' })
+    const member = await invite.mutateAsync(values)
+    // An address with no account yet comes back as a pending invite (user_id
+    // null), bound to the account when they register — tell the admin so.
+    const title = member.user_id === null
+      ? t('account.settings.team.invite.pendingSuccess')
+      : t('account.settings.team.invite.success')
+    toast.add({ title, color: 'success' })
   }
   catch (err) {
     const { status } = narrowFetchError(err)
-    // D-D-7: an invite requires the email to already have an account. The backend
-    // 404s an unknown address; surface the actionable "must register first" copy
-    // rather than the raw "No user with that email" detail.
-    if (status === 404) {
-      inviteError.value = { title: t('account.settings.team.invite.errors.noAccount') }
-    }
-    else if (status === 409) {
+    // Already a member, or an invite is already pending for that email → 409.
+    if (status === 409) {
       inviteError.value = { title: t('account.settings.team.invite.errors.alreadyMember') }
     }
     else {

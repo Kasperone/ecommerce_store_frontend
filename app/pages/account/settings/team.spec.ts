@@ -10,7 +10,7 @@ import type { CompanyMemberResponse } from '~/composables/queries/useTeam'
  * Company team management page. Any active member reads the roster; only a
  * COMPANY_ADMIN sees the invite form + per-row controls (gated on
  * `useCompanyContext().company.role`). The page surfaces the backend errors as
- * friendly copy: invite-unknown-email 404 → "no account found" (D-D-7);
+ * friendly copy: invite-to-an-unregistered-email → pending success (D-D-7);
  * last-admin 409 → "cannot demote/suspend/remove the last admin". The company
  * context, the roster query and the mutations are mocked at their auto-import /
  * module boundaries.
@@ -154,16 +154,23 @@ describe('account team page', () => {
     expect(inviteMutate).toHaveBeenCalledWith({ email: 'new@co.com', role: 'BUYER' })
   })
 
-  it('surfaces a friendly "no account found" message on a 404 invite (D-D-7)', async () => {
-    inviteMutate.mockRejectedValue({ status: 404, data: { detail: 'No user with that email' } })
+  it('treats an invite to an unregistered email as a pending success (D-D-7)', async () => {
+    // The backend no longer 404s an unknown email — it stages a pending invite
+    // (user_id null), bound to the account when that address registers.
+    inviteMutate.mockResolvedValue({ id: 100, user_id: null })
     const wrapper = await mountPage()
     await wrapper.find('input[type="email"]').setValue('ghost@co.com')
     await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
     await wrapper.vm.$nextTick()
-    expect(wrapper.text()).toContain('No account found for that email')
-    // It must NOT leak the raw backend detail.
-    expect(wrapper.text()).not.toContain('No user with that email')
+    expect(inviteMutate).toHaveBeenCalledWith({ email: 'ghost@co.com', role: 'BUYER' })
+    // A pending-specific success toast fires; no inline error is shown.
+    expect(toastAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        color: 'success',
+        title: expect.stringContaining('once they create an account'),
+      }),
+    )
   })
 
   it('surfaces a friendly "already a member" message on a 409 invite', async () => {
@@ -173,7 +180,7 @@ describe('account team page', () => {
     await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
     await wrapper.vm.$nextTick()
-    expect(wrapper.text()).toContain('already a member of this company')
+    expect(wrapper.text()).toContain('already a member')
   })
 
   // --- Role change -----------------------------------------------------------
