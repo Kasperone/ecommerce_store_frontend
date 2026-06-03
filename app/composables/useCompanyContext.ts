@@ -3,10 +3,12 @@
  *
  * `GET /api/v1/companies/me` resolves the caller's company via their active
  * `company_users` membership (Wave D generalized the Wave-C primary-contact
- * lookup; a backfilled primary contact resolves identically). A **200** means
- * the caller is a B2B account → show the "Request a quote" cart CTA + the
- * `/account/quotes` nav + the role-gated B2B settings sections. A **404** means
- * they're not a company member → hide every B2B surface.
+ * lookup; a backfilled primary contact resolves identically). A **company
+ * body** means the caller is a B2B account → show the "Request a quote" cart CTA
+ * + the `/account/quotes` nav + the role-gated B2B settings sections. A **null
+ * body** (the endpoint returns 200 + null, not 404 — this is probed on every
+ * authed page, so a 404 would spam the browser console) means they're not a
+ * company member → hide every B2B surface.
  *
  * The response is a `CompanyMeResponse`, which carries the caller's B2B `role`
  * (`COMPANY_ADMIN` | `BUYER` | `APPROVER` | `VIEWER`) so callers can role-gate
@@ -17,7 +19,7 @@
  * server-run authed query throws a hydration mismatch on a hard load
  * (SSR-hydration rule #87).
  *
- * The 404 is the expected "not B2B" signal, not an error to surface — so
+ * A null body is the expected "not B2B" signal, not an error to surface — so
  * `isB2B` derives from a successful response with a non-null company while the
  * raw `error` is left for callers that genuinely want it (none currently do).
  */
@@ -40,10 +42,10 @@ export function useCompanyContext() {
 
   const query = useQuery({
     key: () => [...COMPANY_NAMESPACE],
-    query: () => apiFetch<CompanyMe>('/api/v1/companies/me'),
+    query: () => apiFetch<CompanyMe | null>('/api/v1/companies/me'),
     enabled: () => import.meta.client,
-    // A 404 (not a B2B account) is an expected outcome, not a transient error —
-    // don't retry it.
+    // Not-a-B2B-account is a 200 + null body (an expected outcome), so there's
+    // nothing to retry; keep retry off for a genuine transient error too.
     retry: false,
   })
 

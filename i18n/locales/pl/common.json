@@ -1518,6 +1518,7 @@
       },
       "status": {
         "draft": "Szkic",
+        "requested": "Zgłoszona",
         "sent": "Wysłana",
         "accepted": "Zaakceptowana",
         "rejected": "Odrzucona",

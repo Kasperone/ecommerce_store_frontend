@@ -37,8 +37,14 @@ const { data: company, isLoading, error } = useCompanyProfileQuery()
 const { mutateAsync: updateProfile } = useUpdateCompanyProfile()
 
 const isAdmin = computed(() => company.value?.role === 'COMPANY_ADMIN')
-// A resolved 404 leaves `error` set with no data → the caller isn't a B2B member.
-const notAMember = computed(() => !company.value && !!error.value && !isLoading.value)
+// "Not a B2B member" resolves two ways: the endpoint returns 200 + a null body
+// (current — `company.value === null`), or, against an older backend, a 404
+// that sets `error`. Either way the query has settled with no company.
+// `=== null` (not just falsy) avoids a flash before the first fetch, when
+// `company` is still `undefined`.
+const notAMember = computed(
+  () => !isLoading.value && (company.value === null || !!error.value),
+)
 
 const saving = ref(false)
 
