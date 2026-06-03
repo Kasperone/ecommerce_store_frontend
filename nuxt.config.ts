@@ -51,6 +51,15 @@ export default defineNuxtConfig({
   // Empty default → useApi() calls relative URLs that traverse the proxy above.
   // The proxy still reads NUXT_PUBLIC_API_BASE at startup for the upstream target.
   runtimeConfig: {
+    // Server-only (never exposed to the client): shared secret for the backend's
+    // SSR session-validation endpoint (POST /auth/refresh/ssr). Sent as the
+    // X-SSR-Secret header so the SSR auth restore can mint an access token
+    // WITHOUT rotating the refresh cookie — removing the rotation/Set-Cookie
+    // race + 30/hour rate-limit pressure that caused hydration mismatches on
+    // hard reloads. Populated from NUXT_SSR_SHARED_SECRET; must match the
+    // backend's SSR_SHARED_SECRET. Empty → the SSR restore falls back to the
+    // legacy rotating /auth/refresh (no regression for unconfigured envs).
+    ssrSharedSecret: '',
     public: {
       apiBase: '',
     },

@@ -51,6 +51,11 @@ export function useStripeConfig() {
   return useQuery({
     key: ['payments', 'stripe', 'config'],
     query: () => apiFetch<StripeConfigResponse>('/api/v1/payments/stripe/config'),
+    // Client-only: @pinia/colada doesn't serialize its cache across SSR, so a
+    // server-run query renders data the client can't reproduce on first paint →
+    // hydration mismatch. (Today its only caller is <ClientOnly>-wrapped, but
+    // the gate is the real guarantee — enforced by the colada-ssr-gate guard.)
+    enabled: () => import.meta.client,
   })
 }
 
