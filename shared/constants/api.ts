@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
     ME: '/api/v1/auth/me', // GET - Get current user
     UPDATE_ME: '/api/v1/auth/me', // PUT - Update current user
     REFRESH: '/api/v1/auth/refresh', // POST - Rotate refresh cookie + new access token
+    REFRESH_SSR: '/api/v1/auth/refresh/ssr', // POST - SSR-only: validate cookie + mint access WITHOUT rotating (X-SSR-Secret gated)
     LOGOUT: '/api/v1/auth/logout', // POST - Revoke current refresh + clear cookie
     LOGOUT_ALL: '/api/v1/auth/logout-all', // POST - Revoke every session for current user
     PASSWORD_RESET_REQUEST: '/api/v1/auth/password-reset/request', // POST - Request reset email
