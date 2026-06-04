@@ -13,7 +13,13 @@ test('login happy path → redirects to /account and shows welcome toast', async
   await page.getByRole('button', { name: /continue/i }).click()
 
   await expect(page).toHaveURL('/account')
-  await expect(page.getByText('Welcome back!', { exact: true })).toBeVisible()
+  // Scope to the toast: "Welcome back!" is also the LoginForm's own <h1>, so an
+  // unscoped match races that heading against the toast during the
+  // /login→/account transition (strict-mode violation). The toast is the actual
+  // subject of this assertion.
+  await expect(
+    page.getByLabel('Notifications (F8)').getByText('Welcome back!', { exact: true }),
+  ).toBeVisible()
 })
 
 test('login while account is locked → stays on /login with error', async ({ page }) => {

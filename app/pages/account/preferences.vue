@@ -92,6 +92,46 @@ async function onEmailLocaleChange(value: unknown) {
     })
   }
 }
+
+// --- Communications (marketing consents) --------------------------------------
+// Granular per-topic comms toggles (Phase 4, Baymard §1.1 — granular controls
+// reduce blanket unsubscribes). Re-homed here from the old Privacy page, which
+// now keeps only GDPR data-rights. Each toggle rides the same /me/preferences
+// endpoint: GET returns the latest-per-type snapshot, PATCH appends a new row to
+// the append-only consent log. The topics beyond marketing_email/newsletter are
+// new free-form consent keys — no backend change needed.
+const CONSENT_TYPES = ['marketing_email', 'newsletter', 'product_updates', 'order_tips'] as const
+type ConsentType = (typeof CONSENT_TYPES)[number]
+
+const consents = computed(() => preferences.data.value?.consents ?? {})
+// One in-flight guard per consent type so its switch shows a pending state.
+const savingConsent = reactive<Record<ConsentType, boolean>>({
+  marketing_email: false,
+  newsletter: false,
+  product_updates: false,
+  order_tips: false,
+})
+
+function consentGranted(type: ConsentType): boolean {
+  return consents.value[type] === true
+}
+
+async function onConsentChange(type: ConsentType, value: boolean) {
+  if (consentGranted(type) === value) return
+  savingConsent[type] = true
+  try {
+    await updatePreferences.mutateAsync({ consents: { [type]: value } })
+    toast.add({ title: t('account.settings.preferences.communications.saved'), color: 'success' })
+  }
+  catch {
+    // The snapshot is the source of truth; on failure the switch falls back to
+    // the (unchanged) server value because it's bound to the computed snapshot.
+    toast.add({ title: t('account.settings.preferences.communications.error'), color: 'error' })
+  }
+  finally {
+    savingConsent[type] = false
+  }
+}
 </script>
 
 <template>
@@ -148,6 +188,32 @@ async function onEmailLocaleChange(value: unknown) {
             @update:model-value="onEmailLocaleChange"
           />
         </UFormField>
+      </UCard>
+
+      <UCard class="mt-6">
+        <template #header>
+          <h2 class="font-semibold">
+            {{ t('account.settings.preferences.communications.title') }}
+          </h2>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            {{ t('account.settings.preferences.communications.hint') }}
+          </p>
+        </template>
+        <div class="flex flex-col gap-4">
+          <UFormField
+            v-for="type in CONSENT_TYPES"
+            :key="type"
+            :label="t(`account.settings.preferences.communications.${type}.label`)"
+            :description="t(`account.settings.preferences.communications.${type}.hint`)"
+          >
+            <USwitch
+              :model-value="consentGranted(type)"
+              :loading="savingConsent[type]"
+              :aria-label="t(`account.settings.preferences.communications.${type}.label`)"
+              @update:model-value="(v: boolean) => onConsentChange(type, v)"
+            />
+          </UFormField>
+        </div>
       </UCard>
     </div>
   </NuxtLayout>

@@ -87,8 +87,15 @@ vi.mock('~/composables/queries/useQuotes', () => ({
   useMyQuotesQuery: () => ({ data: quotesData }),
 }))
 
+const userRef = ref<Record<string, unknown>>({
+  first_name: 'Claude',
+  email: 'shopper@example.com',
+  locale: 'en',
+})
 mockNuxtImport('useAuthStore', () => () => ({
-  user: { first_name: 'Claude', email: 'shopper@example.com', locale: 'en' },
+  get user() {
+    return userRef.value
+  },
 }))
 
 mockNuxtImport('useCompanyContext', () => () => ({
@@ -116,6 +123,7 @@ beforeEach(() => {
   addressesData.value = ADDRESSES
   quotesData.value = QUOTES
   isB2B.value = false
+  userRef.value = { first_name: 'Claude', email: 'shopper@example.com', locale: 'en' }
 })
 
 afterEach(() => {
@@ -183,6 +191,39 @@ describe('account overview dashboard', () => {
     // 2 open (requested + sent), 1 awaiting acceptance (sent).
     expect(card.text()).toContain('2 open quotes')
     expect(card.text()).toContain('1 awaiting')
+  })
+
+  it('nudges to add a phone number when it is missing', async () => {
+    // Default fixture user has no phone.
+    const wrapper = await mountPage()
+    const nudge = wrapper.find('[data-testid="completeness-nudge"]')
+    expect(nudge.exists()).toBe(true)
+    expect(nudge.text()).toContain('Add a phone number')
+    const hrefs = nudge.findAll('a').map(l => l.attributes('href'))
+    expect(hrefs).toContain('/account/profile')
+  })
+
+  it('nudges to add a default shipping address when none is set', async () => {
+    addressesData.value = []
+    const wrapper = await mountPage()
+    const nudge = wrapper.find('[data-testid="completeness-nudge"]')
+    expect(nudge.exists()).toBe(true)
+    expect(nudge.text()).toContain('Add a default shipping address')
+  })
+
+  it('hides the nudge once phone and default address are both present', async () => {
+    userRef.value = { first_name: 'Claude', email: 'shopper@example.com', locale: 'en', phone: '+48123456789' }
+    addressesData.value = ADDRESSES // has a default-shipping address
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="completeness-nudge"]').exists()).toBe(false)
+  })
+
+  it('dismisses the nudge when its close control fires', async () => {
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="completeness-nudge"]').exists()).toBe(true)
+    wrapper.findComponent({ name: 'UAlert' }).vm.$emit('update:open', false)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-testid="completeness-nudge"]').exists()).toBe(false)
   })
 
   it('declares the \'user\' middleware', () => {

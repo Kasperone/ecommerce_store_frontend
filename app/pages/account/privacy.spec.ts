@@ -1,14 +1,12 @@
 // @vitest-environment nuxt
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, h } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 
 /**
- * Privacy settings page. It owns three independent controls:
+ * Privacy settings page. Since Phase 4 the marketing/communications consents
+ * moved to the Preferences page; Privacy now owns only GDPR data-rights:
  *
- * - **Marketing consents** — two USwitches bound to the `/me/preferences`
- *   `consents` snapshot; flipping one PATCHes `{ consents: { [type]: bool } }`
- *   and toasts (success / error). Currency/email (Wave A) are NOT touched here.
  * - **Data export** — `POST /me/data-export` then a client-side JSON file
  *   download (Blob + anchor), both stubbed below.
  * - **Delete account** — behind a UModal confirm; on confirm it calls
@@ -18,15 +16,9 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
  * `useToast`, `useRouter`, `useLocalePath` at the auto-import boundary.
  */
 
-const preferencesData = ref<{ consents?: Record<string, boolean> } | undefined>(undefined)
-const updateMutate = vi.fn()
 const exportMutate = vi.fn()
 const deleteMutate = vi.fn()
 
-vi.mock('~/composables/queries/usePreferences', () => ({
-  usePreferencesQuery: () => ({ data: preferencesData }),
-  useUpdatePreferences: () => ({ mutateAsync: updateMutate }),
-}))
 vi.mock('~/composables/queries/useDataExport', () => ({
   useDataExport: () => ({ mutateAsync: exportMutate }),
 }))
@@ -73,10 +65,6 @@ async function mountPage() {
   })
 }
 
-function switches(wrapper: Awaited<ReturnType<typeof mountPage>>) {
-  return wrapper.findAllComponents({ name: 'USwitch' })
-}
-
 // Search both the (detached) page wrapper and document.body (modal teleport).
 function buttonByText(
   wrapper: Awaited<ReturnType<typeof mountPage>>,
@@ -94,8 +82,6 @@ let createdAnchors: HTMLAnchorElement[] = []
 const originalCreateElement = document.createElement.bind(document)
 
 beforeEach(() => {
-  preferencesData.value = { consents: { marketing_email: false, newsletter: true } }
-  updateMutate.mockReset().mockResolvedValue({ consents: {} })
   exportMutate.mockReset().mockResolvedValue({ user: {}, addresses: [], orders: [], consents: [] })
   deleteMutate.mockReset().mockResolvedValue({
     deletion_requested_at: '2026-06-02T00:00:00Z',
@@ -125,50 +111,6 @@ afterEach(() => {
 })
 
 describe('account/settings/privacy', () => {
-  it('renders a switch per marketing-consent type', async () => {
-    const wrapper = await mountPage()
-    expect(switches(wrapper)).toHaveLength(2)
-  })
-
-  it('seeds each consent switch from the preferences snapshot', async () => {
-    const wrapper = await mountPage()
-    // Order matches CONSENT_TYPES: [marketing_email=false, newsletter=true].
-    expect(switches(wrapper)[0]!.props('modelValue')).toBe(false)
-    expect(switches(wrapper)[1]!.props('modelValue')).toBe(true)
-  })
-
-  it('flipping a consent PATCHes /me/preferences with that consent only', async () => {
-    const wrapper = await mountPage()
-    switches(wrapper)[0]!.vm.$emit('update:modelValue', true)
-    await tick()
-    expect(updateMutate).toHaveBeenCalledWith({ consents: { marketing_email: true } })
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
-  })
-
-  it('does not call the consent PATCH when the value is unchanged', async () => {
-    const wrapper = await mountPage()
-    switches(wrapper)[1]!.vm.$emit('update:modelValue', true) // already true
-    await tick()
-    expect(updateMutate).not.toHaveBeenCalled()
-  })
-
-  it('toasts an error when the consent PATCH fails', async () => {
-    updateMutate.mockRejectedValue(new Error('boom'))
-    const wrapper = await mountPage()
-    switches(wrapper)[0]!.vm.$emit('update:modelValue', true)
-    await tick()
-    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
-  })
-
-  it('leaves the consent switch reflecting the server snapshot after a failed PATCH', async () => {
-    updateMutate.mockRejectedValue(new Error('boom'))
-    const wrapper = await mountPage()
-    switches(wrapper)[0]!.vm.$emit('update:modelValue', true)
-    await tick()
-    // Bound to the (unchanged) computed snapshot → still false.
-    expect(switches(wrapper)[0]!.props('modelValue')).toBe(false)
-  })
-
   it('export button calls the endpoint and triggers a JSON file download', async () => {
     const wrapper = await mountPage()
     buttonByText(wrapper, 'Download my data')!.dispatchEvent(
@@ -249,17 +191,5 @@ describe('account/settings/privacy', () => {
     expect(clearSession).not.toHaveBeenCalled()
     expect(routerPush).not.toHaveBeenCalled()
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
-  })
-
-  it('labels both consent switches for assistive tech', async () => {
-    const wrapper = await mountPage()
-    // Nuxt UI renders the aria-label onto the underlying switch control.
-    const labelled = [
-      ...(wrapper.element.querySelectorAll('[role="switch"][aria-label]')),
-    ] as HTMLElement[]
-    expect(labelled).toHaveLength(2)
-    for (const el of labelled) {
-      expect(el.getAttribute('aria-label')).toBeTruthy()
-    }
   })
 })

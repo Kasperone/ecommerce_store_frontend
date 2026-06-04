@@ -1621,6 +1621,12 @@
         "awaiting": "{count} awaiting your acceptance",
         "none": "No open quotes.",
         "view": "View quotes"
+      },
+      "completeness": {
+        "title": "Complete your profile",
+        "subtitle": "A couple of details are still missing:",
+        "phone": "Add a phone number",
+        "address": "Add a default shipping address"
       }
     },
     "quotes": {
@@ -1720,7 +1726,7 @@
       },
       "preferences": {
         "title": "Preferences",
-        "subtitle": "Choose your shopping currency and the language we email you in.",
+        "subtitle": "Choose your shopping currency, the language we email you in, and what we contact you about.",
         "currency": {
           "title": "Currency",
           "label": "Shopping currency",
@@ -1736,6 +1742,28 @@
           "pl": "Polish",
           "saved": "Email language updated.",
           "error": "Could not update email language."
+        },
+        "communications": {
+          "title": "Communications",
+          "hint": "Choose what we email you about. You can change this any time.",
+          "marketing_email": {
+            "label": "Promotions & offers",
+            "hint": "Discounts, sales, and special offers by email."
+          },
+          "newsletter": {
+            "label": "Newsletter",
+            "hint": "Our periodic roundup of store news."
+          },
+          "product_updates": {
+            "label": "New arrivals",
+            "hint": "Be the first to hear about new products and restocks."
+          },
+          "order_tips": {
+            "label": "Order tips & recommendations",
+            "hint": "Helpful follow-ups and picks based on your orders."
+          },
+          "saved": "Your communication preferences were updated.",
+          "error": "Could not update your communication preferences."
         }
       },
       "security": {
@@ -1788,19 +1816,6 @@
       "privacy": {
         "title": "Privacy & data",
         "subtitle": "Manage your marketing choices, download your data, or delete your account.",
-        "consents": {
-          "title": "Marketing preferences",
-          "marketing_email": {
-            "label": "Marketing email",
-            "hint": "Receive offers and product news by email."
-          },
-          "newsletter": {
-            "label": "Newsletter",
-            "hint": "Subscribe to our periodic newsletter."
-          },
-          "saved": "Your marketing preferences were updated.",
-          "error": "Could not update your marketing preferences."
-        },
         "export": {
           "title": "Download your data",
           "hint": "Get a copy of your personal data — profile, addresses, orders, and consent history — as a JSON file.",
@@ -2123,7 +2138,8 @@
     "submit": "Submit",
     "loading": "Loading...",
     "confirm": "Confirm",
-    "goHome": "Go to Home"
+    "goHome": "Go to Home",
+    "dismiss": "Dismiss"
   },
   "messages": {
     "success": "Success!",

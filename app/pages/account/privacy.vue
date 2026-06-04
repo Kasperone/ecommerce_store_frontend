@@ -2,7 +2,6 @@
 import { useI18n } from 'vue-i18n'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
-import { usePreferencesQuery, useUpdatePreferences } from '~/composables/queries/usePreferences'
 import { useDataExport } from '~/composables/queries/useDataExport'
 import { useAccountDeletion } from '~/composables/queries/useAccountDeletion'
 
@@ -21,44 +20,8 @@ useHead({
   titleTemplate: '%s | Account',
 })
 
-// --- Marketing consents -------------------------------------------------------
-// The consent map rides the same /me/preferences endpoint as currency/locale.
-// GET returns the latest-per-type snapshot; PATCH appends a new consent row
-// server-side. We only ADD the consent UI here — currency/email live on the
-// preferences page (Wave A) and are left untouched.
-const CONSENT_TYPES = ['marketing_email', 'newsletter'] as const
-type ConsentType = (typeof CONSENT_TYPES)[number]
-
-const preferences = usePreferencesQuery(() => authStore.isAuthenticated)
-const updatePreferences = useUpdatePreferences()
-
-const consents = computed(() => preferences.data.value?.consents ?? {})
-// One in-flight guard per consent type so its switch shows a pending state.
-const savingConsent = reactive<Record<ConsentType, boolean>>({
-  marketing_email: false,
-  newsletter: false,
-})
-
-function consentGranted(type: ConsentType): boolean {
-  return consents.value[type] === true
-}
-
-async function onConsentChange(type: ConsentType, value: boolean) {
-  if (consentGranted(type) === value) return
-  savingConsent[type] = true
-  try {
-    await updatePreferences.mutateAsync({ consents: { [type]: value } })
-    toast.add({ title: t('account.settings.privacy.consents.saved'), color: 'success' })
-  }
-  catch {
-    // The snapshot is the source of truth; on failure the switch falls back to
-    // the (unchanged) server value because it's bound to the computed snapshot.
-    toast.add({ title: t('account.settings.privacy.consents.error'), color: 'error' })
-  }
-  finally {
-    savingConsent[type] = false
-  }
-}
+// Marketing/communications consents moved to the Preferences page (Phase 4) —
+// Privacy now owns only GDPR data-rights (export + account deletion).
 
 // --- Data export (Art. 15/20) -------------------------------------------------
 const dataExport = useDataExport()
@@ -142,32 +105,8 @@ async function onDeleteConfirm() {
         </p>
       </div>
 
-      <!-- Marketing consents -->
-      <UCard>
-        <template #header>
-          <h2 class="font-semibold">
-            {{ t('account.settings.privacy.consents.title') }}
-          </h2>
-        </template>
-        <div class="flex flex-col gap-4">
-          <UFormField
-            v-for="type in CONSENT_TYPES"
-            :key="type"
-            :label="t(`account.settings.privacy.consents.${type}.label`)"
-            :description="t(`account.settings.privacy.consents.${type}.hint`)"
-          >
-            <USwitch
-              :model-value="consentGranted(type)"
-              :loading="savingConsent[type]"
-              :aria-label="t(`account.settings.privacy.consents.${type}.label`)"
-              @update:model-value="(v: boolean) => onConsentChange(type, v)"
-            />
-          </UFormField>
-        </div>
-      </UCard>
-
       <!-- Data export -->
-      <UCard class="mt-6">
+      <UCard>
         <template #header>
           <h2 class="font-semibold">
             {{ t('account.settings.privacy.export.title') }}

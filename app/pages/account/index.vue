@@ -42,6 +42,22 @@ const defaultAddress = computed(() => {
   return list.find(a => a.is_default_shipping) ?? list[0] ?? null
 })
 
+// Account-completeness nudge (Phase 4, Baymard §1.1 "pre-populate stored data"):
+// surface the still-blank essentials so the user can fill them before they hit
+// a blank field at checkout. Dismissible for the session.
+const nudgeDismissed = ref(false)
+const completenessItems = computed(() => {
+  const items: { key: string, to: string, icon: string }[] = []
+  if (!authStore.user?.phone) {
+    items.push({ key: 'phone', to: localePath('/account/profile'), icon: 'i-lucide-phone' })
+  }
+  if (!(addresses.value ?? []).some(a => a.is_default_shipping)) {
+    items.push({ key: 'address', to: localePath('/account/addresses'), icon: 'i-lucide-map-pin' })
+  }
+  return items
+})
+const showNudge = computed(() => !nudgeDismissed.value && completenessItems.value.length > 0)
+
 // B2B quotes summary — gated behind company membership.
 const { isB2B } = useCompanyContext()
 const { data: quotes } = useMyQuotesQuery()
@@ -77,6 +93,43 @@ function countryLabel(code: string) {
           <span class="font-medium">{{ authStore.user?.email }}</span>
         </p>
       </header>
+
+      <!-- Account-completeness nudge — only shows while something's missing. -->
+      <ClientOnly>
+        <UAlert
+          v-if="showNudge"
+          color="primary"
+          variant="soft"
+          icon="i-lucide-sparkles"
+          :title="t('account.overview.completeness.title')"
+          :close="{ 'aria-label': t('actions.dismiss') }"
+          data-testid="completeness-nudge"
+          @update:open="(open: boolean) => { if (!open) nudgeDismissed = true }"
+        >
+          <template #description>
+            <p class="mb-2">
+              {{ t('account.overview.completeness.subtitle') }}
+            </p>
+            <ul class="flex flex-col gap-1">
+              <li
+                v-for="item in completenessItems"
+                :key="item.key"
+              >
+                <NuxtLink
+                  :to="item.to"
+                  class="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+                >
+                  <UIcon
+                    :name="item.icon"
+                    class="size-4 shrink-0"
+                  />
+                  {{ t(`account.overview.completeness.${item.key}`) }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </template>
+        </UAlert>
+      </ClientOnly>
 
       <ClientOnly>
         <div class="grid gap-6 md:grid-cols-3">
