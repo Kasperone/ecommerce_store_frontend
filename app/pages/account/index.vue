@@ -85,7 +85,7 @@ useHead({
       </ClientOnly>
 
       <NuxtLink
-        :to="localePath('/account/settings')"
+        :to="localePath('/account/profile')"
         class="mt-6 block"
       >
         <UCard class="transition hover:ring-2 hover:ring-primary">

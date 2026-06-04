@@ -237,7 +237,7 @@ describe('account team page', () => {
   })
 
   it('declares the \'user\' middleware', () => {
-    const src = readFileSync(resolve(process.cwd(), 'app/pages/account/settings/team.vue'), 'utf-8')
+    const src = readFileSync(resolve(process.cwd(), 'app/pages/account/team.vue'), 'utf-8')
     expect(src).toMatch(/middleware:\s*'user'/)
   })
 })
