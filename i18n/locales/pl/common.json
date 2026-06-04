@@ -1603,6 +1603,30 @@
       "groupAccount": "Konto",
       "groupCompany": "Firma"
     },
+    "overview": {
+      "welcome": "Witaj ponownie, {name}",
+      "recentOrders": "Ostatnie zamówienia",
+      "viewAllOrders": "Zobacz wszystkie zamówienia",
+      "noOrders": "Nie masz jeszcze żadnych zamówień.",
+      "defaultAddress": "Adres domyślny",
+      "noDefaultAddress": "Brak zapisanego adresu domyślnego.",
+      "manageAddresses": "Zarządzaj adresami",
+      "addAddress": "Dodaj adres",
+      "quickActions": "Szybkie akcje",
+      "actions": {
+        "trackOrder": "Śledź zamówienie",
+        "buyAgain": "Kup ponownie",
+        "addresses": "Adresy",
+        "preferences": "Preferencje"
+      },
+      "quotes": {
+        "heading": "Wyceny",
+        "open": "{count} otwarta wycena | {count} otwarte wyceny | {count} otwartych wycen",
+        "awaiting": "{count} oczekuje na Twoją akceptację",
+        "none": "Brak otwartych wycen.",
+        "view": "Zobacz wyceny"
+      }
+    },
     "quotes": {
       "title": "Wyceny",
       "subtitle": "Przeglądaj i akceptuj wyceny przygotowane dla Twojej firmy.",

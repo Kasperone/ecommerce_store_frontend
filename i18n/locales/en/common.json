@@ -1599,6 +1599,30 @@
       "groupAccount": "Account",
       "groupCompany": "Company"
     },
+    "overview": {
+      "welcome": "Welcome back, {name}",
+      "recentOrders": "Recent orders",
+      "viewAllOrders": "View all orders",
+      "noOrders": "You haven't placed any orders yet.",
+      "defaultAddress": "Default address",
+      "noDefaultAddress": "No default address saved yet.",
+      "manageAddresses": "Manage addresses",
+      "addAddress": "Add an address",
+      "quickActions": "Quick actions",
+      "actions": {
+        "trackOrder": "Track an order",
+        "buyAgain": "Buy again",
+        "addresses": "Addresses",
+        "preferences": "Preferences"
+      },
+      "quotes": {
+        "heading": "Quotes",
+        "open": "{count} open quote | {count} open quotes",
+        "awaiting": "{count} awaiting your acceptance",
+        "none": "No open quotes.",
+        "view": "View quotes"
+      }
+    },
     "quotes": {
       "title": "Quotes",
       "subtitle": "View and accept the price quotes prepared for your company.",
