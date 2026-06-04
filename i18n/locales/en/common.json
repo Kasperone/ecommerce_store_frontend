@@ -2046,8 +2046,8 @@
     "noResults": "No matches for “{query}”",
     "results": {
       "heading": "Search results",
-      "summary": "{count} results for “{query}”",
-      "count": "{count} products"
+      "summary": "{count} result for “{query}” | {count} results for “{query}”",
+      "count": "{count} product | {count} products"
     },
     "sort": {
       "label": "Sort by",

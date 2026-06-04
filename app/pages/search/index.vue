@@ -99,7 +99,7 @@ function clearFacets() {
           v-if="query"
           class="text-muted"
         >
-          {{ t('search.results.summary', { count: total, query }) }}
+          {{ t('search.results.summary', { count: total, query }, total) }}
         </p>
       </header>
 
@@ -126,7 +126,7 @@ function clearFacets() {
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-4">
             <p class="text-sm text-muted">
-              {{ t('search.results.count', { count: total }) }}
+              {{ t('search.results.count', { count: total }, total) }}
             </p>
             <USelect
               v-model="sortValue"
