@@ -1591,6 +1591,14 @@
   "account": {
     "dashboard": "My Account",
     "signedInAs": "Signed in as",
+    "nav": {
+      "title": "My account",
+      "overview": "Overview",
+      "orders": "Orders",
+      "quotes": "Quotes",
+      "groupAccount": "Account",
+      "groupCompany": "Company"
+    },
     "quotes": {
       "title": "Quotes",
       "subtitle": "View and accept the price quotes prepared for your company.",
