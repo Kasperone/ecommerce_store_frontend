@@ -1595,6 +1595,14 @@
   "account": {
     "dashboard": "Moje konto",
     "signedInAs": "Zalogowano jako",
+    "nav": {
+      "title": "Moje konto",
+      "overview": "Przegląd",
+      "orders": "Zamówienia",
+      "quotes": "Wyceny",
+      "groupAccount": "Konto",
+      "groupCompany": "Firma"
+    },
     "quotes": {
       "title": "Wyceny",
       "subtitle": "Przeglądaj i akceptuj wyceny przygotowane dla Twojej firmy.",
