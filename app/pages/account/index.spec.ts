@@ -43,10 +43,10 @@ afterEach(() => {
 })
 
 describe('account dashboard page', () => {
-  it('renders a link into the settings hub', async () => {
+  it('renders a link into the account settings (flattened route)', async () => {
     const wrapper = await mountPage()
     const hrefs = wrapper.findAll('a').map(l => l.attributes('href'))
-    expect(hrefs).toContain('/account/settings')
+    expect(hrefs).toContain('/account/profile')
   })
 
   it('no longer renders the email-language select', async () => {

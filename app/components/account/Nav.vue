@@ -10,8 +10,8 @@ import { useI18n } from 'vue-i18n'
  * grouped IA from §3.2 of the redesign blueprint. Rendered once, persistently,
  * by `layouts/account.vue` so it never vanishes inside a sub-page (defect D3).
  *
- * Phase 1 keeps every existing route untouched, so the settings entries still
- * point at `/account/settings/<x>`; the route flatten is Phase 2.
+ * The account-management entries point at the flattened `/account/<x>` routes
+ * (Phase 2 route flatten; the old `/account/settings/<x>` paths 301-redirect).
  */
 
 const { t } = useI18n()
@@ -48,10 +48,10 @@ const quotesItem = computed<NavItem>(() => (
 
 // Account-management group (labelled "Account").
 const accountItems = computed<NavItem[]>(() => [
-  { key: 'profile', to: localePath('/account/settings/profile'), icon: 'i-lucide-user', match: 'exact' },
-  { key: 'addresses', to: localePath('/account/settings/addresses'), icon: 'i-lucide-map-pin', match: 'exact' },
-  { key: 'security', to: localePath('/account/settings/security'), icon: 'i-lucide-lock', match: 'exact' },
-  { key: 'preferences', to: localePath('/account/settings/preferences'), icon: 'i-lucide-settings-2', match: 'exact' },
+  { key: 'profile', to: localePath('/account/profile'), icon: 'i-lucide-user', match: 'exact' },
+  { key: 'addresses', to: localePath('/account/addresses'), icon: 'i-lucide-map-pin', match: 'exact' },
+  { key: 'security', to: localePath('/account/security'), icon: 'i-lucide-lock', match: 'exact' },
+  { key: 'preferences', to: localePath('/account/preferences'), icon: 'i-lucide-settings-2', match: 'exact' },
 ])
 
 // B2B company group (Wave D): `company` for any company member, `team` for
@@ -59,17 +59,17 @@ const accountItems = computed<NavItem[]>(() => [
 const companyItems = computed<NavItem[]>(() => {
   if (!isB2B.value) return []
   const out: NavItem[] = [
-    { key: 'company', to: localePath('/account/settings/company'), icon: 'i-lucide-building', match: 'exact' },
+    { key: 'company', to: localePath('/account/company'), icon: 'i-lucide-building', match: 'exact' },
   ]
   if (isCompanyAdmin.value) {
-    out.push({ key: 'team', to: localePath('/account/settings/team'), icon: 'i-lucide-users', match: 'exact' })
+    out.push({ key: 'team', to: localePath('/account/team'), icon: 'i-lucide-users', match: 'exact' })
   }
   return out
 })
 
 // Privacy / legal — demoted to the bottom.
 const privacyItem = computed<NavItem>(() => (
-  { key: 'privacy', to: localePath('/account/settings/privacy'), icon: 'i-lucide-shield', match: 'exact' }
+  { key: 'privacy', to: localePath('/account/privacy'), icon: 'i-lucide-shield', match: 'exact' }
 ))
 
 function isActive(item: NavItem) {
