@@ -5,7 +5,7 @@ import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
 
-definePageMeta({ middleware: 'user' })
+definePageMeta({ layout: 'account', middleware: 'user' })
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
