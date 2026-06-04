@@ -127,7 +127,7 @@ const items = computed<NavigationMenuItem[]>(() => {
               variant="ghost"
               class="ml-2 px-2 cursor-pointer"
               :aria-label="t('header.accountSettings')"
-              to="/account/settings"
+              to="/account/profile"
               icon="i-lucide-settings"
             />
           </UTooltip>

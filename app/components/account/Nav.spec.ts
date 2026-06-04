@@ -45,15 +45,15 @@ describe('AccountNav — grouped IA', () => {
   it('renders all four account-management settings links', async () => {
     const wrapper = await mountSuspended(Nav)
     const hrefs = hrefsOf(wrapper)
-    expect(hrefs).toContain('/account/settings/profile')
-    expect(hrefs).toContain('/account/settings/security')
-    expect(hrefs).toContain('/account/settings/addresses')
-    expect(hrefs).toContain('/account/settings/preferences')
+    expect(hrefs).toContain('/account/profile')
+    expect(hrefs).toContain('/account/security')
+    expect(hrefs).toContain('/account/addresses')
+    expect(hrefs).toContain('/account/preferences')
   })
 
   it('demotes Privacy to the rail (still reachable)', async () => {
     const wrapper = await mountSuspended(Nav)
-    expect(hrefsOf(wrapper)).toContain('/account/settings/privacy')
+    expect(hrefsOf(wrapper)).toContain('/account/privacy')
   })
 
   it('renders exactly seven links for a non-B2B account', async () => {
@@ -92,7 +92,7 @@ describe('AccountNav — B2B gating', () => {
     const wrapper = await mountSuspended(Nav)
     const hrefs = hrefsOf(wrapper)
     expect(hrefs).not.toContain('/account/quotes')
-    expect(hrefs).not.toContain('/account/settings/company')
+    expect(hrefs).not.toContain('/account/company')
   })
 
   it('reveals Quotes and Company for company members', async () => {
@@ -100,7 +100,7 @@ describe('AccountNav — B2B gating', () => {
     const wrapper = await mountSuspended(Nav)
     const hrefs = hrefsOf(wrapper)
     expect(hrefs).toContain('/account/quotes')
-    expect(hrefs).toContain('/account/settings/company')
+    expect(hrefs).toContain('/account/company')
   })
 
   it('shows the Team link for a COMPANY_ADMIN business account', async () => {
@@ -108,7 +108,7 @@ describe('AccountNav — B2B gating', () => {
     companyRef.value = { role: 'COMPANY_ADMIN' }
     const wrapper = await mountSuspended(Nav)
     const hrefs = hrefsOf(wrapper)
-    expect(hrefs).toContain('/account/settings/team')
+    expect(hrefs).toContain('/account/team')
     expect(wrapper.text()).toContain('Team')
   })
 
@@ -116,13 +116,13 @@ describe('AccountNav — B2B gating', () => {
     isB2B.value = true
     companyRef.value = { role: 'BUYER' }
     const wrapper = await mountSuspended(Nav)
-    expect(hrefsOf(wrapper)).not.toContain('/account/settings/team')
+    expect(hrefsOf(wrapper)).not.toContain('/account/team')
   })
 
   it('hides the Team link for a non-business account', async () => {
     isB2B.value = false
     companyRef.value = null
     const wrapper = await mountSuspended(Nav)
-    expect(hrefsOf(wrapper)).not.toContain('/account/settings/team')
+    expect(hrefsOf(wrapper)).not.toContain('/account/team')
   })
 })
