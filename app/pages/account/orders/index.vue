@@ -6,7 +6,7 @@ import type { CurrencyCode } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { OrderWithUser } from '#shared/types/api'
 
-definePageMeta({ middleware: 'user' })
+definePageMeta({ layout: 'account', middleware: 'user' })
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
