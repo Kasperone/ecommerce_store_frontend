@@ -22,6 +22,7 @@ import {
  */
 
 definePageMeta({
+  layout: 'account',
   middleware: 'user',
 })
 
