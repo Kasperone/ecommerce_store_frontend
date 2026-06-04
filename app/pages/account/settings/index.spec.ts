@@ -6,9 +6,9 @@ import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
 /**
- * The settings hub landing renders its heading + the shared nav. Sub-route
- * page bodies are owned by sibling tasks and may 404 until they land — the hub
- * only needs to surface the nav.
+ * The settings hub landing renders its heading. The navigation moved to the
+ * persistent account rail (layouts/account.vue) in the redesign Phase 1, so the
+ * hub no longer renders an in-body nav of its own.
  */
 const PassThroughStub = defineComponent({
   setup(_props, { slots }) {
@@ -29,14 +29,9 @@ describe('account/settings hub page', () => {
     expect(wrapper.text()).toContain('Account settings')
   })
 
-  it('renders the settings nav with the five sub-route links', async () => {
-    const wrapper = await mountPage()
-    const hrefs = wrapper.findAll('a').map(l => l.attributes('href'))
-    expect(hrefs).toContain('/account/settings/profile')
-    expect(hrefs).toContain('/account/settings/security')
-    expect(hrefs).toContain('/account/settings/addresses')
-    expect(hrefs).toContain('/account/settings/preferences')
-    expect(hrefs).toContain('/account/settings/privacy')
+  it('uses the persistent account layout', () => {
+    const src = readFileSync(resolve(process.cwd(), 'app/pages/account/settings/index.vue'), 'utf-8')
+    expect(src).toMatch(/layout:\s*'account'/)
   })
 
   it('declares the \'user\' middleware', () => {
