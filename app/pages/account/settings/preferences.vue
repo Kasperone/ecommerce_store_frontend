@@ -4,6 +4,7 @@ import type { CurrencyCode } from '#shared/utils/money'
 import { usePreferencesQuery, useUpdatePreferences } from '~/composables/queries/usePreferences'
 
 definePageMeta({
+  layout: 'account',
   middleware: 'user',
 })
 

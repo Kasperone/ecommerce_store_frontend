@@ -4,6 +4,7 @@ import type { FormError, FormSubmitEvent } from '@nuxt/ui'
 import { createProfileSchema, type ProfileFormData } from '#shared/validators/profile'
 
 definePageMeta({
+  layout: 'account',
   middleware: 'user',
 })
 
