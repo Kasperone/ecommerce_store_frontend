@@ -1625,6 +1625,12 @@
         "awaiting": "{count} oczekuje na Twoją akceptację",
         "none": "Brak otwartych wycen.",
         "view": "Zobacz wyceny"
+      },
+      "completeness": {
+        "title": "Uzupełnij swój profil",
+        "subtitle": "Brakuje jeszcze kilku informacji:",
+        "phone": "Dodaj numer telefonu",
+        "address": "Dodaj domyślny adres wysyłki"
       }
     },
     "quotes": {
@@ -1724,7 +1730,7 @@
       },
       "preferences": {
         "title": "Preferencje",
-        "subtitle": "Wybierz walutę zakupów i język, w którym wysyłamy wiadomości e-mail.",
+        "subtitle": "Wybierz walutę zakupów, język wiadomości e-mail oraz to, o czym Cię informujemy.",
         "currency": {
           "title": "Waluta",
           "label": "Waluta zakupów",
@@ -1740,6 +1746,28 @@
           "pl": "Polski",
           "saved": "Zaktualizowano język wiadomości e-mail.",
           "error": "Nie udało się zaktualizować języka wiadomości e-mail."
+        },
+        "communications": {
+          "title": "Komunikacja",
+          "hint": "Wybierz, o czym wysyłamy Ci wiadomości. Możesz to zmienić w każdej chwili.",
+          "marketing_email": {
+            "label": "Promocje i oferty",
+            "hint": "Rabaty, wyprzedaże i oferty specjalne pocztą e-mail."
+          },
+          "newsletter": {
+            "label": "Newsletter",
+            "hint": "Nasz okresowy przegląd nowości ze sklepu."
+          },
+          "product_updates": {
+            "label": "Nowości",
+            "hint": "Dowiedz się pierwszy o nowych produktach i wznowieniach."
+          },
+          "order_tips": {
+            "label": "Wskazówki i rekomendacje",
+            "hint": "Pomocne podpowiedzi i propozycje na podstawie Twoich zamówień."
+          },
+          "saved": "Twoje preferencje komunikacji zostały zaktualizowane.",
+          "error": "Nie udało się zaktualizować preferencji komunikacji."
         }
       },
       "security": {
@@ -1792,19 +1820,6 @@
       "privacy": {
         "title": "Prywatność i dane",
         "subtitle": "Zarządzaj zgodami marketingowymi, pobierz swoje dane lub usuń konto.",
-        "consents": {
-          "title": "Preferencje marketingowe",
-          "marketing_email": {
-            "label": "E-mail marketingowy",
-            "hint": "Otrzymuj oferty i nowości produktowe pocztą e-mail."
-          },
-          "newsletter": {
-            "label": "Newsletter",
-            "hint": "Zapisz się do naszego okresowego newslettera."
-          },
-          "saved": "Twoje preferencje marketingowe zostały zaktualizowane.",
-          "error": "Nie udało się zaktualizować preferencji marketingowych."
-        },
         "export": {
           "title": "Pobierz swoje dane",
           "hint": "Pobierz kopię swoich danych osobowych — profil, adresy, zamówienia i historię zgód — w pliku JSON.",
@@ -2127,7 +2142,8 @@
     "submit": "Wyślij",
     "loading": "Ładowanie...",
     "confirm": "Potwierdź",
-    "goHome": "Strona główna"
+    "goHome": "Strona główna",
+    "dismiss": "Odrzuć"
   },
   "messages": {
     "success": "Sukces!",

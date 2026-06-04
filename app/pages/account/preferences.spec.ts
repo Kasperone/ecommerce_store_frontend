@@ -23,7 +23,9 @@ const currencyRef = ref<CurrencyCode>('USD')
 const setCurrency = vi.fn((code: CurrencyCode) => {
   currencyRef.value = code
 })
-const preferencesData = ref<{ preferred_currency?: CurrencyCode | null } | undefined>(undefined)
+const preferencesData = ref<
+  { preferred_currency?: CurrencyCode | null, consents?: Record<string, boolean> } | undefined
+>(undefined)
 const mutateAsync = vi.fn()
 
 const localeRef = ref<'en' | 'pl'>('en')
@@ -68,6 +70,10 @@ async function mountPage() {
 
 function selects(wrapper: Awaited<ReturnType<typeof mountPage>>) {
   return wrapper.findAllComponents({ name: 'USelect' })
+}
+
+function switches(wrapper: Awaited<ReturnType<typeof mountPage>>) {
+  return wrapper.findAllComponents({ name: 'USwitch' })
 }
 
 beforeEach(() => {
@@ -169,6 +175,61 @@ describe('account/settings/preferences', () => {
     // Nuxt UI renders the aria-label onto the underlying combobox button.
     const labelled = wrapper.findAll('[role="combobox"][aria-label]')
     expect(labelled).toHaveLength(2)
+    for (const el of labelled) {
+      expect(el.attributes('aria-label')).toBeTruthy()
+    }
+  })
+
+  // --- Communications (marketing consents) — re-homed here in Phase 4 ----------
+  it('renders a switch per communication topic', async () => {
+    const wrapper = await mountPage()
+    // marketing_email, newsletter, product_updates, order_tips
+    expect(switches(wrapper)).toHaveLength(4)
+  })
+
+  it('seeds each consent switch from the preferences snapshot', async () => {
+    preferencesData.value = {
+      consents: { marketing_email: true, newsletter: false, product_updates: true },
+    }
+    const wrapper = await mountPage()
+    // Order matches CONSENT_TYPES: [marketing_email, newsletter, product_updates, order_tips].
+    expect(switches(wrapper)[0]!.props('modelValue')).toBe(true)
+    expect(switches(wrapper)[1]!.props('modelValue')).toBe(false)
+    expect(switches(wrapper)[2]!.props('modelValue')).toBe(true)
+    // Never-touched type defaults to false.
+    expect(switches(wrapper)[3]!.props('modelValue')).toBe(false)
+  })
+
+  it('flipping a consent PATCHes /me/preferences with that consent only', async () => {
+    const wrapper = await mountPage()
+    switches(wrapper)[0]!.vm.$emit('update:modelValue', true)
+    await tick()
+    expect(mutateAsync).toHaveBeenCalledWith({ consents: { marketing_email: true } })
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
+  })
+
+  it('does not call the consent PATCH when the value is unchanged', async () => {
+    preferencesData.value = { consents: { newsletter: true } }
+    const wrapper = await mountPage()
+    switches(wrapper)[1]!.vm.$emit('update:modelValue', true) // already true
+    await tick()
+    expect(mutateAsync).not.toHaveBeenCalled()
+  })
+
+  it('toasts an error and keeps the server snapshot when the consent PATCH fails', async () => {
+    mutateAsync.mockRejectedValue(new Error('boom'))
+    const wrapper = await mountPage()
+    switches(wrapper)[0]!.vm.$emit('update:modelValue', true)
+    await tick()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+    // Bound to the (unchanged) computed snapshot → still false.
+    expect(switches(wrapper)[0]!.props('modelValue')).toBe(false)
+  })
+
+  it('labels every consent switch for assistive tech', async () => {
+    const wrapper = await mountPage()
+    const labelled = wrapper.findAll('[role="switch"][aria-label]')
+    expect(labelled).toHaveLength(4)
     for (const el of labelled) {
       expect(el.attributes('aria-label')).toBeTruthy()
     }
