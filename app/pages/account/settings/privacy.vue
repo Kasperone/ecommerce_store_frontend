@@ -7,6 +7,7 @@ import { useDataExport } from '~/composables/queries/useDataExport'
 import { useAccountDeletion } from '~/composables/queries/useAccountDeletion'
 
 definePageMeta({
+  layout: 'account',
   middleware: 'user',
 })
 

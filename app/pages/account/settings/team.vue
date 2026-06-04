@@ -29,7 +29,7 @@ import type {
  * removing the last active COMPANY_ADMIN 409s.
  */
 
-definePageMeta({ middleware: 'user' })
+definePageMeta({ layout: 'account', middleware: 'user' })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
