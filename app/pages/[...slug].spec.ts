@@ -16,17 +16,23 @@ import type { Section } from '~/blocks/types'
  * boundary so the render + not-found paths are deterministic without a network.
  */
 
-const { pageRef, createErrorMock } = vi.hoisted(() => ({
+const { pageRef, createErrorMock, usePublicPageMock, routeQuery } = vi.hoisted(() => ({
   pageRef: { value: null as PagePublic | null },
   createErrorMock: vi.fn((opts: unknown) => {
     const err = new Error('createError') as Error & { __opts?: unknown }
     err.__opts = opts
     return err
   }),
+  usePublicPageMock: vi.fn(),
+  routeQuery: { value: {} as Record<string, unknown> },
 }))
 
-mockNuxtImport('usePublicPage', () => () => ({ data: ref(pageRef.value) }))
+mockNuxtImport('usePublicPage', () => (...args: unknown[]) => {
+  usePublicPageMock(...args)
+  return { data: ref(pageRef.value) }
+})
 mockNuxtImport('createError', () => createErrorMock)
+mockNuxtImport('useRoute', () => () => ({ params: { slug: ['about-us'] }, query: routeQuery.value }))
 
 // NuxtLayout reads route.meta.layout, which the test env doesn't populate —
 // stub it with a pass-through so the page's own content is what we assert on.
@@ -66,8 +72,16 @@ async function mountPage() {
 
 beforeEach(() => {
   pageRef.value = null
+  routeQuery.value = {}
   createErrorMock.mockClear()
+  usePublicPageMock.mockClear()
 })
+
+/** The 3rd positional arg to `usePublicPage` is the token getter. */
+function resolvedToken(): string | undefined {
+  const tokenArg = usePublicPageMock.mock.calls[0]?.[2]
+  return typeof tokenArg === 'function' ? (tokenArg() as string | undefined) : undefined
+}
 
 describe('catch-all CMS page', () => {
   it('renders the published layout via PageRenderer when the page exists', async () => {
@@ -98,5 +112,18 @@ describe('catch-all CMS page', () => {
     const wrapper = await mountPage()
     expect(createErrorMock).not.toHaveBeenCalled()
     expect(wrapper.text().trim()).toBe('')
+  })
+
+  it('passes no token to usePublicPage on a plain public URL', async () => {
+    pageRef.value = makePage()
+    await mountPage()
+    expect(resolvedToken()).toBeUndefined()
+  })
+
+  it('forwards a ?token= query to usePublicPage (draft preview)', async () => {
+    routeQuery.value = { token: 'tok-xyz' }
+    pageRef.value = makePage()
+    await mountPage()
+    expect(resolvedToken()).toBe('tok-xyz')
   })
 })

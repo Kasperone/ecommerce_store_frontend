@@ -28,6 +28,7 @@ definePageMeta({
 const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const pageId = computed(() => Number(route.params.id))
 
@@ -118,7 +119,18 @@ function openAddAppend() {
 // ---- Save draft / publish ------------------------------------------------- //
 const saveDraft = useSavePageDraft()
 const publish = usePublishPage()
+const previewToken = useCreatePreviewToken()
 const error = ref<ProblemDetails | null>(null)
+
+/** Persist the working draft if dirty (shared by Save / Publish / Preview). */
+async function flushDraft() {
+  if (!isDirty.value) return
+  await saveDraft.mutateAsync({
+    id: pageId.value,
+    patch: { draft_layout: { sections: toLayoutSections(sections.value) } },
+  })
+  editor.markSaved()
+}
 
 async function onSaveDraft() {
   error.value = null
@@ -136,6 +148,33 @@ async function onSaveDraft() {
   }
 }
 
+// ---- Preview draft / view live -------------------------------------------- //
+// "Preview draft": save the working draft (so the preview reflects what's on
+// screen), mint a signed token, then open the public draft-preview route in a
+// new tab — locale-prefixed so /pl/ works. We open the tab *synchronously* on
+// click (a placeholder `about:blank`) and only redirect it once the async token
+// is minted; opening inside the async callback would be swallowed by popup
+// blockers, which only trust window.open in the click's call stack.
+async function onPreviewDraft() {
+  error.value = null
+  const tab = window.open('', '_blank')
+  try {
+    await flushDraft()
+    const { token } = await previewToken.mutateAsync({ id: pageId.value })
+    const slug = page.value?.slug ?? ''
+    const url = `${localePath(`/${slug}`)}?token=${encodeURIComponent(token)}`
+    if (tab) tab.location.href = url
+    else window.open(url, '_blank')
+  }
+  catch (err) {
+    tab?.close()
+    error.value = parseProblem(err)
+    toast.add({ title: t('admin.cms.flashes.previewFailed'), color: 'error', icon: 'i-lucide-alert-triangle' })
+  }
+}
+
+const liveUrl = computed(() => localePath(`/${page.value?.slug ?? ''}`))
+
 const publishOpen = ref(false)
 const publishLabel = ref('')
 
@@ -149,13 +188,7 @@ async function onPublish() {
   error.value = null
   try {
     // Persist the working draft first so Publish snapshots exactly what's on screen.
-    if (isDirty.value) {
-      await saveDraft.mutateAsync({
-        id: pageId.value,
-        patch: { draft_layout: { sections: toLayoutSections(sections.value) } },
-      })
-      editor.markSaved()
-    }
+    await flushDraft()
     await publish.mutateAsync({
       id: pageId.value,
       body: publishLabel.value.trim() ? { label: publishLabel.value.trim() } : {},
@@ -277,6 +310,28 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
             :aria-label="t('admin.cms.visual.modeLabel')"
             data-testid="edit-mode-toggle"
           />
+          <UButton
+            v-if="page && page.status === 'published'"
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-external-link"
+            :to="liveUrl"
+            target="_blank"
+            data-testid="view-live"
+          >
+            {{ t('admin.cms.actions.viewLive') }}
+          </UButton>
+          <UButton
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-eye"
+            :loading="previewToken.isLoading.value"
+            :disabled="isBusy"
+            data-testid="preview-draft"
+            @click="onPreviewDraft"
+          >
+            {{ t('admin.cms.actions.previewDraft') }}
+          </UButton>
           <UButton
             color="neutral"
             variant="outline"

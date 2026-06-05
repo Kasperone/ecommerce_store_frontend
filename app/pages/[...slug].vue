@@ -24,7 +24,18 @@ const slug = computed(() => {
   return (Array.isArray(raw) ? raw.join('/') : (raw ?? '')) as string
 })
 
-const { data: page } = await usePublicPage(slug, () => locale.value)
+// A signed `?token=` (admin "Preview draft" link) switches the fetch to the
+// draft-preview endpoint; without it the route serves published-only / 404s.
+const previewToken = computed(() => {
+  const raw = route.query.token
+  return (Array.isArray(raw) ? raw[0] : raw) || undefined
+})
+
+const { data: page } = await usePublicPage(
+  slug,
+  () => locale.value,
+  () => previewToken.value,
+)
 
 if (!page.value) {
   throw createError({
