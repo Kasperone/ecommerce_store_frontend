@@ -1,1 +1,14 @@
-{}
+{
+  "blocks": {
+    "cta": {
+      "shopNow": "Kup teraz"
+    },
+    "coupon": {
+      "copy": "Skopiuj kod",
+      "copied": "Skopiowano"
+    },
+    "products": {
+      "empty": "Brak produktów do wyświetlenia."
+    }
+  }
+}
