@@ -149,7 +149,9 @@
         "allAddedTitle": "Dodano do koszyka",
         "allAdded": "Dodano {count} pozycji do koszyka w aktualnych cenach. | Dodano {count} pozycję do koszyka w aktualnych cenach. | Dodano {count} pozycje do koszyka w aktualnych cenach. | Dodano {count} pozycji do koszyka w aktualnych cenach.",
         "partialTitle": "Dodano część pozycji",
-        "partial": "Dodano {added} pozycji; pominięto {skipped}, które są już niedostępne.",
+        "partial": "{addedPart}; {skippedPart}.",
+        "partialAdded": "Dodano {count} pozycji | Dodano {count} pozycję | Dodano {count} pozycje | Dodano {count} pozycji",
+        "partialSkipped": "pominięto {count} pozycji, które są już niedostępne | pominięto {count} pozycję, która jest już niedostępna | pominięto {count} pozycje, które są już niedostępne | pominięto {count} pozycji, które są już niedostępne",
         "noneTitle": "Nie dodano nic",
         "none": "Żadna z tych pozycji nie jest teraz dostępna do kupienia."
       }

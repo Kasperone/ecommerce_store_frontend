@@ -42,7 +42,7 @@
         "title": "Trend sprzedaży",
         "summary": "{total} w ciągu ostatnich {days} dni",
         "currencyLabel": "Waluta trendu",
-        "barLabel": "{date}: {amount} przychodu, {count} zamówień",
+        "barLabel": "{date}: {amount} przychodu, {count} zamówień | {date}: {amount} przychodu, {count} zamówienie | {date}: {amount} przychodu, {count} zamówienia | {date}: {amount} przychodu, {count} zamówień",
         "noRevenue": "Brak przychodu w ciągu ostatnich {days} dni"
       },
       "top": {
@@ -745,7 +745,7 @@
         "modes": {
           "none": "Usuń (tylko liść)",
           "noneHint": "Dostępne tylko, gdy kategoria nie ma podkategorii ani produktów.",
-          "cascade": "Usuń poddrzewo (+{count} potomków)",
+          "cascade": "Usuń poddrzewo (+{count} kategorii potomnych) | Usuń poddrzewo (+{count} kategoria potomna) | Usuń poddrzewo (+{count} kategorie potomne) | Usuń poddrzewo (+{count} kategorii potomnych)",
           "cascadeHint": "Rekursywnie usuń tę kategorię i wszystkie jej potomne. Najpierw usuń produkty z poddrzewa.",
           "reparent": "Przenieś podkategorie do korzenia i usuń",
           "reparentHint": "Bezpośrednie podkategorie zostają korzeniami. Najpierw usuń produkty z tej kategorii; produkty nigdy nie są cicho przenoszone."
