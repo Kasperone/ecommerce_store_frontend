@@ -47,6 +47,20 @@ const publishMock = vi.fn().mockResolvedValue({ ...PAGE, status: 'published' })
 const rollbackMock = vi.fn().mockResolvedValue(PAGE)
 const refetchVersions = vi.fn().mockResolvedValue(undefined)
 
+// Capture the guard registered via `onBeforeRouteLeave` so we can invoke it
+// directly — router navigation can't drive a non-route-mounted component.
+type LeaveGuard = (...args: unknown[]) => unknown
+const { leaveGuards } = vi.hoisted(() => ({ leaveGuards: [] as LeaveGuard[] }))
+vi.mock('vue-router', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('vue-router')>()
+  return {
+    ...actual,
+    onBeforeRouteLeave: (guard: LeaveGuard) => {
+      leaveGuards.push(guard)
+    },
+  }
+})
+
 vi.mock('~/composables/queries/usePageQueries', () => ({
   usePageQuery: () => ({ data: pageData, error: pageError }),
   useBlockSchemasQuery: () => ({ data: ref(SCHEMAS) }),
@@ -98,12 +112,13 @@ const ModalStub = defineComponent({
 
 const FormModalStub = defineComponent({
   name: 'AdminFormModal',
-  props: { open: { type: Boolean, default: false } },
-  emits: ['submit', 'update:open'],
+  props: { open: { type: Boolean, default: false }, title: { type: String, default: '' } },
+  emits: ['submit', 'cancel', 'update:open'],
   setup(props, { slots, emit }) {
-    return () => h('div', { 'data-testid': 'form-modal', 'data-open': String(props.open) }, [
+    return () => h('div', { 'data-testid': 'form-modal', 'data-title': props.title, 'data-open': String(props.open) }, [
       slots.body?.(),
       h('button', { 'data-testid': 'form-modal-submit', 'onClick': () => emit('submit') }, 'modal-submit'),
+      h('button', { 'data-testid': 'form-modal-cancel', 'onClick': () => emit('cancel') }, 'modal-cancel'),
     ])
   },
 })
@@ -150,6 +165,7 @@ beforeEach(() => {
   publishMock.mockClear()
   rollbackMock.mockClear()
   refetchVersions.mockClear()
+  leaveGuards.length = 0
 })
 
 describe('admin/pages editor', () => {
@@ -200,6 +216,55 @@ describe('admin/pages editor', () => {
 
     expect(rollbackMock).toHaveBeenCalledTimes(1)
     expect(rollbackMock.mock.calls[0][0]).toMatchObject({ id: 5, versionId: 21 })
+  })
+
+  it('registers an unsaved-changes route-leave guard', async () => {
+    await mountEditor()
+    expect(leaveGuards).toHaveLength(1)
+  })
+
+  it('allows leaving freely when the draft is clean', async () => {
+    await mountEditor()
+    const guard = leaveGuards[0]!
+    // Not dirty on load → guard returns true (allow) without opening the modal.
+    expect(guard()).toBe(true)
+  })
+
+  it('opens the confirm modal and blocks the leave while dirty', async () => {
+    const wrapper = await mountEditor()
+    // Make the editor dirty.
+    await wrapper.find('[data-testid="add-pick"]').trigger('click')
+    expect(wrapper.text()).toContain('Unsaved changes')
+
+    const guard = leaveGuards[0]!
+    const result = guard()
+    // Dirty → guard returns a pending promise (navigation deferred).
+    expect(result).toBeInstanceOf(Promise)
+    await wrapper.vm.$nextTick()
+
+    // The unsaved-changes confirm modal is now open.
+    const guardModal = [...wrapper.findAll('[data-testid="form-modal"]')]
+      .find(n => n.attributes('data-title') === 'Unsaved changes')
+    expect(guardModal).toBeTruthy()
+    expect(guardModal!.attributes('data-open')).toBe('true')
+
+    // Confirming "leave" resolves the guard to true (navigation proceeds).
+    await guardModal!.find('[data-testid="form-modal-submit"]').trigger('click')
+    await expect(result).resolves.toBe(true)
+  })
+
+  it('cancelling the confirm modal keeps the user on the page', async () => {
+    const wrapper = await mountEditor()
+    await wrapper.find('[data-testid="add-pick"]').trigger('click')
+
+    const guard = leaveGuards[0]!
+    const result = guard() as Promise<boolean>
+    await wrapper.vm.$nextTick()
+
+    const guardModal = [...wrapper.findAll('[data-testid="form-modal"]')]
+      .find(n => n.attributes('data-title') === 'Unsaved changes')!
+    await guardModal.find('[data-testid="form-modal-cancel"]').trigger('click')
+    await expect(result).resolves.toBe(false)
   })
 
   it('renders a page-load error via ErrorAlert', async () => {

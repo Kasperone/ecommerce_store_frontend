@@ -14,6 +14,8 @@
  * Buttons: Save draft (`PATCH …/draft`), Publish (`POST …/publish`), and a
  * version-history drawer with rollback.
  */
+import { onBeforeRouteLeave } from 'vue-router'
+import { useEventListener } from '@vueuse/core'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import type { Section } from '~/blocks/types'
@@ -194,6 +196,34 @@ async function onRollback(versionId: number) {
 }
 
 const isBusy = computed(() => saveDraft.isLoading.value || publish.isLoading.value)
+
+// ---- Unsaved-changes navigation guard ------------------------------------- //
+// In-router navigation (back arrow, sidebar links, etc.) is intercepted while
+// the working draft is dirty; we surface an in-app confirm modal and resolve
+// the route guard from the admin's choice. A successful save/publish clears
+// `isDirty`, so those flows are never blocked.
+const leaveGuardOpen = ref(false)
+let leaveResolver: ((leave: boolean) => void) | null = null
+
+function resolveLeave(leave: boolean) {
+  leaveGuardOpen.value = false
+  leaveResolver?.(leave)
+  leaveResolver = null
+}
+
+onBeforeRouteLeave(() => {
+  if (!isDirty.value) return true
+  leaveGuardOpen.value = true
+  return new Promise<boolean>((resolve) => {
+    leaveResolver = resolve
+  })
+})
+
+// Hard close / refresh / external navigation: trigger the browser's native
+// "leave site?" prompt while the draft is dirty.
+useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
+  if (isDirty.value) e.preventDefault()
+})
 </script>
 
 <template>
@@ -460,6 +490,18 @@ const isBusy = computed(() => saveDraft.isLoading.value || publish.isLoading.val
           </UFormField>
         </template>
       </AdminFormModal>
+
+      <!-- Unsaved-changes confirm (in-router navigation guard) -->
+      <AdminFormModal
+        :open="leaveGuardOpen"
+        :title="t('admin.cms.editor.leaveGuard.title')"
+        :description="t('admin.cms.editor.leaveGuard.body')"
+        :submit-label="t('admin.cms.editor.leaveGuard.confirm')"
+        :cancel-label="t('admin.cms.editor.leaveGuard.cancel')"
+        @update:open="(v) => { if (!v) resolveLeave(false) }"
+        @submit="resolveLeave(true)"
+        @cancel="resolveLeave(false)"
+      />
 
       <!-- Version history drawer -->
       <UModal
