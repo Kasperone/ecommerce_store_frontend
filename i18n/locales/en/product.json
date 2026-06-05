@@ -84,7 +84,7 @@
     },
     "form": {
       "ratingLabel": "Your rating",
-      "rate": "Rate {count} stars",
+      "rate": "Rate {count} star | Rate {count} stars",
       "titleLabel": "Title (optional)",
       "titlePlaceholder": "Sum it up in a few words",
       "bodyLabel": "Your review",
