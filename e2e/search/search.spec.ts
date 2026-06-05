@@ -34,6 +34,14 @@ test('header search → autocomplete → faceted /search page', async ({ page })
   const firstResult = page.locator('article a[href*="/products/"]').first()
   await expect(firstResult).toBeVisible()
 
+  // Count copy pluralizes: a single match reads "1 result" (singular), not
+  // "1 results". Default SEARCH_TERM ('phone') matches exactly one seeded
+  // product; skip the assertion if a custom term widened the match set.
+  if (SEARCH_TERM === 'phone') {
+    await expect(page.getByText(/\b1 result for\b/i)).toBeVisible()
+    await expect(page.getByText(/^1 product$/i)).toBeVisible()
+  }
+
   // The category facet (if any matched) narrows the result set.
   const facetButton = page.locator('aside button[aria-pressed]').first()
   if (await facetButton.count()) {

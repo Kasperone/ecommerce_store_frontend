@@ -2050,8 +2050,8 @@
     "noResults": "Brak wyników dla „{query}”",
     "results": {
       "heading": "Wyniki wyszukiwania",
-      "summary": "{count} wyników dla „{query}”",
-      "count": "{count} produktów"
+      "summary": "{count} wynik dla „{query}” | {count} wyników dla „{query}”",
+      "count": "{count} produkt | {count} produktów"
     },
     "sort": {
       "label": "Sortuj według",
