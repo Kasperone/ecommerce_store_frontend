@@ -1590,6 +1590,12 @@
         "selectPrompt": "Kliknij blok na kanwie, aby go edytować.",
         "dragHandle": "Przeciągnij, aby zmienić kolejność",
         "dragHint": "Przeciągnij, aby zmienić kolejność (lub Alt+strzałki, gdy zaznaczone)"
+      },
+      "device": {
+        "label": "Szerokość podglądu",
+        "desktop": "Komputer",
+        "tablet": "Tablet",
+        "mobile": "Telefon"
       }
     },
     "campaigns": {

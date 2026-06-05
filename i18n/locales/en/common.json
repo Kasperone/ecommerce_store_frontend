@@ -1586,6 +1586,12 @@
         "selectPrompt": "Click a block on the canvas to edit it.",
         "dragHandle": "Drag to reorder",
         "dragHint": "Drag to reorder (or Alt+Arrow keys when focused)"
+      },
+      "device": {
+        "label": "Preview width",
+        "desktop": "Desktop",
+        "tablet": "Tablet",
+        "mobile": "Mobile"
       }
     },
     "campaigns": {

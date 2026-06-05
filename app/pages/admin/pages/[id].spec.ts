@@ -148,6 +148,21 @@ const SubBlockListStub = defineComponent({
   },
 })
 
+// Device toggle stub: exposes one button per device that emits the model so we
+// can assert the editor binds the resulting frame width.
+const DevicePreviewStub = defineComponent({
+  name: 'AdminCmsDevicePreview',
+  props: { modelValue: { type: String, default: 'desktop' } },
+  emits: ['update:modelValue'],
+  setup(props, { emit }) {
+    return () => h('div', { 'data-testid': 'device-toggle', 'data-device': props.modelValue }, [
+      h('button', { 'data-testid': 'device-desktop', 'onClick': () => emit('update:modelValue', 'desktop') }, 'desktop'),
+      h('button', { 'data-testid': 'device-tablet', 'onClick': () => emit('update:modelValue', 'tablet') }, 'tablet'),
+      h('button', { 'data-testid': 'device-mobile', 'onClick': () => emit('update:modelValue', 'mobile') }, 'mobile'),
+    ])
+  },
+})
+
 const AddModalStub = defineComponent({
   name: 'AdminCmsAddSectionModal',
   props: { open: { type: Boolean, default: false }, schemas: { type: Array, default: () => [] } },
@@ -178,6 +193,7 @@ async function mountEditor() {
         PageRenderer: true,
         AdminCmsSectionList: SectionListStub,
         AdminCmsAddSectionModal: AddModalStub,
+        AdminCmsDevicePreview: DevicePreviewStub,
       },
     },
   })
@@ -355,5 +371,30 @@ describe('admin/pages editor', () => {
     const wrapper = await mountEditor()
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('Not found')
+  })
+
+  it('defaults the preview frame to full width (Desktop)', async () => {
+    const wrapper = await mountEditor()
+    const frame = wrapper.find('[data-testid="preview-device-frame"]')
+    expect(frame.exists()).toBe(true)
+    // Desktop = no max-width constraint.
+    expect(frame.attributes('style') ?? '').not.toContain('max-width')
+  })
+
+  it('constrains the preview frame width when a device is selected', async () => {
+    const wrapper = await mountEditor()
+    await wrapper.find('[data-testid="device-mobile"]').trigger('click')
+    await wrapper.vm.$nextTick()
+    const frame = wrapper.find('[data-testid="preview-device-frame"]')
+    expect(frame.attributes('style')).toContain('max-width: 375px')
+
+    await wrapper.find('[data-testid="device-tablet"]').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-testid="preview-device-frame"]').attributes('style')).toContain('max-width: 768px')
+
+    // Back to Desktop restores full width.
+    await wrapper.find('[data-testid="device-desktop"]').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-testid="preview-device-frame"]').attributes('style') ?? '').not.toContain('max-width')
   })
 })
