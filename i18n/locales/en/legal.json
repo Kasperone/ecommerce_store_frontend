@@ -1,1 +1,420 @@
-{}
+{
+  "legal": {
+    "draftNotice": {
+      "title": "Draft document",
+      "body": "This page contains boilerplate that has not yet been reviewed by legal counsel. Review and adapt it for your jurisdiction before publishing to production."
+    },
+    "lastUpdated": "Last updated: {date}",
+    "backHome": "Back to home",
+    "terms": {
+      "meta": {
+        "title": "Terms of Service",
+        "description": "The terms governing purchases and use of the E-commerce Store, including ordering, pricing, the 14-day right of withdrawal and the complaints procedure."
+      },
+      "title": "Terms of Service",
+      "intro": "These Terms of Service (the \"Terms\") govern the use of our online store and the conclusion of sales contracts between you and the seller. Please read them carefully before placing an order. By placing an order you accept these Terms.",
+      "sections": {
+        "seller": {
+          "heading": "1. Seller identification",
+          "body": [
+            "The online store is operated by the seller whose company details (legal name, registered address, tax identification number / NIP, REGON and, where applicable, KRS number) are published on the Contact page and in the store footer.",
+            "You can reach the seller by email and telephone using the contact details on the Contact page. These details also serve as the correspondence address for complaints and withdrawal declarations."
+          ]
+        },
+        "scope": {
+          "heading": "2. Scope and definitions",
+          "body": [
+            "These Terms apply to all orders placed through the store by consumers and business customers. \"Consumer\" means a natural person making a purchase for purposes not connected with their trade or profession.",
+            "The store sells physical goods presented in the product catalogue. Product descriptions, images and availability are provided in good faith but may be subject to change."
+          ]
+        },
+        "orders": {
+          "heading": "3. Orders, prices and payment",
+          "body": [
+            "Prices are shown per product in the selected currency (USD, PLN or EUR) and, where applicable, include statutory VAT. The total price, including delivery costs, is shown before you confirm the order.",
+            "A contract is concluded when you receive an order confirmation. We accept the payment methods presented at checkout, including card, BLIK and Przelewy24 / PayU where available.",
+            "In line with EU price-transparency rules, where a product is on promotion we display the lowest price applied during the 30 days before the reduction."
+          ]
+        },
+        "delivery": {
+          "heading": "4. Delivery and performance",
+          "body": [
+            "Goods are delivered using the methods and within the timeframes shown on the Shipping page and at checkout. Risk of loss passes to a consumer on delivery.",
+            "If we cannot perform the contract within the stated time, we will inform you and you may set an additional reasonable period or withdraw from the contract."
+          ]
+        },
+        "withdrawal": {
+          "heading": "5. Right of withdrawal (14 days)",
+          "body": [
+            "If you are a consumer, you may withdraw from a distance sales contract within 14 days without giving any reason. The period runs from the day on which you (or a third party you indicate) take possession of the goods.",
+            "To exercise the right, send us a clear statement of your decision to withdraw (for example by email) before the deadline expires. You may use a model withdrawal form but it is not mandatory.",
+            "You must return the goods without undue delay and no later than 14 days from notifying us. We will refund all payments received, including standard delivery costs, no later than 14 days after we are informed, using the same means of payment you used.",
+            "You are responsible for any diminished value of the goods resulting from handling beyond what is necessary to establish their nature, characteristics and functioning. See the Returns page for the practical procedure."
+          ]
+        },
+        "complaints": {
+          "heading": "6. Complaints and warranty (reklamacja)",
+          "body": [
+            "The seller is liable for the conformity of the goods with the contract under applicable law. If the goods are defective or not as described, you may lodge a complaint.",
+            "Submit complaints to the seller's contact email or address, describing the defect and your request (repair, replacement, price reduction or withdrawal). We will respond to a consumer complaint within the statutory period (14 days where applicable).",
+            "Nothing in these Terms limits your statutory rights as a consumer."
+          ]
+        },
+        "dispute": {
+          "heading": "7. Out-of-court dispute resolution",
+          "body": [
+            "Consumers may use out-of-court complaint and redress mechanisms. In Poland these include the regional inspectorates of the Trade Inspection (Wojewódzki Inspektorat Inspekcji Handlowej) and permanent consumer arbitration courts, as well as municipal and district consumer ombudsmen.",
+            "Details of the competent national alternative dispute resolution (ADR) bodies and the procedure are available from the consumer protection authorities in your country. Use of these mechanisms is voluntary for both parties."
+          ]
+        },
+        "misc": {
+          "heading": "8. Final provisions",
+          "body": [
+            "These Terms are governed by the law of the seller's country, without prejudice to the mandatory consumer-protection provisions of your country of residence.",
+            "We may amend these Terms for valid reasons (for example legal changes); orders already placed are governed by the Terms in force when the order was made."
+          ]
+        }
+      }
+    },
+    "privacy": {
+      "meta": {
+        "title": "Privacy Policy",
+        "description": "How we collect, use, store and protect your personal data, the legal bases for processing, and your rights under the GDPR."
+      },
+      "title": "Privacy Policy",
+      "intro": "This Privacy Policy explains how we process your personal data when you use our store, in accordance with Regulation (EU) 2016/679 (GDPR) and applicable national law.",
+      "sections": {
+        "controller": {
+          "heading": "1. Data controller",
+          "body": [
+            "The controller of your personal data is the seller identified on the Contact page and in the store footer (legal name, address and tax identifiers).",
+            "For privacy questions or to exercise your rights, contact us using the email address on the Contact page. Where a Data Protection Officer is appointed, their contact details will be published here."
+          ]
+        },
+        "categories": {
+          "heading": "2. Categories of data we process",
+          "body": [
+            "Account and identity data (name, email, phone, password hash).",
+            "Order and transaction data (products, prices, delivery and billing addresses, payment status).",
+            "Business-customer data (company name, tax identifiers, contacts) where you buy as a business.",
+            "Technical data (IP address, device and browser information, cookie identifiers).",
+            "Communications you send us, including contact-form and complaint messages."
+          ]
+        },
+        "purposes": {
+          "heading": "3. Purposes and legal bases",
+          "body": [
+            "Performing the sales contract and managing your account — Art. 6(1)(b) GDPR.",
+            "Complying with legal obligations such as accounting and tax — Art. 6(1)(c) GDPR.",
+            "Our legitimate interests, including fraud prevention, security and answering enquiries — Art. 6(1)(f) GDPR.",
+            "Marketing communications and non-essential cookies — your consent, Art. 6(1)(a) GDPR, which you may withdraw at any time."
+          ]
+        },
+        "recipients": {
+          "heading": "4. Recipients and processors",
+          "body": [
+            "We share data only as needed with service providers acting on our behalf, including payment providers, delivery carriers, email and hosting providers, under data-processing agreements.",
+            "Where a provider is located outside the EEA, transfers are safeguarded by appropriate measures such as Standard Contractual Clauses."
+          ]
+        },
+        "retention": {
+          "heading": "5. Retention",
+          "body": [
+            "We keep personal data only as long as necessary for the purposes above. Order and accounting records are retained for the statutory period (typically up to 5 years from the end of the relevant year).",
+            "Account data is kept while your account is active; on deletion request we anonymise it, retaining order records for the legally required retention period."
+          ]
+        },
+        "rights": {
+          "heading": "6. Your rights",
+          "body": [
+            "You have the right to access, rectify, erase and restrict processing of your data, to data portability, and to object to processing based on legitimate interests.",
+            "Where processing is based on consent, you may withdraw it at any time without affecting prior lawful processing.",
+            "You have the right to lodge a complaint with your national supervisory authority (in Poland, the President of the Personal Data Protection Office, UODO)."
+          ]
+        },
+        "cookies": {
+          "heading": "7. Cookies",
+          "body": [
+            "We use cookies and similar technologies as described in our Cookie Policy. You can manage non-essential cookies via the cookie settings control."
+          ]
+        }
+      }
+    },
+    "cookies": {
+      "meta": {
+        "title": "Cookie Policy",
+        "description": "The cookies and similar technologies we use, their purposes, and how to manage or withdraw your consent."
+      },
+      "title": "Cookie Policy",
+      "intro": "This Cookie Policy describes the cookies and similar technologies we use, why we use them, and how you can control them. It complements our Privacy Policy.",
+      "sections": {
+        "what": {
+          "heading": "1. What are cookies",
+          "body": [
+            "Cookies are small text files stored on your device when you visit a website. They help the site function, remember your preferences and measure usage. Similar technologies include local storage and pixels."
+          ]
+        },
+        "categories": {
+          "heading": "2. Categories of cookies we use",
+          "necessary": {
+            "name": "Strictly necessary",
+            "desc": "Required for the site to work — session, security, cart and consent state. These cannot be switched off and do not require consent."
+          },
+          "analytics": {
+            "name": "Analytics",
+            "desc": "Help us understand how the store is used so we can improve it. Set only with your consent."
+          },
+          "marketing": {
+            "name": "Marketing",
+            "desc": "Used to deliver and measure relevant offers and advertising. Set only with your consent."
+          }
+        },
+        "manage": {
+          "heading": "3. Managing your consent",
+          "body": [
+            "When you first visit the store, a cookie banner lets you accept or reject non-essential cookies. You can change your choice at any time using the \"Cookie settings\" control available in the footer.",
+            "You can also block or delete cookies through your browser settings, though some features may then not work as intended."
+          ]
+        },
+        "retention": {
+          "heading": "4. How long cookies last",
+          "body": [
+            "Session cookies are deleted when you close the browser. Persistent cookies remain for a defined period or until you delete them. Specific durations depend on the cookie's purpose."
+          ]
+        }
+      }
+    },
+    "accessibility": {
+      "meta": {
+        "title": "Accessibility Statement",
+        "description": "Our commitment to digital accessibility, the conformance standard we target, known limitations and how to report accessibility issues."
+      },
+      "title": "Accessibility Statement",
+      "intro": "We are committed to making our online store accessible to everyone, including people with disabilities, in line with the European Accessibility Act.",
+      "sections": {
+        "conformance": {
+          "heading": "1. Conformance status",
+          "body": [
+            "We aim for our store to conform to the Web Content Accessibility Guidelines (WCAG) 2.1 at level AA. We design and test against this standard across the site.",
+            "Accessibility is an ongoing effort and we continue to improve the experience over time."
+          ]
+        },
+        "limitations": {
+          "heading": "2. Known limitations",
+          "body": [
+            "Despite our efforts, some content may not yet be fully accessible. Known areas under improvement include some third-party embedded content and complex interactive components.",
+            "If you encounter a barrier not listed here, please let us know using the feedback channel below."
+          ]
+        },
+        "feedback": {
+          "heading": "3. Feedback",
+          "body": [
+            "We welcome your feedback on the accessibility of our store. If you experience difficulty accessing any part of the site, contact us using the email address on the Contact page and we will try to provide the information or assistance you need."
+          ]
+        },
+        "enforcement": {
+          "heading": "4. Enforcement procedure",
+          "body": [
+            "If you are not satisfied with our response, you may contact the competent national enforcement authority responsible for the European Accessibility Act in your country.",
+            "[Placeholder — review by legal counsel] Insert the specific supervisory / enforcement authority and its contact details for Poland and other relevant jurisdictions before production."
+          ]
+        }
+      }
+    },
+    "shipping": {
+      "meta": {
+        "title": "Shipping & Delivery",
+        "description": "Our delivery methods, estimated times and shipping costs."
+      },
+      "title": "Shipping & Delivery",
+      "intro": "This page summarises how we ship orders, estimated delivery times and costs. Exact options and prices are confirmed at checkout based on your address and the items in your cart.",
+      "sections": {
+        "methods": {
+          "heading": "1. Delivery methods",
+          "body": [
+            "We offer courier and parcel-locker delivery within Poland and international shipping to the EU and beyond. Available methods and carriers are shown at checkout.",
+            "Shipping costs are calculated by weight, dimensions and destination, and are displayed before you confirm payment."
+          ]
+        },
+        "times": {
+          "heading": "2. Estimated delivery times",
+          "body": [
+            "Orders are typically dispatched within 1–2 business days. Domestic delivery usually takes 1–3 business days; international delivery times vary by destination.",
+            "Delivery estimates are indicative and not guaranteed; carrier delays may occasionally occur."
+          ]
+        },
+        "costs": {
+          "heading": "3. Costs and free shipping",
+          "body": [
+            "Shipping costs depend on the selected method and destination and are shown at checkout. Any free-shipping threshold, where offered, is applied automatically when your order qualifies."
+          ]
+        },
+        "tracking": {
+          "heading": "4. Tracking",
+          "body": [
+            "Once your order ships, you will receive a confirmation. You can review your orders and their status in your account."
+          ]
+        }
+      }
+    },
+    "returns": {
+      "meta": {
+        "title": "Returns & Right of Withdrawal",
+        "description": "How to return goods, the 14-day right of withdrawal, refund timing and the condition required for returns."
+      },
+      "title": "Returns & Right of Withdrawal",
+      "intro": "As a consumer you have a 14-day right to withdraw from your purchase without giving a reason. This page explains how returns work in practice. For the full legal terms, see the Terms of Service.",
+      "sections": {
+        "withdrawal": {
+          "heading": "1. The 14-day right of withdrawal",
+          "body": [
+            "You may withdraw from the contract within 14 days of receiving the goods, without giving any reason. To do so, send us a clear statement of your decision (for example by email) before the deadline.",
+            "After withdrawing, return the goods without undue delay and no later than 14 days from notifying us."
+          ]
+        },
+        "how": {
+          "heading": "2. How to return an item",
+          "body": [
+            "1. Tell us you wish to withdraw or return, using the email address on the Contact page, quoting your order number.",
+            "2. Pack the item securely, ideally in its original packaging, and include any accessories.",
+            "3. Send it to the return address we provide. Unless stated otherwise, you bear the direct cost of returning the goods."
+          ]
+        },
+        "condition": {
+          "heading": "3. Condition of returned goods",
+          "body": [
+            "You may inspect the goods as you would in a shop, but you are responsible for any diminished value resulting from handling beyond what is necessary to establish their nature, characteristics and functioning."
+          ]
+        },
+        "refunds": {
+          "heading": "4. Refunds",
+          "body": [
+            "We will refund all payments received, including standard delivery costs, no later than 14 days after we are informed of your withdrawal, using the same payment method you used unless agreed otherwise.",
+            "We may withhold the refund until we have received the goods back or you have supplied evidence of return, whichever is earlier."
+          ]
+        },
+        "exceptions": {
+          "heading": "5. Exceptions",
+          "body": [
+            "The right of withdrawal does not apply to certain goods, for example items made to your specification, sealed goods unsealed after delivery for health or hygiene reasons, and other categories provided by law."
+          ]
+        }
+      }
+    },
+    "faq": {
+      "meta": {
+        "title": "Frequently Asked Questions",
+        "description": "Answers to common questions about orders, shipping, returns, payments, accounts and business purchasing."
+      },
+      "title": "Frequently Asked Questions",
+      "intro": "Find quick answers to common questions below. If you can't find what you need, contact us and we'll be glad to help.",
+      "items": {
+        "orderTrack": {
+          "question": "How can I track my order?",
+          "answer": "Once your order ships you'll receive a confirmation, and you can view the status of all your orders at any time in your account under My Orders."
+        },
+        "shippingTime": {
+          "question": "How long does delivery take?",
+          "answer": "Orders are usually dispatched within 1–2 business days. Domestic delivery typically takes 1–3 business days; international times vary by destination. See the Shipping page for details."
+        },
+        "returnPolicy": {
+          "question": "What is your return policy?",
+          "answer": "As a consumer you have 14 days to withdraw from your purchase without giving a reason. See the Returns page for how to return an item and how refunds are handled."
+        },
+        "payments": {
+          "question": "Which payment methods do you accept?",
+          "answer": "We accept major cards and, where available, BLIK and Przelewy24 / PayU, plus wallet options shown at checkout. Available methods may depend on your currency and country."
+        },
+        "currency": {
+          "question": "Can I shop in my own currency?",
+          "answer": "Yes. You can switch between USD, PLN and EUR using the currency switcher. Prices are set per currency, so what you see is what you pay."
+        },
+        "account": {
+          "question": "Do I need an account to order?",
+          "answer": "You can browse freely. An account lets you track orders, save addresses and reorder quickly. You can create one during checkout or from the Sign up page."
+        },
+        "business": {
+          "question": "Do you sell to businesses (B2B)?",
+          "answer": "Yes. Business customers can register a company, manage a team and request price quotes. See your account's Company and Quotes sections after registering as a business."
+        }
+      }
+    },
+    "about": {
+      "meta": {
+        "title": "About Us",
+        "description": "Our story, our values and our commitment to quality — made with care in Poland."
+      },
+      "title": "About Us",
+      "intro": "We're a modern online store built around quality products, fair prices and a shopping experience that respects your time and your rights.",
+      "sections": {
+        "story": {
+          "heading": "Our story",
+          "body": [
+            "What began as a small idea grew into a store serving customers across Poland, the EU and beyond. We curate products we believe in and stand behind what we sell.",
+            "We build our store with the same care we put into our catalogue — bilingual, multi-currency and accessible to everyone."
+          ]
+        },
+        "values": {
+          "heading": "Our values",
+          "body": [
+            "Transparency — clear pricing, honest descriptions and straightforward policies.",
+            "Customer care — responsive support and a returns process that respects your consumer rights.",
+            "Quality — products we'd happily use ourselves."
+          ]
+        },
+        "madeIn": {
+          "heading": "Made in Poland",
+          "body": [
+            "We're proudly based in Poland and ship with care to customers worldwide. Local roots, global reach."
+          ]
+        }
+      }
+    },
+    "contact": {
+      "meta": {
+        "title": "Contact Us",
+        "description": "Get in touch with our team. Send us a message and we'll get back to you as soon as we can."
+      },
+      "title": "Contact Us",
+      "intro": "Have a question about an order, a product or a return? Send us a message and we'll get back to you as soon as we can.",
+      "details": {
+        "heading": "Contact details",
+        "emailLabel": "Email",
+        "email": "support{'@'}example.com",
+        "phoneLabel": "Phone",
+        "phone": "+48 000 000 000",
+        "addressLabel": "Address",
+        "address": "Company address — see the store footer for full company details.",
+        "hoursLabel": "Support hours",
+        "hours": "Monday to Friday, 9:00–17:00 (CET)"
+      },
+      "form": {
+        "heading": "Send us a message",
+        "name": "Your name",
+        "namePlaceholder": "Jane Doe",
+        "email": "Email address",
+        "emailPlaceholder": "you{'@'}example.com",
+        "subject": "Subject",
+        "subjectPlaceholder": "How can we help?",
+        "message": "Message",
+        "messagePlaceholder": "Write your message here...",
+        "submit": "Send message",
+        "sending": "Sending...",
+        "successTitle": "Message sent",
+        "successDescription": "Thanks for reaching out — we'll get back to you soon.",
+        "errorTitle": "Could not send message",
+        "errorDescription": "Something went wrong. Please try again, or email us directly.",
+        "errors": {
+          "nameRequired": "Please enter your name",
+          "nameTooLong": "Name must be 100 characters or fewer",
+          "emailRequired": "Please enter your email address",
+          "emailInvalid": "Please enter a valid email address",
+          "subjectRequired": "Please enter a subject",
+          "subjectTooLong": "Subject must be 200 characters or fewer",
+          "messageRequired": "Please enter a message",
+          "messageTooLong": "Message must be 5000 characters or fewer"
+        }
+      }
+    }
+  }
+}

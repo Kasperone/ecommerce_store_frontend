@@ -1,1 +1,420 @@
-{}
+{
+  "legal": {
+    "draftNotice": {
+      "title": "Dokument roboczy",
+      "body": "Ta strona zawiera wzorcową treść, która nie została jeszcze zweryfikowana przez radcę prawnego. Przed publikacją w środowisku produkcyjnym należy ją sprawdzić i dostosować do właściwej jurysdykcji."
+    },
+    "lastUpdated": "Ostatnia aktualizacja: {date}",
+    "backHome": "Powrót na stronę główną",
+    "terms": {
+      "meta": {
+        "title": "Regulamin",
+        "description": "Regulamin sklepu internetowego określający zasady zakupów, w tym składanie zamówień, ceny, 14-dniowe prawo odstąpienia od umowy oraz procedurę reklamacyjną."
+      },
+      "title": "Regulamin",
+      "intro": "Niniejszy Regulamin określa zasady korzystania ze sklepu internetowego oraz zawierania umów sprzedaży między Tobą a sprzedawcą. Przed złożeniem zamówienia prosimy o uważne zapoznanie się z jego treścią. Składając zamówienie, akceptujesz Regulamin.",
+      "sections": {
+        "seller": {
+          "heading": "1. Dane sprzedawcy",
+          "body": [
+            "Sklep internetowy prowadzi sprzedawca, którego dane firmy (pełna nazwa, adres siedziby, numer NIP, REGON oraz, jeżeli dotyczy, numer KRS) są publikowane na stronie Kontakt oraz w stopce sklepu.",
+            "Ze sprzedawcą można skontaktować się drogą e-mailową i telefoniczną, korzystając z danych kontaktowych podanych na stronie Kontakt. Dane te stanowią również adres do korespondencji w sprawach reklamacji i oświadczeń o odstąpieniu od umowy."
+          ]
+        },
+        "scope": {
+          "heading": "2. Zakres i definicje",
+          "body": [
+            "Regulamin dotyczy wszystkich zamówień składanych w sklepie przez konsumentów oraz klientów biznesowych. „Konsument” oznacza osobę fizyczną dokonującą zakupu w celach niezwiązanych z jej działalnością gospodarczą lub zawodową.",
+            "Sklep sprzedaje towary fizyczne prezentowane w katalogu produktów. Opisy produktów, zdjęcia i dostępność podawane są w dobrej wierze, lecz mogą ulec zmianie."
+          ]
+        },
+        "orders": {
+          "heading": "3. Zamówienia, ceny i płatność",
+          "body": [
+            "Ceny podawane są dla każdego produktu w wybranej walucie (USD, PLN lub EUR) i, jeżeli dotyczy, zawierają ustawowy podatek VAT. Łączna cena, w tym koszty dostawy, jest prezentowana przed potwierdzeniem zamówienia.",
+            "Umowę uznaje się za zawartą z chwilą otrzymania potwierdzenia zamówienia. Akceptujemy metody płatności prezentowane przy kasie, w tym kartę, BLIK oraz Przelewy24 / PayU, jeżeli są dostępne.",
+            "Zgodnie z unijnymi przepisami o przejrzystości cen, w przypadku promocji prezentujemy najniższą cenę obowiązującą w okresie 30 dni przed obniżką."
+          ]
+        },
+        "delivery": {
+          "heading": "4. Dostawa i realizacja",
+          "body": [
+            "Towary dostarczane są metodami i w terminach wskazanych na stronie Dostawa oraz przy kasie. Ryzyko utraty towaru przechodzi na konsumenta z chwilą dostawy.",
+            "Jeżeli nie będziemy w stanie zrealizować umowy w podanym terminie, poinformujemy Cię o tym, a Ty możesz wyznaczyć dodatkowy rozsądny termin lub odstąpić od umowy."
+          ]
+        },
+        "withdrawal": {
+          "heading": "5. Prawo odstąpienia od umowy (14 dni)",
+          "body": [
+            "Jeżeli jesteś konsumentem, możesz odstąpić od umowy sprzedaży zawartej na odległość w terminie 14 dni bez podawania przyczyny. Termin biegnie od dnia, w którym Ty (lub wskazana przez Ciebie osoba trzecia) obejmiesz towar w posiadanie.",
+            "Aby skorzystać z prawa, prześlij nam jednoznaczne oświadczenie o decyzji o odstąpieniu (na przykład pocztą elektroniczną) przed upływem terminu. Możesz skorzystać ze wzoru formularza odstąpienia, lecz nie jest to obowiązkowe.",
+            "Towar należy zwrócić bez zbędnej zwłoki, nie później niż w terminie 14 dni od dnia poinformowania nas o odstąpieniu. Zwrócimy wszystkie otrzymane płatności, w tym koszty standardowej dostawy, nie później niż w terminie 14 dni od otrzymania informacji, przy użyciu tego samego sposobu płatności, którego użyłeś.",
+            "Ponosisz odpowiedzialność za zmniejszenie wartości towaru wynikające z korzystania z niego w sposób wykraczający poza konieczny do stwierdzenia jego charakteru, cech i funkcjonowania. Praktyczną procedurę opisano na stronie Zwroty."
+          ]
+        },
+        "complaints": {
+          "heading": "6. Reklamacje i rękojmia",
+          "body": [
+            "Sprzedawca odpowiada za zgodność towaru z umową na podstawie obowiązujących przepisów. Jeżeli towar jest wadliwy lub niezgodny z opisem, możesz złożyć reklamację.",
+            "Reklamacje należy kierować na adres e-mail lub adres korespondencyjny sprzedawcy, opisując wadę oraz swoje żądanie (naprawa, wymiana, obniżenie ceny lub odstąpienie od umowy). Na reklamację konsumenta odpowiemy w terminie ustawowym (14 dni, jeżeli ma zastosowanie).",
+            "Postanowienia Regulaminu nie ograniczają ustawowych praw przysługujących Ci jako konsumentowi."
+          ]
+        },
+        "dispute": {
+          "heading": "7. Pozasądowe rozwiązywanie sporów",
+          "body": [
+            "Konsumenci mogą korzystać z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń. W Polsce należą do nich wojewódzkie inspektoraty Inspekcji Handlowej oraz stałe polubowne sądy konsumenckie, a także miejscy i powiatowi rzecznicy konsumentów.",
+            "Informacje o właściwych krajowych podmiotach pozasądowego rozwiązywania sporów (ADR) oraz o procedurze są dostępne u organów ochrony konsumentów w Twoim kraju. Skorzystanie z tych mechanizmów jest dobrowolne dla obu stron."
+          ]
+        },
+        "misc": {
+          "heading": "8. Postanowienia końcowe",
+          "body": [
+            "Regulamin podlega prawu kraju sprzedawcy, z zastrzeżeniem bezwzględnie obowiązujących przepisów o ochronie konsumentów obowiązujących w kraju Twojego miejsca zamieszkania.",
+            "Możemy zmienić Regulamin z ważnych powodów (na przykład zmian prawnych); do zamówień już złożonych stosuje się Regulamin obowiązujący w chwili złożenia zamówienia."
+          ]
+        }
+      }
+    },
+    "privacy": {
+      "meta": {
+        "title": "Polityka prywatności",
+        "description": "Jak zbieramy, wykorzystujemy, przechowujemy i chronimy Twoje dane osobowe, podstawy prawne przetwarzania oraz Twoje prawa wynikające z RODO."
+      },
+      "title": "Polityka prywatności",
+      "intro": "Niniejsza Polityka prywatności wyjaśnia, w jaki sposób przetwarzamy Twoje dane osobowe podczas korzystania ze sklepu, zgodnie z Rozporządzeniem (UE) 2016/679 (RODO) oraz obowiązującymi przepisami krajowymi.",
+      "sections": {
+        "controller": {
+          "heading": "1. Administrator danych",
+          "body": [
+            "Administratorem Twoich danych osobowych jest sprzedawca wskazany na stronie Kontakt oraz w stopce sklepu (pełna nazwa, adres i numery identyfikacyjne).",
+            "W sprawach dotyczących prywatności lub realizacji praw skontaktuj się z nami pod adresem e-mail podanym na stronie Kontakt. Jeżeli powołano Inspektora Ochrony Danych, jego dane kontaktowe zostaną opublikowane w tym miejscu."
+          ]
+        },
+        "categories": {
+          "heading": "2. Kategorie przetwarzanych danych",
+          "body": [
+            "Dane konta i tożsamości (imię i nazwisko, e-mail, telefon, skrót hasła).",
+            "Dane zamówień i transakcji (produkty, ceny, adresy dostawy i rozliczeniowe, status płatności).",
+            "Dane klienta biznesowego (nazwa firmy, numery identyfikacyjne, kontakty), jeżeli kupujesz jako firma.",
+            "Dane techniczne (adres IP, informacje o urządzeniu i przeglądarce, identyfikatory plików cookie).",
+            "Treść korespondencji, którą do nas kierujesz, w tym wiadomości z formularza kontaktowego i reklamacji."
+          ]
+        },
+        "purposes": {
+          "heading": "3. Cele i podstawy prawne",
+          "body": [
+            "Realizacja umowy sprzedaży i obsługa konta — art. 6 ust. 1 lit. b) RODO.",
+            "Wypełnianie obowiązków prawnych, takich jak rachunkowość i podatki — art. 6 ust. 1 lit. c) RODO.",
+            "Nasze prawnie uzasadnione interesy, w tym zapobieganie oszustwom, bezpieczeństwo i odpowiadanie na zapytania — art. 6 ust. 1 lit. f) RODO.",
+            "Komunikacja marketingowa i pliki cookie inne niż niezbędne — Twoja zgoda, art. 6 ust. 1 lit. a) RODO, którą możesz wycofać w dowolnym momencie."
+          ]
+        },
+        "recipients": {
+          "heading": "4. Odbiorcy i podmioty przetwarzające",
+          "body": [
+            "Dane udostępniamy wyłącznie w niezbędnym zakresie usługodawcom działającym w naszym imieniu, w tym dostawcom płatności, przewoźnikom, dostawcom usług e-mail i hostingu, na podstawie umów powierzenia przetwarzania danych.",
+            "Jeżeli usługodawca znajduje się poza EOG, przekazywanie danych jest zabezpieczone odpowiednimi środkami, takimi jak standardowe klauzule umowne."
+          ]
+        },
+        "retention": {
+          "heading": "5. Okres przechowywania",
+          "body": [
+            "Dane osobowe przechowujemy tylko tak długo, jak jest to niezbędne do realizacji powyższych celów. Dokumentację zamówień i księgową przechowujemy przez okres ustawowy (zwykle do 5 lat od końca danego roku).",
+            "Dane konta przechowujemy w okresie jego aktywności; na żądanie usunięcia konta dokonujemy anonimizacji, zachowując dane zamówień przez wymagany prawem okres przechowywania."
+          ]
+        },
+        "rights": {
+          "heading": "6. Twoje prawa",
+          "body": [
+            "Masz prawo dostępu do swoich danych, ich sprostowania, usunięcia i ograniczenia przetwarzania, prawo do przenoszenia danych oraz prawo do sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie.",
+            "Jeżeli przetwarzanie odbywa się na podstawie zgody, możesz ją wycofać w dowolnym momencie bez wpływu na zgodność z prawem przetwarzania dokonanego wcześniej.",
+            "Masz prawo wniesienia skargi do krajowego organu nadzorczego (w Polsce — do Prezesa Urzędu Ochrony Danych Osobowych, UODO)."
+          ]
+        },
+        "cookies": {
+          "heading": "7. Pliki cookie",
+          "body": [
+            "Korzystamy z plików cookie i podobnych technologii, jak opisano w naszej Polityce cookie. Plikami cookie innymi niż niezbędne możesz zarządzać za pomocą ustawień plików cookie."
+          ]
+        }
+      }
+    },
+    "cookies": {
+      "meta": {
+        "title": "Polityka cookie",
+        "description": "Pliki cookie i podobne technologie, z których korzystamy, ich cele oraz sposób zarządzania zgodą lub jej wycofania."
+      },
+      "title": "Polityka cookie",
+      "intro": "Niniejsza Polityka cookie opisuje pliki cookie i podobne technologie, z których korzystamy, dlaczego z nich korzystamy oraz jak możesz nimi zarządzać. Stanowi uzupełnienie naszej Polityki prywatności.",
+      "sections": {
+        "what": {
+          "heading": "1. Czym są pliki cookie",
+          "body": [
+            "Pliki cookie to małe pliki tekstowe zapisywane na Twoim urządzeniu podczas odwiedzania witryny. Pomagają w jej działaniu, zapamiętują preferencje i mierzą sposób korzystania. Podobne technologie to m.in. pamięć lokalna i piksele."
+          ]
+        },
+        "categories": {
+          "heading": "2. Kategorie używanych plików cookie",
+          "necessary": {
+            "name": "Niezbędne",
+            "desc": "Wymagane do działania witryny — sesja, bezpieczeństwo, koszyk oraz stan zgody. Nie można ich wyłączyć i nie wymagają zgody."
+          },
+          "analytics": {
+            "name": "Analityczne",
+            "desc": "Pomagają nam zrozumieć, jak korzystasz ze sklepu, abyśmy mogli go ulepszać. Ustawiane wyłącznie za Twoją zgodą."
+          },
+          "marketing": {
+            "name": "Marketingowe",
+            "desc": "Służą do prezentowania i mierzenia trafnych ofert oraz reklam. Ustawiane wyłącznie za Twoją zgodą."
+          }
+        },
+        "manage": {
+          "heading": "3. Zarządzanie zgodą",
+          "body": [
+            "Przy pierwszej wizycie w sklepie baner cookie umożliwia akceptację lub odrzucenie plików cookie innych niż niezbędne. Swój wybór możesz zmienić w dowolnym momencie za pomocą opcji „Ustawienia cookie” dostępnej w stopce.",
+            "Pliki cookie możesz również blokować lub usuwać w ustawieniach przeglądarki, jednak niektóre funkcje mogą wtedy nie działać prawidłowo."
+          ]
+        },
+        "retention": {
+          "heading": "4. Jak długo działają pliki cookie",
+          "body": [
+            "Pliki cookie sesyjne są usuwane po zamknięciu przeglądarki. Pliki trwałe pozostają przez określony czas lub do momentu ich usunięcia. Konkretne okresy zależą od przeznaczenia danego pliku cookie."
+          ]
+        }
+      }
+    },
+    "accessibility": {
+      "meta": {
+        "title": "Deklaracja dostępności",
+        "description": "Nasze zobowiązanie do zapewnienia dostępności cyfrowej, docelowy standard zgodności, znane ograniczenia oraz sposób zgłaszania problemów z dostępnością."
+      },
+      "title": "Deklaracja dostępności",
+      "intro": "Dokładamy starań, aby nasz sklep internetowy był dostępny dla wszystkich, w tym dla osób z niepełnosprawnościami, zgodnie z Europejskim Aktem o Dostępności.",
+      "sections": {
+        "conformance": {
+          "heading": "1. Status zgodności",
+          "body": [
+            "Dążymy do tego, aby nasz sklep był zgodny z Wytycznymi dotyczącymi dostępności treści internetowych (WCAG) 2.1 na poziomie AA. Projektujemy i testujemy witrynę względem tego standardu.",
+            "Dostępność to proces ciągły i nieustannie udoskonalamy korzystanie z witryny."
+          ]
+        },
+        "limitations": {
+          "heading": "2. Znane ograniczenia",
+          "body": [
+            "Mimo naszych starań niektóre treści mogą nie być jeszcze w pełni dostępne. Obszary objęte pracami obejmują m.in. niektóre osadzone treści podmiotów zewnętrznych oraz złożone komponenty interaktywne.",
+            "Jeżeli napotkasz barierę niewymienioną powyżej, daj nam znać korzystając z kanału zgłoszeń poniżej."
+          ]
+        },
+        "feedback": {
+          "heading": "3. Informacja zwrotna",
+          "body": [
+            "Czekamy na Twoją opinię na temat dostępności naszego sklepu. Jeżeli masz trudności z dostępem do jakiejkolwiek części witryny, skontaktuj się z nami pod adresem e-mail podanym na stronie Kontakt, a postaramy się dostarczyć potrzebnych informacji lub pomocy."
+          ]
+        },
+        "enforcement": {
+          "heading": "4. Procedura egzekwowania",
+          "body": [
+            "Jeżeli nie będziesz zadowolony z naszej odpowiedzi, możesz zwrócić się do właściwego krajowego organu odpowiedzialnego za egzekwowanie Europejskiego Aktu o Dostępności w Twoim kraju.",
+            "[Do uzupełnienia — weryfikacja przez radcę prawnego] Przed publikacją produkcyjną wskaż konkretny organ nadzorczy / egzekwujący wraz z danymi kontaktowymi dla Polski oraz innych właściwych jurysdykcji."
+          ]
+        }
+      }
+    },
+    "shipping": {
+      "meta": {
+        "title": "Dostawa",
+        "description": "Nasze metody dostawy, szacowane terminy oraz koszty wysyłki."
+      },
+      "title": "Dostawa",
+      "intro": "Ta strona podsumowuje, jak realizujemy wysyłkę zamówień, szacowane terminy dostawy oraz koszty. Dokładne opcje i ceny są potwierdzane przy kasie na podstawie Twojego adresu oraz zawartości koszyka.",
+      "sections": {
+        "methods": {
+          "heading": "1. Metody dostawy",
+          "body": [
+            "Oferujemy dostawę kurierską i do paczkomatów na terenie Polski oraz wysyłkę międzynarodową do UE i poza nią. Dostępne metody i przewoźnicy prezentowani są przy kasie.",
+            "Koszty wysyłki obliczane są na podstawie wagi, wymiarów i miejsca docelowego oraz wyświetlane przed potwierdzeniem płatności."
+          ]
+        },
+        "times": {
+          "heading": "2. Szacowane terminy dostawy",
+          "body": [
+            "Zamówienia są zwykle wysyłane w ciągu 1–2 dni roboczych. Dostawa krajowa trwa zazwyczaj 1–3 dni robocze; terminy dostawy międzynarodowej różnią się w zależności od miejsca docelowego.",
+            "Szacowane terminy dostawy mają charakter orientacyjny i nie są gwarantowane; sporadycznie mogą wystąpić opóźnienia przewoźnika."
+          ]
+        },
+        "costs": {
+          "heading": "3. Koszty i darmowa dostawa",
+          "body": [
+            "Koszty wysyłki zależą od wybranej metody i miejsca docelowego oraz są prezentowane przy kasie. Próg darmowej dostawy, jeżeli jest oferowany, stosowany jest automatycznie, gdy zamówienie spełnia warunki."
+          ]
+        },
+        "tracking": {
+          "heading": "4. Śledzenie",
+          "body": [
+            "Po wysłaniu zamówienia otrzymasz potwierdzenie. Swoje zamówienia i ich status możesz przeglądać w swoim koncie."
+          ]
+        }
+      }
+    },
+    "returns": {
+      "meta": {
+        "title": "Zwroty i prawo odstąpienia",
+        "description": "Jak zwrócić towar, 14-dniowe prawo odstąpienia od umowy, terminy zwrotu środków oraz wymagany stan zwracanego towaru."
+      },
+      "title": "Zwroty i prawo odstąpienia od umowy",
+      "intro": "Jako konsument masz 14-dniowe prawo odstąpienia od zakupu bez podawania przyczyny. Ta strona wyjaśnia, jak w praktyce wyglądają zwroty. Pełne warunki prawne znajdziesz w Regulaminie.",
+      "sections": {
+        "withdrawal": {
+          "heading": "1. 14-dniowe prawo odstąpienia",
+          "body": [
+            "Możesz odstąpić od umowy w terminie 14 dni od otrzymania towaru, bez podawania przyczyny. W tym celu prześlij nam przed upływem terminu jednoznaczne oświadczenie o swojej decyzji (na przykład pocztą elektroniczną).",
+            "Po odstąpieniu zwróć towar bez zbędnej zwłoki, nie później niż w terminie 14 dni od poinformowania nas o odstąpieniu."
+          ]
+        },
+        "how": {
+          "heading": "2. Jak zwrócić towar",
+          "body": [
+            "1. Poinformuj nas o chęci odstąpienia lub zwrotu, korzystając z adresu e-mail na stronie Kontakt i podając numer zamówienia.",
+            "2. Zapakuj towar starannie, najlepiej w oryginalne opakowanie, dołączając wszelkie akcesoria.",
+            "3. Wyślij go na podany przez nas adres zwrotu. O ile nie wskazano inaczej, bezpośredni koszt zwrotu towaru ponosisz Ty."
+          ]
+        },
+        "condition": {
+          "heading": "3. Stan zwracanego towaru",
+          "body": [
+            "Możesz sprawdzić towar tak, jak zrobiłbyś to w sklepie, jednak ponosisz odpowiedzialność za zmniejszenie jego wartości wynikające z korzystania w sposób wykraczający poza konieczny do stwierdzenia jego charakteru, cech i funkcjonowania."
+          ]
+        },
+        "refunds": {
+          "heading": "4. Zwrot środków",
+          "body": [
+            "Zwrócimy wszystkie otrzymane płatności, w tym koszty standardowej dostawy, nie później niż w terminie 14 dni od otrzymania informacji o odstąpieniu, przy użyciu tego samego sposobu płatności, którego użyłeś, chyba że uzgodniono inaczej.",
+            "Możemy wstrzymać się ze zwrotem do czasu otrzymania towaru z powrotem lub dostarczenia przez Ciebie dowodu jego odesłania — w zależności od tego, co nastąpi wcześniej."
+          ]
+        },
+        "exceptions": {
+          "heading": "5. Wyjątki",
+          "body": [
+            "Prawo odstąpienia nie przysługuje w odniesieniu do niektórych towarów, na przykład wykonanych według Twojej specyfikacji, towarów zapieczętowanych otwartych po dostawie ze względu na ochronę zdrowia lub higienę, oraz innych kategorii przewidzianych przez prawo."
+          ]
+        }
+      }
+    },
+    "faq": {
+      "meta": {
+        "title": "Najczęściej zadawane pytania",
+        "description": "Odpowiedzi na najczęstsze pytania dotyczące zamówień, dostawy, zwrotów, płatności, konta oraz zakupów biznesowych."
+      },
+      "title": "Najczęściej zadawane pytania",
+      "intro": "Poniżej znajdziesz szybkie odpowiedzi na najczęstsze pytania. Jeśli nie znajdziesz tego, czego szukasz, skontaktuj się z nami — chętnie pomożemy.",
+      "items": {
+        "orderTrack": {
+          "question": "Jak mogę śledzić swoje zamówienie?",
+          "answer": "Po wysłaniu zamówienia otrzymasz potwierdzenie, a status wszystkich swoich zamówień możesz w każdej chwili sprawdzić w koncie w sekcji Moje zamówienia."
+        },
+        "shippingTime": {
+          "question": "Jak długo trwa dostawa?",
+          "answer": "Zamówienia są zwykle wysyłane w ciągu 1–2 dni roboczych. Dostawa krajowa trwa zazwyczaj 1–3 dni robocze; terminy międzynarodowe różnią się w zależności od miejsca docelowego. Szczegóły znajdziesz na stronie Dostawa."
+        },
+        "returnPolicy": {
+          "question": "Jaka jest polityka zwrotów?",
+          "answer": "Jako konsument masz 14 dni na odstąpienie od zakupu bez podawania przyczyny. Na stronie Zwroty opisujemy, jak zwrócić towar i jak obsługujemy zwroty środków."
+        },
+        "payments": {
+          "question": "Jakie metody płatności akceptujecie?",
+          "answer": "Akceptujemy najpopularniejsze karty oraz, jeżeli są dostępne, BLIK i Przelewy24 / PayU, a także opcje portfeli prezentowane przy kasie. Dostępne metody mogą zależeć od waluty i kraju."
+        },
+        "currency": {
+          "question": "Czy mogę robić zakupy w mojej walucie?",
+          "answer": "Tak. Możesz przełączać się między USD, PLN i EUR za pomocą przełącznika waluty. Ceny ustalane są osobno dla każdej waluty, więc płacisz dokładnie to, co widzisz."
+        },
+        "account": {
+          "question": "Czy do złożenia zamówienia potrzebne jest konto?",
+          "answer": "Przeglądać możesz bez ograniczeń. Konto umożliwia śledzenie zamówień, zapisywanie adresów i szybkie ponawianie zakupów. Możesz je utworzyć podczas składania zamówienia lub na stronie Rejestracja."
+        },
+        "business": {
+          "question": "Czy sprzedajecie firmom (B2B)?",
+          "answer": "Tak. Klienci biznesowi mogą zarejestrować firmę, zarządzać zespołem i prosić o wyceny. Po rejestracji jako firma zajrzyj do sekcji Firma i Wyceny w swoim koncie."
+        }
+      }
+    },
+    "about": {
+      "meta": {
+        "title": "O nas",
+        "description": "Nasza historia, nasze wartości i nasze przywiązanie do jakości — tworzone z troską w Polsce."
+      },
+      "title": "O nas",
+      "intro": "Jesteśmy nowoczesnym sklepem internetowym opartym na produktach wysokiej jakości, uczciwych cenach oraz doświadczeniu zakupowym, które szanuje Twój czas i Twoje prawa.",
+      "sections": {
+        "story": {
+          "heading": "Nasza historia",
+          "body": [
+            "To, co zaczęło się od niewielkiego pomysłu, przerodziło się w sklep obsługujący klientów w Polsce, UE i poza nią. Wybieramy produkty, w które wierzymy, i ręczymy za to, co sprzedajemy.",
+            "Nasz sklep budujemy z taką samą troską, z jaką tworzymy katalog — dwujęzyczny, wielowalutowy i dostępny dla każdego."
+          ]
+        },
+        "values": {
+          "heading": "Nasze wartości",
+          "body": [
+            "Przejrzystość — jasne ceny, rzetelne opisy i proste zasady.",
+            "Troska o klienta — sprawna obsługa i proces zwrotów szanujący Twoje prawa konsumenckie.",
+            "Jakość — produkty, których sami chętnie byśmy używali."
+          ]
+        },
+        "madeIn": {
+          "heading": "Tworzone w Polsce",
+          "body": [
+            "Z dumą działamy w Polsce i z troską wysyłamy zamówienia do klientów na całym świecie. Lokalne korzenie, globalny zasięg."
+          ]
+        }
+      }
+    },
+    "contact": {
+      "meta": {
+        "title": "Kontakt",
+        "description": "Skontaktuj się z naszym zespołem. Wyślij wiadomość, a odpowiemy najszybciej, jak to możliwe."
+      },
+      "title": "Kontakt",
+      "intro": "Masz pytanie dotyczące zamówienia, produktu lub zwrotu? Wyślij nam wiadomość, a odpowiemy najszybciej, jak to możliwe.",
+      "details": {
+        "heading": "Dane kontaktowe",
+        "emailLabel": "E-mail",
+        "email": "support{'@'}example.com",
+        "phoneLabel": "Telefon",
+        "phone": "+48 000 000 000",
+        "addressLabel": "Adres",
+        "address": "Adres firmy — pełne dane firmy znajdziesz w stopce sklepu.",
+        "hoursLabel": "Godziny pracy obsługi",
+        "hours": "Poniedziałek–piątek, 9:00–17:00 (CET)"
+      },
+      "form": {
+        "heading": "Wyślij wiadomość",
+        "name": "Imię i nazwisko",
+        "namePlaceholder": "Jan Kowalski",
+        "email": "Adres e-mail",
+        "emailPlaceholder": "ty{'@'}example.com",
+        "subject": "Temat",
+        "subjectPlaceholder": "W czym możemy pomóc?",
+        "message": "Wiadomość",
+        "messagePlaceholder": "Wpisz swoją wiadomość tutaj...",
+        "submit": "Wyślij wiadomość",
+        "sending": "Wysyłanie...",
+        "successTitle": "Wiadomość wysłana",
+        "successDescription": "Dziękujemy za kontakt — odpowiemy najszybciej, jak to możliwe.",
+        "errorTitle": "Nie udało się wysłać wiadomości",
+        "errorDescription": "Coś poszło nie tak. Spróbuj ponownie lub napisz do nas bezpośrednio.",
+        "errors": {
+          "nameRequired": "Podaj swoje imię i nazwisko",
+          "nameTooLong": "Imię i nazwisko może mieć maksymalnie 100 znaków",
+          "emailRequired": "Podaj swój adres e-mail",
+          "emailInvalid": "Podaj prawidłowy adres e-mail",
+          "subjectRequired": "Podaj temat",
+          "subjectTooLong": "Temat może mieć maksymalnie 200 znaków",
+          "messageRequired": "Wpisz wiadomość",
+          "messageTooLong": "Wiadomość może mieć maksymalnie 5000 znaków"
+        }
+      }
+    }
+  }
+}

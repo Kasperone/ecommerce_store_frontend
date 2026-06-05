@@ -1,19 +1,26 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
-useHead({ title: t('footer.columns.help.shippingReturns') })
+
+const sections = ['methods', 'times', 'costs', 'tracking'] as const
+
+useSeoMeta({
+  title: () => t('legal.shipping.meta.title'),
+  description: () => t('legal.shipping.meta.description'),
+})
 </script>
 
 <template>
-  <UContainer class="py-16">
-    <h1 class="text-3xl font-semibold mb-4">
-      {{ t('footer.columns.help.shippingReturns') }}
-    </h1>
-    <p class="text-muted">
-      {{ t('footer.stubPage.comingSoon') }}
-    </p>
-    <ULink
-      to="/"
-      class="mt-6 inline-block text-primary"
-    >← {{ t('footer.stubPage.backHome') }}</ULink>
-  </UContainer>
+  <LegalPageShell
+    :title="t('legal.shipping.title')"
+    :intro="t('legal.shipping.intro')"
+  >
+    <LegalSection
+      v-for="key in sections"
+      :key="key"
+      :heading="t(`legal.shipping.sections.${key}.heading`)"
+      :body-key="`legal.shipping.sections.${key}.body`"
+    />
+  </LegalPageShell>
 </template>
