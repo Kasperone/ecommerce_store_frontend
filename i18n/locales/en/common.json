@@ -1497,6 +1497,19 @@
         "imageUrlPlaceholder": "https://… image URL",
         "unknownType": "Unsupported field type \"{type}\" — edit as JSON."
       },
+      "imagePicker": {
+        "upload": "Upload image",
+        "hint": "Drag & drop or click — JPEG, PNG, WebP, up to 5 MB",
+        "uploading": "Uploading…",
+        "orPasteUrl": "Or paste a URL",
+        "thumbnailAlt": "Selected image",
+        "remove": "Remove",
+        "errors": {
+          "sizeTooLarge": "Image is too large (max 5 MB).",
+          "unsupportedType": "Unsupported image type. Use JPEG, PNG, or WebP.",
+          "uploadFailed": "Upload failed. Please try again."
+        }
+      },
       "picker": {
         "searchProducts": "Search products…",
         "searchCollections": "Search collections…",

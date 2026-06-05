@@ -56,12 +56,13 @@ const columnClass = computed(() => {
         :to="item.settings?.link_url || undefined"
         class="block ps-4"
       >
-        <img
+        <NuxtImg
           :src="item.settings!.image_url!"
           :alt="item.settings?.alt ?? ''"
           class="aspect-square w-full rounded-lg object-cover"
+          sizes="66vw sm:50vw md:33vw"
           loading="lazy"
-        >
+        />
       </component>
     </UCarousel>
 
@@ -78,13 +79,14 @@ const columnClass = computed(() => {
         class="block overflow-hidden rounded-lg"
         :class="layout === 'masonry' && index % 3 === 0 && 'sm:row-span-2'"
       >
-        <img
+        <NuxtImg
           :src="img.settings!.image_url!"
           :alt="img.settings?.alt ?? ''"
           class="h-full w-full object-cover"
           :class="layout === 'grid' && 'aspect-square'"
+          sizes="50vw sm:33vw lg:25vw"
           loading="lazy"
-        >
+        />
       </component>
     </div>
   </section>

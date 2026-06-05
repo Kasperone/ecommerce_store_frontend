@@ -25,13 +25,14 @@ const imageLeft = computed(() => (props.settings?.image_position ?? 'left') === 
       :class="!imageLeft && 'md:[&>*:first-child]:order-2'"
     >
       <div class="overflow-hidden rounded-lg bg-elevated">
-        <img
+        <NuxtImg
           v-if="settings?.image_url"
           :src="settings.image_url"
           :alt="settings?.heading ?? ''"
           class="aspect-[4/3] w-full object-cover"
+          sizes="100vw md:50vw"
           loading="lazy"
-        >
+        />
       </div>
 
       <div class="flex flex-col gap-4">

@@ -37,13 +37,14 @@ const autoplay = computed(() =>
       class="w-full"
     >
       <div class="relative isolate flex min-h-[18rem] flex-col justify-center overflow-hidden rounded-lg">
-        <img
+        <NuxtImg
           v-if="item.settings?.image_url"
           :src="item.settings.image_url"
           :alt="item.settings?.heading ?? ''"
           class="absolute inset-0 -z-20 h-full w-full object-cover"
+          sizes="100vw lg:1280px"
           loading="lazy"
-        >
+        />
         <div
           v-if="item.settings?.image_url"
           class="absolute inset-0 -z-10 bg-gradient-to-r from-black/45 via-black/20 to-transparent"
