@@ -60,7 +60,7 @@ const items = computed<NavigationMenuItem[]>(() => {
     <template #right>
       <LayoutSearchBar class="mr-2 hidden md:block" />
 
-      <LayoutCurrencySwitcher class="mr-1" />
+      <LayoutCurrencySwitcher class="mr-1 hidden sm:block" />
 
       <ClientOnly>
         <CartTrigger class="mr-1" />
@@ -72,7 +72,7 @@ const items = computed<NavigationMenuItem[]>(() => {
         <UButton
           color="neutral"
           variant="ghost"
-          class="ml-2 px-2 text-sm cursor-pointer"
+          class="ml-2 hidden px-2 text-sm cursor-pointer sm:inline-flex"
           aria-label="Toggle language"
           @click="toggleLocale"
         >
@@ -88,7 +88,7 @@ const items = computed<NavigationMenuItem[]>(() => {
           <UButton
             color="primary"
             variant="soft"
-            class="ml-2 px-2"
+            class="ml-2 hidden px-2 sm:inline-flex"
             aria-label="Admin"
             to="/admin"
             icon="i-lucide-shield"
@@ -111,7 +111,7 @@ const items = computed<NavigationMenuItem[]>(() => {
             <UButton
               color="neutral"
               variant="ghost"
-              class="ml-2 px-2 cursor-pointer"
+              class="ml-2 hidden px-2 cursor-pointer sm:inline-flex"
               aria-label="Account"
               to="/account"
               icon="i-lucide-user"
@@ -125,7 +125,7 @@ const items = computed<NavigationMenuItem[]>(() => {
             <UButton
               color="neutral"
               variant="ghost"
-              class="ml-2 px-2 cursor-pointer"
+              class="ml-2 hidden px-2 cursor-pointer sm:inline-flex"
               :aria-label="t('header.accountSettings')"
               to="/account/profile"
               icon="i-lucide-settings"
@@ -136,7 +136,7 @@ const items = computed<NavigationMenuItem[]>(() => {
             <UButton
               color="neutral"
               variant="ghost"
-              class="ml-2 px-2 cursor-pointer"
+              class="ml-2 hidden px-2 cursor-pointer sm:inline-flex"
               aria-label="Logout"
               icon="i-lucide-log-out"
               @click="handleLogout"
@@ -148,7 +148,7 @@ const items = computed<NavigationMenuItem[]>(() => {
             <UButton
               color="neutral"
               variant="ghost"
-              class="ml-2 px-2"
+              class="ml-2 hidden px-2 sm:inline-flex"
               aria-label="Login"
               to="/login"
               icon="i-lucide-log-in"
@@ -159,7 +159,7 @@ const items = computed<NavigationMenuItem[]>(() => {
             <UButton
               color="neutral"
               variant="ghost"
-              class="ml-2 px-2"
+              class="ml-2 hidden px-2 sm:inline-flex"
               aria-label="Sign up"
               to="/sign-up"
               icon="i-lucide-user-plus"
@@ -177,6 +177,87 @@ const items = computed<NavigationMenuItem[]>(() => {
         orientation="vertical"
         class="-mx-2.5"
       />
+
+      <!-- Secondary actions that live in #right on sm+; surfaced here on mobile
+           (below sm) where they'd otherwise overflow the header bar. -->
+      <div class="mt-4 flex flex-col gap-2 border-t border-default pt-4 sm:hidden">
+        <div class="flex items-center gap-2">
+          <LayoutCurrencySwitcher />
+          <UButton
+            color="neutral"
+            variant="subtle"
+            class="px-2 text-sm cursor-pointer"
+            :aria-label="t('header.toggleLang')"
+            @click="toggleLocale"
+          >
+            {{ locale === 'pl' ? 'PL' : 'EN' }}
+          </UButton>
+        </div>
+
+        <ClientOnly>
+          <template v-if="authStore.isAuthenticated">
+            <UButton
+              v-if="authStore.isAdmin"
+              block
+              color="primary"
+              variant="soft"
+              class="justify-start"
+              :label="t('header.admin')"
+              icon="i-lucide-shield"
+              to="/admin"
+            />
+            <template v-if="!authStore.isAdmin">
+              <UButton
+                block
+                color="neutral"
+                variant="ghost"
+                class="justify-start"
+                :label="t('header.account')"
+                icon="i-lucide-user"
+                to="/account"
+              />
+              <UButton
+                block
+                color="neutral"
+                variant="ghost"
+                class="justify-start"
+                :label="t('header.accountSettings')"
+                icon="i-lucide-settings"
+                to="/account/profile"
+              />
+            </template>
+            <UButton
+              block
+              color="neutral"
+              variant="ghost"
+              class="justify-start"
+              :label="t('header.logout')"
+              icon="i-lucide-log-out"
+              @click="handleLogout"
+            />
+          </template>
+          <template v-else>
+            <UButton
+              block
+              color="neutral"
+              variant="ghost"
+              class="justify-start"
+              :label="t('header.login')"
+              icon="i-lucide-log-in"
+              to="/login"
+            />
+            <UButton
+              block
+              color="neutral"
+              variant="ghost"
+              class="justify-start"
+              :label="t('header.signUp')"
+              icon="i-lucide-user-plus"
+              to="/sign-up"
+            />
+          </template>
+        </ClientOnly>
+      </div>
     </template>
   </UHeader>
 </template>
