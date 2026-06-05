@@ -14,24 +14,38 @@ import type { components } from '#shared/types/api.gen'
  * throwing, so a caller can render a fallback / its own 404 without a crash.
  * The `key` is parameterised on slug + locale so distinct pages and locales
  * don't share a cache entry.
+ *
+ * When a signed `token` is supplied (the admin "Preview draft" flow), the
+ * fetch targets `GET /pages/{slug}/preview?token=` instead — which returns the
+ * unpublished *draft* layout. A bad/expired/absent token still 404s server-side
+ * (anti-enumeration), so the same `null`-on-404 fallback applies. Without a
+ * token the public URL serves published-only, exactly as before.
  */
 export type PagePublic = components['schemas']['PagePublic']
 
 export function usePublicPage(
   slug: MaybeRefOrGetter<string>,
   locale?: MaybeRefOrGetter<string | undefined>,
+  token?: MaybeRefOrGetter<string | undefined>,
 ) {
   const { apiFetch } = useApi()
 
   return useAsyncData<PagePublic | null>(
-    () => `public-page-${toValue(slug)}-${toValue(locale) ?? ''}`,
+    () => `public-page-${toValue(slug)}-${toValue(locale) ?? ''}-${toValue(token) ?? ''}`,
     async () => {
       const s = toValue(slug)
       const loc = toValue(locale)
+      const tok = toValue(token)
+      const path = tok
+        ? `/api/v1/pages/${encodeURIComponent(s)}/preview`
+        : `/api/v1/pages/${encodeURIComponent(s)}`
+      const query: Record<string, string> = {}
+      if (loc) query.locale = loc
+      if (tok) query.token = tok
       try {
         return await apiFetch<PagePublic>(
-          `/api/v1/pages/${encodeURIComponent(s)}`,
-          loc ? { query: { locale: loc } } : {},
+          path,
+          Object.keys(query).length ? { query } : {},
         )
       }
       catch (err: unknown) {
@@ -43,7 +57,7 @@ export function usePublicPage(
     },
     {
       default: () => null,
-      watch: [() => toValue(slug), () => toValue(locale)],
+      watch: [() => toValue(slug), () => toValue(locale), () => toValue(token)],
     },
   )
 }

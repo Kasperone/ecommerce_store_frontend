@@ -1421,7 +1421,9 @@
         "edit": "Edytuj",
         "saveDraft": "Zapisz wersję roboczą",
         "publish": "Opublikuj",
-        "history": "Historia"
+        "history": "Historia",
+        "previewDraft": "Podgląd roboczy",
+        "viewLive": "Zobacz na żywo"
       },
       "filters": {
         "status": "Status",
@@ -1523,7 +1525,8 @@
         "draftSaved": "Zapisano wersję roboczą.",
         "saveFailed": "Nie udało się zapisać wersji roboczej.",
         "published": "Strona opublikowana.",
-        "rolledBack": "Przywrócono wersję do roboczej."
+        "rolledBack": "Przywrócono wersję do roboczej.",
+        "previewFailed": "Nie udało się otworzyć podglądu roboczego."
       },
       "errors": {
         "slugRequired": "Slug jest wymagany."

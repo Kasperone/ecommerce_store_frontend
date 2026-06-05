@@ -28,6 +28,7 @@ export type PageDraftUpdate = components['schemas']['PageDraftUpdate']
 export type PagePublishRequest = components['schemas']['PagePublishRequest']
 export type PageVersionListResponse = components['schemas']['PageVersionListResponse']
 export type PageVersionResponse = components['schemas']['PageVersionResponse']
+export type PreviewTokenResponse = components['schemas']['PreviewTokenResponse']
 export type PageLayoutInput = components['schemas']['PageLayout-Input']
 export type PageLayoutOutput = components['schemas']['PageLayout-Output']
 export type PageStatus = PageResponse['status']
@@ -148,6 +149,23 @@ export function useRollbackPageVersion() {
         method: 'POST',
       }),
     onSuccess: () => queryCache.invalidateQueries({ key: [...PAGES_NAMESPACE] }),
+  })
+}
+
+/**
+ * `POST /api/v1/admin/pages/{id}/preview-token` — mint a short-lived signed
+ * token for the draft-preview route (`GET /pages/{slug}/preview?token=`).
+ *
+ * Read-only on the server (no page data changes), so it does not invalidate the
+ * `pages` cache namespace.
+ */
+export function useCreatePreviewToken() {
+  const { apiFetch } = useApi()
+  return useMutation({
+    mutation: ({ id }: { id: number }) =>
+      apiFetch<PreviewTokenResponse>(`/api/v1/admin/pages/${id}/preview-token`, {
+        method: 'POST',
+      }),
   })
 }
 
