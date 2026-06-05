@@ -2071,49 +2071,77 @@
     }
   },
   "footer": {
+    "logo": {
+      "name": "E-commerce Store",
+      "homeAria": "E-commerce Store - przejdź na stronę główną"
+    },
     "brand": {
-      "tagline": "Sprawdzone produkty, dostawa w USD, PLN i EUR.",
-      "newsletter": {
-        "heading": "Bądź na bieżąco",
-        "description": "Nowości i oferty tylko dla subskrybentów - żadnego spamu.",
-        "emailLabel": "Adres e-mail",
-        "emailPlaceholder": "ty{'@'}example.com",
-        "submit": "Zapisz się",
-        "success": "Dzięki - jesteś na liście.",
-        "invalidEmail": "Podaj prawidłowy adres e-mail."
-      }
+      "tagline": "Sprawdzone produkty, dostawa w USD, PLN i EUR."
+    },
+    "newsletter": {
+      "heading": "Bądź na bieżąco",
+      "description": "Nowości i oferty tylko dla subskrybentów - żadnego spamu.",
+      "emailLabel": "Adres e-mail",
+      "emailPlaceholder": "ty{'@'}example.com",
+      "submit": "Zapisz się",
+      "consentLabel": "Wyrażam zgodę na otrzymywanie e-maili marketingowych i akceptuję politykę prywatności.",
+      "consentRequired": "Zaznacz pole, aby zapisać się do newslettera.",
+      "success": "Dzięki - jesteś na liście.",
+      "errorTitle": "Coś poszło nie tak. Spróbuj ponownie.",
+      "invalidEmail": "Podaj prawidłowy adres e-mail."
+    },
+    "trust": {
+      "secureCheckout": "Bezpieczne płatności",
+      "returns": "14 dni na zwrot"
     },
     "columns": {
       "shop": {
         "heading": "Sklep",
+        "products": "Wszystkie produkty",
         "newArrivals": "Nowości",
         "bestsellers": "Bestsellery",
         "deals": "Okazje"
       },
       "help": {
-        "heading": "Pomoc i informacje",
+        "heading": "Pomoc",
         "contact": "Kontakt",
-        "shippingReturns": "Wysyłka i zwroty",
-        "faq": "FAQ"
+        "faq": "FAQ",
+        "returns": "Polityka zwrotów",
+        "shipping": "Wysyłka i dostawa",
+        "trackOrder": "Śledź zamówienie",
+        "shippingReturns": "Wysyłka i zwroty"
       },
-      "company": {
-        "heading": "Firma",
+      "about": {
+        "heading": "O nas",
         "about": "O nas",
         "careers": "Kariera",
         "press": "Prasa"
       },
-      "legal": {
-        "heading": "Informacje prawne",
-        "terms": "Regulamin",
-        "privacy": "Polityka prywatności",
-        "cookies": "Polityka cookies"
+      "company": {
+        "about": "O nas"
       },
       "account": {
         "heading": "Moje konto",
         "signIn": "Zaloguj się",
         "register": "Załóż konto",
-        "myAccount": "Moje konto"
+        "myAccount": "Moje konto",
+        "orders": "Moje zamówienia"
+      },
+      "legal": {
+        "heading": "Informacje prawne",
+        "terms": "Regulamin",
+        "privacy": "Polityka prywatności",
+        "cookiePolicy": "Polityka cookies",
+        "cookieSettings": "Ustawienia cookies",
+        "withdrawal": "Prawo do odstąpienia i zwroty",
+        "accessibility": "Deklaracja dostępności",
+        "doNotSell": "Nie sprzedawaj ani nie udostępniaj moich danych osobowych"
       }
+    },
+    "company": {
+      "nip": "NIP",
+      "regon": "REGON",
+      "krs": "KRS"
     },
     "social": {
       "heading": "Obserwuj nas",
@@ -2125,6 +2153,7 @@
     "payment": {
       "heading": "Akceptujemy"
     },
+    "backToTop": "Powrót na górę",
     "copyright": "© {year} E-commerce Store. Wszelkie prawa zastrzeżone.",
     "madeIn": "Tworzone z troską w Polsce.",
     "stubPage": {
