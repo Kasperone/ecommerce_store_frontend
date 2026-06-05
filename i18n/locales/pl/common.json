@@ -48,7 +48,7 @@
       "top": {
         "title": "Najlepsze produkty",
         "units": "sprzedano {count}",
-        "orders": "{count} zamówienie | {count} zamówień",
+        "orders": "{count} zamówień | {count} zamówienie | {count} zamówienia | {count} zamówień",
         "empty": "Brak sprzedaży."
       },
       "low": {
@@ -548,7 +548,7 @@
       "topProducts": {
         "title": "Najlepsze produkty",
         "units": "sprzedano {count}",
-        "orders": "{count} zamówienie | {count} zamówienia | {count} zamówień",
+        "orders": "{count} zamówień | {count} zamówienie | {count} zamówienia | {count} zamówień",
         "empty": "Brak sprzedaży w tym zakresie dat."
       },
       "byCategory": {
@@ -559,7 +559,7 @@
       },
       "refunds": {
         "title": "Zwroty",
-        "count": "{count} zwrot | {count} zwroty | {count} zwrotów",
+        "count": "{count} zwrotów | {count} zwrot | {count} zwroty | {count} zwrotów",
         "fields": {
           "currency": "Waluta",
           "refunded": "Zwrócono",
@@ -1621,7 +1621,7 @@
       },
       "quotes": {
         "heading": "Wyceny",
-        "open": "{count} otwarta wycena | {count} otwarte wyceny | {count} otwartych wycen",
+        "open": "{count} otwartych wycen | {count} otwarta wycena | {count} otwarte wyceny | {count} otwartych wycen",
         "awaiting": "{count} oczekuje na Twoją akceptację",
         "none": "Brak otwartych wycen.",
         "view": "Zobacz wyceny"
@@ -2050,8 +2050,8 @@
     "noResults": "Brak wyników dla „{query}”",
     "results": {
       "heading": "Wyniki wyszukiwania",
-      "summary": "{count} wynik dla „{query}” | {count} wyników dla „{query}”",
-      "count": "{count} produkt | {count} produktów"
+      "summary": "{count} wyników dla „{query}” | {count} wynik dla „{query}” | {count} wyniki dla „{query}” | {count} wyników dla „{query}”",
+      "count": "{count} produktów | {count} produkt | {count} produkty | {count} produktów"
     },
     "sort": {
       "label": "Sortuj według",

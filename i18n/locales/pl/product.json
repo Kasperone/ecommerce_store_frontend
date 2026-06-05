@@ -58,7 +58,7 @@
   },
   "reviews": {
     "heading": "Opinie klientów",
-    "basedOn": "Brak opinii | {count} opinia | {count} opinii",
+    "basedOn": "Brak opinii | {count} opinia | {count} opinie | {count} opinii",
     "starsShort": "{count} ★",
     "starsLabel": "{rating} na 5 gwiazdek",
     "empty": "Brak opinii. Dodaj pierwszą opinię o tym produkcie.",
@@ -70,7 +70,7 @@
     "verified": "Zakup potwierdzony",
     "storeResponse": "Odpowiedź sklepu",
     "helpful": "Pomocna",
-    "helpfulCount": "Brak głosów | {count} osoba uznała to za pomocne | {count} osób uznało to za pomocne",
+    "helpfulCount": "Brak głosów | {count} osoba uznała to za pomocne | {count} osoby uznały to za pomocne | {count} osób uznało to za pomocne",
     "loginToVote": "Zaloguj się, aby głosować",
     "voteError": "Nie udało się zapisać głosu. Spróbuj ponownie.",
     "sortLabel": "Sortuj opinie",
