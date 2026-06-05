@@ -50,6 +50,21 @@ describe('HeroBlock', () => {
     expect(noUrl.find('a').exists()).toBe(false)
   })
 
+  it('shows the image placeholder when no image is set', async () => {
+    const wrapper = await mountSuspended(HeroBlock, {
+      props: { settings: settings({ image_url: null }) },
+    })
+    expect(wrapper.find('.c-image-placeholder').exists()).toBe(true)
+    expect(wrapper.find('img').exists()).toBe(false)
+  })
+
+  it('hides the placeholder once an image is set', async () => {
+    const wrapper = await mountSuspended(HeroBlock, {
+      props: { settings: settings({ image_url: 'https://cdn.example.com/hero.jpg' }) },
+    })
+    expect(wrapper.find('.c-image-placeholder').exists()).toBe(false)
+  })
+
   it('renders nothing without heading or image', async () => {
     const wrapper = await mountSuspended(HeroBlock, {
       props: { settings: settings({ heading: '', image_url: null }) },

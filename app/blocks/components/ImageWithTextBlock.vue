@@ -33,6 +33,10 @@ const imageLeft = computed(() => (props.settings?.image_position ?? 'left') === 
           sizes="100vw md:50vw"
           loading="lazy"
         />
+        <CmsImagePlaceholder
+          v-else
+          class="aspect-[4/3] w-full"
+        />
       </div>
 
       <div class="flex flex-col gap-4">
