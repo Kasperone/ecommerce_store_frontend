@@ -6,7 +6,7 @@
  * Control registry (setting `type` → control):
  *   text         → UInput
  *   textarea     → UTextarea
- *   richtext     → UTextarea (HTML source; a true WYSIWYG is a later phase)
+ *   richtext     → RichTextEditor (lazy-loaded TipTap WYSIWYG; allowlist-safe HTML)
  *   url          → UInput type=url
  *   image_picker → ImagePicker (R2 upload widget + manual paste-URL fallback)
  *   range        → UInputNumber (min/max/step honoured)
@@ -157,12 +157,20 @@ const hasFields = computed(() => props.fields.length > 0)
         @update:model-value="(v) => setField(field.id, v)"
       />
 
-      <!-- textarea / richtext (HTML source) -->
+      <!-- richtext → lazy-loaded TipTap WYSIWYG (admin-only, code-split) -->
+      <LazyAdminCmsRichTextEditor
+        v-else-if="field.type === 'richtext'"
+        :field-id="field.id"
+        :model-value="strValue(field)"
+        @update:model-value="(v) => setField(field.id, v)"
+      />
+
+      <!-- textarea (plain HTML / text source) -->
       <UTextarea
-        v-else-if="field.type === 'textarea' || field.type === 'richtext'"
+        v-else-if="field.type === 'textarea'"
         :id="`setting-${field.id}`"
         :model-value="strValue(field)"
-        :rows="field.type === 'richtext' ? 5 : 3"
+        :rows="3"
         class="w-full font-mono text-sm"
         @update:model-value="(v) => setField(field.id, v)"
       />
