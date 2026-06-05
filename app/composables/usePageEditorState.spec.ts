@@ -121,6 +121,63 @@ describe('usePageEditorState', () => {
   })
 })
 
+describe('usePageEditorState — visual canvas mutators', () => {
+  const threeLayout = [
+    { type: 'hero', settings: {} },
+    { type: 'spacer', settings: {} },
+    { type: 'rich-text', settings: {} },
+  ] as any
+
+  it('reorder() applies an explicit cid order', () => {
+    const s = usePageEditorState()
+    s.load(threeLayout)
+    const [a, b, c] = s.sections.value.map(x => x.__cid)
+    s.reorder([c!, a!, b!])
+    expect(s.sections.value.map(x => x.__cid)).toEqual([c, a, b])
+    expect(s.isDirty.value).toBe(true)
+  })
+
+  it('reorder() never drops or duplicates on a partial/stale list', () => {
+    const s = usePageEditorState()
+    s.load(threeLayout)
+    const [a, b, c] = s.sections.value.map(x => x.__cid)
+    // Only b named, plus an unknown cid — a and c keep their order, appended.
+    s.reorder([b!, 'ghost-cid'])
+    expect(s.sections.value.map(x => x.__cid)).toEqual([b, a, c])
+  })
+
+  it('moveTo() moves a section to an explicit clamped index', () => {
+    const s = usePageEditorState()
+    s.load(threeLayout)
+    const [a, , c] = s.sections.value.map(x => x.__cid)
+    s.moveTo(a!, 99) // clamps to last
+    expect(s.sections.value.at(-1)!.__cid).toBe(a)
+    s.moveTo(a!, 0)
+    expect(s.sections.value[0]!.__cid).toBe(a)
+    // No-op when target equals current index.
+    const before = s.sections.value.map(x => x.__cid)
+    s.moveTo(c!, s.sections.value.findIndex(x => x.__cid === c))
+    expect(s.sections.value.map(x => x.__cid)).toEqual(before)
+  })
+
+  it('addSectionAt() inserts at an explicit index and selects it', () => {
+    const s = usePageEditorState()
+    s.load(threeLayout)
+    s.addSectionAt('faq', { foo: 1 }, 1)
+    expect(s.sections.value).toHaveLength(4)
+    expect(s.sections.value[1]!.type).toBe('faq')
+    expect(s.selectedSection.value?.type).toBe('faq')
+    expect(s.isDirty.value).toBe(true)
+  })
+
+  it('addSectionAt() clamps an out-of-range index to the end', () => {
+    const s = usePageEditorState()
+    s.load(threeLayout)
+    s.addSectionAt('faq', {}, 99)
+    expect(s.sections.value.at(-1)!.type).toBe('faq')
+  })
+})
+
 describe('makeSectionDraft', () => {
   it('clones the settings object (no shared reference)', () => {
     const settings = { heading: 'A' }

@@ -1517,6 +1517,20 @@
       },
       "errors": {
         "slugRequired": "Slug is required."
+      },
+      "visual": {
+        "modeLabel": "Editing mode",
+        "modeForm": "Form",
+        "modeVisual": "Visual",
+        "canvasHeading": "Canvas",
+        "canvasLabel": "Visual editor — click a block to edit, drag to reorder",
+        "empty": "No sections yet. Use \"Add section here\" to start.",
+        "addHere": "Add section here",
+        "selectBlock": "Select {name} block",
+        "blockLabel": "{name} block",
+        "selectPrompt": "Click a block on the canvas to edit it.",
+        "dragHandle": "Drag to reorder",
+        "dragHint": "Drag to reorder (or Alt+Arrow keys when focused)"
       }
     },
     "campaigns": {
