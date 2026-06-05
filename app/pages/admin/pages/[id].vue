@@ -82,10 +82,35 @@ const previewSections = computed<Section[]>(() =>
   })) as unknown as Section[],
 )
 
+// ---- Edit mode (Form ⇄ Visual) -------------------------------------------- //
+type EditMode = 'form' | 'visual'
+const editMode = ref<EditMode>('form')
+const modeItems = computed(() => [
+  { label: t('admin.cms.visual.modeForm'), value: 'form' as const, icon: 'i-lucide-sliders-horizontal' },
+  { label: t('admin.cms.visual.modeVisual'), value: 'visual' as const, icon: 'i-lucide-layout-panel-top' },
+])
+
 // ---- Add section ---------------------------------------------------------- //
 const addOpen = ref(false)
+// When set, an Add-section pick inserts at this index (visual drop-zone); when
+// null, it appends (the left-rail "Add" button / form mode).
+const addAtIndex = ref<number | null>(null)
 function onAddSection(section: { type: string, settings: Record<string, unknown> }) {
-  editor.addSection(section.type, section.settings)
+  if (addAtIndex.value !== null) {
+    editor.addSectionAt(section.type, section.settings, addAtIndex.value)
+    addAtIndex.value = null
+  }
+  else {
+    editor.addSection(section.type, section.settings)
+  }
+}
+function openAddAt(index: number) {
+  addAtIndex.value = index
+  addOpen.value = true
+}
+function openAddAppend() {
+  addAtIndex.value = null
+  addOpen.value = true
 }
 
 // ---- Save draft / publish ------------------------------------------------- //
@@ -213,6 +238,15 @@ const isBusy = computed(() => saveDraft.isLoading.value || publish.isLoading.val
         </div>
 
         <div class="flex items-center gap-2">
+          <UTabs
+            v-model="editMode"
+            :items="modeItems"
+            :content="false"
+            size="sm"
+            color="primary"
+            :aria-label="t('admin.cms.visual.modeLabel')"
+            data-testid="edit-mode-toggle"
+          />
           <UButton
             color="neutral"
             variant="outline"
@@ -250,9 +284,9 @@ const isBusy = computed(() => saveDraft.isLoading.value || publish.isLoading.val
         :problem="error"
       />
 
-      <!-- Three-pane editor -->
+      <!-- Three-pane editor (Form mode) -->
       <div
-        v-if="page"
+        v-if="page && editMode === 'form'"
         class="grid grid-cols-1 lg:grid-cols-12 gap-4"
       >
         <!-- LEFT: section list -->
@@ -266,7 +300,7 @@ const isBusy = computed(() => saveDraft.isLoading.value || publish.isLoading.val
               variant="soft"
               size="xs"
               icon="i-lucide-plus"
-              @click="addOpen = true"
+              @click="openAddAppend"
             >
               {{ t('admin.cms.sections.add') }}
             </UButton>
@@ -328,6 +362,69 @@ const isBusy = computed(() => saveDraft.isLoading.value || publish.isLoading.val
               </ClientOnly>
             </div>
           </div>
+        </section>
+      </div>
+
+      <!-- Visual (WYSIWYG canvas) mode -->
+      <div
+        v-else-if="page && editMode === 'visual'"
+        class="grid grid-cols-1 lg:grid-cols-12 gap-4"
+      >
+        <!-- LEFT/CENTER: live canvas -->
+        <section class="lg:col-span-8 space-y-3">
+          <h2 class="font-semibold text-sm uppercase text-muted tracking-wide">
+            {{ t('admin.cms.visual.canvasHeading') }}
+          </h2>
+          <div class="rounded-lg border border-default overflow-hidden bg-default">
+            <div class="bg-elevated px-3 py-1.5 text-xs text-muted border-b border-default">
+              {{ t('admin.cms.visual.canvasLabel') }}
+            </div>
+            <div class="max-h-[75vh] overflow-auto p-2">
+              <ClientOnly>
+                <AdminCmsVisualCanvas
+                  :sections="sections"
+                  :selected-cid="selectedCid"
+                  :type-names="typeNames"
+                  @select="(cid) => (selectedCid = cid)"
+                  @remove="(cid) => editor.removeSection(cid)"
+                  @move="({ cid, direction }) => editor.moveSection(cid, direction)"
+                  @reorder="(orderedCids) => editor.reorder(orderedCids)"
+                  @add-at="openAddAt"
+                />
+                <template #fallback>
+                  <p class="text-muted text-sm py-12 text-center">
+                    {{ t('admin.cms.visual.empty') }}
+                  </p>
+                </template>
+              </ClientOnly>
+            </div>
+          </div>
+        </section>
+
+        <!-- RIGHT: settings form for the selected block -->
+        <section class="lg:col-span-4 space-y-3">
+          <h2 class="font-semibold text-sm uppercase text-muted tracking-wide">
+            {{ t('admin.cms.settings.heading') }}
+          </h2>
+          <div
+            v-if="selectedSection"
+            class="rounded-lg border border-default p-4"
+          >
+            <p class="font-medium mb-3">
+              {{ typeNames[selectedSection.type] ?? selectedSection.type }}
+            </p>
+            <AdminCmsSettingsForm
+              :fields="selectedFields"
+              :model-value="selectedSettings"
+              @update:model-value="onSettingsUpdate"
+            />
+          </div>
+          <p
+            v-else
+            class="text-muted text-sm py-6 text-center rounded-lg border border-dashed border-default"
+          >
+            {{ t('admin.cms.visual.selectPrompt') }}
+          </p>
         </section>
       </div>
 
