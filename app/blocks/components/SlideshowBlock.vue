@@ -7,8 +7,8 @@ type SlideBlock = components['schemas']['SlideBlock']
 
 /**
  * Slideshow / carousel block — admin-authored slides (image + heading +
- * subheading + CTA) in a `UCarousel`. Generalises `HomeHeroSlider`. The carousel
- * is autoplay/dots/arrows-configurable. Empty `blocks` → renders nothing.
+ * subheading + CTA) in a `UCarousel`. The carousel is
+ * autoplay/dots/arrows-configurable. Empty `blocks` → renders nothing.
  */
 const props = defineProps<{
   settings?: SettingsOf<'slideshow'>
