@@ -147,7 +147,7 @@
       "button": "Kup ponownie",
       "toast": {
         "allAddedTitle": "Dodano do koszyka",
-        "allAdded": "Dodano {count} pozycji do koszyka w aktualnych cenach.",
+        "allAdded": "Dodano {count} pozycji do koszyka w aktualnych cenach. | Dodano {count} pozycję do koszyka w aktualnych cenach. | Dodano {count} pozycje do koszyka w aktualnych cenach. | Dodano {count} pozycji do koszyka w aktualnych cenach.",
         "partialTitle": "Dodano część pozycji",
         "partial": "Dodano {added} pozycji; pominięto {skipped}, które są już niedostępne.",
         "noneTitle": "Nie dodano nic",
