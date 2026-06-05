@@ -960,6 +960,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Contact Form
+         * @description Public contact form — emails the store inbox via Resend.
+         *
+         *     Rate-limited 5/hour per submitter email (falling back to IP). The send is
+         *     best-effort: a provider failure is logged and swallowed so the submitter
+         *     still gets a success response (mirrors the other transactional sends).
+         */
+        post: operations["submit_contact_form_api_v1_contact_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/banners/": {
         parameters: {
             query?: never;
@@ -974,6 +998,95 @@ export interface paths {
         get: operations["list_active_banners_api_v1_banners__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pages/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Page
+         * @description Serve a published page's layout for the resolved locale (public, no auth).
+         */
+        get: operations["get_page_api_v1_pages__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pages/{slug}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview Page
+         * @description Serve a page's *draft* layout for a valid signed preview token.
+         *
+         *     404 on a missing page or any bad/expired/tampered token (anti-enumeration —
+         *     a preview link never confirms a page exists). No-cache.
+         */
+        get: operations["preview_page_api_v1_pages__slug__preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/blocks/schema": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Block Schemas
+         * @description Return the settings-schema registry for all block types (drives the admin
+         *     auto-form). Order is the canonical block-type order.
+         */
+        get: operations["get_block_schemas_api_v1_blocks_schema_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/newsletter/subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Subscribe
+         * @description Opt an email in to the marketing newsletter (public, idempotent).
+         *
+         *     Always returns a generic 200 so the endpoint cannot be used to enumerate
+         *     subscribers. Re-subscribing reactivates the existing row rather than
+         *     creating a duplicate. When the email belongs to a registered user a
+         *     ``user_consents`` newsletter row is appended for the GDPR audit trail.
+         */
+        post: operations["subscribe_api_v1_newsletter_subscribe_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1990,6 +2103,160 @@ export interface paths {
         patch: operations["update_banner_api_v1_admin_banners__banner_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/pages/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Pages
+         * @description List pages (newest-edited first), filterable by locale/status/type.
+         */
+        get: operations["list_pages_api_v1_admin_pages__get"];
+        put?: never;
+        /**
+         * Create Page
+         * @description Create a draft page. ``custom-html`` blocks are sanitized before storage.
+         */
+        post: operations["create_page_api_v1_admin_pages__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/pages/{page_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Page
+         * @description Get one page by id (draft + published).
+         */
+        get: operations["get_page_api_v1_admin_pages__page_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Page
+         * @description Delete a page (cascades its versions).
+         */
+        delete: operations["delete_page_api_v1_admin_pages__page_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/pages/{page_id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Save Draft
+         * @description Save the working draft layout and/or SEO. The layout is validated +
+         *     sanitized; an unknown section type 422s.
+         */
+        patch: operations["save_draft_api_v1_admin_pages__page_id__draft_patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/pages/{page_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish Page
+         * @description Validate the current draft, snapshot it into a version, and swap it into
+         *     the published layout (status → published).
+         */
+        post: operations["publish_page_api_v1_admin_pages__page_id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/pages/{page_id}/preview-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Preview Token
+         * @description Mint a short-lived signed preview token for this page's draft layout.
+         *
+         *     Not audited (read-only, no data change). The token is consumed by the public
+         *     ``GET /pages/{slug}/preview?token=`` route.
+         */
+        post: operations["create_preview_token_api_v1_admin_pages__page_id__preview_token_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/pages/{page_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Versions
+         * @description List a page's immutable versions, newest first.
+         */
+        get: operations["list_versions_api_v1_admin_pages__page_id__versions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/pages/{page_id}/versions/{version_id}/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rollback Version
+         * @description Restore a prior version's layout into the page's draft (admin re-publishes
+         *     to take it live). The version rows themselves are never mutated.
+         */
+        post: operations["rollback_version_api_v1_admin_pages__page_id__versions__version_id__rollback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/campaigns/": {
         parameters: {
             query?: never;
@@ -2959,6 +3226,50 @@ export interface paths {
         patch: operations["update_member_api_v1_companies_me_users__member_id__patch"];
         trace?: never;
     };
+    "/api/v1/store-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Public Store Config
+         * @description Get the public store-config projection for the storefront (no auth).
+         */
+        get: operations["get_public_store_config_api_v1_store_config_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cookie-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cookie Consent
+         * @description Return the latest cookie-consent choice (200 null if none).
+         */
+        get: operations["get_cookie_consent_api_v1_cookie_consent_get"];
+        put?: never;
+        /**
+         * Record Cookie Consent
+         * @description Record a cookie-consent choice (guest or authed). Append-only.
+         */
+        post: operations["record_cookie_consent_api_v1_cookie_consent_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3904,6 +4215,63 @@ export interface components {
              */
             product_count: number;
         };
+        /** CollectionListSection */
+        "CollectionListSection-Input": {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "collection-list";
+            settings?: components["schemas"]["CollectionListSettings"];
+            /** Blocks */
+            blocks?: components["schemas"]["CollectionTileBlock"][];
+        };
+        /** CollectionListSection */
+        "CollectionListSection-Output": {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "collection-list";
+            settings?: components["schemas"]["CollectionListSettings"];
+            /** Blocks */
+            blocks?: components["schemas"]["CollectionTileBlock"][];
+        };
+        /** CollectionListSettings */
+        CollectionListSettings: {
+            /** Heading */
+            heading?: string | null;
+            /**
+             * Columns
+             * @default 3
+             */
+            columns: number;
+        };
+        /** CollectionTileBlock */
+        CollectionTileBlock: {
+            /**
+             * Type
+             * @default tile
+             * @constant
+             */
+            type: "tile";
+            /** Id */
+            id?: string | null;
+            settings?: components["schemas"]["CollectionTileSettings"];
+        };
+        /** CollectionTileSettings */
+        CollectionTileSettings: {
+            /** Image Url */
+            image_url?: string | null;
+            /** Label */
+            label?: string | null;
+            /** Link Url */
+            link_url?: string | null;
+        };
         /**
          * CompanyCreate
          * @description Request body for ``POST /api/v1/admin/companies``.
@@ -4224,6 +4592,98 @@ export interface components {
             primary_user_id?: number | null;
         };
         /**
+         * ContactRequest
+         * @description Public contact-form submission.
+         *
+         *     Bounds are generous but finite so a single request can't be abused to
+         *     push a huge payload at the store inbox.
+         */
+        ContactRequest: {
+            /** Name */
+            name: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Subject */
+            subject: string;
+            /** Message */
+            message: string;
+        };
+        /**
+         * ContactResponse
+         * @description Acknowledgement returned regardless of whether the provider accepted
+         *     the email (best-effort send).
+         */
+        ContactResponse: {
+            /**
+             * Status
+             * @default sent
+             */
+            status: string;
+        };
+        /**
+         * CookieConsentCategories
+         * @description Per-category cookie consent booleans. ``necessary`` is always true.
+         */
+        CookieConsentCategories: {
+            /**
+             * Necessary
+             * @default true
+             */
+            necessary: boolean;
+            /**
+             * Analytics
+             * @default false
+             */
+            analytics: boolean;
+            /**
+             * Marketing
+             * @default false
+             */
+            marketing: boolean;
+        };
+        /**
+         * CookieConsentRequest
+         * @description Payload for recording a cookie-consent choice (guest or authed).
+         */
+        CookieConsentRequest: {
+            /**
+             * Anon Id
+             * @description FE client-id cookie identifying the visitor (guests).
+             */
+            anon_id?: string | null;
+            categories?: components["schemas"]["CookieConsentCategories"];
+            /**
+             * Gpc
+             * @description Global Privacy Control signal sent by the client.
+             * @default false
+             */
+            gpc: boolean;
+            /**
+             * Policy Version
+             * @description Cookie-policy version in force.
+             */
+            policy_version?: string | null;
+        };
+        /**
+         * CookieConsentResponse
+         * @description The current cookie-consent choice (latest row), or null fields if none.
+         */
+        CookieConsentResponse: {
+            categories: components["schemas"]["CookieConsentCategories"];
+            /** Gpc */
+            gpc: boolean;
+            /** Policy Version */
+            policy_version: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
          * CorrectiveInvoiceResponse
          * @description Summary of the issued faktura korygująca that accompanies a refund.
          */
@@ -4253,6 +4713,33 @@ export interface components {
             issued_at: string;
             /** Original Invoice Id */
             original_invoice_id: number;
+        };
+        /** CouponCalloutSection */
+        CouponCalloutSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "coupon-callout";
+            settings?: components["schemas"]["CouponCalloutSettings"];
+        };
+        /** CouponCalloutSettings */
+        CouponCalloutSettings: {
+            /**
+             * Coupon Code
+             * @default
+             */
+            coupon_code: string;
+            /** Heading */
+            heading?: string | null;
+            /** Body */
+            body?: string | null;
+            /** Cta Label */
+            cta_label?: string | null;
+            /** Cta Url */
+            cta_url?: string | null;
         };
         /**
          * CouponCreate
@@ -4428,6 +4915,25 @@ export interface components {
              * @enum {string}
              */
             currency: "USD" | "PLN" | "EUR";
+        };
+        /** CustomHtmlSection */
+        CustomHtmlSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "custom-html";
+            settings?: components["schemas"]["CustomHtmlSettings"];
+        };
+        /** CustomHtmlSettings */
+        CustomHtmlSettings: {
+            /**
+             * Html
+             * @default
+             */
+            html: string;
         };
         /**
          * CustomerAdminUpdate
@@ -4729,6 +5235,112 @@ export interface components {
             /** Count */
             count: number;
         };
+        /** FaqItemBlock */
+        FaqItemBlock: {
+            /**
+             * Type
+             * @default faq-item
+             * @constant
+             */
+            type: "faq-item";
+            /** Id */
+            id?: string | null;
+            settings?: components["schemas"]["FaqItemSettings"];
+        };
+        /** FaqItemSettings */
+        FaqItemSettings: {
+            /**
+             * Question
+             * @default
+             */
+            question: string;
+            /**
+             * Answer
+             * @default
+             */
+            answer: string;
+        };
+        /** FaqSection */
+        "FaqSection-Input": {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "faq";
+            settings?: components["schemas"]["FaqSettings"];
+            /** Blocks */
+            blocks?: components["schemas"]["FaqItemBlock"][];
+        };
+        /** FaqSection */
+        "FaqSection-Output": {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "faq";
+            settings?: components["schemas"]["FaqSettings"];
+            /** Blocks */
+            blocks?: components["schemas"]["FaqItemBlock"][];
+        };
+        /** FaqSettings */
+        FaqSettings: {
+            /** Heading */
+            heading?: string | null;
+        };
+        /** FeaturedProductSection */
+        FeaturedProductSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "featured-product";
+            settings?: components["schemas"]["FeaturedProductSettings"];
+        };
+        /** FeaturedProductSettings */
+        FeaturedProductSettings: {
+            /** Product Id */
+            product_id?: number | null;
+            /**
+             * Layout
+             * @default image-left
+             * @enum {string}
+             */
+            layout: "image-left" | "image-right";
+            /**
+             * Show Description
+             * @default true
+             */
+            show_description: boolean;
+            /** Cta Label */
+            cta_label?: string | null;
+        };
+        /** GalleryImageBlock */
+        GalleryImageBlock: {
+            /**
+             * Type
+             * @default image
+             * @constant
+             */
+            type: "image";
+            /** Id */
+            id?: string | null;
+            settings?: components["schemas"]["GalleryImageSettings"];
+        };
+        /** GalleryImageSettings */
+        GalleryImageSettings: {
+            /** Image Url */
+            image_url?: string | null;
+            /** Alt */
+            alt?: string | null;
+            /** Link Url */
+            link_url?: string | null;
+        };
         /**
          * GenericMessage
          * @description Generic single-message response (used where revealing detail would leak info).
@@ -4741,6 +5353,125 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HeroSection */
+        HeroSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "hero";
+            settings?: components["schemas"]["HeroSettings"];
+        };
+        /** HeroSettings */
+        HeroSettings: {
+            /**
+             * Heading
+             * @default
+             */
+            heading: string;
+            /** Subheading */
+            subheading?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * Overlay Opacity
+             * @default 40
+             */
+            overlay_opacity: number;
+            /**
+             * Alignment
+             * @default left
+             * @enum {string}
+             */
+            alignment: "left" | "center" | "right";
+            /** Cta Label */
+            cta_label?: string | null;
+            /** Cta Url */
+            cta_url?: string | null;
+            /**
+             * Theme
+             * @default dark
+             * @enum {string}
+             */
+            theme: "light" | "dark";
+        };
+        /** ImageGallerySection */
+        "ImageGallerySection-Input": {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "image-gallery";
+            settings?: components["schemas"]["ImageGallerySettings"];
+            /** Blocks */
+            blocks?: components["schemas"]["GalleryImageBlock"][];
+        };
+        /** ImageGallerySection */
+        "ImageGallerySection-Output": {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "image-gallery";
+            settings?: components["schemas"]["ImageGallerySettings"];
+            /** Blocks */
+            blocks?: components["schemas"]["GalleryImageBlock"][];
+        };
+        /** ImageGallerySettings */
+        ImageGallerySettings: {
+            /** Heading */
+            heading?: string | null;
+            /**
+             * Layout
+             * @default grid
+             * @enum {string}
+             */
+            layout: "grid" | "masonry" | "carousel";
+            /**
+             * Columns
+             * @default 3
+             */
+            columns: number;
+        };
+        /** ImageWithTextSection */
+        ImageWithTextSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "image-with-text";
+            settings?: components["schemas"]["ImageWithTextSettings"];
+        };
+        /** ImageWithTextSettings */
+        ImageWithTextSettings: {
+            /** Image Url */
+            image_url?: string | null;
+            /** Heading */
+            heading?: string | null;
+            /**
+             * Body
+             * @default
+             */
+            body: string;
+            /**
+             * Image Position
+             * @default left
+             * @enum {string}
+             */
+            image_position: "left" | "right";
+            /** Cta Label */
+            cta_label?: string | null;
+            /** Cta Url */
+            cta_url?: string | null;
         };
         /**
          * ImpersonatedCustomer
@@ -4923,6 +5654,25 @@ export interface components {
         MyVotesResponse: {
             /** Voted Review Ids */
             voted_review_ids: number[];
+        };
+        /**
+         * NewsletterSubscribeRequest
+         * @description Request body for ``POST /api/v1/newsletter/subscribe``.
+         */
+        NewsletterSubscribeRequest: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+        };
+        /**
+         * NewsletterSubscribeResponse
+         * @description Generic, state-independent success response (anti-enumeration).
+         */
+        NewsletterSubscribeResponse: {
+            /** Status */
+            status: string;
         };
         /**
          * OrderCreate
@@ -5197,6 +5947,247 @@ export interface components {
             user: components["schemas"]["UserResponse"];
         };
         /**
+         * PageCreate
+         * @description Request body for ``POST /api/v1/admin/pages``.
+         *
+         *     A new page starts as a ``draft`` with an empty (or supplied) ``draft_layout``.
+         */
+        PageCreate: {
+            /** Slug */
+            slug: string;
+            /**
+             * Type
+             * @default standard
+             * @enum {string}
+             */
+            type: "home" | "standard" | "landing";
+            /**
+             * Locale
+             * @default en
+             * @enum {string}
+             */
+            locale: "en" | "pl";
+            draft_layout?: components["schemas"]["PageLayout-Input"];
+            /** Seo Title */
+            seo_title?: string | null;
+            /** Seo Description */
+            seo_description?: string | null;
+            /** Seo Image Url */
+            seo_image_url?: string | null;
+        };
+        /**
+         * PageDraftUpdate
+         * @description Request body for ``PATCH /api/v1/admin/pages/{id}/draft``.
+         *
+         *     All fields optional — a partial edit may touch only the layout or only SEO.
+         */
+        PageDraftUpdate: {
+            draft_layout?: components["schemas"]["PageLayout-Input"] | null;
+            /** Seo Title */
+            seo_title?: string | null;
+            /** Seo Description */
+            seo_description?: string | null;
+            /** Seo Image Url */
+            seo_image_url?: string | null;
+        };
+        /**
+         * PageLayout
+         * @description A page's full layout: an ordered list of typed sections.
+         *
+         *     Validated explicitly in the endpoint via ``PageLayout.model_validate(...)``
+         *     (the FastAPI nested-union caveat, research §3.4) so an unknown ``type`` yields
+         *     one clean error rather than N per-branch ones.
+         */
+        "PageLayout-Input": {
+            /** Sections */
+            sections?: (components["schemas"]["HeroSection"] | components["schemas"]["SlideshowSection-Input"] | components["schemas"]["PromoStripSection"] | components["schemas"]["ProductGridSection"] | components["schemas"]["ProductCarouselSection"] | components["schemas"]["FeaturedProductSection"] | components["schemas"]["CollectionListSection-Input"] | components["schemas"]["RichTextSection"] | components["schemas"]["ImageWithTextSection"] | components["schemas"]["ImageGallerySection-Input"] | components["schemas"]["FaqSection-Input"] | components["schemas"]["CouponCalloutSection"] | components["schemas"]["SpacerSection"] | components["schemas"]["CustomHtmlSection"])[];
+        };
+        /**
+         * PageLayout
+         * @description A page's full layout: an ordered list of typed sections.
+         *
+         *     Validated explicitly in the endpoint via ``PageLayout.model_validate(...)``
+         *     (the FastAPI nested-union caveat, research §3.4) so an unknown ``type`` yields
+         *     one clean error rather than N per-branch ones.
+         */
+        "PageLayout-Output": {
+            /** Sections */
+            sections?: (components["schemas"]["HeroSection"] | components["schemas"]["SlideshowSection-Output"] | components["schemas"]["PromoStripSection"] | components["schemas"]["ProductGridSection"] | components["schemas"]["ProductCarouselSection"] | components["schemas"]["FeaturedProductSection"] | components["schemas"]["CollectionListSection-Output"] | components["schemas"]["RichTextSection"] | components["schemas"]["ImageWithTextSection"] | components["schemas"]["ImageGallerySection-Output"] | components["schemas"]["FaqSection-Output"] | components["schemas"]["CouponCalloutSection"] | components["schemas"]["SpacerSection"] | components["schemas"]["CustomHtmlSection"])[];
+        };
+        /**
+         * PageListItem
+         * @description Slim row for the admin pages list (no layout blobs).
+         */
+        PageListItem: {
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "home" | "standard" | "landing";
+            /**
+             * Locale
+             * @enum {string}
+             */
+            locale: "en" | "pl";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "published" | "scheduled";
+            /** Published Version Id */
+            published_version_id?: number | null;
+            /** Seo Title */
+            seo_title?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * PageListResponse
+         * @description Paginated admin pages list.
+         */
+        PageListResponse: {
+            /** Items */
+            items: components["schemas"]["PageListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * PagePublic
+         * @description Public storefront page shape — serves the published layout + page SEO.
+         *
+         *     No draft, no audit internals. ``GET /pages/{slug}`` returns this from
+         *     ``published_layout``; the preview route returns it from ``draft_layout``.
+         */
+        PagePublic: {
+            /** Slug */
+            slug: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "home" | "standard" | "landing";
+            /**
+             * Locale
+             * @enum {string}
+             */
+            locale: "en" | "pl";
+            layout: components["schemas"]["PageLayout-Output"];
+            /** Seo Title */
+            seo_title?: string | null;
+            /** Seo Description */
+            seo_description?: string | null;
+            /** Seo Image Url */
+            seo_image_url?: string | null;
+        };
+        /**
+         * PagePublishRequest
+         * @description Request body for ``POST /api/v1/admin/pages/{id}/publish`` (optional label).
+         */
+        PagePublishRequest: {
+            /** Label */
+            label?: string | null;
+        };
+        /**
+         * PageResponse
+         * @description Full admin page shape (draft + published + metadata).
+         */
+        PageResponse: {
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "home" | "standard" | "landing";
+            /**
+             * Locale
+             * @enum {string}
+             */
+            locale: "en" | "pl";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "published" | "scheduled";
+            draft_layout: components["schemas"]["PageLayout-Output"];
+            published_layout?: components["schemas"]["PageLayout-Output"] | null;
+            /** Published Version Id */
+            published_version_id?: number | null;
+            /** Scheduled At */
+            scheduled_at?: string | null;
+            /** Unpublish At */
+            unpublish_at?: string | null;
+            /** Seo Title */
+            seo_title?: string | null;
+            /** Seo Description */
+            seo_description?: string | null;
+            /** Seo Image Url */
+            seo_image_url?: string | null;
+            /** Created By */
+            created_by?: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * PageVersionListResponse
+         * @description Versions of a page, newest first.
+         */
+        PageVersionListResponse: {
+            /** Items */
+            items: components["schemas"]["PageVersionResponse"][];
+            /** Total */
+            total: number;
+        };
+        /**
+         * PageVersionResponse
+         * @description A page-version row (immutable snapshot).
+         */
+        PageVersionResponse: {
+            /** Id */
+            id: number;
+            /** Page Id */
+            page_id: number;
+            /** Version No */
+            version_no: number;
+            /** Label */
+            label?: string | null;
+            /** Created By */
+            created_by?: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
          * PasswordChange
          * @description Schema for authenticated password change.
          */
@@ -5280,6 +6271,60 @@ export interface components {
             } | null;
         };
         /**
+         * PreviewTokenResponse
+         * @description A signed, short-TTL preview token + its preview URL fragment.
+         */
+        PreviewTokenResponse: {
+            /** Token */
+            token: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+        };
+        /** ProductCarouselSection */
+        ProductCarouselSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "product-carousel";
+            settings?: components["schemas"]["ProductCarouselSettings"];
+        };
+        /** ProductCarouselSettings */
+        ProductCarouselSettings: {
+            /** Heading */
+            heading?: string | null;
+            /**
+             * Source
+             * @default featured
+             * @enum {string}
+             */
+            source: "featured" | "bestsellers" | "new" | "collection" | "manual";
+            /** Collection Slug */
+            collection_slug?: string | null;
+            /** Product Ids */
+            product_ids?: number[];
+            /**
+             * Slides Per View
+             * @default 4
+             */
+            slides_per_view: number;
+            /**
+             * Limit
+             * @default 12
+             */
+            limit: number;
+            /**
+             * Autoplay
+             * @default false
+             */
+            autoplay: boolean;
+        };
+        /**
          * ProductCreate
          * @description Schema for creating a product
          */
@@ -5334,6 +6379,57 @@ export interface components {
             is_featured: boolean;
             /** Category Id */
             category_id?: number | null;
+        };
+        /** ProductGridSection */
+        ProductGridSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "product-grid";
+            settings?: components["schemas"]["ProductGridSettings"];
+        };
+        /** ProductGridSettings */
+        ProductGridSettings: {
+            /** Heading */
+            heading?: string | null;
+            /**
+             * Source
+             * @default featured
+             * @enum {string}
+             */
+            source: "featured" | "bestsellers" | "new" | "collection" | "manual";
+            /** Collection Slug */
+            collection_slug?: string | null;
+            /** Product Ids */
+            product_ids?: number[];
+            /**
+             * Columns
+             * @default 4
+             */
+            columns: number;
+            /**
+             * Limit
+             * @default 8
+             */
+            limit: number;
+            /**
+             * Show Price
+             * @default true
+             */
+            show_price: boolean;
+            /**
+             * Show Rating
+             * @default true
+             */
+            show_rating: boolean;
+            /**
+             * Show Badge
+             * @default true
+             */
+            show_badge: boolean;
         };
         /**
          * ProductImageResponse
@@ -5619,6 +6715,38 @@ export interface components {
              * @description True when stock > 0.
              */
             readonly in_stock: boolean;
+        };
+        /** PromoStripSection */
+        PromoStripSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "promo-strip";
+            settings?: components["schemas"]["PromoStripSettings"];
+        };
+        /** PromoStripSettings */
+        PromoStripSettings: {
+            /**
+             * Text
+             * @default
+             */
+            text: string;
+            /** Bg Color */
+            bg_color?: string | null;
+            /** Link Url */
+            link_url?: string | null;
+            /**
+             * Dismissible
+             * @default false
+             */
+            dismissible: boolean;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
         };
         /**
          * PublicReviewListResponse
@@ -6158,6 +7286,39 @@ export interface components {
             /** My Vote */
             my_vote: boolean;
         };
+        /** RichTextSection */
+        RichTextSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "rich-text";
+            settings?: components["schemas"]["RichTextSettings"];
+        };
+        /** RichTextSettings */
+        RichTextSettings: {
+            /** Heading */
+            heading?: string | null;
+            /**
+             * Body
+             * @default
+             */
+            body: string;
+            /**
+             * Width
+             * @default normal
+             * @enum {string}
+             */
+            width: "narrow" | "normal" | "wide";
+            /**
+             * Alignment
+             * @default left
+             * @enum {string}
+             */
+            alignment: "left" | "center" | "right";
+        };
         /**
          * SalesBucket
          * @description One time bucket in the sales report.
@@ -6684,6 +7845,106 @@ export interface components {
             /** Dim Divisor */
             dim_divisor?: number | null;
         };
+        /** SlideBlock */
+        SlideBlock: {
+            /**
+             * Type
+             * @default slide
+             * @constant
+             */
+            type: "slide";
+            /** Id */
+            id?: string | null;
+            settings?: components["schemas"]["SlideBlockSettings"];
+        };
+        /** SlideBlockSettings */
+        SlideBlockSettings: {
+            /** Image Url */
+            image_url?: string | null;
+            /** Heading */
+            heading?: string | null;
+            /** Subheading */
+            subheading?: string | null;
+            /** Cta Label */
+            cta_label?: string | null;
+            /** Cta Url */
+            cta_url?: string | null;
+        };
+        /** SlideshowSection */
+        "SlideshowSection-Input": {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "slideshow";
+            settings?: components["schemas"]["SlideshowSettings"];
+            /** Blocks */
+            blocks?: components["schemas"]["SlideBlock"][];
+        };
+        /** SlideshowSection */
+        "SlideshowSection-Output": {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "slideshow";
+            settings?: components["schemas"]["SlideshowSettings"];
+            /** Blocks */
+            blocks?: components["schemas"]["SlideBlock"][];
+        };
+        /** SlideshowSettings */
+        SlideshowSettings: {
+            /**
+             * Autoplay
+             * @default true
+             */
+            autoplay: boolean;
+            /**
+             * Interval Ms
+             * @default 6000
+             */
+            interval_ms: number;
+            /**
+             * Show Dots
+             * @default true
+             */
+            show_dots: boolean;
+            /**
+             * Show Arrows
+             * @default true
+             */
+            show_arrows: boolean;
+        };
+        /** SpacerSection */
+        SpacerSection: {
+            /** Id */
+            id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "spacer";
+            settings?: components["schemas"]["SpacerSettings"];
+        };
+        /** SpacerSettings */
+        SpacerSettings: {
+            /**
+             * Height
+             * @default 48
+             */
+            height: number;
+            /**
+             * Show Divider
+             * @default false
+             */
+            show_divider: boolean;
+            /** Color */
+            color?: string | null;
+        };
         /**
          * StaffListResponse
          * @description Paginated staff list.
@@ -6782,6 +8043,47 @@ export interface components {
             is_default: boolean;
         };
         /**
+         * StoreConfigPublic
+         * @description Slim public projection for the storefront footer (``GET /store-config``).
+         *
+         *     Excludes internal-only fields — notably ``invoice_vat_rate`` and the
+         *     audit/timestamp/id noise. ``nip`` is the *public* tax id (legally required in
+         *     the PL/EU footer) so it stays; the generic internal ``tax_id`` is dropped from
+         *     this shape in favour of it.
+         */
+        StoreConfigPublic: {
+            /** Store Name */
+            store_name: string;
+            /** Legal Name */
+            legal_name: string;
+            /** Address Line */
+            address_line: string;
+            /** Address Line2 */
+            address_line2: string;
+            /** Postal City */
+            postal_city: string;
+            /** Country */
+            country: string;
+            /** Nip */
+            nip: string;
+            /** Regon */
+            regon: string;
+            /** Krs */
+            krs: string;
+            /** Email */
+            email: string;
+            /** Phone */
+            phone: string;
+            /** Social Instagram */
+            social_instagram: string;
+            /** Social Facebook */
+            social_facebook: string;
+            /** Social Tiktok */
+            social_tiktok: string;
+            /** Social Youtube */
+            social_youtube: string;
+        };
+        /**
          * StoreConfigResponse
          * @description The store-config row as the API returns it (includes ``id`` + timestamps).
          */
@@ -6800,16 +8102,36 @@ export interface components {
             updated_at: string;
             /** Store Name */
             store_name: string;
+            /** Legal Name */
+            legal_name: string;
             /** Address Line */
             address_line: string;
+            /** Address Line2 */
+            address_line2: string;
             /** Postal City */
             postal_city: string;
             /** Country */
             country: string;
             /** Tax Id */
             tax_id: string;
+            /** Nip */
+            nip: string;
+            /** Regon */
+            regon: string;
+            /** Krs */
+            krs: string;
             /** Email */
             email: string;
+            /** Phone */
+            phone: string;
+            /** Social Instagram */
+            social_instagram: string;
+            /** Social Facebook */
+            social_facebook: string;
+            /** Social Tiktok */
+            social_tiktok: string;
+            /** Social Youtube */
+            social_youtube: string;
             /** Invoice Vat Rate */
             invoice_vat_rate: number;
         };
@@ -6823,16 +8145,36 @@ export interface components {
         StoreConfigUpdate: {
             /** Store Name */
             store_name?: string | null;
+            /** Legal Name */
+            legal_name?: string | null;
             /** Address Line */
             address_line?: string | null;
+            /** Address Line2 */
+            address_line2?: string | null;
             /** Postal City */
             postal_city?: string | null;
             /** Country */
             country?: string | null;
             /** Tax Id */
             tax_id?: string | null;
+            /** Nip */
+            nip?: string | null;
+            /** Regon */
+            regon?: string | null;
+            /** Krs */
+            krs?: string | null;
             /** Email */
             email?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Social Instagram */
+            social_instagram?: string | null;
+            /** Social Facebook */
+            social_facebook?: string | null;
+            /** Social Tiktok */
+            social_tiktok?: string | null;
+            /** Social Youtube */
+            social_youtube?: string | null;
             /** Invoice Vat Rate */
             invoice_vat_rate?: number | null;
         };
@@ -8812,6 +10154,39 @@ export interface operations {
             };
         };
     };
+    submit_contact_form_api_v1_contact_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_active_banners_api_v1_banners__get: {
         parameters: {
             query?: {
@@ -8831,6 +10206,134 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BannerPublic"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_page_api_v1_pages__slug__get: {
+        parameters: {
+            query?: {
+                /** @description Locale override; falls back to Accept-Language then 'en'. */
+                locale?: ("en" | "pl") | null;
+            };
+            header?: {
+                "accept-language"?: string | null;
+            };
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagePublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_page_api_v1_pages__slug__preview_get: {
+        parameters: {
+            query: {
+                /** @description Signed preview token */
+                token: string;
+                locale?: ("en" | "pl") | null;
+            };
+            header?: {
+                "accept-language"?: string | null;
+            };
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagePublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_block_schemas_api_v1_blocks_schema_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    subscribe_api_v1_newsletter_subscribe_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewsletterSubscribeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NewsletterSubscribeResponse"];
                 };
             };
             /** @description Validation Error */
@@ -10878,6 +12381,301 @@ export interface operations {
             };
         };
     };
+    list_pages_api_v1_admin_pages__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by locale */
+                locale?: ("en" | "pl") | null;
+                /** @description Filter by status */
+                status?: ("draft" | "published" | "scheduled") | null;
+                /** @description Filter by page type */
+                type?: ("home" | "standard" | "landing") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_page_api_v1_admin_pages__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PageCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_page_api_v1_admin_pages__page_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_page_api_v1_admin_pages__page_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_draft_api_v1_admin_pages__page_id__draft_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PageDraftUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    publish_page_api_v1_admin_pages__page_id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PagePublishRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_preview_token_api_v1_admin_pages__page_id__preview_token_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreviewTokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_versions_api_v1_admin_pages__page_id__versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageVersionListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rollback_version_api_v1_admin_pages__page_id__versions__version_id__rollback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: number;
+                version_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_campaigns_api_v1_admin_campaigns__get: {
         parameters: {
             query?: {
@@ -12823,6 +14621,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompanyMemberResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_public_store_config_api_v1_store_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreConfigPublic"];
+                };
+            };
+        };
+    };
+    get_cookie_consent_api_v1_cookie_consent_get: {
+        parameters: {
+            query?: {
+                anon_id?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CookieConsentResponse"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_cookie_consent_api_v1_cookie_consent_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CookieConsentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CookieConsentResponse"];
                 };
             };
             /** @description Validation Error */
