@@ -27,6 +27,13 @@ const SCHEMAS = {
   blocks: [
     { type: 'hero', name: 'Hero', settings: [{ type: 'text', id: 'heading', label: 'Heading' }], presets: [{ name: 'Hero', settings: {} }] },
     { type: 'spacer', name: 'Spacer', settings: [], presets: [{ name: 'Spacer', settings: { height: 48 } }] },
+    {
+      type: 'slideshow',
+      name: 'Slideshow',
+      settings: [],
+      blocks: { slide: { name: 'Slide', settings: [{ type: 'text', id: 'heading', label: 'Heading' }] } },
+      presets: [{ name: 'Slideshow', settings: {} }],
+    },
   ],
 }
 
@@ -128,6 +135,19 @@ const FormModalStub = defineComponent({
   },
 })
 
+const SubBlockListStub = defineComponent({
+  name: 'AdminCmsSubBlockList',
+  props: {
+    modelValue: { type: Array, default: () => [] },
+    childSchemas: { type: Object, default: () => ({}) },
+    selectedChildId: { type: String, default: null },
+  },
+  emits: ['add', 'select', 'remove', 'move', 'reorder', 'update:modelValue'],
+  setup(props) {
+    return () => h('div', { 'data-testid': 'sub-block-list' }, `children:${(props.modelValue as unknown[]).length}`)
+  },
+})
+
 const AddModalStub = defineComponent({
   name: 'AdminCmsAddSectionModal',
   props: { open: { type: Boolean, default: false }, schemas: { type: Array, default: () => [] } },
@@ -154,6 +174,7 @@ async function mountEditor() {
         UModal: ModalStub,
         AdminFormModal: FormModalStub,
         AdminCmsSettingsForm: true,
+        AdminCmsSubBlockList: SubBlockListStub,
         PageRenderer: true,
         AdminCmsSectionList: SectionListStub,
         AdminCmsAddSectionModal: AddModalStub,
@@ -305,6 +326,27 @@ describe('admin/pages editor', () => {
     pageData.value = { ...PAGE, status: 'published' }
     const publishedWrapper = await mountEditor()
     expect(publishedWrapper.find('[data-testid="view-live"]').exists()).toBe(true)
+  })
+
+  it('shows the sub-block list when a container (slideshow) section is selected', async () => {
+    pageData.value = {
+      ...PAGE,
+      draft_layout: {
+        sections: [
+          { type: 'slideshow', settings: {}, blocks: [{ type: 'slide', id: 'slide-0', settings: {} }] },
+        ],
+      },
+    }
+    const wrapper = await mountEditor()
+    const sub = wrapper.find('[data-testid="sub-block-list"]')
+    expect(sub.exists()).toBe(true)
+    expect(sub.text()).toContain('children:1')
+  })
+
+  it('hides the sub-block list for a non-container (hero) section', async () => {
+    // Default PAGE has a single hero section.
+    const wrapper = await mountEditor()
+    expect(wrapper.find('[data-testid="sub-block-list"]').exists()).toBe(false)
   })
 
   it('renders a page-load error via ErrorAlert', async () => {

@@ -1484,6 +1484,20 @@
         "selectPrompt": "Select a section to edit its settings.",
         "noFields": "This section has no editable settings."
       },
+      "subBlocks": {
+        "add": "Add",
+        "empty": "No items yet. Click Add to start.",
+        "dragHandle": "Drag to reorder",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "remove": "Remove item",
+        "header": {
+          "slide": "Slides",
+          "faq-item": "Questions",
+          "image": "Images",
+          "tile": "Tiles"
+        }
+      },
       "preview": {
         "heading": "Preview",
         "label": "Live draft preview",

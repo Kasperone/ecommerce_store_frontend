@@ -178,6 +178,108 @@ describe('usePageEditorState — visual canvas mutators', () => {
   })
 })
 
+describe('usePageEditorState — child-block (nested) mutators', () => {
+  const containerLayout = [
+    {
+      type: 'slideshow',
+      settings: {},
+      blocks: [
+        { type: 'slide', id: 'slide-0', settings: { heading: 'One' } },
+        { type: 'slide', id: 'slide-1', settings: { heading: 'Two' } },
+      ],
+    },
+    { type: 'hero', settings: {} },
+  ] as any
+
+  function loadContainer() {
+    const s = usePageEditorState()
+    s.load(containerLayout)
+    // The slideshow is selected first (index 0).
+    return s
+  }
+
+  it('addChildBlock appends a child, mints a cid id, and flips dirty', () => {
+    const s = loadContainer()
+    const before = s.isDirty.value
+    const newId = s.addChildBlock('slide', { heading: 'Three' })
+    expect(before).toBe(false)
+    expect(newId).toMatch(/^cid-/)
+    const blocks = s.selectedSection.value!.blocks as any[]
+    expect(blocks).toHaveLength(3)
+    expect(blocks[2]).toMatchObject({ type: 'slide', id: newId, settings: { heading: 'Three' } })
+    expect(s.isDirty.value).toBe(true)
+  })
+
+  it('addChildBlock treats a missing blocks array as empty', () => {
+    const s = usePageEditorState()
+    s.load([{ type: 'slideshow', settings: {} }] as any)
+    expect(s.selectedSection.value!.blocks).toBeUndefined()
+    s.addChildBlock('slide', {})
+    expect((s.selectedSection.value!.blocks as any[])).toHaveLength(1)
+  })
+
+  it('removeChildBlock drops the matching child and flips dirty', () => {
+    const s = loadContainer()
+    s.removeChildBlock('slide-0')
+    const blocks = s.selectedSection.value!.blocks as any[]
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0].id).toBe('slide-1')
+    expect(s.isDirty.value).toBe(true)
+  })
+
+  it('moveChildBlock reorders within the parent and clamps at bounds', () => {
+    const s = loadContainer()
+    s.moveChildBlock('slide-1', 'up')
+    expect((s.selectedSection.value!.blocks as any[]).map(c => c.id)).toEqual(['slide-1', 'slide-0'])
+    // Past-bounds move is a no-op.
+    s.moveChildBlock('slide-1', 'up')
+    expect((s.selectedSection.value!.blocks as any[]).map(c => c.id)).toEqual(['slide-1', 'slide-0'])
+  })
+
+  it('reorderChildBlocks applies an explicit id order, never dropping unknowns', () => {
+    const s = loadContainer()
+    s.reorderChildBlocks(['slide-1', 'ghost'])
+    // slide-1 first (named), slide-0 appended (unnamed) — none dropped.
+    expect((s.selectedSection.value!.blocks as any[]).map(c => c.id)).toEqual(['slide-1', 'slide-0'])
+    expect(s.isDirty.value).toBe(true)
+  })
+
+  it('updateChildSettings patches one child and flips dirty', () => {
+    const s = loadContainer()
+    s.updateChildSettings('slide-0', { heading: 'Edited' })
+    const blocks = s.selectedSection.value!.blocks as any[]
+    expect(blocks[0].settings).toEqual({ heading: 'Edited' })
+    expect(blocks[1].settings).toEqual({ heading: 'Two' })
+    expect(s.isDirty.value).toBe(true)
+  })
+
+  it('keeps the parent section order intact when editing children', () => {
+    const s = loadContainer()
+    s.addChildBlock('slide', {})
+    s.removeChildBlock('slide-1')
+    expect(s.sections.value.map(x => x.type)).toEqual(['slideshow', 'hero'])
+  })
+
+  it('round-trips child blocks through toLayoutSections', () => {
+    const s = loadContainer()
+    s.addChildBlock('slide', { heading: 'Three' })
+    const layout = toLayoutSections(s.sections.value) as any[]
+    expect(layout[0].type).toBe('slideshow')
+    expect(layout[0].blocks).toHaveLength(3)
+    expect(layout[0].blocks[2]).toMatchObject({ type: 'slide', settings: { heading: 'Three' } })
+    // Non-container section carries no blocks key.
+    expect(layout[1]).not.toHaveProperty('blocks')
+  })
+
+  it('child mutators no-op when no section is selected', () => {
+    const s = usePageEditorState()
+    s.load([{ type: 'hero', settings: {} }] as any)
+    s.selectedCid.value = null
+    expect(() => s.addChildBlock('slide', {})).not.toThrow()
+    expect(s.addChildBlock('slide', {})).toBeUndefined()
+  })
+})
+
 describe('makeSectionDraft', () => {
   it('clones the settings object (no shared reference)', () => {
     const settings = { heading: 'A' }
