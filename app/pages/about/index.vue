@@ -1,19 +1,26 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
-useHead({ title: t('footer.columns.company.about') })
+
+const sections = ['story', 'values', 'madeIn'] as const
+
+useSeoMeta({
+  title: () => t('legal.about.meta.title'),
+  description: () => t('legal.about.meta.description'),
+})
 </script>
 
 <template>
-  <UContainer class="py-16">
-    <h1 class="text-3xl font-semibold mb-4">
-      {{ t('footer.columns.company.about') }}
-    </h1>
-    <p class="text-muted">
-      {{ t('footer.stubPage.comingSoon') }}
-    </p>
-    <ULink
-      to="/"
-      class="mt-6 inline-block text-primary"
-    >← {{ t('footer.stubPage.backHome') }}</ULink>
-  </UContainer>
+  <LegalPageShell
+    :title="t('legal.about.title')"
+    :intro="t('legal.about.intro')"
+  >
+    <LegalSection
+      v-for="key in sections"
+      :key="key"
+      :heading="t(`legal.about.sections.${key}.heading`)"
+      :body-key="`legal.about.sections.${key}.body`"
+    />
+  </LegalPageShell>
 </template>
