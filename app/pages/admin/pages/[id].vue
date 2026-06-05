@@ -19,6 +19,8 @@ import { useEventListener } from '@vueuse/core'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import type { Section } from '~/blocks/types'
+import { DEVICE_WIDTHS } from '~/utils/devicePreview'
+import type { DeviceMode } from '~/utils/devicePreview'
 
 definePageMeta({
   middleware: ['admin'],
@@ -110,6 +112,20 @@ const modeItems = computed(() => [
   { label: t('admin.cms.visual.modeForm'), value: 'form' as const, icon: 'i-lucide-sliders-horizontal' },
   { label: t('admin.cms.visual.modeVisual'), value: 'visual' as const, icon: 'i-lucide-layout-panel-top' },
 ])
+
+// ---- Device preview ------------------------------------------------------- //
+// A responsive-preview frame: Desktop (full width) / Tablet (768px) / Mobile
+// (375px). The selected width is applied to a centered inner frame in BOTH the
+// Form-mode preview pane and the Visual canvas pane, so full-bleed blocks render
+// at a realistic device width instead of overflowing the pane. Local UI state;
+// defaults to Desktop (current behavior).
+const device = ref<DeviceMode>('desktop')
+// `max-width` only — `null` (desktop) leaves the frame full-width. The frame is
+// `mx-auto` so tablet/mobile center within the scroll container.
+const deviceFrameStyle = computed(() => {
+  const w = DEVICE_WIDTHS[device.value]
+  return w === null ? {} : { maxWidth: `${w}px` }
+})
 
 // ---- Add section ---------------------------------------------------------- //
 const addOpen = ref(false)
@@ -462,19 +478,26 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
             {{ t('admin.cms.preview.heading') }}
           </h2>
           <div class="rounded-lg border border-default overflow-hidden bg-default">
-            <div class="bg-elevated px-3 py-1.5 text-xs text-muted border-b border-default">
-              {{ t('admin.cms.preview.label') }}
+            <div class="bg-elevated px-3 py-1.5 text-xs text-muted border-b border-default flex items-center justify-between gap-2">
+              <span>{{ t('admin.cms.preview.label') }}</span>
+              <AdminCmsDevicePreview v-model="device" />
             </div>
             <div class="max-h-[70vh] overflow-auto">
-              <ClientOnly>
-                <PageRenderer :sections="previewSections" />
-                <p
-                  v-if="previewSections.length === 0"
-                  class="text-muted text-sm py-12 text-center"
-                >
-                  {{ t('admin.cms.preview.empty') }}
-                </p>
-              </ClientOnly>
+              <div
+                class="mx-auto"
+                :style="deviceFrameStyle"
+                data-testid="preview-device-frame"
+              >
+                <ClientOnly>
+                  <PageRenderer :sections="previewSections" />
+                  <p
+                    v-if="previewSections.length === 0"
+                    class="text-muted text-sm py-12 text-center"
+                  >
+                    {{ t('admin.cms.preview.empty') }}
+                  </p>
+                </ClientOnly>
+              </div>
             </div>
           </div>
         </section>
@@ -491,27 +514,40 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
             {{ t('admin.cms.visual.canvasHeading') }}
           </h2>
           <div class="rounded-lg border border-default overflow-hidden bg-default">
-            <div class="bg-elevated px-3 py-1.5 text-xs text-muted border-b border-default">
-              {{ t('admin.cms.visual.canvasLabel') }}
+            <div class="bg-elevated px-3 py-1.5 text-xs text-muted border-b border-default flex items-center justify-between gap-2">
+              <span>{{ t('admin.cms.visual.canvasLabel') }}</span>
+              <AdminCmsDevicePreview v-model="device" />
             </div>
-            <div class="max-h-[75vh] overflow-auto p-2">
-              <ClientOnly>
-                <AdminCmsVisualCanvas
-                  :sections="sections"
-                  :selected-cid="selectedCid"
-                  :type-names="typeNames"
-                  @select="(cid) => (selectedCid = cid)"
-                  @remove="(cid) => editor.removeSection(cid)"
-                  @move="({ cid, direction }) => editor.moveSection(cid, direction)"
-                  @reorder="(orderedCids) => editor.reorder(orderedCids)"
-                  @add-at="openAddAt"
-                />
-                <template #fallback>
-                  <p class="text-muted text-sm py-12 text-center">
-                    {{ t('admin.cms.visual.empty') }}
-                  </p>
-                </template>
-              </ClientOnly>
+            <!--
+              `overflow-auto` clips the selected block's `ring-offset-2` ring at the
+              edges, so the scroll container carries horizontal+top padding to give
+              the ring room. The inner frame is `mx-auto` so tablet/mobile widths
+              center within the pane.
+            -->
+            <div class="max-h-[75vh] overflow-auto px-3 py-3">
+              <div
+                class="mx-auto"
+                :style="deviceFrameStyle"
+                data-testid="canvas-device-frame"
+              >
+                <ClientOnly>
+                  <AdminCmsVisualCanvas
+                    :sections="sections"
+                    :selected-cid="selectedCid"
+                    :type-names="typeNames"
+                    @select="(cid) => (selectedCid = cid)"
+                    @remove="(cid) => editor.removeSection(cid)"
+                    @move="({ cid, direction }) => editor.moveSection(cid, direction)"
+                    @reorder="(orderedCids) => editor.reorder(orderedCids)"
+                    @add-at="openAddAt"
+                  />
+                  <template #fallback>
+                    <p class="text-muted text-sm py-12 text-center">
+                      {{ t('admin.cms.visual.empty') }}
+                    </p>
+                  </template>
+                </ClientOnly>
+              </div>
             </div>
           </div>
         </section>
