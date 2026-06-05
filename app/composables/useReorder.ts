@@ -80,7 +80,12 @@ export function useReorder() {
     else if (added > 0 && skipped > 0) {
       toast.add({
         title: t('orders.reorder.toast.partialTitle'),
-        description: t('orders.reorder.toast.partial', { added, skipped }),
+        // Two independent counts can't share one pluralized message, so each
+        // half is pluralized on its own count and composed via the wrapper.
+        description: t('orders.reorder.toast.partial', {
+          addedPart: t('orders.reorder.toast.partialAdded', { count: added }, added),
+          skippedPart: t('orders.reorder.toast.partialSkipped', { count: skipped }, skipped),
+        }),
         color: 'warning',
         icon: 'i-lucide-shopping-cart',
       })
