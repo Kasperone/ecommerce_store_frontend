@@ -50,9 +50,7 @@ const items = computed<NavigationMenuItem[]>(() => {
     }"
   >
     <template #title>
-      <p class="text-lg font-semibold">
-        LOGO
-      </p>
+      <LayoutLogo />
     </template>
 
     <UNavigationMenu :items="items" />

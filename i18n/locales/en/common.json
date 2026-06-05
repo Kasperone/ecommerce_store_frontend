@@ -2067,49 +2067,77 @@
     }
   },
   "footer": {
+    "logo": {
+      "name": "E-commerce Store",
+      "homeAria": "E-commerce Store - go to homepage"
+    },
     "brand": {
-      "tagline": "Quality goods, delivered in USD, PLN and EUR.",
-      "newsletter": {
-        "heading": "Stay in the loop",
-        "description": "New arrivals and exclusive offers - no spam.",
-        "emailLabel": "Email address",
-        "emailPlaceholder": "you{'@'}example.com",
-        "submit": "Subscribe",
-        "success": "Thanks - you're on the list.",
-        "invalidEmail": "Please enter a valid email."
-      }
+      "tagline": "Quality goods, delivered in USD, PLN and EUR."
+    },
+    "newsletter": {
+      "heading": "Stay in the loop",
+      "description": "New arrivals and exclusive offers - no spam.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you{'@'}example.com",
+      "submit": "Subscribe",
+      "consentLabel": "I agree to receive marketing emails and accept the privacy policy.",
+      "consentRequired": "Please tick the box to receive our newsletter.",
+      "success": "Thanks - you're on the list.",
+      "errorTitle": "Something went wrong. Please try again.",
+      "invalidEmail": "Please enter a valid email."
+    },
+    "trust": {
+      "secureCheckout": "Secure checkout",
+      "returns": "14-day returns"
     },
     "columns": {
       "shop": {
         "heading": "Shop",
+        "products": "All Products",
         "newArrivals": "New Arrivals",
         "bestsellers": "Bestsellers",
         "deals": "Deals"
       },
       "help": {
-        "heading": "Help & Info",
+        "heading": "Help",
         "contact": "Contact Us",
-        "shippingReturns": "Shipping & Returns",
-        "faq": "FAQ"
+        "faq": "FAQ",
+        "returns": "Return Policy",
+        "shipping": "Shipping & Delivery",
+        "trackOrder": "Track Order",
+        "shippingReturns": "Shipping & Returns"
       },
-      "company": {
-        "heading": "Company",
+      "about": {
+        "heading": "About",
         "about": "About Us",
         "careers": "Careers",
         "press": "Press"
       },
-      "legal": {
-        "heading": "Legal",
-        "terms": "Terms of Service",
-        "privacy": "Privacy Policy",
-        "cookies": "Cookie Policy"
+      "company": {
+        "about": "About Us"
       },
       "account": {
         "heading": "My Account",
         "signIn": "Sign In",
         "register": "Create Account",
-        "myAccount": "My Account"
+        "myAccount": "My Account",
+        "orders": "My Orders"
+      },
+      "legal": {
+        "heading": "Legal",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "cookiePolicy": "Cookie Policy",
+        "cookieSettings": "Cookie settings",
+        "withdrawal": "Right of Withdrawal & Returns",
+        "accessibility": "Accessibility",
+        "doNotSell": "Do Not Sell or Share My Personal Information"
       }
+    },
+    "company": {
+      "nip": "NIP",
+      "regon": "REGON",
+      "krs": "KRS"
     },
     "social": {
       "heading": "Follow us",
@@ -2121,6 +2149,7 @@
     "payment": {
       "heading": "We accept"
     },
+    "backToTop": "Back to top",
     "copyright": "© {year} E-commerce Store. All rights reserved.",
     "madeIn": "Made with care in Poland.",
     "stubPage": {
