@@ -1,1 +1,33 @@
-{}
+{
+  "cookies": {
+    "banner": {
+      "ariaLabel": "Cookie consent",
+      "heading": "We value your privacy",
+      "description": "We use cookies to keep the store working, understand how it's used, and personalise content. You can accept all, reject non-essential, or choose which categories to allow.",
+      "policyLink": "Cookie Policy",
+      "privacyLink": "Privacy Policy",
+      "policyPrompt": "Read our {policyLink} and {privacyLink}.",
+      "gpcNotice": "We detected a Global Privacy Control signal from your browser, so analytics and marketing cookies are off by default.",
+      "acceptAll": "Accept all",
+      "rejectAll": "Reject non-essential",
+      "manage": "Manage preferences",
+      "save": "Save preferences"
+    },
+    "categories": {
+      "heading": "Cookie preferences",
+      "necessary": {
+        "label": "Strictly necessary",
+        "description": "Required for the site to function — sign-in, cart, and security. Always on.",
+        "alwaysOn": "Always on"
+      },
+      "analytics": {
+        "label": "Analytics",
+        "description": "Help us understand how the store is used so we can improve it."
+      },
+      "marketing": {
+        "label": "Marketing",
+        "description": "Used to personalise offers and measure marketing campaigns."
+      }
+    }
+  }
+}

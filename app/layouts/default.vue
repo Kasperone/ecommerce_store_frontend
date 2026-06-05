@@ -10,6 +10,8 @@
 
       <LayoutFooter />
     </div>
+
+    <LayoutCookieBanner />
   </div>
 </template>
 
