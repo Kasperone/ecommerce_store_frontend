@@ -6,27 +6,39 @@ import { useI18n } from 'vue-i18n'
  *
  * A lightweight inline SVG mark + the store name as text (so it stays crisp at
  * any size, theme-aware via `currentColor`, and accessible — the whole control
- * carries a single `aria-label`). It links to the locale-aware home route.
+ * carries a single `aria-label`).
+ *
+ * `link` controls whether the mark is its own `<a>` to the home route. Set it to
+ * `false` when the Logo is placed inside an element that already links to home
+ * (e.g. `UHeader`'s `#title` slot) — nesting an `<a>` inside an `<a>` is invalid
+ * HTML, so the browser restructures the DOM and Vue reports a hydration mismatch.
+ * The Footer uses the default (`link: true`) since it renders the mark standalone.
  */
 withDefaults(defineProps<{
   /** Pixel size of the square mark. */
   size?: number
   /** When false, render the mark only (no wordmark text). */
   showText?: boolean
+  /** When false, render a non-interactive wrapper (no link to home). */
+  link?: boolean
 }>(), {
   size: 24,
   showText: true,
+  link: true,
 })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
+const ULink = resolveComponent('ULink')
 </script>
 
 <template>
-  <ULink
-    :to="localePath('/')"
-    :aria-label="t('footer.logo.homeAria')"
-    class="inline-flex items-center gap-2 text-highlighted hover:text-primary transition-colors"
+  <component
+    :is="link ? ULink : 'span'"
+    :to="link ? localePath('/') : undefined"
+    :aria-label="link ? t('footer.logo.homeAria') : undefined"
+    class="inline-flex items-center gap-2 text-highlighted transition-colors"
+    :class="link ? 'hover:text-primary' : ''"
   >
     <svg
       :width="size"
@@ -55,5 +67,5 @@ const localePath = useLocalePath()
       v-if="showText"
       class="text-lg font-semibold tracking-tight"
     >{{ t('footer.logo.name') }}</span>
-  </ULink>
+  </component>
 </template>

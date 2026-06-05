@@ -50,7 +50,9 @@ const items = computed<NavigationMenuItem[]>(() => {
     }"
   >
     <template #title>
-      <LayoutLogo />
+      <!-- UHeader's #title slot already links to home; render the mark as a
+           non-anchor to avoid nesting <a> inside <a> (hydration mismatch). -->
+      <LayoutLogo :link="false" />
     </template>
 
     <UNavigationMenu :items="items" />
