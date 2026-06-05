@@ -1515,6 +1515,25 @@
         "imageUrlPlaceholder": "https://… adres URL obrazu",
         "unknownType": "Nieobsługiwany typ pola „{type}” — edytuj jako JSON."
       },
+      "richText": {
+        "toolbarLabel": "Formatowanie",
+        "contentLabel": "Treść sformatowana",
+        "bold": "Pogrubienie",
+        "italic": "Kursywa",
+        "underline": "Podkreślenie",
+        "heading": "Nagłówek {level}",
+        "paragraph": "Akapit",
+        "bulletList": "Lista punktowana",
+        "orderedList": "Lista numerowana",
+        "link": "Odnośnik",
+        "linkPrompt": "Wpisz adres URL (pozostaw puste, aby usunąć odnośnik)",
+        "blockquote": "Cytat",
+        "code": "Kod",
+        "horizontalRule": "Separator",
+        "source": "HTML",
+        "sourceToggle": "Przełącz źródło HTML",
+        "loading": "Ładowanie edytora…"
+      },
       "imagePicker": {
         "upload": "Prześlij obraz",
         "hint": "Przeciągnij i upuść lub kliknij — JPEG, PNG, WebP, do 5 MB",

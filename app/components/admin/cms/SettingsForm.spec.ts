@@ -42,9 +42,16 @@ describe('SettingsForm control registry', () => {
     expect(w.find('textarea#setting-html').exists()).toBe(true)
   })
 
-  it('renders a textarea for type=richtext', async () => {
+  it('renders the lazy WYSIWYG editor for type=richtext', async () => {
     const w = await mountWith([field({ type: 'richtext', id: 'body' })])
-    expect(w.find('textarea#setting-body').exists()).toBe(true)
+    // The TipTap editor is lazy-loaded; assert the control mounts (toolbar +
+    // content/source area) rather than a plain textarea (which only `textarea`
+    // now uses). The editor exposes a formatting toolbar by aria-label.
+    await new Promise(r => setTimeout(r, 0))
+    await w.vm.$nextTick()
+    expect(w.find('[role="toolbar"]').exists()).toBe(true)
+    // It is NOT a plain monospace textarea control any more.
+    expect(w.find('textarea#setting-body').exists()).toBe(false)
   })
 
   it('renders a number input for type=range', async () => {
