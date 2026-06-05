@@ -1459,7 +1459,13 @@
       "editor": {
         "title": "Edit {slug}",
         "back": "Back to pages",
-        "unsaved": "Unsaved changes"
+        "unsaved": "Unsaved changes",
+        "leaveGuard": {
+          "title": "Unsaved changes",
+          "body": "You have unsaved changes. Leave without saving?",
+          "confirm": "Leave without saving",
+          "cancel": "Stay on page"
+        }
       },
       "sections": {
         "heading": "Sections",
