@@ -1,1 +1,33 @@
-{}
+{
+  "cookies": {
+    "banner": {
+      "ariaLabel": "Zgoda na pliki cookie",
+      "heading": "Szanujemy Twoją prywatność",
+      "description": "Używamy plików cookie, aby sklep działał poprawnie, aby rozumieć sposób korzystania z niego oraz personalizować treści. Możesz zaakceptować wszystkie, odrzucić zbędne lub wybrać, które kategorie dopuścić.",
+      "policyLink": "Polityka cookie",
+      "privacyLink": "Polityka prywatności",
+      "policyPrompt": "Zapoznaj się z naszą {policyLink} oraz {privacyLink}.",
+      "gpcNotice": "Wykryliśmy w Twojej przeglądarce sygnał Global Privacy Control, dlatego pliki cookie analityczne i marketingowe są domyślnie wyłączone.",
+      "acceptAll": "Zaakceptuj wszystkie",
+      "rejectAll": "Odrzuć zbędne",
+      "manage": "Zarządzaj preferencjami",
+      "save": "Zapisz preferencje"
+    },
+    "categories": {
+      "heading": "Preferencje cookie",
+      "necessary": {
+        "label": "Niezbędne",
+        "description": "Wymagane do działania witryny — logowanie, koszyk i bezpieczeństwo. Zawsze włączone.",
+        "alwaysOn": "Zawsze włączone"
+      },
+      "analytics": {
+        "label": "Analityczne",
+        "description": "Pomagają nam zrozumieć, jak korzystasz ze sklepu, abyśmy mogli go ulepszać."
+      },
+      "marketing": {
+        "label": "Marketingowe",
+        "description": "Służą do personalizacji ofert i pomiaru skuteczności kampanii marketingowych."
+      }
+    }
+  }
+}
