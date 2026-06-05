@@ -36,7 +36,7 @@
         "pending": "Oczekujące zamówienia",
         "customers": "Klienci",
         "ordersInWindow": "{count} w ciągu ostatnich {days} dni",
-        "newCustomers": "{count} nowych w ciągu ostatnich {days} dni"
+        "newCustomers": "{count} nowych w ciągu ostatnich {days} dni | {count} nowy w ciągu ostatnich {days} dni | {count} nowych w ciągu ostatnich {days} dni | {count} nowych w ciągu ostatnich {days} dni"
       },
       "trend": {
         "title": "Trend sprzedaży",
@@ -737,11 +737,11 @@
       "confirm": {
         "deleteTitle": "Usuń kategorię",
         "deleteBodyEmpty": "Ta kategoria zostanie trwale usunięta.",
-        "deleteBodyWithProducts": "Do tej kategorii przypisanych jest {count} produktów. Przed usunięciem przenieś je do innej.",
-        "helpDirectProducts": "Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Najpierw je przenieś.",
-        "helpProductsAndChildren": "Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Usuń je, zanim usuniesz poddrzewo.",
-        "helpSubtreeProducts": "{count} produktów znajduje się w poddrzewie. Przenieś je przed kaskadowym usuwaniem.",
-        "helpChildrenOnly": "Istnieje {count} kategorii podrzędnych. Wybierz tryb usuwania.",
+        "deleteBodyWithProducts": "Do tej kategorii przypisanych jest {count} produktów. Przed usunięciem przenieś je do innej. | Do tej kategorii przypisany jest {count} produkt. Przed usunięciem przenieś go do innej. | Do tej kategorii przypisane są {count} produkty. Przed usunięciem przenieś je do innej. | Do tej kategorii przypisanych jest {count} produktów. Przed usunięciem przenieś je do innej.",
+        "helpDirectProducts": "Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Najpierw je przenieś. | Do tej kategorii przypisany jest bezpośrednio {count} produkt. Najpierw go przenieś. | Do tej kategorii przypisane są bezpośrednio {count} produkty. Najpierw je przenieś. | Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Najpierw je przenieś.",
+        "helpProductsAndChildren": "Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Usuń je, zanim usuniesz poddrzewo. | Do tej kategorii przypisany jest bezpośrednio {count} produkt. Usuń go, zanim usuniesz poddrzewo. | Do tej kategorii przypisane są bezpośrednio {count} produkty. Usuń je, zanim usuniesz poddrzewo. | Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Usuń je, zanim usuniesz poddrzewo.",
+        "helpSubtreeProducts": "{count} produktów znajduje się w poddrzewie. Przenieś je przed kaskadowym usuwaniem. | {count} produkt znajduje się w poddrzewie. Przenieś go przed kaskadowym usuwaniem. | {count} produkty znajdują się w poddrzewie. Przenieś je przed kaskadowym usuwaniem. | {count} produktów znajduje się w poddrzewie. Przenieś je przed kaskadowym usuwaniem.",
+        "helpChildrenOnly": "Istnieje {count} kategorii podrzędnych. Wybierz tryb usuwania. | Istnieje {count} kategoria podrzędna. Wybierz tryb usuwania. | Istnieją {count} kategorie podrzędne. Wybierz tryb usuwania. | Istnieje {count} kategorii podrzędnych. Wybierz tryb usuwania.",
         "modes": {
           "none": "Usuń (tylko liść)",
           "noneHint": "Dostępne tylko, gdy kategoria nie ma podkategorii ani produktów.",
@@ -838,7 +838,7 @@
       "media": {
         "dropZone": "Upuść zdjęcia tutaj lub kliknij, aby wybrać",
         "uploading": "Wgrywanie {filename}…",
-        "uploadedCount": "{count} wgranych",
+        "uploadedCount": "{count} wgranych | {count} wgrany | {count} wgrane | {count} wgranych",
         "maxSize": "Do 5 MB na zdjęcie",
         "allowedTypes": "JPEG, PNG, WebP",
         "emptyGallery": "Brak zdjęć. Dodaj pierwsze.",
@@ -1622,7 +1622,7 @@
       "quotes": {
         "heading": "Wyceny",
         "open": "{count} otwartych wycen | {count} otwarta wycena | {count} otwarte wyceny | {count} otwartych wycen",
-        "awaiting": "{count} oczekuje na Twoją akceptację",
+        "awaiting": "{count} oczekuje na Twoją akceptację | {count} oczekuje na Twoją akceptację | {count} oczekują na Twoją akceptację | {count} oczekuje na Twoją akceptację",
         "none": "Brak otwartych wycen.",
         "view": "Zobacz wyceny"
       },

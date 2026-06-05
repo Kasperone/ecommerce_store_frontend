@@ -84,7 +84,7 @@
     },
     "form": {
       "ratingLabel": "Twoja ocena",
-      "rate": "Oceń na {count} gwiazdek",
+      "rate": "Oceń na {count} gwiazdek | Oceń na {count} gwiazdkę | Oceń na {count} gwiazdki | Oceń na {count} gwiazdek",
       "titleLabel": "Tytuł (opcjonalnie)",
       "titlePlaceholder": "Podsumuj w kilku słowach",
       "bodyLabel": "Twoja opinia",

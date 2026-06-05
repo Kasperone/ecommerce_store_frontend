@@ -147,7 +147,7 @@
       "button": "Buy again",
       "toast": {
         "allAddedTitle": "Added to cart",
-        "allAdded": "Added {count} item(s) to your cart at current prices.",
+        "allAdded": "Added {count} item to your cart at current prices. | Added {count} items to your cart at current prices.",
         "partialTitle": "Some items added",
         "partial": "Added {added} item(s); skipped {skipped} that are no longer available.",
         "noneTitle": "Nothing added",
