@@ -1,19 +1,26 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 const { t } = useI18n()
-useHead({ title: t('footer.columns.legal.privacy') })
+
+const sections = ['controller', 'categories', 'purposes', 'recipients', 'retention', 'rights', 'cookies'] as const
+
+useSeoMeta({
+  title: () => t('legal.privacy.meta.title'),
+  description: () => t('legal.privacy.meta.description'),
+})
 </script>
 
 <template>
-  <UContainer class="py-16">
-    <h1 class="text-3xl font-semibold mb-4">
-      {{ t('footer.columns.legal.privacy') }}
-    </h1>
-    <p class="text-muted">
-      {{ t('footer.stubPage.comingSoon') }}
-    </p>
-    <ULink
-      to="/"
-      class="mt-6 inline-block text-primary"
-    >← {{ t('footer.stubPage.backHome') }}</ULink>
-  </UContainer>
+  <LegalPageShell
+    :title="t('legal.privacy.title')"
+    :intro="t('legal.privacy.intro')"
+  >
+    <LegalSection
+      v-for="key in sections"
+      :key="key"
+      :heading="t(`legal.privacy.sections.${key}.heading`)"
+      :body-key="`legal.privacy.sections.${key}.body`"
+    />
+  </LegalPageShell>
 </template>
