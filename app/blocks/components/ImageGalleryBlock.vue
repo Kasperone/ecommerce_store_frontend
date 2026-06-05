@@ -15,7 +15,8 @@ const props = defineProps<{
   blocks?: GalleryImageBlock[]
 }>()
 
-const images = computed(() => (props.blocks ?? []).filter(b => b.settings?.image_url))
+// Keep empty tiles too — they render a placeholder until an image is uploaded.
+const images = computed(() => props.blocks ?? [])
 const layout = computed(() => props.settings?.layout ?? 'grid')
 
 const columnClass = computed(() => {
@@ -57,11 +58,16 @@ const columnClass = computed(() => {
         class="block ps-4"
       >
         <NuxtImg
-          :src="item.settings!.image_url!"
+          v-if="item.settings?.image_url"
+          :src="item.settings.image_url"
           :alt="item.settings?.alt ?? ''"
           class="aspect-square w-full rounded-lg object-cover"
           sizes="66vw sm:50vw md:33vw"
           loading="lazy"
+        />
+        <CmsImagePlaceholder
+          v-else
+          class="aspect-square w-full rounded-lg"
         />
       </component>
     </UCarousel>
@@ -80,12 +86,18 @@ const columnClass = computed(() => {
         :class="layout === 'masonry' && index % 3 === 0 && 'sm:row-span-2'"
       >
         <NuxtImg
-          :src="img.settings!.image_url!"
+          v-if="img.settings?.image_url"
+          :src="img.settings.image_url"
           :alt="img.settings?.alt ?? ''"
           class="h-full w-full object-cover"
           :class="layout === 'grid' && 'aspect-square'"
           sizes="50vw sm:33vw lg:25vw"
           loading="lazy"
+        />
+        <CmsImagePlaceholder
+          v-else
+          class="h-full w-full"
+          :class="layout === 'grid' && 'aspect-square'"
         />
       </component>
     </div>

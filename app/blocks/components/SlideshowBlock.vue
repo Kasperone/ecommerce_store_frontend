@@ -45,6 +45,10 @@ const autoplay = computed(() =>
           sizes="100vw lg:1280px"
           loading="lazy"
         />
+        <CmsImagePlaceholder
+          v-else
+          class="absolute inset-0 -z-20 h-full w-full"
+        />
         <div
           v-if="item.settings?.image_url"
           class="absolute inset-0 -z-10 bg-gradient-to-r from-black/45 via-black/20 to-transparent"

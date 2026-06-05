@@ -60,6 +60,11 @@ const columnClass = computed(() => {
           sizes="50vw sm:33vw lg:25vw"
           loading="lazy"
         />
+        <CmsImagePlaceholder
+          v-else
+          class="absolute inset-0 -z-10 h-full w-full"
+          label=""
+        />
         <div
           v-if="tile.settings?.image_url"
           class="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent"

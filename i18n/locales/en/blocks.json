@@ -9,6 +9,9 @@
     },
     "products": {
       "empty": "No products to show."
+    },
+    "imagePlaceholder": {
+      "label": "Image"
     }
   }
 }
