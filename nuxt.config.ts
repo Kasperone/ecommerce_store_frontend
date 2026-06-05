@@ -81,6 +81,25 @@ export default defineNuxtConfig({
     '/api/v1/**': {
       proxy: `${process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000'}/api/v1/**`,
     },
+    // CMS marketing-page caching (research §6.5). The homepage is SSR +
+    // SEO-critical but rarely changes, so it's served via ISR (incremental
+    // static regeneration) with a 1-hour revalidate window — the first request
+    // after expiry re-renders, the rest hit cache. Both the default-locale `/`
+    // and the Polish `/pl` homepage are covered.
+    //
+    // NOTE: the catch-all CMS route ([...slug].vue) lives at the URL ROOT, so we
+    // deliberately do NOT add a blanket `'/**': { isr }` rule — that would also
+    // ISR-cache authed/dynamic routes (`/account`, `/cart`, `/checkout`, …) and
+    // leak one user's rendered HTML to the next. CMS catch-all pages are served
+    // SSR (fast + fully SEO-indexable); per-page ISR can be added once pages
+    // carry a distinguishing prefix or a render-time cache tag (§6.5 purge).
+    '/': { isr: 3600 },
+    '/pl': { isr: 3600 },
+    // Draft preview routes must always reflect the latest unpublished layout, so
+    // they are NEVER cached (research §6.2/§6.5). Covers the documented preview
+    // path shapes; the admin editor itself is auth-gated and uncached by default.
+    '/preview/**': { isr: false, robots: false },
+    '/pl/preview/**': { isr: false, robots: false },
   },
   compatibilityDate: '2025-07-15',
 
