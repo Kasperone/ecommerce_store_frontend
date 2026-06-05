@@ -42,7 +42,7 @@
         "title": "Sales trend",
         "summary": "{total} over the last {days} days",
         "currencyLabel": "Trend currency",
-        "barLabel": "{date}: {amount} revenue, {count} orders",
+        "barLabel": "{date}: {amount} revenue, {count} order | {date}: {amount} revenue, {count} orders",
         "noRevenue": "No revenue in the last {days} days"
       },
       "top": {
@@ -537,7 +537,7 @@
         "title": "Sales over time",
         "summary": "{total} in range",
         "currencyLabel": "Chart currency",
-        "barLabel": "{bucket}: {amount} revenue, {count} orders",
+        "barLabel": "{bucket}: {amount} revenue, {count} order | {bucket}: {amount} revenue, {count} orders",
         "weekOf": "Week of {date}",
         "noRevenue": "No revenue in this date range."
       },
@@ -741,7 +741,7 @@
         "modes": {
           "none": "Delete (leaf only)",
           "noneHint": "Only available when this category has no children and no products.",
-          "cascade": "Delete subtree (+{count} descendants)",
+          "cascade": "Delete subtree (+{count} descendant) | Delete subtree (+{count} descendants)",
           "cascadeHint": "Recursively delete this category and every descendant. Products in the subtree must be removed first.",
           "reparent": "Move children to root, then delete",
           "reparentHint": "Direct children become roots. Products on this category must be removed first; products are never silently re-parented."
