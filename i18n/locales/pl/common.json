@@ -1488,6 +1488,20 @@
         "selectPrompt": "Wybierz sekcję, aby edytować jej ustawienia.",
         "noFields": "Ta sekcja nie ma ustawień do edycji."
       },
+      "subBlocks": {
+        "add": "Dodaj",
+        "empty": "Brak elementów. Kliknij Dodaj, aby zacząć.",
+        "dragHandle": "Przeciągnij, aby zmienić kolejność",
+        "moveUp": "Przenieś w górę",
+        "moveDown": "Przenieś w dół",
+        "remove": "Usuń element",
+        "header": {
+          "slide": "Slajdy | Slajd | Slajdy | Slajdów",
+          "faq-item": "Pytania | Pytanie | Pytania | Pytań",
+          "image": "Zdjęcia | Zdjęcie | Zdjęcia | Zdjęć",
+          "tile": "Kafelki | Kafelek | Kafelki | Kafelków"
+        }
+      },
       "preview": {
         "heading": "Podgląd",
         "label": "Podgląd wersji roboczej na żywo",

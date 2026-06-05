@@ -75,6 +75,24 @@ function onSettingsUpdate(settings: Record<string, unknown>) {
   editor.updateSelectedSettings(settings)
 }
 
+// ---- Nested sub-blocks (container sections) ------------------------------- //
+// Container sections (slideshow/faq/image-gallery/collection-list) carry a child
+// schema map on `selectedSchema.blocks`. Child selection is LOCAL to the editor
+// page (it doesn't belong in the page-level draft state); it resets whenever the
+// selected section changes.
+const selectedChildSchemas = computed(() => selectedSchema.value?.blocks)
+const selectedChildId = ref<string | null>(null)
+watch(selectedCid, () => (selectedChildId.value = null))
+
+function onAddChild(childType: string) {
+  const newId = editor.addChildBlock(childType, {})
+  if (newId) selectedChildId.value = newId
+}
+function onRemoveChild(id: string) {
+  editor.removeChildBlock(id)
+  if (selectedChildId.value === id) selectedChildId.value = null
+}
+
 // Sections for the live preview — structurally the renderer's `Section[]`.
 const previewSections = computed<Section[]>(() =>
   sections.value.map(s => ({
@@ -417,6 +435,18 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
               :model-value="selectedSettings"
               @update:model-value="onSettingsUpdate"
             />
+            <AdminCmsSubBlockList
+              v-if="selectedChildSchemas"
+              class="mt-4 pt-4 border-t border-default"
+              :model-value="(selectedSection.blocks as any) ?? []"
+              :child-schemas="selectedChildSchemas"
+              :selected-child-id="selectedChildId"
+              @add="onAddChild"
+              @select="(id) => (selectedChildId = id)"
+              @remove="onRemoveChild"
+              @move="({ id, direction }) => editor.moveChildBlock(id, direction)"
+              @reorder="(ids) => editor.reorderChildBlocks(ids)"
+            />
           </div>
           <p
             v-else
@@ -502,6 +532,18 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
               :fields="selectedFields"
               :model-value="selectedSettings"
               @update:model-value="onSettingsUpdate"
+            />
+            <AdminCmsSubBlockList
+              v-if="selectedChildSchemas"
+              class="mt-4 pt-4 border-t border-default"
+              :model-value="(selectedSection.blocks as any) ?? []"
+              :child-schemas="selectedChildSchemas"
+              :selected-child-id="selectedChildId"
+              @add="onAddChild"
+              @select="(id) => (selectedChildId = id)"
+              @remove="onRemoveChild"
+              @move="({ id, direction }) => editor.moveChildBlock(id, direction)"
+              @reorder="(ids) => editor.reorderChildBlocks(ids)"
             />
           </div>
           <p

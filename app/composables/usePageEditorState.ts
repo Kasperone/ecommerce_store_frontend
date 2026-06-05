@@ -16,6 +16,20 @@
 import { computed, ref } from 'vue'
 import type { SectionInput } from '~/composables/queries/usePageQueries'
 
+/**
+ * A nested child block within a container section (slideshow → slide,
+ * faq → faq-item, image-gallery → image, collection-list → tile).
+ *
+ * Its `id` is a plain string the backend round-trips verbatim (e.g.
+ * `SlideBlock.id: str | None`); we mint a `cid-…` value for admin-added
+ * children and reuse it as the stable vuedraggable key.
+ */
+export interface ChildBlockDraft {
+  type: string
+  id: string
+  settings: Record<string, unknown>
+}
+
 /** A section as edited in the builder: the API shape + a stable client id. */
 export interface SectionDraft {
   /** Stable client id for list keying + selection (not sent to the backend). */
@@ -31,6 +45,11 @@ let cidCounter = 0
 function nextCid(): string {
   cidCounter += 1
   return `cid-${cidCounter}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+/** Read a section's children as a typed array, treating absent `blocks` as `[]`. */
+function childBlocksOf(section: SectionDraft): ChildBlockDraft[] {
+  return Array.isArray(section.blocks) ? (section.blocks as ChildBlockDraft[]) : []
 }
 
 /** Map API layout sections → editable drafts (assigns a client id to each). */
@@ -183,6 +202,89 @@ export function usePageEditorState() {
     )
   }
 
+  // ---- Child-block (nested) mutators ------------------------------------- //
+  // All operate on the SELECTED container section, treat a missing `blocks`
+  // array as `[]`, and replace the section object IMMUTABLY (spread) so the
+  // `draftSignature` (which serializes `blocks`) flips `isDirty` for free.
+
+  /**
+   * Replace the selected section's `blocks` with `next`, immutably. The new
+   * `selectedChildId` (if any) is returned to the caller — child selection
+   * state lives in the sub-editor component, not here.
+   */
+  function replaceSelectedBlocks(next: ChildBlockDraft[]) {
+    if (!selectedSection.value) return
+    sections.value = sections.value.map(s =>
+      s.__cid === selectedCid.value ? { ...s, blocks: next } : s,
+    )
+  }
+
+  /**
+   * Append a fresh child block of `childType` with the given starter settings,
+   * minting a `cid-…` id. Returns the new child's id so the caller can select it.
+   */
+  function addChildBlock(childType: string, settings: Record<string, unknown>): string | undefined {
+    if (!selectedSection.value) return undefined
+    const child: ChildBlockDraft = { type: childType, id: nextCid(), settings: { ...settings } }
+    replaceSelectedBlocks([...childBlocksOf(selectedSection.value), child])
+    return child.id
+  }
+
+  /** Drop a child by its id. */
+  function removeChildBlock(childId: string) {
+    if (!selectedSection.value) return
+    replaceSelectedBlocks(childBlocksOf(selectedSection.value).filter(c => c.id !== childId))
+  }
+
+  /** Move a child up or down by one, clamped to the list bounds. */
+  function moveChildBlock(childId: string, direction: 'up' | 'down') {
+    if (!selectedSection.value) return
+    const current = childBlocksOf(selectedSection.value)
+    const idx = current.findIndex(c => c.id === childId)
+    if (idx === -1) return
+    const target = direction === 'up' ? idx - 1 : idx + 1
+    if (target < 0 || target >= current.length) return
+    const next = [...current]
+    const [moved] = next.splice(idx, 1)
+    next.splice(target, 0, moved!)
+    replaceSelectedBlocks(next)
+  }
+
+  /**
+   * Reorder the selected section's children to match an explicit id order
+   * (vuedraggable yields a fully reordered list). Ids absent from `orderedIds`
+   * keep their relative order appended at the end; unknown ids are ignored — a
+   * partial/stale list can never drop or duplicate a child.
+   */
+  function reorderChildBlocks(orderedIds: readonly string[]) {
+    if (!selectedSection.value) return
+    const current = childBlocksOf(selectedSection.value)
+    const byId = new Map(current.map(c => [c.id, c]))
+    const next: ChildBlockDraft[] = []
+    const seen = new Set<string>()
+    for (const id of orderedIds) {
+      const child = byId.get(id)
+      if (child && !seen.has(id)) {
+        next.push(child)
+        seen.add(id)
+      }
+    }
+    for (const child of current) {
+      if (!seen.has(child.id)) next.push(child)
+    }
+    replaceSelectedBlocks(next)
+  }
+
+  /** Patch a single child's settings record. */
+  function updateChildSettings(childId: string, settings: Record<string, unknown>) {
+    if (!selectedSection.value) return
+    replaceSelectedBlocks(
+      childBlocksOf(selectedSection.value).map(c =>
+        c.id === childId ? { ...c, settings } : c,
+      ),
+    )
+  }
+
   return {
     sections,
     selectedCid,
@@ -197,5 +299,10 @@ export function usePageEditorState() {
     reorder,
     moveTo,
     updateSelectedSettings,
+    addChildBlock,
+    removeChildBlock,
+    moveChildBlock,
+    reorderChildBlocks,
+    updateChildSettings,
   }
 }
