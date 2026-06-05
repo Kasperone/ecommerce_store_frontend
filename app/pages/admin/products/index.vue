@@ -106,10 +106,8 @@ async function onDelete(id: number) {
   }
 }
 
-// useCurrency.formatPrice routes USD-when-locale-is-en through vue-i18n's
-// `n(price, 'currency')`, which renders empty when the project's i18n config
-// has no `currency` numberFormat. The admin table always shows all three
-// currencies side-by-side regardless of locale, so go straight to Intl.
+// The admin table shows all three currencies side-by-side regardless of the
+// active locale, so format each with its own fixed currency via Intl.
 const usdFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'USD' })
 const plnFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'PLN' })
 const eurFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'EUR' })
