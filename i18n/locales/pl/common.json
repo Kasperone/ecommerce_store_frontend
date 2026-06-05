@@ -83,6 +83,7 @@
         "customers": "Klienci",
         "companies": "Firmy (B2B)",
         "quotes": "Oferty (B2B)",
+        "pages": "Strony",
         "coupons": "Kupony",
         "banners": "Banery",
         "campaigns": "Kampanie",
@@ -1410,6 +1411,116 @@
         "created": "Baner utworzony.",
         "updated": "Baner zaktualizowany.",
         "deleted": "Baner usunięty."
+      }
+    },
+    "cms": {
+      "title": "Strony",
+      "subtitle": "Twórz i dostosowuj strony sklepu z gotowych sekcji",
+      "actions": {
+        "create": "Nowa strona",
+        "edit": "Edytuj",
+        "saveDraft": "Zapisz wersję roboczą",
+        "publish": "Opublikuj",
+        "history": "Historia"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "type": "Typ",
+        "allTypes": "Wszystkie typy",
+        "locale": "Język",
+        "allLocales": "Wszystkie języki"
+      },
+      "fields": {
+        "slug": "Slug",
+        "type": "Typ",
+        "locale": "Język",
+        "status": "Status",
+        "updatedAt": "Zaktualizowano"
+      },
+      "status": {
+        "draft": "Wersja robocza",
+        "published": "Opublikowana",
+        "scheduled": "Zaplanowana"
+      },
+      "pageType": {
+        "home": "Strona główna",
+        "standard": "Standardowa",
+        "landing": "Landing page"
+      },
+      "empty": {
+        "noPages": "Brak stron.",
+        "noResults": "Żadna strona nie pasuje do filtrów."
+      },
+      "create": {
+        "title": "Nowa strona",
+        "submit": "Utwórz",
+        "slugHint": "Fragment ścieżki URL, np. about-us. Musi być unikalny dla języka."
+      },
+      "form": {
+        "cancel": "Anuluj"
+      },
+      "editor": {
+        "title": "Edycja {slug}",
+        "back": "Powrót do stron",
+        "unsaved": "Niezapisane zmiany"
+      },
+      "sections": {
+        "heading": "Sekcje",
+        "add": "Dodaj",
+        "listLabel": "Sekcje strony",
+        "empty": "Brak sekcji. Kliknij Dodaj, aby zacząć.",
+        "dragHandle": "Przeciągnij, aby zmienić kolejność",
+        "moveUp": "Przenieś w górę",
+        "moveDown": "Przenieś w dół",
+        "remove": "Usuń sekcję"
+      },
+      "settings": {
+        "heading": "Ustawienia",
+        "selectPrompt": "Wybierz sekcję, aby edytować jej ustawienia.",
+        "noFields": "Ta sekcja nie ma ustawień do edycji."
+      },
+      "preview": {
+        "heading": "Podgląd",
+        "label": "Podgląd wersji roboczej na żywo",
+        "empty": "Dodaj sekcje, aby zobaczyć podgląd."
+      },
+      "addSection": {
+        "title": "Dodaj sekcję",
+        "subtitle": "Wybierz szablon, aby zacząć od sensownych ustawień domyślnych."
+      },
+      "controls": {
+        "imageUrlPlaceholder": "https://… adres URL obrazu",
+        "unknownType": "Nieobsługiwany typ pola „{type}” — edytuj jako JSON."
+      },
+      "picker": {
+        "searchProducts": "Szukaj produktów…",
+        "searchCollections": "Szukaj kolekcji…",
+        "noResults": "Brak wyników.",
+        "remove": "Usuń",
+        "clear": "Wyczyść"
+      },
+      "publish": {
+        "title": "Opublikuj stronę",
+        "subtitle": "Zapisuje bieżącą wersję roboczą, tworzy migawkę wersji i publikuje stronę.",
+        "label": "Etykieta wersji",
+        "labelHint": "Opcjonalnie. Krótka notatka identyfikująca tę wersję."
+      },
+      "history": {
+        "title": "Historia wersji",
+        "subtitle": "Przywróć dowolną wcześniejszą opublikowaną wersję.",
+        "empty": "Brak wersji. Opublikuj stronę, aby utworzyć pierwszą wersję.",
+        "version": "Wersja {no}",
+        "rollback": "Przywróć"
+      },
+      "flashes": {
+        "draftSaved": "Zapisano wersję roboczą.",
+        "saveFailed": "Nie udało się zapisać wersji roboczej.",
+        "published": "Strona opublikowana.",
+        "rolledBack": "Przywrócono wersję do roboczej."
+      },
+      "errors": {
+        "slugRequired": "Slug jest wymagany."
       }
     },
     "campaigns": {
