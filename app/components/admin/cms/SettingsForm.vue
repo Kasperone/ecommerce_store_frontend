@@ -8,7 +8,7 @@
  *   textarea     → UTextarea
  *   richtext     → UTextarea (HTML source; a true WYSIWYG is a later phase)
  *   url          → UInput type=url
- *   image_picker → UInput (image URL — V1, matches Banner's image_url field)
+ *   image_picker → ImagePicker (R2 upload widget + manual paste-URL fallback)
  *   range        → UInputNumber (min/max/step honoured)
  *   number       → UInputNumber
  *   select       → USelect (from schema `options`)
@@ -149,14 +149,11 @@ const hasFields = computed(() => props.fields.length > 0)
         @update:model-value="(v) => setField(field.id, v)"
       />
 
-      <!-- image_picker (V1: image URL text input) -->
-      <UInput
+      <!-- image_picker → R2 upload widget + manual URL fallback -->
+      <AdminCmsImagePicker
         v-else-if="field.type === 'image_picker'"
-        :id="`setting-${field.id}`"
+        :field-id="field.id"
         :model-value="strValue(field)"
-        icon="i-lucide-image"
-        :placeholder="t('admin.cms.controls.imageUrlPlaceholder')"
-        class="w-full"
         @update:model-value="(v) => setField(field.id, v)"
       />
 

@@ -52,13 +52,14 @@ const columnClass = computed(() => {
         :to="tile.settings?.link_url || undefined"
         class="group relative isolate block aspect-[4/3] overflow-hidden rounded-lg bg-elevated"
       >
-        <img
+        <NuxtImg
           v-if="tile.settings?.image_url"
           :src="tile.settings.image_url"
           :alt="tile.settings?.label ?? ''"
           class="absolute inset-0 -z-10 h-full w-full object-cover transition-transform group-hover:scale-105"
+          sizes="50vw sm:33vw lg:25vw"
           loading="lazy"
-        >
+        />
         <div
           v-if="tile.settings?.image_url"
           class="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent"

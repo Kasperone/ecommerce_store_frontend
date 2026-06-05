@@ -2257,6 +2257,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Media
+         * @description Upload an image to R2 and return its public URL (Admin only, stateless).
+         *
+         *     No DB row is created — the URL is the only persisted reference (CMS layouts
+         *     store it as a plain string). Used by the page-builder image picker.
+         */
+        post: operations["upload_media_api_v1_admin_media_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/campaigns/": {
         parameters: {
             query?: never;
@@ -3688,6 +3711,11 @@ export interface components {
         };
         /** Body_upload_category_hero_api_v1_categories__category_id__hero_post */
         Body_upload_category_hero_api_v1_categories__category_id__hero_post: {
+            /** File */
+            file: string;
+        };
+        /** Body_upload_media_api_v1_admin_media_post */
+        Body_upload_media_api_v1_admin_media_post: {
             /** File */
             file: string;
         };
@@ -5642,6 +5670,37 @@ export interface components {
             lowest_price: number | null;
             /** Since */
             since: string | null;
+        };
+        /**
+         * MediaUploadResponse
+         * @description The stored object's public URL plus its captured metadata.
+         */
+        MediaUploadResponse: {
+            /**
+             * Url
+             * @description Public R2 URL of the stored image.
+             */
+            url: string;
+            /**
+             * Width
+             * @description Image width in pixels.
+             */
+            width: number;
+            /**
+             * Height
+             * @description Image height in pixels.
+             */
+            height: number;
+            /**
+             * Bytes
+             * @description Stored object size in bytes.
+             */
+            bytes: number;
+            /**
+             * Mime
+             * @description Detected (magic-byte) MIME type.
+             */
+            mime: string;
         };
         /**
          * MyVotesResponse
@@ -12663,6 +12722,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_media_api_v1_admin_media_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_media_api_v1_admin_media_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaUploadResponse"];
                 };
             };
             /** @description Validation Error */
