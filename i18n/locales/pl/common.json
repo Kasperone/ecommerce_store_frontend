@@ -1501,6 +1501,19 @@
         "imageUrlPlaceholder": "https://… adres URL obrazu",
         "unknownType": "Nieobsługiwany typ pola „{type}” — edytuj jako JSON."
       },
+      "imagePicker": {
+        "upload": "Prześlij obraz",
+        "hint": "Przeciągnij i upuść lub kliknij — JPEG, PNG, WebP, do 5 MB",
+        "uploading": "Przesyłanie…",
+        "orPasteUrl": "Lub wklej adres URL",
+        "thumbnailAlt": "Wybrany obraz",
+        "remove": "Usuń",
+        "errors": {
+          "sizeTooLarge": "Obraz jest za duży (maks. 5 MB).",
+          "unsupportedType": "Nieobsługiwany typ obrazu. Użyj JPEG, PNG lub WebP.",
+          "uploadFailed": "Przesyłanie nie powiodło się. Spróbuj ponownie."
+        }
+      },
       "picker": {
         "searchProducts": "Szukaj produktów…",
         "searchCollections": "Szukaj kolekcji…",

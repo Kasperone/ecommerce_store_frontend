@@ -65,13 +65,14 @@ const to = computed(() =>
         :to="to"
         class="block overflow-hidden rounded-lg bg-elevated"
       >
-        <img
+        <NuxtImg
           v-if="primaryImage"
           :src="primaryImage.url"
           :alt="primaryImage.alt_text ?? displayName"
           class="aspect-square w-full object-cover"
+          sizes="100vw md:50vw"
           loading="lazy"
-        >
+        />
         <div
           v-else
           class="flex aspect-square w-full items-center justify-center text-muted"

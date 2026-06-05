@@ -7,6 +7,7 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/eslint',
+    '@nuxt/image',
     '@nuxt/ui',
     '@pinia/nuxt',
     '@nuxtjs/i18n',
@@ -146,6 +147,26 @@ export default defineNuxtConfig({
       useCookie: true,
       cookieKey: 'i18n_redirected',
       redirectOn: 'root',
+    },
+  },
+
+  // @nuxt/image — responsive srcset + lazy + format negotiation for the
+  // R2-hosted catalog/CMS images (Nuxt-4 FE audit P1). Uses the default IPX
+  // provider (built-in, no external CDN dependency) and allowlists the public
+  // R2 bucket domain so remote R2 URLs are optimizable. R2 `.dev` URLs have no
+  // native image transform, so IPX proxies + resizes them server-side. The CMS
+  // image picker writes these R2 URLs; <NuxtImg> renders them through here.
+  image: {
+    // Allowlist the public R2 bucket so its remote URLs may be optimized.
+    domains: ['pub-7dea48929d9848c0bd7f859e5e4e9484.r2.dev'],
+    // Sensible responsive breakpoints for full-bleed hero/slideshow + grids.
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
     },
   },
 })

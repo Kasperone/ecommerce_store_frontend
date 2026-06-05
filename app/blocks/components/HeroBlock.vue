@@ -36,13 +36,14 @@ const overlayStyle = computed(() => ({
     v-if="heading || s?.image_url"
     class="c-hero-block relative isolate mx-auto w-full max-w-7xl overflow-hidden rounded-lg px-4"
   >
-    <img
+    <NuxtImg
       v-if="s?.image_url"
       :src="s.image_url"
       :alt="heading"
       class="absolute inset-0 -z-20 h-full w-full object-cover"
+      sizes="100vw lg:1280px"
       loading="lazy"
-    >
+    />
     <div
       v-if="s?.image_url"
       class="absolute inset-0 -z-10"
