@@ -45,6 +45,7 @@ const versionData = ref<unknown>(VERSIONS)
 const saveMock = vi.fn().mockResolvedValue(PAGE)
 const publishMock = vi.fn().mockResolvedValue({ ...PAGE, status: 'published' })
 const rollbackMock = vi.fn().mockResolvedValue(PAGE)
+const previewTokenMock = vi.fn().mockResolvedValue({ token: 'tok-xyz', expires_at: '2026-06-05T00:10:00Z' })
 const refetchVersions = vi.fn().mockResolvedValue(undefined)
 
 // Capture the guard registered via `onBeforeRouteLeave` so we can invoke it
@@ -68,9 +69,13 @@ vi.mock('~/composables/queries/usePageQueries', () => ({
   useSavePageDraft: () => ({ mutateAsync: saveMock, isLoading: ref(false) }),
   usePublishPage: () => ({ mutateAsync: publishMock, isLoading: ref(false) }),
   useRollbackPageVersion: () => ({ mutateAsync: rollbackMock, isLoading: ref(false) }),
+  useCreatePreviewToken: () => ({ mutateAsync: previewTokenMock, isLoading: ref(false) }),
 }))
 
 mockNuxtImport('useRoute', () => () => ({ params: { id: '5' }, query: {} }))
+// `useLocalePath` returns an identity path resolver in tests (no /pl/ prefix
+// for the default locale) — enough to assert the preview/live URL shape.
+mockNuxtImport('useLocalePath', () => () => (p: string) => p)
 
 const PassThroughStub = defineComponent({
   setup(_props, { slots }) {
@@ -164,6 +169,7 @@ beforeEach(() => {
   saveMock.mockClear()
   publishMock.mockClear()
   rollbackMock.mockClear()
+  previewTokenMock.mockClear()
   refetchVersions.mockClear()
   leaveGuards.length = 0
 })
@@ -265,6 +271,40 @@ describe('admin/pages editor', () => {
       .find(n => n.attributes('data-title') === 'Unsaved changes')!
     await guardModal.find('[data-testid="form-modal-cancel"]').trigger('click')
     await expect(result).resolves.toBe(false)
+  })
+
+  it('shows the Preview draft button; clicking it saves then opens with the token', async () => {
+    const openSpy = vi.fn(() => ({ location: { href: '' } }) as unknown as Window)
+    vi.stubGlobal('open', openSpy)
+
+    const wrapper = await mountEditor()
+    // Make the draft dirty so the preview flow flushes the draft first.
+    await wrapper.find('[data-testid="add-pick"]').trigger('click')
+
+    const previewBtn = wrapper.find('[data-testid="preview-draft"]')
+    expect(previewBtn.exists()).toBe(true)
+    await previewBtn.trigger('click')
+    await new Promise(r => setTimeout(r, 0))
+
+    // A placeholder tab is opened synchronously on click (popup-blocker safe).
+    expect(openSpy).toHaveBeenCalledWith('', '_blank')
+    // Dirty draft is saved before minting the token.
+    expect(saveMock).toHaveBeenCalledTimes(1)
+    expect(previewTokenMock).toHaveBeenCalledWith({ id: 5 })
+    // The opened tab is redirected to the public preview URL with the token.
+    const openedTab = openSpy.mock.results[0]!.value as { location: { href: string } }
+    expect(openedTab.location.href).toBe('/home?token=tok-xyz')
+
+    vi.unstubAllGlobals()
+  })
+
+  it('hides View live for a draft page and shows it once published', async () => {
+    const draftWrapper = await mountEditor()
+    expect(draftWrapper.find('[data-testid="view-live"]').exists()).toBe(false)
+
+    pageData.value = { ...PAGE, status: 'published' }
+    const publishedWrapper = await mountEditor()
+    expect(publishedWrapper.find('[data-testid="view-live"]').exists()).toBe(true)
   })
 
   it('renders a page-load error via ErrorAlert', async () => {

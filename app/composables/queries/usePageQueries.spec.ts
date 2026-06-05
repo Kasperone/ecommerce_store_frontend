@@ -177,6 +177,21 @@ describe('usePublishPage', () => {
   })
 })
 
+describe('useCreatePreviewToken', () => {
+  it('POSTs /api/v1/admin/pages/{id}/preview-token', async () => {
+    apiFetch.mockResolvedValue({ token: 'tok-abc', expires_at: '2026-06-05T00:10:00Z' })
+    const { useCreatePreviewToken } = await import('./usePageQueries')
+
+    const result = (await runInComponent(() => useCreatePreviewToken())) as any
+    const res = await result.mutateAsync({ id: 5 })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/pages/5/preview-token')
+    expect(options.method).toBe('POST')
+    expect(res.token).toBe('tok-abc')
+  })
+})
+
 describe('useRollbackPageVersion', () => {
   it('POSTs /api/v1/admin/pages/{id}/versions/{versionId}/rollback', async () => {
     apiFetch.mockResolvedValue({ id: 3 })

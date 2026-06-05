@@ -1417,7 +1417,9 @@
         "edit": "Edit",
         "saveDraft": "Save draft",
         "publish": "Publish",
-        "history": "History"
+        "history": "History",
+        "previewDraft": "Preview draft",
+        "viewLive": "View live"
       },
       "filters": {
         "status": "Status",
@@ -1519,7 +1521,8 @@
         "draftSaved": "Draft saved.",
         "saveFailed": "Could not save the draft.",
         "published": "Page published.",
-        "rolledBack": "Version restored to the draft."
+        "rolledBack": "Version restored to the draft.",
+        "previewFailed": "Could not open the draft preview."
       },
       "errors": {
         "slugRequired": "Slug is required."
