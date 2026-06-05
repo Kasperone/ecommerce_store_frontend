@@ -73,15 +73,10 @@ const to = computed(() =>
           sizes="100vw md:50vw"
           loading="lazy"
         />
-        <div
+        <CmsImagePlaceholder
           v-else
-          class="flex aspect-square w-full items-center justify-center text-muted"
-        >
-          <UIcon
-            name="i-lucide-image"
-            class="size-12"
-          />
-        </div>
+          class="aspect-square w-full"
+        />
       </NuxtLink>
 
       <div class="flex flex-col items-start gap-4">

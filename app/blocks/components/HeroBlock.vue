@@ -44,6 +44,10 @@ const overlayStyle = computed(() => ({
       sizes="100vw lg:1280px"
       loading="lazy"
     />
+    <CmsImagePlaceholder
+      v-else
+      class="absolute inset-0 -z-20 h-full w-full rounded-lg"
+    />
     <div
       v-if="s?.image_url"
       class="absolute inset-0 -z-10"
@@ -53,7 +57,7 @@ const overlayStyle = computed(() => ({
 
     <div
       class="flex min-h-[20rem] flex-col justify-center gap-4 py-16"
-      :class="[alignClass, !s?.image_url && 'bg-elevated rounded-lg']"
+      :class="alignClass"
     >
       <h2
         class="text-3xl font-bold sm:text-4xl"

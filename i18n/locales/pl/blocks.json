@@ -9,6 +9,9 @@
     },
     "products": {
       "empty": "Brak produktów do wyświetlenia."
+    },
+    "imagePlaceholder": {
+      "label": "Zdjęcie"
     }
   }
 }
