@@ -1463,7 +1463,13 @@
       "editor": {
         "title": "Edycja {slug}",
         "back": "Powrót do stron",
-        "unsaved": "Niezapisane zmiany"
+        "unsaved": "Niezapisane zmiany",
+        "leaveGuard": {
+          "title": "Niezapisane zmiany",
+          "body": "Masz niezapisane zmiany. Opuścić stronę bez zapisywania?",
+          "confirm": "Opuść bez zapisywania",
+          "cancel": "Zostań na stronie"
+        }
       },
       "sections": {
         "heading": "Sekcje",

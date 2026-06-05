@@ -11,7 +11,7 @@ const props = defineProps<{
   settings?: SettingsOf<'spacer'>
 }>()
 
-const height = computed(() => Math.min(Math.max(props.settings?.height ?? 48, 0), 400))
+const height = computed(() => Math.min(Math.max(props.settings?.height ?? 48, 0), 480))
 const dividerStyle = computed(() =>
   props.settings?.color ? { borderColor: props.settings.color } : undefined,
 )
