@@ -120,6 +120,61 @@ export function usePageEditorState() {
     sections.value = next
   }
 
+  /**
+   * Reorder the draft to match an explicit list of client ids — the array-level
+   * reorder the visual canvas needs (vuedraggable yields a fully reordered list,
+   * not an up/down delta). Cids absent from `orderedCids` keep their relative
+   * order appended at the end, and unknown cids are ignored, so a partial or
+   * stale list can never drop or duplicate a section. Additive: existing
+   * `moveSection` consumers are untouched.
+   */
+  function reorder(orderedCids: readonly string[]) {
+    const byCid = new Map(sections.value.map(s => [s.__cid, s]))
+    const next: SectionDraft[] = []
+    const seen = new Set<string>()
+    for (const cid of orderedCids) {
+      const sec = byCid.get(cid)
+      if (sec && !seen.has(cid)) {
+        next.push(sec)
+        seen.add(cid)
+      }
+    }
+    // Preserve any section not named in `orderedCids` (defensive — same order).
+    for (const sec of sections.value) {
+      if (!seen.has(sec.__cid)) next.push(sec)
+    }
+    sections.value = next
+  }
+
+  /**
+   * Move a single section to an explicit target index — the canvas's keyboard
+   * reorder + drop-onto-index helper. Index is clamped to the valid range.
+   */
+  function moveTo(cid: string, index: number) {
+    const from = sections.value.findIndex(s => s.__cid === cid)
+    if (from === -1) return
+    const to = Math.max(0, Math.min(index, sections.value.length - 1))
+    if (to === from) return
+    const next = [...sections.value]
+    const [moved] = next.splice(from, 1)
+    next.splice(to, 0, moved!)
+    sections.value = next
+  }
+
+  /**
+   * Insert a fresh draft section at an explicit index (the canvas drop-zones
+   * insert between blocks, not only append like `addSection`). Selects the new
+   * section. Index is clamped to `[0, length]`.
+   */
+  function addSectionAt(type: string, settings: Record<string, unknown>, index: number) {
+    const draft = makeSectionDraft(type, settings)
+    const at = Math.max(0, Math.min(index, sections.value.length))
+    const next = [...sections.value]
+    next.splice(at, 0, draft)
+    sections.value = next
+    selectedCid.value = draft.__cid
+  }
+
   /** Patch the selected section's settings record. */
   function updateSelectedSettings(settings: Record<string, unknown>) {
     if (!selectedSection.value) return
@@ -136,8 +191,11 @@ export function usePageEditorState() {
     load,
     markSaved,
     addSection,
+    addSectionAt,
     removeSection,
     moveSection,
+    reorder,
+    moveTo,
     updateSelectedSettings,
   }
 }

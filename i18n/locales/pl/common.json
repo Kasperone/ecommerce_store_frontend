@@ -1521,6 +1521,20 @@
       },
       "errors": {
         "slugRequired": "Slug jest wymagany."
+      },
+      "visual": {
+        "modeLabel": "Tryb edycji",
+        "modeForm": "Formularz",
+        "modeVisual": "Wizualny",
+        "canvasHeading": "Kanwa",
+        "canvasLabel": "Edytor wizualny — kliknij blok, aby edytować, przeciągnij, aby zmienić kolejność",
+        "empty": "Brak sekcji. Użyj „Dodaj sekcję tutaj”, aby zacząć.",
+        "addHere": "Dodaj sekcję tutaj",
+        "selectBlock": "Zaznacz blok {name}",
+        "blockLabel": "Blok {name}",
+        "selectPrompt": "Kliknij blok na kanwie, aby go edytować.",
+        "dragHandle": "Przeciągnij, aby zmienić kolejność",
+        "dragHint": "Przeciągnij, aby zmienić kolejność (lub Alt+strzałki, gdy zaznaczone)"
       }
     },
     "campaigns": {
