@@ -83,6 +83,7 @@
         "customers": "Customers",
         "companies": "Companies (B2B)",
         "quotes": "Quotes (B2B)",
+        "pages": "Pages",
         "coupons": "Coupons",
         "banners": "Banners",
         "campaigns": "Campaigns",
@@ -1406,6 +1407,116 @@
         "created": "Banner created.",
         "updated": "Banner updated.",
         "deleted": "Banner deleted."
+      }
+    },
+    "cms": {
+      "title": "Pages",
+      "subtitle": "Build and customize storefront pages from reusable sections",
+      "actions": {
+        "create": "New page",
+        "edit": "Edit",
+        "saveDraft": "Save draft",
+        "publish": "Publish",
+        "history": "History"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "type": "Type",
+        "allTypes": "All types",
+        "locale": "Language",
+        "allLocales": "All languages"
+      },
+      "fields": {
+        "slug": "Slug",
+        "type": "Type",
+        "locale": "Language",
+        "status": "Status",
+        "updatedAt": "Updated"
+      },
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "scheduled": "Scheduled"
+      },
+      "pageType": {
+        "home": "Home",
+        "standard": "Standard",
+        "landing": "Landing"
+      },
+      "empty": {
+        "noPages": "No pages yet.",
+        "noResults": "No pages match your filters."
+      },
+      "create": {
+        "title": "New page",
+        "submit": "Create",
+        "slugHint": "URL path segment, e.g. about-us. Must be unique per language."
+      },
+      "form": {
+        "cancel": "Cancel"
+      },
+      "editor": {
+        "title": "Edit {slug}",
+        "back": "Back to pages",
+        "unsaved": "Unsaved changes"
+      },
+      "sections": {
+        "heading": "Sections",
+        "add": "Add",
+        "listLabel": "Page sections",
+        "empty": "No sections yet. Click Add to start.",
+        "dragHandle": "Drag to reorder",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "remove": "Remove section"
+      },
+      "settings": {
+        "heading": "Settings",
+        "selectPrompt": "Select a section to edit its settings.",
+        "noFields": "This section has no editable settings."
+      },
+      "preview": {
+        "heading": "Preview",
+        "label": "Live draft preview",
+        "empty": "Add sections to see a preview."
+      },
+      "addSection": {
+        "title": "Add a section",
+        "subtitle": "Pick a preset to start from sensible defaults."
+      },
+      "controls": {
+        "imageUrlPlaceholder": "https://… image URL",
+        "unknownType": "Unsupported field type \"{type}\" — edit as JSON."
+      },
+      "picker": {
+        "searchProducts": "Search products…",
+        "searchCollections": "Search collections…",
+        "noResults": "No matches.",
+        "remove": "Remove",
+        "clear": "Clear"
+      },
+      "publish": {
+        "title": "Publish page",
+        "subtitle": "Saves the current draft, snapshots a version, and goes live.",
+        "label": "Version label",
+        "labelHint": "Optional. A short note to identify this version later."
+      },
+      "history": {
+        "title": "Version history",
+        "subtitle": "Restore any previous published version.",
+        "empty": "No versions yet. Publish the page to create the first version.",
+        "version": "Version {no}",
+        "rollback": "Restore"
+      },
+      "flashes": {
+        "draftSaved": "Draft saved.",
+        "saveFailed": "Could not save the draft.",
+        "published": "Page published.",
+        "rolledBack": "Version restored to the draft."
+      },
+      "errors": {
+        "slugRequired": "Slug is required."
       }
     },
     "campaigns": {
