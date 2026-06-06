@@ -8113,6 +8113,10 @@ export interface components {
         StoreConfigPublic: {
             /** Store Name */
             store_name: string;
+            /** Brand Tagline */
+            brand_tagline: string;
+            /** Logo Url */
+            logo_url: string;
             /** Legal Name */
             legal_name: string;
             /** Address Line */
@@ -8161,6 +8165,10 @@ export interface components {
             updated_at: string;
             /** Store Name */
             store_name: string;
+            /** Brand Tagline */
+            brand_tagline: string;
+            /** Logo Url */
+            logo_url: string;
             /** Legal Name */
             legal_name: string;
             /** Address Line */
@@ -8204,6 +8212,10 @@ export interface components {
         StoreConfigUpdate: {
             /** Store Name */
             store_name?: string | null;
+            /** Brand Tagline */
+            brand_tagline?: string | null;
+            /** Logo Url */
+            logo_url?: string | null;
             /** Legal Name */
             legal_name?: string | null;
             /** Address Line */

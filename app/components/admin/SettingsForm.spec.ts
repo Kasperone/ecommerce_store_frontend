@@ -31,6 +31,8 @@ const AXE_OPTIONS = {
 const config = {
   id: 1,
   store_name: 'Acme Store',
+  brand_tagline: 'Quality goods',
+  logo_url: '',
   legal_name: 'Acme Sp. z o.o.',
   email: 'shop@acme.test',
   phone: '+48 22 000 00 00',

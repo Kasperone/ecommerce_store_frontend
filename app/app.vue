@@ -13,6 +13,11 @@ import * as uiLocales from '@nuxt/ui/locale'
 
 const { locale } = useI18n()
 
+// Brand name from the admin-editable store_config (SSR-serialized, empty-safe)
+// drives the document <title> suffix so a rebrand needs no code change.
+const { data: storeConfig } = useStoreConfig()
+const brandName = computed(() => storeConfig.value?.store_name?.trim() || 'E-commerce Store')
+
 const uiLocale = computed(() => {
   // map string locale (e.g. 'en' or 'pl') to the nuxt ui locale object; fallback to en
   const key = locale.value as keyof typeof uiLocales
@@ -24,7 +29,7 @@ const lang = computed(() => uiLocale.value?.code ?? locale.value)
 const dir = computed(() => uiLocale.value?.dir ?? 'ltr')
 
 useHead({
-  titleTemplate: '%s | E-commerce Store',
+  titleTemplate: title => (title ? `${title} | ${brandName.value}` : brandName.value),
   htmlAttrs: {
     lang,
     dir,

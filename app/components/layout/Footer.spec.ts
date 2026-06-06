@@ -24,7 +24,7 @@ vi.mock('~/composables/useCookieConsent', () => ({
 mockNuxtImport('useToast', () => () => ({ add: mockToastAdd }))
 
 const EMPTY_CONFIG = {
-  store_name: '', legal_name: '', address_line: '', address_line2: '',
+  store_name: '', brand_tagline: '', logo_url: '', legal_name: '', address_line: '', address_line2: '',
   postal_city: '', country: '', nip: '', regon: '', krs: '', email: '', phone: '',
   social_instagram: '', social_facebook: '', social_tiktok: '', social_youtube: '',
 }
