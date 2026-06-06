@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { QuoteResponse, QuoteStatus, QuoteUpdate } from '~/composables/queries/useQuoteQueries'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import { QUOTE_STATUSES, quoteStatusColor } from '#shared/utils/quoteStatus'
 import { formatMoney } from '#shared/utils/money'
 
@@ -28,11 +28,28 @@ const convertMutation = useConvertQuote()
 const statusModel = ref<QuoteStatus | undefined>()
 const notesModel = ref('')
 const validUntilModel = ref('')
-const formError = ref<ProblemDetails | null>(null)
 const deleteOpen = ref(false)
-const deleteError = ref<ProblemDetails | null>(null)
 const convertOpen = ref(false)
-const convertError = ref<ProblemDetails | null>(null)
+
+// The Manage card + delete/convert modals have no client-validatable fields, so
+// they converge only the error message + toast: a null form ref makes
+// applyApiError skip field-mapping/scroll. (errorMessage refs reused as names.)
+const noForm = ref<ValidatedFormInstance | null>(null)
+const { errorMessage: formError, applyApiError: applyFormError } = useValidatedForm(noForm, {
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
+const { errorMessage: deleteError, applyApiError: applyDeleteError } = useValidatedForm(noForm, {
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
+const { errorMessage: convertError, applyApiError: applyConvertError } = useValidatedForm(noForm, {
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
 
 // The conversion marker: once a quote is converted the backend sets
 // `converted_order_id` on it. NB the field may be absent from the response schema
@@ -52,7 +69,7 @@ const canConvert = computed(() =>
 
 async function onConvertConfirm() {
   if (!quote.value) return
-  convertError.value = null
+  convertError.value = ''
   try {
     const order = await convertMutation.mutateAsync(quote.value.id)
     convertOpen.value = false
@@ -64,7 +81,7 @@ async function onConvertConfirm() {
     await navigateTo(`/admin/orders/${order.id}`)
   }
   catch (err) {
-    convertError.value = parseProblem(err)
+    applyConvertError(err, t('messages.saveError'))
   }
 }
 
@@ -93,7 +110,7 @@ function toDateInput(iso: string | null | undefined): string {
 
 async function onSave() {
   if (!quote.value) return
-  formError.value = null
+  formError.value = ''
   // Note: omit `items` so the existing line set is left untouched (the backend
   // only replaces lines when a non-empty `items` is sent).
   const patch: QuoteUpdate = {
@@ -110,13 +127,13 @@ async function onSave() {
     })
   }
   catch (err) {
-    formError.value = parseProblem(err)
+    applyFormError(err, t('messages.saveError'))
   }
 }
 
 async function onDeleteConfirm() {
   if (!quote.value) return
-  deleteError.value = null
+  deleteError.value = ''
   try {
     await deleteMutation.mutateAsync(quote.value.id)
     deleteOpen.value = false
@@ -128,7 +145,7 @@ async function onDeleteConfirm() {
     await navigateTo('/admin/quotes')
   }
   catch (err) {
-    deleteError.value = parseProblem(err)
+    applyDeleteError(err, t('messages.saveError'))
   }
 }
 
@@ -183,7 +200,7 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
               color="primary"
               icon="i-lucide-file-output"
               data-testid="quote-convert"
-              @click="convertError = null; convertOpen = true"
+              @click="convertError = ''; convertOpen = true"
             >
               {{ $t('admin.quotes.convert.action') }}
             </UButton>
@@ -264,10 +281,16 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
             </h2>
           </template>
 
-          <ErrorAlert
+          <UAlert
             v-if="formError"
-            :problem="formError"
+            role="alert"
+            color="error"
+            variant="soft"
             class="mb-4"
+            :title="t('messages.saveErrorTitle')"
+            :description="formError"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="formError = ''"
           />
 
           <div class="space-y-4">
@@ -306,7 +329,7 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
                 color="error"
                 variant="soft"
                 icon="i-lucide-trash-2"
-                @click="deleteError = null; deleteOpen = true"
+                @click="deleteError = ''; deleteOpen = true"
               >
                 {{ $t('admin.quotes.actions.delete') }}
               </UButton>
@@ -329,12 +352,18 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
         :title="$t('admin.quotes.delete.title')"
         :description="$t('admin.quotes.delete.body')"
         :dismissible="!deleteMutation.isLoading.value"
-        @update:open="(v) => { deleteOpen = v; if (!v) deleteError = null }"
+        @update:open="(v) => { deleteOpen = v; if (!v) deleteError = '' }"
       >
         <template #body>
-          <ErrorAlert
+          <UAlert
             v-if="deleteError"
-            :problem="deleteError"
+            role="alert"
+            color="error"
+            variant="soft"
+            :title="t('messages.saveErrorTitle')"
+            :description="deleteError"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="deleteError = ''"
           />
         </template>
         <template #footer>
@@ -363,13 +392,19 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
         :title="$t('admin.quotes.convert.confirmTitle')"
         :description="$t('admin.quotes.convert.confirmBody')"
         :dismissible="!convertMutation.isLoading.value"
-        @update:open="(v) => { convertOpen = v; if (!v) convertError = null }"
+        @update:open="(v) => { convertOpen = v; if (!v) convertError = '' }"
       >
         <template #body>
-          <ErrorAlert
+          <UAlert
             v-if="convertError"
-            :problem="convertError"
+            role="alert"
+            color="error"
+            variant="soft"
+            :title="t('messages.saveErrorTitle')"
+            :description="convertError"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
             data-testid="quote-convert-error"
+            @close="convertError = ''"
           />
         </template>
         <template #footer>

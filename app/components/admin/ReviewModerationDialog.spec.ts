@@ -167,7 +167,7 @@ describe('ReviewModerationDialog', () => {
     expect(button('Save reply')).toBeTruthy()
   })
 
-  it('shows an error alert and no toast when moderation fails', async () => {
+  it('shows the inline error alert + an error toast when moderation fails', async () => {
     moderateMutate.mockRejectedValue({ data: { detail: 'Boom' } })
     await mountSuspended(ReviewModerationDialog, {
       props: { open: true, review: baseReview() },
@@ -175,8 +175,10 @@ describe('ReviewModerationDialog', () => {
     click('Approve')
     await new Promise(r => setTimeout(r, 0))
 
+    // Gold-standard flow: server detail surfaces inline (role=alert) + a toast.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(document.body.textContent).toContain('Boom')
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 
   it('is axe-clean when open', async () => {
