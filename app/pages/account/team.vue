@@ -46,7 +46,9 @@ useHead({ title: () => t('account.settings.team.title') })
 // --- Invite -------------------------------------------------------------------
 const invite = useInviteMember()
 const inviting = ref(false)
-const inviteError = ref<ProblemDetails | null>(null)
+// Raw caught error (or a synthesized one for the friendly 409 copy), passed to
+// the form which drives the signin flow (inline message + error toast).
+const inviteError = ref<unknown>(null)
 
 async function onInvite(values: CompanyMemberInvite) {
   if (inviting.value) return
@@ -64,13 +66,11 @@ async function onInvite(values: CompanyMemberInvite) {
   catch (err) {
     const { status } = narrowFetchError(err)
     // Already a member, or an invite is already pending for that email → 409.
-    if (status === 409) {
-      inviteError.value = { title: t('account.settings.team.invite.errors.alreadyMember') }
-    }
-    else {
-      inviteError.value = parseProblem(err)
-    }
-    toast.add({ title: t('account.settings.team.invite.error'), color: 'error' })
+    // Synthesize a detail-shaped error so the friendly copy flows through the
+    // form's normalize→UAlert path; otherwise pass the raw error through.
+    inviteError.value = status === 409
+      ? { data: { detail: t('account.settings.team.invite.errors.alreadyMember') } }
+      : err
   }
   finally {
     inviting.value = false
@@ -200,12 +200,9 @@ async function onConfirm() {
               <p class="text-sm text-gray-600 dark:text-gray-400">
                 {{ t('account.settings.team.invite.hint') }}
               </p>
-              <ErrorAlert
-                v-if="inviteError"
-                :problem="inviteError"
-              />
               <AccountTeamInviteForm
                 :loading="inviting"
+                :error="inviteError"
                 @submit="onInvite"
               />
             </div>

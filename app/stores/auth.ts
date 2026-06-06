@@ -528,6 +528,7 @@ export const useAuthStore = defineStore('auth', () => {
       return {
         success: false,
         error: detail || 'Failed to update password.',
+        raw: error,
       }
     }
   }

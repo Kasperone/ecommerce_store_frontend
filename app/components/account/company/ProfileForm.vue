@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { createCompanyProfileSchema } from '#shared/validators/companyProfile'
 import type { CompanyProfileInput } from '#shared/validators/companyProfile'
 import type { CompanyMe } from '~/composables/queries/useCompany'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 /**
  * COMPANY_ADMIN-editable company-profile form (D-D-4 narrow allow-list: contact
@@ -20,6 +21,8 @@ import type { CompanyMe } from '~/composables/queries/useCompany'
 const props = defineProps<{
   company: CompanyMe
   loading?: boolean
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
 }>()
 
 const emit = defineEmits<{
@@ -27,6 +30,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 const schema = computed(() => createCompanyProfileSchema(t))
 
 const state = reactive<CompanyProfileInput>({
@@ -42,6 +46,24 @@ const state = reactive<CompanyProfileInput>({
   default_currency: props.company.default_currency ?? '',
 })
 
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'account.settings.company.saveError',
+})
+
+// The page owns the PATCH mutation; surface its raw error here so the form
+// drives the same flow as signin (message + backend field mapping).
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('account.settings.company.saveError'))
+    else errorMessage.value = ''
+  },
+)
+
 function onSubmit(event: { data: CompanyProfileInput }) {
   emit('submit', event.data)
 }
@@ -52,12 +74,22 @@ defineExpose({ state })
 
 <template>
   <UForm
+    ref="formRef"
     :schema="schema"
     :state="state"
     :validate-on="['submit']"
     class="space-y-6"
     @submit="onSubmit"
   >
+    <UAlert
+      v-if="errorMessage"
+      color="error"
+      variant="soft"
+      :title="t('account.settings.company.saveError')"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+      @close="errorMessage = ''"
+    />
     <div class="grid gap-4 sm:grid-cols-2">
       <UFormField
         :label="t('account.settings.company.fields.taxId')"

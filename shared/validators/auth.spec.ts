@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   createBusinessSignUpSchema,
+  createChangePasswordSchema,
   createEmailValidation,
   createForgotPasswordSchema,
   createLoginSchema,
@@ -285,6 +286,44 @@ describe('createResetPasswordSchema', () => {
       // ("don't match"), unlike the sign-up schemas ("do not match"). The
       // i18n translation key is the same and tests both via tStub fallback.
       expect(issue?.message).toBe('Passwords don\'t match')
+    }
+  })
+})
+
+describe('createChangePasswordSchema', () => {
+  const schema = createChangePasswordSchema(tStub)
+
+  const valid = {
+    current_password: 'old-secret-1',
+    new_password: 'new-secret-1',
+    confirm_password: 'new-secret-1',
+  }
+
+  it('accepts a valid payload', () => {
+    expect(schema.safeParse(valid).success).toBe(true)
+  })
+
+  it('requires the current password', () => {
+    const result = schema.safeParse({ ...valid, current_password: '' })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues.some(i => i.path[0] === 'current_password')).toBe(true)
+    }
+  })
+
+  it('rejects a too-short new password', () => {
+    const result = schema.safeParse({ ...valid, new_password: 'short', confirm_password: 'short' })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues.some(i => i.path[0] === 'new_password')).toBe(true)
+    }
+  })
+
+  it('rejects a mismatched confirmation on the confirm_password path', () => {
+    const result = schema.safeParse({ ...valid, confirm_password: 'different-1' })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues.some(i => i.path[0] === 'confirm_password')).toBe(true)
     }
   })
 })

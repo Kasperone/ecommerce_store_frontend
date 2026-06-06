@@ -182,8 +182,9 @@ describe('account/settings/security — change password', () => {
     await wrapper.find('form').trigger('submit')
     await tick()
 
+    // Gold-standard flow: generic title + the server message in the description.
     expect(toastAdd).toHaveBeenCalledWith(
-      expect.objectContaining({ color: 'error', title: 'Wrong current password' }),
+      expect.objectContaining({ color: 'error', description: 'Wrong current password' }),
     )
   })
 })
