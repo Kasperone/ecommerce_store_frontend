@@ -19,6 +19,7 @@
  * Auto-imported as `<AdminOrderRefundDialog>` (pathPrefix prepends `admin/`).
  */
 import { useI18n } from 'vue-i18n'
+import { ref } from 'vue'
 import type {
   OrderItemResponse,
   OrderStatus,
@@ -28,13 +29,14 @@ import type {
   RefundReason,
   RefundResponse,
 } from '#shared/types/api'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{
   order: OrderWithUser
   open: boolean
   loading?: boolean
-  error?: ProblemDetails | null
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
 }>()
 
 const emit = defineEmits<{
@@ -43,6 +45,25 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useI18n()
+const toast = useToast()
+
+// This dialog is a custom <form> (not a <UForm>) with no client-validatable
+// fields, so we drive only the error message + toast: a null form ref makes
+// applyApiError skip field-mapping/scroll and just surface the message.
+const noForm = ref<ValidatedFormInstance | null>(null)
+const { errorMessage, applyApiError } = useValidatedForm(noForm, {
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
+
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('messages.saveError'))
+    else errorMessage.value = ''
+  },
+)
 
 const REFUND_REASONS: RefundReason[] = [
   'defective',
@@ -254,10 +275,16 @@ function onSubmit() {
     :dismissible="!loading"
   >
     <template #body>
-      <ErrorAlert
-        v-if="error"
-        :problem="error"
+      <UAlert
+        v-if="errorMessage"
+        role="alert"
+        color="error"
+        variant="soft"
         class="mb-4"
+        :title="t('messages.saveErrorTitle')"
+        :description="errorMessage"
+        :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+        @close="errorMessage = ''"
       />
 
       <form

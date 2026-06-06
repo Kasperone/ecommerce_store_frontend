@@ -31,7 +31,8 @@ const formError = ref<ProblemDetails | null>(null)
 const cancelOpen = ref(false)
 const cancelError = ref<ProblemDetails | null>(null)
 const refundOpen = ref(false)
-const refundError = ref<ProblemDetails | null>(null)
+// Raw caught error — OrderRefundDialog drives the gold-standard flow internally.
+const refundError = ref<unknown>(null)
 
 // D3: which statuses can be refunded. Mirrors the backend's REFUNDABLE_STATUSES
 // set — the API re-validates, this is purely for UX (the button is hidden when
@@ -122,7 +123,7 @@ async function onRefundSubmit(payload: RefundCreate) {
     })
   }
   catch (err) {
-    refundError.value = parseProblem(err)
+    refundError.value = err
   }
 }
 
