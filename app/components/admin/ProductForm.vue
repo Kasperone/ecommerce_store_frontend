@@ -5,7 +5,7 @@ import type {
   CategoryResponse,
   ProductWithCategory,
 } from '#shared/types/api'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import {
   createProductCreateSchema,
   createProductUpdateSchema,
@@ -41,7 +41,8 @@ const props = defineProps<{
   product?: ProductWithCategory | null
   categories: CategoryResponse[]
   loading?: boolean
-  error?: ProblemDetails | null
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
   submitLabel?: string
 }>()
 
@@ -51,6 +52,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 const mode = computed<'create' | 'edit'>(() => (props.product ? 'edit' : 'create'))
 
 interface FormState {
@@ -94,6 +96,24 @@ const state = reactive<FormState>({
   is_featured: false,
   category_id: undefined,
 })
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
+
+// The page owns the create/update fetch; surface its raw error here so the
+// form drives the same flow as signin (message + backend field mapping).
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('messages.saveError'))
+    else errorMessage.value = ''
+  },
+)
 
 const slugManuallyEdited = ref(false)
 
@@ -243,15 +263,21 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
 
 <template>
   <UForm
+    ref="formRef"
     :state="state"
     :validate="validate"
     :validate-on="['submit']"
     class="space-y-8"
     @submit="onSubmit"
   >
-    <ErrorAlert
-      v-if="error"
-      :problem="error"
+    <UAlert
+      v-if="errorMessage"
+      color="error"
+      variant="soft"
+      :title="t('messages.saveErrorTitle')"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+      @close="errorMessage = ''"
     />
 
     <section class="space-y-4">

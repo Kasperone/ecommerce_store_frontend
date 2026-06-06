@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProductFormPayload } from '~/components/admin/ProductForm.vue'
 
@@ -24,7 +23,7 @@ useHead({
 })
 
 const updateMutation = useUpdateProduct()
-const formError = ref<ProblemDetails | null>(null)
+const formError = ref<unknown>(null)
 
 const justCreated = ref(route.query.created === '1')
 function dismissCreated() {
@@ -39,7 +38,7 @@ async function onSubmit(payload: ProductFormPayload) {
     await updateMutation.mutateAsync({ id: productId.value, patch: payload })
   }
   catch (err) {
-    formError.value = parseProblem(err)
+    formError.value = err
   }
 }
 </script>

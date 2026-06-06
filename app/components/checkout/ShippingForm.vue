@@ -5,12 +5,13 @@ import { countryOptions } from '#shared/utils/countries'
 import type { SupportedLocale } from '#shared/utils/countries'
 import { createShippingSchema } from '#shared/validators/checkout'
 import type { ShippingInput } from '#shared/validators/checkout'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{
   initial?: Partial<ShippingInput>
   loading?: boolean
-  error?: ProblemDetails | null
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
   /** Disabled when the page-level submit guard hasn't yet got a method id. */
   submitDisabled?: boolean
 }>()
@@ -26,6 +27,7 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useI18n()
+const toast = useToast()
 const schema = computed(() => createShippingSchema(t))
 
 // USelect option list — localized by the current UI locale; sorted with PL
@@ -39,6 +41,24 @@ const state = reactive<ShippingInput>({
   country: props.initial?.country ?? '',
   notes: props.initial?.notes ?? '',
 })
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'checkout.errorTitle',
+})
+
+// The page owns the order-creation fetch; surface its raw error here so the
+// shipping form drives the same flow as signin (message + field mapping).
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('checkout.error', { default: 'Could not place your order' }))
+    else errorMessage.value = ''
+  },
+)
 
 // Profile may resolve after mount; backfill empty fields from the prefill once.
 watch(() => props.initial, (incoming) => {
@@ -62,15 +82,21 @@ function onSubmit(event: { data: ShippingInput }) {
 
 <template>
   <UForm
+    ref="formRef"
     :schema="schema"
     :state="state"
     :validate-on="['submit']"
     class="space-y-4"
     @submit="onSubmit"
   >
-    <ErrorAlert
-      v-if="error"
-      :problem="error"
+    <UAlert
+      v-if="errorMessage"
+      color="error"
+      variant="soft"
+      :title="t('checkout.errorTitle', { default: 'Could not place your order' })"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+      @close="errorMessage = ''"
     />
 
     <UFormField

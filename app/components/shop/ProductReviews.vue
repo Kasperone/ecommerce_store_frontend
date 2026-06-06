@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { createReviewSchema, type ReviewInput } from '#shared/validators/review'
-import { parseProblem, type ProblemDetails } from '#shared/utils/problemDetails'
 import { reviewStatusColor } from '#shared/utils/reviewStatus'
 import type { ReviewResponse } from '#shared/types/api'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{ productId: number }>()
 
@@ -39,7 +39,6 @@ const own = ref<ReviewResponse | null>(null)
 const ownLoaded = ref(false)
 const showForm = ref(false)
 const submitting = ref(false)
-const submitError = ref<ProblemDetails | null>(null)
 const justSubmitted = ref(false)
 
 async function loadOwn() {
@@ -146,6 +145,14 @@ const state = reactive<{ rating: number, title: string, body: string }>({
   body: '',
 })
 
+const reviewFormRef = useTemplateRef<ValidatedFormInstance>('reviewFormRef')
+const { errorMessage, applyApiError } = useValidatedForm(reviewFormRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'reviews.form.errorTitle',
+})
+
 function startWrite() {
   if (own.value) {
     state.rating = own.value.rating
@@ -157,14 +164,14 @@ function startWrite() {
     state.title = ''
     state.body = ''
   }
-  submitError.value = null
+  errorMessage.value = ''
   justSubmitted.value = false
   showForm.value = true
 }
 
 async function onSubmit(event: { data: ReviewInput }) {
   submitting.value = true
-  submitError.value = null
+  errorMessage.value = ''
   try {
     const body = {
       rating: event.data.rating,
@@ -181,7 +188,7 @@ async function onSubmit(event: { data: ReviewInput }) {
     await refresh()
   }
   catch (err) {
-    submitError.value = parseProblem(err)
+    applyApiError(err, t('reviews.form.error', { default: 'Could not save your review' }))
   }
   finally {
     submitting.value = false
@@ -189,7 +196,7 @@ async function onSubmit(event: { data: ReviewInput }) {
 }
 
 async function onDelete() {
-  submitError.value = null
+  errorMessage.value = ''
   try {
     await myReview.remove(props.productId)
     own.value = null
@@ -198,7 +205,7 @@ async function onDelete() {
     await refresh()
   }
   catch (err) {
-    submitError.value = parseProblem(err)
+    applyApiError(err, t('reviews.form.error', { default: 'Could not save your review' }))
   }
 }
 
@@ -334,14 +341,21 @@ function starsLabel(rating: number) {
         <!-- Write / edit form -->
         <UForm
           v-else-if="showForm"
+          ref="reviewFormRef"
           :schema="schema"
           :state="state"
+          :validate-on="['submit']"
           class="space-y-4 rounded-lg border border-default p-4"
           @submit="onSubmit"
         >
-          <ErrorAlert
-            v-if="submitError"
-            :problem="submitError"
+          <UAlert
+            v-if="errorMessage"
+            color="error"
+            variant="soft"
+            :title="t('reviews.form.errorTitle', { default: 'Could not save your review' })"
+            :description="errorMessage"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="errorMessage = ''"
           />
           <UFormField
             :label="t('reviews.form.ratingLabel')"

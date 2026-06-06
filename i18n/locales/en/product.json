@@ -92,6 +92,8 @@
       "submit": "Submit review",
       "cancel": "Cancel",
       "successPending": "Thanks! Your review is awaiting moderation.",
+      "errorTitle": "Could not save your review",
+      "error": "Could not save your review. Please try again.",
       "errors": {
         "ratingRequired": "Please select a rating",
         "ratingRange": "Rating must be between 1 and 5",
