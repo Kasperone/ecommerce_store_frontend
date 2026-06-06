@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import { z } from 'zod'
 import type { StaffResponse, UserRole } from '~/composables/queries/useStaffQueries'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
-import { parseProblem } from '#shared/utils/problemDetails'
 
 const props = defineProps<{
   open: boolean
@@ -19,9 +18,18 @@ const toast = useToast()
 
 const updateStaff = useUpdateStaff()
 
-const role = ref<UserRole>('CUSTOMER')
-const isActive = ref(true)
-const error = ref<ProblemDetails | null>(null)
+const state = reactive({
+  role: 'CUSTOMER' as UserRole,
+  is_active: true,
+})
+const error = ref<unknown>(null)
+
+const schema = computed(() =>
+  z.object({
+    role: z.enum(['ADMIN', 'CUSTOMER']),
+    is_active: z.boolean(),
+  }),
+)
 
 const loading = computed(() => updateStaff.isLoading.value)
 
@@ -44,8 +52,8 @@ watch(
   (isOpen) => {
     if (!isOpen) return
     error.value = null
-    role.value = props.member?.role ?? 'CUSTOMER'
-    isActive.value = props.member?.is_active ?? true
+    state.role = props.member?.role ?? 'CUSTOMER'
+    state.is_active = props.member?.is_active ?? true
   },
   { immediate: true },
 )
@@ -61,7 +69,7 @@ async function onSubmit() {
   try {
     await updateStaff.mutateAsync({
       userId: props.member.id,
-      patch: { role: role.value, is_active: isActive.value },
+      patch: { role: state.role, is_active: state.is_active },
     })
     toast.add({
       title: t('admin.staff.flashes.updated'),
@@ -74,7 +82,7 @@ async function onSubmit() {
   catch (err) {
     // Surface the backend guard message (self-lockout / last-active-admin) in
     // the dialog rather than pre-disabling the controls.
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>
@@ -87,6 +95,8 @@ async function onSubmit() {
     :cancel-label="t('admin.staff.dialog.cancel')"
     :loading="loading"
     :error="error"
+    :schema="schema"
+    :state="state"
     @update:open="(v) => (openModel = v)"
     @submit="onSubmit"
   >
@@ -101,7 +111,7 @@ async function onSubmit() {
           name="role"
         >
           <USelect
-            v-model="role"
+            v-model="state.role"
             :items="roleOptions"
             value-key="value"
             class="w-full"
@@ -113,7 +123,7 @@ async function onSubmit() {
           :help="t('admin.staff.dialog.activeHint')"
           name="is_active"
         >
-          <USwitch v-model="isActive" />
+          <USwitch v-model="state.is_active" />
         </UFormField>
       </div>
     </template>
