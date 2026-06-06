@@ -106,6 +106,7 @@ async function onSubmit() {
         <UFormField
           :label="t('admin.warehouses.form.name')"
           name="name"
+          required
         >
           <UInput
             v-model="name"
@@ -117,6 +118,7 @@ async function onSubmit() {
           :label="t('admin.warehouses.form.code')"
           :help="t('admin.warehouses.form.codeHint')"
           name="code"
+          required
         >
           <UInput
             v-model="code"

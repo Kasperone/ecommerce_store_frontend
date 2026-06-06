@@ -112,6 +112,7 @@ async function onSubmit() {
         <UFormField
           :label="t('admin.inventory.transfer.from')"
           name="from_warehouse_id"
+          required
         >
           <USelect
             v-model="fromWarehouseId"
@@ -129,6 +130,7 @@ async function onSubmit() {
         <UFormField
           :label="t('admin.inventory.transfer.to')"
           name="to_warehouse_id"
+          required
         >
           <USelect
             v-model="toWarehouseId"
@@ -142,6 +144,7 @@ async function onSubmit() {
         <UFormField
           :label="t('admin.inventory.transfer.quantity')"
           name="quantity"
+          required
         >
           <UInputNumber
             v-model="quantity"

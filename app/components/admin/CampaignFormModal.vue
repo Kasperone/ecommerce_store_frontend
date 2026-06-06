@@ -188,6 +188,7 @@ async function onSubmit() {
           :label="t('admin.campaigns.form.name')"
           :help="t('admin.campaigns.form.nameHint')"
           name="name"
+          required
         >
           <UInput
             v-model="name"
@@ -199,6 +200,7 @@ async function onSubmit() {
           :label="t('admin.campaigns.form.subject')"
           :help="t('admin.campaigns.form.subjectHint')"
           name="subject"
+          required
         >
           <UInput
             v-model="subject"

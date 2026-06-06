@@ -197,6 +197,7 @@ async function onSubmit() {
         <UFormField
           :label="t('admin.companies.form.name')"
           name="name"
+          required
         >
           <UInput
             v-model="name"

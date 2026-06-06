@@ -290,6 +290,7 @@ async function confirmCreate() {
               :label="t('admin.cms.fields.slug')"
               :help="t('admin.cms.create.slugHint')"
               name="slug"
+              required
             >
               <UInput
                 v-model="newSlug"
