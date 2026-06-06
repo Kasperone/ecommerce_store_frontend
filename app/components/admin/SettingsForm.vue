@@ -2,13 +2,14 @@
 import { z } from 'zod'
 import type { FormError, FormSubmitEvent } from '@nuxt/ui'
 import type { StoreConfig, StoreConfigUpdate } from '~/composables/queries/useSettingsQueries'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{
   /** The loaded store-config singleton; null while the GET is in flight. */
   config?: StoreConfig | null
   loading?: boolean
-  error?: ProblemDetails | null
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
 }>()
 
 const emit = defineEmits<{
@@ -16,6 +17,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 
 interface FormState {
   store_name: string
@@ -51,6 +53,24 @@ watch(
   },
   // immediate so a config already resolved at mount prefills the fields.
   { immediate: true },
+)
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
+
+// The page owns the PATCH fetch; surface its raw error here so the form drives
+// the same flow as signin (message + backend field mapping).
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('messages.saveError'))
+    else errorMessage.value = ''
+  },
 )
 
 // Client-side guard mirroring the backend CHECK (invoice_vat_rate 0–100). The
@@ -102,15 +122,21 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
 
 <template>
   <UForm
+    ref="formRef"
     :state="state"
     :validate="validate"
     :validate-on="['submit']"
     class="space-y-8"
     @submit="onSubmit"
   >
-    <ErrorAlert
-      v-if="error"
-      :problem="error"
+    <UAlert
+      v-if="errorMessage"
+      color="error"
+      variant="soft"
+      :title="t('messages.saveErrorTitle')"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+      @close="errorMessage = ''"
     />
 
     <section class="space-y-4">

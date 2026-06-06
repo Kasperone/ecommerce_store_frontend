@@ -127,14 +127,16 @@ describe('SettingsForm', () => {
     expect(wrapper.emitted('submit')).toBeFalsy()
   })
 
-  it('renders an ErrorAlert when a server error is passed (e.g. a 422)', async () => {
-    const wrapper = await mountSuspended(SettingsForm, {
-      props: {
-        config,
-        error: { title: 'invoice_vat_rate must be between 0 and 100', status: 422 },
-      },
+  it('surfaces a server error via the form alert (e.g. a 422)', async () => {
+    // The parent passes the raw caught error; the gold-standard flow normalizes
+    // its `detail` into the inline UAlert. Set it after mount so the null→error
+    // transition fires the watch (matches real usage).
+    const wrapper = await mountSuspended(SettingsForm, { props: { config, error: null } })
+    await wrapper.setProps({
+      error: { data: { detail: 'invoice_vat_rate must be between 0 and 100' } },
     })
-    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
     expect(wrapper.text()).toContain('invoice_vat_rate must be between 0 and 100')
   })
 

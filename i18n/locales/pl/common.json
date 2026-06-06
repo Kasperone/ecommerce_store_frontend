@@ -2365,7 +2365,9 @@
     "error": "Wystąpił błąd",
     "loading": "Ładowanie...",
     "noResults": "Brak wyników",
-    "confirmDelete": "Czy na pewno chcesz to usunąć?"
+    "confirmDelete": "Czy na pewno chcesz to usunąć?",
+    "saveErrorTitle": "Nie udało się zapisać zmian",
+    "saveError": "Nie udało się zapisać zmian. Sprawdź formularz i spróbuj ponownie."
   },
   "auth": {
     "email": "Email",

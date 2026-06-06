@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import slugify from 'slugify'
 import type { FormError, FormSubmitEvent } from '@nuxt/ui'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import type {
   CategoryResponse,
   CategoryTreeNode,
@@ -47,7 +47,8 @@ const props = defineProps<{
   open: boolean
   category?: CategoryResponse | CategoryWithProductCount | CategoryTreeNode | null
   loading?: boolean
-  error?: ProblemDetails | null
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
 }>()
 
 const emit = defineEmits<{
@@ -57,6 +58,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 const mode = computed<'create' | 'edit'>(() => (props.category ? 'edit' : 'create'))
 const seoHint = computed(() =>
   t('admin.categories.seo.hint', {
@@ -84,6 +86,24 @@ const heroFile = ref<File | null>(null)
 const heroAlt = ref('')
 const removeExistingHero = ref(false)
 const localeTab = ref<LocaleTab>('en')
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
+
+// The page owns the create/update fetch; surface its raw error here so the
+// modal drives the same flow as signin (message + backend field mapping).
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('messages.saveError'))
+    else errorMessage.value = ''
+  },
+)
 
 const existingHero = computed(() =>
   removeExistingHero.value
@@ -239,14 +259,21 @@ const title = computed(() =>
     @update:open="(v) => emit('update:open', v)"
   >
     <template #body>
-      <ErrorAlert
-        v-if="error"
-        :problem="error"
+      <UAlert
+        v-if="errorMessage"
+        color="error"
+        variant="soft"
         class="mb-4"
+        :title="t('messages.saveErrorTitle')"
+        :description="errorMessage"
+        :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+        @close="errorMessage = ''"
       />
       <UForm
+        ref="formRef"
         :state="state"
         :validate="validate"
+        :validate-on="['submit']"
         class="space-y-6"
         @submit="onSubmit"
       >

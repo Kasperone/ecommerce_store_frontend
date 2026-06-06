@@ -2,8 +2,6 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatMoney, selectPrice } from '#shared/utils/money'
-import { parseProblem } from '#shared/utils/problemDetails'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
 import type { ShippingInput } from '#shared/validators/checkout'
 import type { OrderResponse } from '#shared/types/api'
 import type { AppliedCoupon } from '~/components/checkout/CouponField.vue'
@@ -49,7 +47,7 @@ useHead({ title: () => t('checkout.title') })
 
 // Survives the client navigation to /checkout/success (reset on a hard reload).
 const lastOrder = useState<OrderResponse | null>('checkout:lastOrder', () => null)
-const error = ref<ProblemDetails | null>(null)
+const error = ref<unknown>(null)
 
 // Lifted state: country comes from the form, method id comes from the selector.
 // Both feed the quote endpoint; the selected method rides on the create-order
@@ -170,7 +168,7 @@ async function placeOrder(shipping: ShippingInput) {
     await navigateTo(localePath('/checkout/success'))
   }
   catch (err) {
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>

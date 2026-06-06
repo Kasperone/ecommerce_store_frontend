@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { ProblemDetails } from '#shared/utils/problemDetails'
-import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProductFormPayload } from '~/components/admin/ProductForm.vue'
 
 definePageMeta({
@@ -21,7 +19,7 @@ const deleteMutation = useDeleteProduct()
 
 const stagedFiles = ref<File[]>([])
 const isSubmitting = ref(false)
-const formError = ref<ProblemDetails | null>(null)
+const formError = ref<unknown>(null)
 
 async function onSubmit(payload: ProductFormPayload) {
   formError.value = null
@@ -64,7 +62,7 @@ async function onSubmit(payload: ProductFormPayload) {
         // Best-effort cleanup; orphan product is recoverable from /admin/products.
       }
     }
-    formError.value = parseProblem(err)
+    formError.value = err
   }
   finally {
     isSubmitting.value = false
