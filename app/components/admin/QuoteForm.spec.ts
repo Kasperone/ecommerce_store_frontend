@@ -52,14 +52,14 @@ describe('AdminQuoteForm', () => {
       props: { companies: COMPANIES },
     })
     const vm = wrapper.vm as any
-    vm.companyId = 3
-    vm.currency = 'EUR'
-    vm.validUntil = '2026-12-31'
-    vm.notes = '  Net 30  '
+    vm.state.company_id = 3
+    vm.state.currency = 'EUR'
+    vm.state.valid_until = '2026-12-31'
+    vm.state.notes = '  Net 30  '
     // The editor child emits up to `items`; simulate a filled line.
-    vm.items = [{ description: 'Service', quantity: 2, unit_price: 100, product_id: null }]
+    vm.state.items = [{ description: 'Service', quantity: 2, unit_price: 100, product_id: null }]
     await new Promise(r => setTimeout(r, 0))
-    vm.onSubmit()
+    await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
 
     const body = lastSubmit(wrapper)
@@ -72,31 +72,31 @@ describe('AdminQuoteForm', () => {
     })
   })
 
-  it('blocks submit + surfaces an error when no company is selected (404 mirror)', async () => {
+  it('blocks submit + surfaces a field error when no company is selected (404 mirror)', async () => {
     const wrapper = await mountSuspended(QuoteForm, {
       props: { companies: COMPANIES },
     })
     const vm = wrapper.vm as any
-    vm.companyId = null
-    vm.items = [{ description: 'Service', quantity: 1, unit_price: 1, product_id: null }]
+    vm.state.company_id = null
+    vm.state.items = [{ description: 'Service', quantity: 1, unit_price: 1, product_id: null }]
     await new Promise(r => setTimeout(r, 0))
-    vm.onSubmit()
+    await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
 
+    // Client-side Zod validation blocks the emit and renders the field error.
     expect(wrapper.emitted('submit')).toBeFalsy()
-    expect(vm.validationError).toBeTruthy()
     expect(wrapper.text()).toContain('Select a company')
   })
 
-  it('blocks submit + surfaces an error when there are no line items (422 mirror)', async () => {
+  it('blocks submit + surfaces a field error when there are no line items (422 mirror)', async () => {
     const wrapper = await mountSuspended(QuoteForm, {
       props: { companies: COMPANIES },
     })
     const vm = wrapper.vm as any
-    vm.companyId = 3
-    vm.items = []
+    vm.state.company_id = 3
+    vm.state.items = []
     await new Promise(r => setTimeout(r, 0))
-    vm.onSubmit()
+    await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
 
     expect(wrapper.emitted('submit')).toBeFalsy()
