@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 import { COMPANY_ROLES } from '~/composables/queries/useTeam'
 import type { CompanyMemberInvite, CompanyRole } from '~/composables/queries/useTeam'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 /**
  * Invite-a-member form (COMPANY_ADMIN only — the page hides it for non-admins).
@@ -15,8 +16,10 @@ import type { CompanyMemberInvite, CompanyRole } from '~/composables/queries/use
  * labelled (UFormField `label`) for EAA conformance.
  */
 
-defineProps<{
+const props = defineProps<{
   loading?: boolean
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
 }>()
 
 const emit = defineEmits<{
@@ -24,6 +27,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 
 const schema = computed(() =>
   z.object({
@@ -38,6 +42,24 @@ const state = reactive<InviteInput>({
   email: '',
   role: 'BUYER',
 })
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'account.settings.team.invite.error',
+})
+
+// The page owns the invite mutation; surface its raw error here so the form
+// drives the same flow as signin (message + backend field mapping).
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('account.settings.team.invite.error'))
+    else errorMessage.value = ''
+  },
+)
 
 const roleItems = computed(() =>
   COMPANY_ROLES.map(role => ({
@@ -59,52 +81,65 @@ defineExpose({ state })
 
 <template>
   <UForm
+    ref="formRef"
     :schema="schema"
     :state="state"
     :validate-on="['submit']"
-    class="flex flex-col gap-4 sm:flex-row sm:items-start"
+    class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormField
-      :label="t('account.settings.team.invite.email')"
-      name="email"
-      required
-      class="flex-1"
-    >
-      <UInput
-        v-model="state.email"
-        type="email"
-        autocomplete="email"
-        :placeholder="t('account.settings.team.invite.emailPlaceholder')"
-        class="w-full"
-      />
-    </UFormField>
+    <UAlert
+      v-if="errorMessage"
+      color="error"
+      variant="soft"
+      :title="t('account.settings.team.invite.error')"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+      @close="errorMessage = ''"
+    />
 
-    <UFormField
-      :label="t('account.settings.team.invite.role')"
-      name="role"
-      required
-      class="sm:w-48"
-    >
-      <USelect
-        v-model="state.role"
-        :items="roleItems"
-        value-key="value"
-        :aria-label="t('account.settings.team.invite.role')"
-        class="w-full"
-      />
-    </UFormField>
-
-    <div class="sm:pt-6">
-      <UButton
-        type="submit"
-        color="primary"
-        icon="i-lucide-user-plus"
-        :loading="loading"
-        block
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+      <UFormField
+        :label="t('account.settings.team.invite.email')"
+        name="email"
+        required
+        class="flex-1"
       >
-        {{ t('account.settings.team.invite.submit') }}
-      </UButton>
+        <UInput
+          v-model="state.email"
+          type="email"
+          autocomplete="email"
+          :placeholder="t('account.settings.team.invite.emailPlaceholder')"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('account.settings.team.invite.role')"
+        name="role"
+        required
+        class="sm:w-48"
+      >
+        <USelect
+          v-model="state.role"
+          :items="roleItems"
+          value-key="value"
+          :aria-label="t('account.settings.team.invite.role')"
+          class="w-full"
+        />
+      </UFormField>
+
+      <div class="sm:pt-6">
+        <UButton
+          type="submit"
+          color="primary"
+          icon="i-lucide-user-plus"
+          :loading="loading"
+          block
+        >
+          {{ t('account.settings.team.invite.submit') }}
+        </UButton>
+      </div>
     </div>
   </UForm>
 </template>

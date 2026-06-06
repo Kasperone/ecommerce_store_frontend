@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormError, FormSubmitEvent } from '@nuxt/ui'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import type { components } from '#shared/types/api.gen'
 import { createContactSchema, type ContactFormData } from '#shared/validators/contact'
-import { narrowFetchError } from '~/utils/apiError'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -24,19 +24,19 @@ const state = reactive<ContactFormData>({
 
 const schema = computed(() => createContactSchema(t))
 
-function validate(values: ContactFormData): FormError[] {
-  const result = schema.value.safeParse(values)
-  if (result.success) return []
-  return result.error.issues.map(issue => ({
-    name: String(issue.path[0] ?? ''),
-    message: issue.message,
-  }))
-}
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'legal.contact.form.errorTitle',
+})
 
 const sending = ref(false)
 
 async function onSubmit(event: FormSubmitEvent<ContactFormData>) {
   sending.value = true
+  errorMessage.value = ''
   try {
     await apiFetch<components['schemas']['ContactResponse']>('/api/v1/contact', {
       method: 'POST',
@@ -61,13 +61,7 @@ async function onSubmit(event: FormSubmitEvent<ContactFormData>) {
     state.message = ''
   }
   catch (error) {
-    narrowFetchError(error)
-    toast.add({
-      title: t('legal.contact.form.errorTitle'),
-      description: t('legal.contact.form.errorDescription'),
-      color: 'error',
-      icon: 'i-lucide-circle-x',
-    })
+    applyApiError(error, t('legal.contact.form.errorDescription'))
   }
   finally {
     sending.value = false
@@ -142,12 +136,22 @@ async function onSubmit(event: FormSubmitEvent<ContactFormData>) {
               {{ t('legal.contact.form.heading') }}
             </h2>
             <UForm
+              ref="formRef"
+              :schema="schema"
               :state="state"
-              :validate="validate"
               :validate-on="['submit']"
               class="space-y-5"
               @submit="onSubmit"
             >
+              <UAlert
+                v-if="errorMessage"
+                color="error"
+                variant="soft"
+                :title="t('legal.contact.form.errorTitle')"
+                :description="errorMessage"
+                :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+                @close="errorMessage = ''"
+              />
               <UFormField
                 :label="t('legal.contact.form.name')"
                 name="name"

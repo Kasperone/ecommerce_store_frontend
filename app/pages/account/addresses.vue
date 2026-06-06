@@ -44,19 +44,24 @@ const { mutateAsync: deleteAddress } = useDeleteAddress()
 const formOpen = ref(false)
 const editTarget = ref<Address | null>(null)
 const saving = ref(false)
+// Raw caught submit error, passed to the form which drives the signin flow.
+const formError = ref<unknown>(null)
 
 function onAddRequest() {
   editTarget.value = null
+  formError.value = null
   formOpen.value = true
 }
 
 function onEditRequest(address: Address) {
   editTarget.value = address
+  formError.value = null
   formOpen.value = true
 }
 
 async function onFormSubmit(values: AddressInput) {
   saving.value = true
+  formError.value = null
   // Normalize optional empties to null for the wire (matches the API's nullable
   // optional fields).
   const payload = {
@@ -83,8 +88,9 @@ async function onFormSubmit(values: AddressInput) {
     formOpen.value = false
     editTarget.value = null
   }
-  catch {
-    toast.add({ title: t('account.settings.addresses.saveError'), color: 'error' })
+  catch (err) {
+    // The form surfaces the message inline + raises the error toast.
+    formError.value = err
   }
   finally {
     saving.value = false
@@ -232,6 +238,7 @@ async function onConfirmDelete() {
           :key="editTarget?.id ?? 'new'"
           :address="editTarget"
           :loading="saving"
+          :error="formError"
           @submit="onFormSubmit"
           @cancel="formOpen = false"
         />

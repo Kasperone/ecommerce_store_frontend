@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormError, FormSubmitEvent } from '@nuxt/ui'
-import { z } from 'zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import { AUTH_ENDPOINTS } from '#shared/constants/api'
+import { createChangePasswordSchema } from '#shared/validators/auth'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import {
   useSessionsQuery,
   useRevokeSession,
@@ -50,42 +51,21 @@ const pwState = reactive<PasswordState>({
   confirm_password: '',
 })
 
-const pwSchema = computed(() =>
-  z
-    .object({
-      current_password: z
-        .string()
-        .min(1, t('account.settings.security.password.errors.currentRequired')),
-      new_password: z
-        .string()
-        .min(8, t('account.settings.security.password.errors.tooShort'))
-        .max(100),
-      confirm_password: z.string(),
-    })
-    .superRefine((val, ctx) => {
-      if (val.new_password !== val.confirm_password) {
-        ctx.addIssue({
-          code: 'custom',
-          message: t('account.settings.security.password.errors.mismatch'),
-          path: ['confirm_password'],
-        })
-      }
-    }),
-)
+const pwSchema = computed(() => createChangePasswordSchema(t))
 
-function validatePassword(values: PasswordState): FormError[] {
-  const result = pwSchema.value.safeParse(values)
-  if (result.success) return []
-  return result.error.issues.map(issue => ({
-    name: String(issue.path[0] ?? ''),
-    message: issue.message,
-  }))
-}
+const pwFormRef = useTemplateRef<ValidatedFormInstance>('pwFormRef')
+const { errorMessage: pwErrorMessage, applyApiError: applyPwError } = useValidatedForm(pwFormRef, {
+  state: () => pwState,
+  toast,
+  t,
+  toastTitleKey: 'account.settings.security.password.error',
+})
 
 const changingPassword = ref(false)
 
 async function onChangePassword(_event: FormSubmitEvent<PasswordState>) {
   changingPassword.value = true
+  pwErrorMessage.value = ''
   const result = await authStore.changePassword(
     pwState.current_password,
     pwState.new_password,
@@ -99,10 +79,7 @@ async function onChangePassword(_event: FormSubmitEvent<PasswordState>) {
     pwState.confirm_password = ''
   }
   else {
-    toast.add({
-      title: result.error ?? t('account.settings.security.password.error'),
-      color: 'error',
-    })
+    applyPwError(result.raw, result.error ?? t('account.settings.security.password.error'))
   }
 }
 
@@ -181,12 +158,22 @@ async function onConfirmSignOutAll() {
         </template>
 
         <UForm
+          ref="pwFormRef"
+          :schema="pwSchema"
           :state="pwState"
-          :validate="validatePassword"
           :validate-on="['submit']"
           class="space-y-6"
           @submit="onChangePassword"
         >
+          <UAlert
+            v-if="pwErrorMessage"
+            color="error"
+            variant="soft"
+            :title="t('account.settings.security.password.error')"
+            :description="pwErrorMessage"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="pwErrorMessage = ''"
+          />
           <UFormField
             :label="t('account.settings.security.password.current')"
             name="current_password"

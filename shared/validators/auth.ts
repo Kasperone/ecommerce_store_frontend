@@ -132,6 +132,33 @@ export const createResetPasswordSchema = (t: TranslateFunction) =>
   })
 
 /**
+ * Creates the change-password schema with i18n support.
+ *
+ * Uses snake_case keys to match the account/security page's form state and the
+ * backend payload (current_password / new_password). The confirm field is a
+ * client-only cross-check, dropped before the request is built.
+ */
+export const createChangePasswordSchema = (t: TranslateFunction) =>
+  z.object({
+    current_password: z
+      .string()
+      .min(1, t('account.settings.security.password.errors.currentRequired', { default: 'Current password is required' })),
+    new_password: z
+      .string()
+      .min(8, t('account.settings.security.password.errors.tooShort', { count: 8, default: 'Must be at least 8 characters' }))
+      .max(100),
+    confirm_password: z.string(),
+  }).superRefine((val, ctx) => {
+    if (val.new_password !== val.confirm_password) {
+      ctx.addIssue({
+        code: 'custom',
+        message: t('account.settings.security.password.errors.mismatch', { default: 'Passwords don\'t match' }),
+        path: ['confirm_password'],
+      })
+    }
+  })
+
+/**
  * TypeScript types for form data
  * These are inferred from the schema functions when called
  */
@@ -140,3 +167,4 @@ export type PersonalSignUpFormData = z.infer<ReturnType<typeof createPersonalSig
 export type BusinessSignUpFormData = z.infer<ReturnType<typeof createBusinessSignUpSchema>>
 export type ForgotPasswordFormData = z.infer<ReturnType<typeof createForgotPasswordSchema>>
 export type ResetPasswordFormData = z.infer<ReturnType<typeof createResetPasswordSchema>>
+export type ChangePasswordFormData = z.infer<ReturnType<typeof createChangePasswordSchema>>
