@@ -12,11 +12,11 @@
 
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { z } from 'zod'
 import { countryOptions } from '#shared/utils/countries'
 import type { SupportedLocale } from '#shared/utils/countries'
-import { parseProblem } from '#shared/utils/problemDetails'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
 import type { ShippingZoneDetail, ShippingZoneListItem } from '#shared/types/api'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{
   open: boolean
@@ -51,7 +51,26 @@ const state = reactive({
   // the PL/EU ground default; 6000 international air; 4000 some express.
   dim_divisor: undefined as number | undefined,
 })
-const error = ref<ProblemDetails | null>(null)
+
+const schema = computed(() =>
+  z.object({
+    name: z.string().trim().min(1, t('messages.fieldRequired')),
+    description: z.string(),
+    is_active: z.boolean(),
+    sort_order: z.number(),
+    country_codes: z.array(z.string()),
+    dim_divisor: z.number().min(1).optional(),
+  }),
+)
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const hiddenSubmitRef = ref<HTMLButtonElement | null>(null)
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
 
 const countryItems = computed(() => countryOptions(locale.value as SupportedLocale))
 
@@ -59,7 +78,7 @@ watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
-    error.value = null
+    errorMessage.value = ''
     if (props.zone) {
       state.name = props.zone.name
       state.description = props.zone.description ?? ''
@@ -86,7 +105,7 @@ const openModel = computed({
 })
 
 async function onSubmit() {
-  error.value = null
+  errorMessage.value = ''
   try {
     if (props.zone) {
       await update.mutateAsync({
@@ -120,7 +139,7 @@ async function onSubmit() {
     emit('update:open', false)
   }
   catch (err) {
-    error.value = parseProblem(err)
+    applyApiError(err, t('messages.saveError'))
   }
 }
 </script>
@@ -135,17 +154,28 @@ async function onSubmit() {
           </h2>
         </template>
 
-        <form
+        <UForm
+          ref="formRef"
+          :schema="schema"
+          :state="state"
+          :validate-on="['submit']"
           class="space-y-4"
-          @submit.prevent="onSubmit"
+          @submit="onSubmit"
         >
-          <ErrorAlert
-            v-if="error"
-            :problem="error"
+          <UAlert
+            v-if="errorMessage"
+            role="alert"
+            color="error"
+            variant="soft"
+            :title="t('messages.saveErrorTitle')"
+            :description="errorMessage"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="errorMessage = ''"
           />
 
           <UFormField
             :label="t('admin.shipping.zones.name')"
+            name="name"
             required
           >
             <UInput
@@ -154,7 +184,10 @@ async function onSubmit() {
             />
           </UFormField>
 
-          <UFormField :label="t('admin.shipping.zones.description')">
+          <UFormField
+            :label="t('admin.shipping.zones.description')"
+            name="description"
+          >
             <UTextarea
               v-model="state.description"
               :placeholder="t('admin.shipping.zones.descriptionPlaceholder')"
@@ -163,14 +196,20 @@ async function onSubmit() {
           </UFormField>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <UFormField :label="t('admin.shipping.zones.sortOrder')">
+            <UFormField
+              :label="t('admin.shipping.zones.sortOrder')"
+              name="sort_order"
+            >
               <UInputNumber
                 v-model="state.sort_order"
                 :min="0"
                 class="w-full"
               />
             </UFormField>
-            <UFormField :label="t('admin.shipping.zones.active')">
+            <UFormField
+              :label="t('admin.shipping.zones.active')"
+              name="is_active"
+            >
               <UCheckbox
                 v-model="state.is_active"
                 :label="t('admin.shipping.zones.fields.activeOn')"
@@ -181,6 +220,7 @@ async function onSubmit() {
           <UFormField
             :label="t('admin.shipping.zones.countries')"
             :hint="t('admin.shipping.zones.countriesHint')"
+            name="country_codes"
           >
             <USelectMenu
               v-model="state.country_codes"
@@ -195,6 +235,7 @@ async function onSubmit() {
           <UFormField
             :label="t('admin.shipping.zones.dimDivisor')"
             :hint="t('admin.shipping.zones.dimDivisorHint')"
+            name="dim_divisor"
           >
             <UInputNumber
               v-model="state.dim_divisor"
@@ -204,7 +245,16 @@ async function onSubmit() {
               class="w-full sm:max-w-xs"
             />
           </UFormField>
-        </form>
+
+          <button
+            ref="hiddenSubmitRef"
+            type="submit"
+            hidden
+            aria-hidden="true"
+            tabindex="-1"
+            :disabled="loading"
+          />
+        </UForm>
 
         <template #footer>
           <div class="flex justify-end gap-2">
@@ -218,8 +268,7 @@ async function onSubmit() {
             <UButton
               color="primary"
               :loading="loading"
-              :disabled="state.name.trim().length === 0"
-              @click="onSubmit"
+              @click="hiddenSubmitRef?.click()"
             >
               {{ t('actions.save') }}
             </UButton>

@@ -9,9 +9,9 @@
 
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { parseProblem } from '#shared/utils/problemDetails'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import { z } from 'zod'
 import type { ShippingMethodResponse } from '#shared/types/api'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{
   open: boolean
@@ -38,13 +38,31 @@ const state = reactive({
   sort_order: 0,
   is_active: true,
 })
-const error = ref<ProblemDetails | null>(null)
+
+const schema = computed(() =>
+  z.object({
+    name: z.string().trim().min(1, t('messages.fieldRequired')),
+    code: z.string(),
+    description: z.string(),
+    sort_order: z.number(),
+    is_active: z.boolean(),
+  }),
+)
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const hiddenSubmitRef = ref<HTMLButtonElement | null>(null)
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
 
 watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
-    error.value = null
+    errorMessage.value = ''
     if (props.method) {
       state.name = props.method.name
       state.code = props.method.code ?? ''
@@ -69,7 +87,7 @@ const openModel = computed({
 })
 
 async function onSubmit() {
-  error.value = null
+  errorMessage.value = ''
   // Empty strings → null so the backend sees an explicit absence.
   const payload = {
     name: state.name,
@@ -91,7 +109,7 @@ async function onSubmit() {
     emit('update:open', false)
   }
   catch (err) {
-    error.value = parseProblem(err)
+    applyApiError(err, t('messages.saveError'))
   }
 }
 </script>
@@ -106,17 +124,28 @@ async function onSubmit() {
           </h2>
         </template>
 
-        <form
+        <UForm
+          ref="formRef"
+          :schema="schema"
+          :state="state"
+          :validate-on="['submit']"
           class="space-y-4"
-          @submit.prevent="onSubmit"
+          @submit="onSubmit"
         >
-          <ErrorAlert
-            v-if="error"
-            :problem="error"
+          <UAlert
+            v-if="errorMessage"
+            role="alert"
+            color="error"
+            variant="soft"
+            :title="t('messages.saveErrorTitle')"
+            :description="errorMessage"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="errorMessage = ''"
           />
 
           <UFormField
             :label="t('admin.shipping.methods.name')"
+            name="name"
             required
           >
             <UInput
@@ -128,6 +157,7 @@ async function onSubmit() {
           <UFormField
             :label="t('admin.shipping.methods.code')"
             :hint="t('admin.shipping.methods.codeHint')"
+            name="code"
           >
             <UInput
               v-model="state.code"
@@ -136,7 +166,10 @@ async function onSubmit() {
             />
           </UFormField>
 
-          <UFormField :label="t('admin.shipping.methods.description')">
+          <UFormField
+            :label="t('admin.shipping.methods.description')"
+            name="description"
+          >
             <UTextarea
               v-model="state.description"
               class="w-full"
@@ -144,21 +177,36 @@ async function onSubmit() {
           </UFormField>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <UFormField :label="t('admin.shipping.methods.sortOrder')">
+            <UFormField
+              :label="t('admin.shipping.methods.sortOrder')"
+              name="sort_order"
+            >
               <UInputNumber
                 v-model="state.sort_order"
                 :min="0"
                 class="w-full"
               />
             </UFormField>
-            <UFormField :label="t('admin.shipping.methods.active')">
+            <UFormField
+              :label="t('admin.shipping.methods.active')"
+              name="is_active"
+            >
               <UCheckbox
                 v-model="state.is_active"
                 :label="t('admin.shipping.methods.fields.activeOn')"
               />
             </UFormField>
           </div>
-        </form>
+
+          <button
+            ref="hiddenSubmitRef"
+            type="submit"
+            hidden
+            aria-hidden="true"
+            tabindex="-1"
+            :disabled="loading"
+          />
+        </UForm>
 
         <template #footer>
           <div class="flex justify-end gap-2">
@@ -172,8 +220,7 @@ async function onSubmit() {
             <UButton
               color="primary"
               :loading="loading"
-              :disabled="state.name.trim().length === 0"
-              @click="onSubmit"
+              @click="hiddenSubmitRef?.click()"
             >
               {{ t('actions.save') }}
             </UButton>
