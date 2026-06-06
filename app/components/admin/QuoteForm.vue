@@ -9,16 +9,20 @@
  * Auto-imported as `<AdminQuoteForm>` (pathPrefix prepends `admin/`).
  */
 import { useI18n } from 'vue-i18n'
+import { z } from 'zod'
 import type {
   CompanyResponse,
   QuoteCreate,
   QuoteCurrency,
   QuoteItemCreate,
 } from '~/composables/queries/useQuoteQueries'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{
   companies: CompanyResponse[]
   loading?: boolean
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
 }>()
 
 const emit = defineEmits<{
@@ -27,17 +31,45 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const toast = useToast()
 
 const CURRENCIES: QuoteCurrency[] = ['USD', 'PLN', 'EUR']
 
-const companyId = ref<number | null>(null)
-const currency = ref<QuoteCurrency>('USD')
-const validUntil = ref('')
-const notes = ref('')
-const items = ref<QuoteItemCreate[]>([])
-// Synthetic client-side validation message (matches the backend's plain detail
-// shape so the parent's <ErrorAlert> renders it identically to a server 422).
-const validationError = ref<string | null>(null)
+const state = reactive({
+  company_id: null as number | null,
+  currency: 'USD' as QuoteCurrency,
+  valid_until: '',
+  notes: '',
+  items: [] as QuoteItemCreate[],
+})
+
+const schema = computed(() =>
+  z.object({
+    company_id: z.number({ message: t('admin.quotes.errors.companyRequired') }),
+    currency: z.enum(['USD', 'PLN', 'EUR']),
+    valid_until: z.string(),
+    notes: z.string(),
+    items: z.array(z.unknown()).min(1, t('admin.quotes.errors.itemsRequired')),
+  }),
+)
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
+
+// The page owns the create mutation; surface its raw error here so the form
+// drives the same flow as signin (message + backend field mapping).
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('messages.saveError'))
+    else errorMessage.value = ''
+  },
+)
 
 const companyOptions = computed(() =>
   props.companies.map(c => ({ label: c.name, value: c.id })),
@@ -48,42 +80,40 @@ const currencyOptions = computed(() =>
 )
 
 function onSubmit() {
-  validationError.value = null
-
-  if (companyId.value == null) {
-    validationError.value = t('admin.quotes.errors.companyRequired')
-    return
-  }
-  if (items.value.length === 0) {
-    validationError.value = t('admin.quotes.errors.itemsRequired')
-    return
-  }
-
   const body: QuoteCreate = {
-    company_id: companyId.value,
-    currency: currency.value,
-    valid_until: validUntil.value || null,
-    notes: notes.value.trim() || null,
-    items: items.value,
+    company_id: state.company_id!,
+    currency: state.currency,
+    valid_until: state.valid_until || null,
+    notes: state.notes.trim() || null,
+    items: state.items,
   }
   emit('submit', body)
 }
 
-// Expose the validation error so the parent can merge it with server errors via
-// the shared <ErrorAlert>; defineExpose keeps it readable from a spec too.
-defineExpose({ validationError })
+// Exposed so component/page tests can seed the non-native pickers + line items.
+defineExpose({ state })
 </script>
 
 <template>
-  <form
+  <UForm
+    ref="formRef"
+    :schema="schema"
+    :state="state"
+    :validate-on="['submit']"
     class="space-y-6"
     data-testid="quote-form"
-    @submit.prevent="onSubmit"
+    @submit="onSubmit"
   >
-    <ErrorAlert
-      v-if="validationError"
-      :problem="{ title: validationError }"
+    <UAlert
+      v-if="errorMessage"
+      role="alert"
+      color="error"
+      variant="soft"
+      :title="t('messages.saveErrorTitle')"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
       data-testid="quote-form-validation"
+      @close="errorMessage = ''"
     />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -93,7 +123,7 @@ defineExpose({ validationError })
         required
       >
         <USelectMenu
-          v-model="companyId"
+          v-model="state.company_id"
           :items="companyOptions"
           value-key="value"
           :placeholder="t('admin.quotes.form.companyPlaceholder')"
@@ -107,7 +137,7 @@ defineExpose({ validationError })
         name="currency"
       >
         <USelect
-          v-model="currency"
+          v-model="state.currency"
           :items="currencyOptions"
           value-key="value"
           class="w-full sm:w-40"
@@ -122,7 +152,7 @@ defineExpose({ validationError })
       name="valid_until"
     >
       <UInput
-        v-model="validUntil"
+        v-model="state.valid_until"
         type="date"
         class="w-full sm:w-48"
         data-testid="quote-valid-until"
@@ -134,22 +164,23 @@ defineExpose({ validationError })
       name="notes"
     >
       <UTextarea
-        v-model="notes"
+        v-model="state.notes"
         :rows="3"
         class="w-full"
         data-testid="quote-notes"
       />
     </UFormField>
 
-    <div>
-      <h3 class="text-sm font-semibold mb-2">
-        {{ t('admin.quotes.form.lineItems') }}
-      </h3>
+    <UFormField
+      :label="t('admin.quotes.form.lineItems')"
+      name="items"
+      :ui="{ label: 'text-sm font-semibold' }"
+    >
       <AdminQuoteLineItemsEditor
-        v-model:items="items"
-        :currency="currency"
+        v-model:items="state.items"
+        :currency="state.currency"
       />
-    </div>
+    </UFormField>
 
     <div class="flex justify-end gap-2">
       <UButton
@@ -166,10 +197,9 @@ defineExpose({ validationError })
         icon="i-lucide-save"
         :loading="loading"
         data-testid="quote-form-submit"
-        @click="onSubmit"
       >
         {{ t('admin.quotes.form.create') }}
       </UButton>
     </div>
-  </form>
+  </UForm>
 </template>

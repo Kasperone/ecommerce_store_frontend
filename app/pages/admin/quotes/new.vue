@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { QuoteCreate } from '~/composables/queries/useQuoteQueries'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
 
 definePageMeta({
@@ -16,7 +15,7 @@ const { data: companiesData, error: companiesError } = useQuoteCompaniesQuery()
 const companies = computed(() => companiesData.value?.items ?? [])
 
 const createQuote = useCreateQuote()
-const formError = ref<ProblemDetails | null>(null)
+const formError = ref<unknown>(null)
 
 async function onSubmit(body: QuoteCreate) {
   formError.value = null
@@ -30,8 +29,8 @@ async function onSubmit(body: QuoteCreate) {
     await navigateTo(`/admin/quotes/${quote.id}`)
   }
   catch (err) {
-    // 404 (unknown company) / 422 (empty items) both surface here.
-    formError.value = parseProblem(err)
+    // 404 (unknown company) / 422 (empty items) both surface in the form.
+    formError.value = err
   }
 }
 </script>
@@ -62,15 +61,12 @@ async function onSubmit(body: QuoteCreate) {
         v-if="companiesError"
         :problem="parseProblem(companiesError)"
       />
-      <ErrorAlert
-        v-if="formError"
-        :problem="formError"
-      />
 
       <UCard>
         <AdminQuoteForm
           :companies="companies"
           :loading="createQuote.isLoading.value"
+          :error="formError"
           @submit="onSubmit"
           @cancel="navigateTo('/admin/quotes')"
         />
