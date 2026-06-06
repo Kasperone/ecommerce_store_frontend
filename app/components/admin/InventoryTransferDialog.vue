@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { ProblemDetails } from '#shared/utils/problemDetails'
-import { parseProblem } from '#shared/utils/problemDetails'
+import { z } from 'zod'
 
 const props = defineProps<{
   open: boolean
@@ -26,14 +25,41 @@ const defaultWarehouseId = computed(
   () => (warehousePage.value?.items ?? []).find(w => w.is_default)?.id ?? null,
 )
 
-const fromWarehouseId = ref<number | null>(null)
-const toWarehouseId = ref<number | null>(null)
-const quantity = ref<number>(1)
-const note = ref('')
-const error = ref<ProblemDetails | null>(null)
+const state = reactive({
+  from_warehouse_id: null as number | null,
+  to_warehouse_id: null as number | null,
+  quantity: 1,
+  note: '',
+})
+const error = ref<unknown>(null)
 
 const sourceLevel = computed(
-  () => (levels.value ?? []).find(l => l.warehouse_id === fromWarehouseId.value)?.quantity ?? 0,
+  () => (levels.value ?? []).find(l => l.warehouse_id === state.from_warehouse_id)?.quantity ?? 0,
+)
+
+// Client-side guards mirror the backend (which 422s these) for a faster signal.
+const schema = computed(() =>
+  z.object({
+    from_warehouse_id: z.number({ message: t('messages.fieldRequired') }),
+    to_warehouse_id: z.number({ message: t('messages.fieldRequired') }),
+    quantity: z.number().min(1),
+    note: z.string(),
+  }).superRefine((val, ctx) => {
+    if (val.from_warehouse_id === val.to_warehouse_id) {
+      ctx.addIssue({
+        code: 'custom',
+        message: t('admin.inventory.transfer.sameWarehouse'),
+        path: ['to_warehouse_id'],
+      })
+    }
+    if (val.quantity > sourceLevel.value) {
+      ctx.addIssue({
+        code: 'custom',
+        message: t('admin.inventory.transfer.insufficient', { available: sourceLevel.value }),
+        path: ['quantity'],
+      })
+    }
+  }),
 )
 
 watch(
@@ -41,15 +67,15 @@ watch(
   (isOpen) => {
     if (!isOpen) return
     error.value = null
-    quantity.value = 1
-    note.value = ''
-    fromWarehouseId.value = defaultWarehouseId.value
-    toWarehouseId.value = null
+    state.quantity = 1
+    state.note = ''
+    state.from_warehouse_id = defaultWarehouseId.value
+    state.to_warehouse_id = null
   },
   { immediate: true },
 )
 watch(defaultWarehouseId, (id) => {
-  if (props.open && fromWarehouseId.value === null) fromWarehouseId.value = id
+  if (props.open && state.from_warehouse_id === null) state.from_warehouse_id = id
 })
 
 const openModel = computed({
@@ -58,28 +84,21 @@ const openModel = computed({
 })
 
 async function onSubmit() {
-  if (props.productId === null || fromWarehouseId.value === null || toWarehouseId.value === null) {
+  if (
+    props.productId === null
+    || state.from_warehouse_id === null
+    || state.to_warehouse_id === null
+  ) {
     return
   }
   error.value = null
-  // Client-side guards mirror the backend (which 422s these) for a faster signal.
-  if (fromWarehouseId.value === toWarehouseId.value) {
-    error.value = { title: t('admin.inventory.transfer.sameWarehouse') }
-    return
-  }
-  if (quantity.value > sourceLevel.value) {
-    error.value = {
-      title: t('admin.inventory.transfer.insufficient', { available: sourceLevel.value }),
-    }
-    return
-  }
   try {
     await transfer.mutateAsync({
       productId: props.productId,
-      fromWarehouseId: fromWarehouseId.value,
-      toWarehouseId: toWarehouseId.value,
-      quantity: quantity.value,
-      note: note.value || undefined,
+      fromWarehouseId: state.from_warehouse_id,
+      toWarehouseId: state.to_warehouse_id,
+      quantity: state.quantity,
+      note: state.note || undefined,
     })
     toast.add({
       title: t('admin.inventory.transfer.flashes.saved'),
@@ -90,7 +109,7 @@ async function onSubmit() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>
@@ -104,6 +123,8 @@ async function onSubmit() {
     :cancel-label="t('admin.inventory.transfer.cancel')"
     :loading="transfer.isLoading.value"
     :error="error"
+    :schema="schema"
+    :state="state"
     @update:open="(v) => (openModel = v)"
     @submit="onSubmit"
   >
@@ -115,7 +136,7 @@ async function onSubmit() {
           required
         >
           <USelect
-            v-model="fromWarehouseId"
+            v-model="state.from_warehouse_id"
             :items="warehouseOptions"
             value-key="value"
             class="w-full"
@@ -133,7 +154,7 @@ async function onSubmit() {
           required
         >
           <USelect
-            v-model="toWarehouseId"
+            v-model="state.to_warehouse_id"
             :items="warehouseOptions"
             value-key="value"
             :placeholder="t('admin.inventory.transfer.toPlaceholder')"
@@ -147,7 +168,7 @@ async function onSubmit() {
           required
         >
           <UInputNumber
-            v-model="quantity"
+            v-model="state.quantity"
             :min="1"
             class="w-full"
           />
@@ -158,7 +179,7 @@ async function onSubmit() {
           name="note"
         >
           <UInput
-            v-model="note"
+            v-model="state.note"
             :placeholder="t('admin.inventory.transfer.notePlaceholder')"
             class="w-full"
           />

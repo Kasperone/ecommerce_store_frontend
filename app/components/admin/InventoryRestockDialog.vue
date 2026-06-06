@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { ProblemDetails } from '#shared/utils/problemDetails'
-import { parseProblem } from '#shared/utils/problemDetails'
+import { z } from 'zod'
 
 const props = defineProps<{
   open: boolean
@@ -25,24 +24,34 @@ const defaultWarehouseId = computed(
   () => (warehousePage.value?.items ?? []).find(w => w.is_default)?.id ?? null,
 )
 
-const warehouseId = ref<number | null>(null)
-const quantity = ref<number>(1)
-const note = ref('')
-const error = ref<ProblemDetails | null>(null)
+const state = reactive({
+  warehouse_id: null as number | null,
+  quantity: 1,
+  note: '',
+})
+const error = ref<unknown>(null)
+
+const schema = computed(() =>
+  z.object({
+    warehouse_id: z.number({ message: t('messages.fieldRequired') }),
+    quantity: z.number().min(1),
+    note: z.string(),
+  }),
+)
 
 watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
     error.value = null
-    quantity.value = 1
-    note.value = ''
-    warehouseId.value = defaultWarehouseId.value
+    state.quantity = 1
+    state.note = ''
+    state.warehouse_id = defaultWarehouseId.value
   },
   { immediate: true },
 )
 watch(defaultWarehouseId, (id) => {
-  if (props.open && warehouseId.value === null) warehouseId.value = id
+  if (props.open && state.warehouse_id === null) state.warehouse_id = id
 })
 
 const openModel = computed({
@@ -51,14 +60,14 @@ const openModel = computed({
 })
 
 async function onSubmit() {
-  if (props.productId === null || warehouseId.value === null) return
+  if (props.productId === null || state.warehouse_id === null) return
   error.value = null
   try {
     await restock.mutateAsync({
       productId: props.productId,
-      warehouseId: warehouseId.value,
-      quantity: quantity.value,
-      note: note.value || undefined,
+      warehouseId: state.warehouse_id,
+      quantity: state.quantity,
+      note: state.note || undefined,
     })
     toast.add({
       title: t('admin.inventory.restock.flashes.saved'),
@@ -69,7 +78,7 @@ async function onSubmit() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>
@@ -83,6 +92,8 @@ async function onSubmit() {
     :cancel-label="t('admin.inventory.restock.cancel')"
     :loading="restock.isLoading.value"
     :error="error"
+    :schema="schema"
+    :state="state"
     @update:open="(v) => (openModel = v)"
     @submit="onSubmit"
   >
@@ -94,7 +105,7 @@ async function onSubmit() {
           required
         >
           <USelect
-            v-model="warehouseId"
+            v-model="state.warehouse_id"
             :items="warehouseOptions"
             value-key="value"
             class="w-full"
@@ -107,7 +118,7 @@ async function onSubmit() {
           required
         >
           <UInputNumber
-            v-model="quantity"
+            v-model="state.quantity"
             :min="1"
             class="w-full"
           />
@@ -118,7 +129,7 @@ async function onSubmit() {
           name="note"
         >
           <UInput
-            v-model="note"
+            v-model="state.note"
             :placeholder="t('admin.inventory.restock.notePlaceholder')"
             class="w-full"
           />

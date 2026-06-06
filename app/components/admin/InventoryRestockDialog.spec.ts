@@ -77,7 +77,7 @@ describe('InventoryRestockDialog', () => {
     expect(toastAdd).toHaveBeenCalled()
   })
 
-  it('shows an error alert and no toast when the mutation fails', async () => {
+  it('shows the inline error alert + an error toast when the mutation fails', async () => {
     restockMutate.mockRejectedValue({ data: { detail: 'Warehouse not found' } })
     await mountSuspended(InventoryRestockDialog, { props: baseProps })
     await new Promise(r => setTimeout(r, 0))
@@ -85,7 +85,9 @@ describe('InventoryRestockDialog', () => {
     clickSave()
     await new Promise(r => setTimeout(r, 0))
 
+    // Gold-standard flow: server detail surfaces inline (role=alert) + as a toast.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(document.body.textContent).toContain('Warehouse not found')
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 })
