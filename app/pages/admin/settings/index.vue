@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { StoreConfigUpdate } from '~/composables/queries/useSettingsQueries'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
-import { parseProblem } from '#shared/utils/problemDetails'
 
 definePageMeta({
   middleware: ['admin'],
@@ -16,10 +14,10 @@ const updateConfig = useUpdateStoreConfig()
 const toast = useToast()
 
 // Surface either the GET error (page load) or the PATCH error (save) in the
-// form's ErrorAlert. A 422 from the VAT bound lands here.
-const saveError = ref<ProblemDetails | null>(null)
-const formError = computed<ProblemDetails | null>(
-  () => saveError.value ?? parseProblem(loadError.value),
+// form's error alert. A 422 from the VAT bound lands here.
+const saveError = ref<unknown>(null)
+const formError = computed<unknown>(
+  () => saveError.value ?? loadError.value,
 )
 
 async function onSubmit(patch: StoreConfigUpdate) {
@@ -33,7 +31,7 @@ async function onSubmit(patch: StoreConfigUpdate) {
     })
   }
   catch (err) {
-    saveError.value = parseProblem(err)
+    saveError.value = err
   }
 }
 </script>

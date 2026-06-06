@@ -92,6 +92,8 @@
       "submit": "Wyślij opinię",
       "cancel": "Anuluj",
       "successPending": "Dziękujemy! Twoja opinia czeka na moderację.",
+      "errorTitle": "Nie udało się zapisać opinii",
+      "error": "Nie udało się zapisać opinii. Spróbuj ponownie.",
       "errors": {
         "ratingRequired": "Wybierz ocenę",
         "ratingRange": "Ocena musi być od 1 do 5",

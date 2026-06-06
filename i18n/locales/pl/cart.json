@@ -42,6 +42,8 @@
     "title": "Zamówienie",
     "placeOrder": "Złóż zamówienie",
     "editCart": "Edytuj koszyk",
+    "errorTitle": "Nie udało się złożyć zamówienia",
+    "error": "Nie udało się złożyć zamówienia. Spróbuj ponownie.",
     "shipping": {
       "heading": "Adres dostawy",
       "address": "Adres",

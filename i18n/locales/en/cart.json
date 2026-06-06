@@ -42,6 +42,8 @@
     "title": "Checkout",
     "placeOrder": "Place order",
     "editCart": "Edit cart",
+    "errorTitle": "Could not place your order",
+    "error": "Could not place your order. Please try again.",
     "shipping": {
       "heading": "Shipping address",
       "address": "Address",
