@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { AdminReviewListItem } from '#shared/types/api'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
-import { parseProblem } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import { reviewStatusColor } from '#shared/utils/reviewStatus'
 
 const props = defineProps<{
@@ -19,7 +18,15 @@ const removeReview = useDeleteReview()
 
 const REPLY_MAX = 2000
 
-const error = ref<ProblemDetails | null>(null)
+// Action dialog (no client-validatable fields beyond the optional reply), so it
+// converges only the error message + toast: a null form ref makes applyApiError
+// skip field-mapping/scroll.
+const noForm = ref<ValidatedFormInstance | null>(null)
+const { errorMessage: error, applyApiError } = useValidatedForm(noForm, {
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
 const confirmingDelete = ref(false)
 const replyText = ref('')
 
@@ -38,7 +45,7 @@ watch(
   () => props.open,
   (isOpen) => {
     if (isOpen) {
-      error.value = null
+      error.value = ''
       confirmingDelete.value = false
       replyText.value = props.review?.admin_response ?? ''
     }
@@ -50,7 +57,7 @@ const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 
 
 async function setStatus(status: 'approved' | 'rejected') {
   if (!props.review) return
-  error.value = null
+  error.value = ''
   try {
     await moderate.mutateAsync({ id: props.review.id, status })
     toast.add({
@@ -61,7 +68,7 @@ async function setStatus(status: 'approved' | 'rejected') {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    applyApiError(err, t('messages.saveError'))
   }
 }
 
@@ -69,7 +76,7 @@ async function setStatus(status: 'approved' | 'rejected') {
 // mutation/endpoint; only the admin_response key is sent.
 async function saveReply() {
   if (!props.review) return
-  error.value = null
+  error.value = ''
   const trimmed = replyText.value.trim()
   try {
     await moderate.mutateAsync({ id: props.review.id, adminResponse: trimmed || null })
@@ -81,7 +88,7 @@ async function saveReply() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    applyApiError(err, t('messages.saveError'))
   }
 }
 
@@ -97,7 +104,7 @@ async function onDelete() {
     confirmingDelete.value = true
     return
   }
-  error.value = null
+  error.value = ''
   try {
     await removeReview.mutateAsync(props.review.id)
     toast.add({
@@ -108,7 +115,7 @@ async function onDelete() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    applyApiError(err, t('messages.saveError'))
   }
 }
 </script>
@@ -124,9 +131,15 @@ async function onDelete() {
         v-if="review"
         class="space-y-4"
       >
-        <ErrorAlert
+        <UAlert
           v-if="error"
-          :problem="error"
+          role="alert"
+          color="error"
+          variant="soft"
+          :title="t('messages.saveErrorTitle')"
+          :description="error"
+          :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+          @close="error = ''"
         />
 
         <div class="flex items-center justify-between gap-3 flex-wrap">

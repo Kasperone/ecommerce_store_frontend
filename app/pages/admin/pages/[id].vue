@@ -17,7 +17,7 @@
 import { onBeforeRouteLeave } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { parseProblem } from '#shared/utils/problemDetails'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import type { Section } from '~/blocks/types'
 import { DEVICE_WIDTHS } from '~/utils/devicePreview'
 import type { DeviceMode } from '~/utils/devicePreview'
@@ -154,7 +154,16 @@ function openAddAppend() {
 const saveDraft = useSavePageDraft()
 const publish = usePublishPage()
 const previewToken = useCreatePreviewToken()
-const error = ref<ProblemDetails | null>(null)
+
+// The editor has no client-validatable fields (draft autosave + publish/rollback
+// actions), so it converges only the error message + toast: a null form ref
+// makes applyApiError skip field-mapping/scroll.
+const noForm = ref<ValidatedFormInstance | null>(null)
+const { errorMessage: error, applyApiError } = useValidatedForm(noForm, {
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
 
 /** Persist the working draft if dirty (shared by Save / Publish / Preview). */
 async function flushDraft() {
@@ -167,7 +176,7 @@ async function flushDraft() {
 }
 
 async function onSaveDraft() {
-  error.value = null
+  error.value = ''
   try {
     await saveDraft.mutateAsync({
       id: pageId.value,
@@ -177,8 +186,7 @@ async function onSaveDraft() {
     toast.add({ title: t('admin.cms.flashes.draftSaved'), color: 'success', icon: 'i-lucide-check' })
   }
   catch (err) {
-    error.value = parseProblem(err)
-    toast.add({ title: t('admin.cms.flashes.saveFailed'), color: 'error', icon: 'i-lucide-alert-triangle' })
+    applyApiError(err, t('admin.cms.flashes.saveFailed'))
   }
 }
 
@@ -190,7 +198,7 @@ async function onSaveDraft() {
 // is minted; opening inside the async callback would be swallowed by popup
 // blockers, which only trust window.open in the click's call stack.
 async function onPreviewDraft() {
-  error.value = null
+  error.value = ''
   const tab = window.open('', '_blank')
   try {
     await flushDraft()
@@ -202,8 +210,7 @@ async function onPreviewDraft() {
   }
   catch (err) {
     tab?.close()
-    error.value = parseProblem(err)
-    toast.add({ title: t('admin.cms.flashes.previewFailed'), color: 'error', icon: 'i-lucide-alert-triangle' })
+    applyApiError(err, t('admin.cms.flashes.previewFailed'))
   }
 }
 
@@ -214,12 +221,12 @@ const publishLabel = ref('')
 
 function openPublish() {
   publishLabel.value = ''
-  error.value = null
+  error.value = ''
   publishOpen.value = true
 }
 
 async function onPublish() {
-  error.value = null
+  error.value = ''
   try {
     // Persist the working draft first so Publish snapshots exactly what's on screen.
     await flushDraft()
@@ -232,7 +239,7 @@ async function onPublish() {
     toast.add({ title: t('admin.cms.flashes.published'), color: 'success', icon: 'i-lucide-check' })
   }
   catch (err) {
-    error.value = parseProblem(err)
+    applyApiError(err, t('messages.saveError'))
   }
 }
 
@@ -249,7 +256,7 @@ function formatDateTime(iso: string | null | undefined) {
 }
 
 async function onRollback(versionId: number) {
-  error.value = null
+  error.value = ''
   try {
     const restored = await rollback.mutateAsync({ id: pageId.value, versionId })
     editor.load(restored.draft_layout?.sections)
@@ -258,7 +265,7 @@ async function onRollback(versionId: number) {
     toast.add({ title: t('admin.cms.flashes.rolledBack'), color: 'success', icon: 'i-lucide-check' })
   }
   catch (err) {
-    error.value = parseProblem(err)
+    applyApiError(err, t('messages.saveError'))
   }
 }
 
@@ -398,9 +405,15 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
         v-if="pageError"
         :problem="parseProblem(pageError)"
       />
-      <ErrorAlert
+      <UAlert
         v-else-if="error"
-        :problem="error"
+        role="alert"
+        color="error"
+        variant="soft"
+        :title="t('messages.saveErrorTitle')"
+        :description="error"
+        :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+        @close="error = ''"
       />
 
       <!-- Three-pane editor (Form mode) -->

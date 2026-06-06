@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { OrderStatus, OrderUpdate, RefundCreate } from '#shared/types/api'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import { isCancellable, isRefundable, nextStatuses, statusColor } from '#shared/utils/orderStatus'
 
 definePageMeta({
@@ -27,12 +27,25 @@ const refundMutation = useIssueRefund()
 const statusModel = ref<OrderStatus | undefined>()
 const notesModel = ref('')
 const paymentModel = ref('')
-const formError = ref<ProblemDetails | null>(null)
 const cancelOpen = ref(false)
-const cancelError = ref<ProblemDetails | null>(null)
 const refundOpen = ref(false)
 // Raw caught error — OrderRefundDialog drives the gold-standard flow internally.
 const refundError = ref<unknown>(null)
+
+// The Manage card + cancel modal have no client-validatable fields, so they
+// converge only the error message + toast: a null form ref makes applyApiError
+// skip field-mapping/scroll. (errorMessage refs reused under the old names.)
+const noForm = ref<ValidatedFormInstance | null>(null)
+const { errorMessage: formError, applyApiError: applyFormError } = useValidatedForm(noForm, {
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
+const { errorMessage: cancelError, applyApiError: applyCancelError } = useValidatedForm(noForm, {
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
 
 // D3: which statuses can be refunded. Mirrors the backend's REFUNDABLE_STATUSES
 // set — the API re-validates, this is purely for UX (the button is hidden when
@@ -74,7 +87,7 @@ function formatDate(iso: string) {
 
 async function onSave() {
   if (!order.value) return
-  formError.value = null
+  formError.value = ''
   const patch: OrderUpdate = {
     status: statusModel.value,
     notes: notesModel.value.trim() || null,
@@ -89,13 +102,13 @@ async function onSave() {
     })
   }
   catch (err) {
-    formError.value = parseProblem(err)
+    applyFormError(err, t('messages.saveError'))
   }
 }
 
 async function onCancelConfirm() {
   if (!order.value) return
-  cancelError.value = null
+  cancelError.value = ''
   try {
     await cancelMutation.mutateAsync(order.value.id)
     cancelOpen.value = false
@@ -106,7 +119,7 @@ async function onCancelConfirm() {
     })
   }
   catch (err) {
-    cancelError.value = parseProblem(err)
+    applyCancelError(err, t('messages.saveError'))
   }
 }
 
@@ -297,10 +310,16 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
             </h2>
           </template>
 
-          <ErrorAlert
+          <UAlert
             v-if="formError"
-            :problem="formError"
+            role="alert"
+            color="error"
+            variant="soft"
             class="mb-4"
+            :title="t('messages.saveErrorTitle')"
+            :description="formError"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="formError = ''"
           />
 
           <div class="space-y-4">
@@ -338,7 +357,7 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
                   color="error"
                   variant="soft"
                   icon="i-lucide-x-circle"
-                  @click="cancelError = null; cancelOpen = true"
+                  @click="cancelError = ''; cancelOpen = true"
                 >
                   {{ $t('admin.orders.actions.cancel') }}
                 </UButton>
@@ -381,12 +400,18 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
         :title="$t('admin.orders.cancel.title')"
         :description="$t('admin.orders.cancel.body')"
         :dismissible="!cancelMutation.isLoading.value"
-        @update:open="(v) => { cancelOpen = v; if (!v) cancelError = null }"
+        @update:open="(v) => { cancelOpen = v; if (!v) cancelError = '' }"
       >
         <template #body>
-          <ErrorAlert
+          <UAlert
             v-if="cancelError"
-            :problem="cancelError"
+            role="alert"
+            color="error"
+            variant="soft"
+            :title="t('messages.saveErrorTitle')"
+            :description="cancelError"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="cancelError = ''"
           />
         </template>
         <template #footer>
