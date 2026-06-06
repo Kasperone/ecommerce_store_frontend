@@ -7,7 +7,6 @@ import type {
   PageStatus,
   PageType,
 } from '~/composables/queries/usePageQueries'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
 
 definePageMeta({
@@ -95,11 +94,21 @@ const columns: TableColumn<PageListItem>[] = [
 
 // Create modal.
 const createOpen = ref(false)
-const newSlug = ref('')
-const newType = ref<PageType>('standard')
-const newLocale = ref<PageLocale>('en')
-const createError = ref<ProblemDetails | null>(null)
+const createState = reactive({
+  slug: '',
+  type: 'standard' as PageType,
+  locale: 'en' as PageLocale,
+})
+const createError = ref<unknown>(null)
 const createPage = useCreatePage()
+
+const createSchema = computed(() =>
+  z.object({
+    slug: z.string().trim().min(1, t('admin.cms.errors.slugRequired')),
+    type: z.enum(['home', 'standard', 'landing']),
+    locale: z.enum(['en', 'pl']),
+  }),
+)
 
 const createTypeOptions = computed(() => [
   { label: t('admin.cms.pageType.home'), value: 'home' },
@@ -112,31 +121,26 @@ const createLocaleOptions = [
 ]
 
 function openCreate() {
-  newSlug.value = ''
-  newType.value = 'standard'
-  newLocale.value = 'en'
+  createState.slug = ''
+  createState.type = 'standard'
+  createState.locale = 'en'
   createError.value = null
   createOpen.value = true
 }
 
 async function confirmCreate() {
   createError.value = null
-  const slug = newSlug.value.trim()
-  if (!slug) {
-    createError.value = { title: t('admin.cms.errors.slugRequired') }
-    return
-  }
   try {
     const created = await createPage.mutateAsync({
-      slug,
-      type: newType.value,
-      locale: newLocale.value,
+      slug: createState.slug.trim(),
+      type: createState.type,
+      locale: createState.locale,
     })
     createOpen.value = false
     await navigateTo(`/admin/pages/${created.id}`)
   }
   catch (err) {
-    createError.value = parseProblem(err)
+    createError.value = err
   }
 }
 </script>
@@ -281,6 +285,8 @@ async function confirmCreate() {
         :cancel-label="t('admin.cms.form.cancel')"
         :loading="createPage.isLoading.value"
         :error="createError"
+        :schema="createSchema"
+        :state="createState"
         @update:open="(v) => (createOpen = v)"
         @submit="confirmCreate"
       >
@@ -293,7 +299,7 @@ async function confirmCreate() {
               required
             >
               <UInput
-                v-model="newSlug"
+                v-model="createState.slug"
                 placeholder="about-us"
                 class="w-full"
               />
@@ -304,7 +310,7 @@ async function confirmCreate() {
                 name="type"
               >
                 <USelect
-                  v-model="newType"
+                  v-model="createState.type"
                   :items="createTypeOptions"
                   value-key="value"
                   class="w-full"
@@ -315,7 +321,7 @@ async function confirmCreate() {
                 name="locale"
               >
                 <USelect
-                  v-model="newLocale"
+                  v-model="createState.locale"
                   :items="createLocaleOptions"
                   value-key="value"
                   class="w-full"
