@@ -347,7 +347,10 @@
       "subtitle": "Dane sklepu i dane do faktur używane na fakturach i w e-mailach",
       "sections": {
         "identity": "Dane sklepu",
-        "invoicing": "Fakturowanie"
+        "invoicing": "Fakturowanie",
+        "address": "Adres",
+        "identifiers": "Dane rejestrowe",
+        "social": "Media społecznościowe"
       },
       "fields": {
         "storeName": "Nazwa sklepu",
@@ -356,13 +359,26 @@
         "postalCity": "Kod pocztowy i miasto",
         "country": "Kraj",
         "taxId": "NIP",
-        "invoiceVatRate": "Stawka VAT (%)"
+        "invoiceVatRate": "Stawka VAT (%)",
+        "legalName": "Nazwa firmy",
+        "phone": "Telefon",
+        "addressLine2": "Adres, linia 2",
+        "nip": "NIP",
+        "regon": "REGON",
+        "krs": "KRS",
+        "socialInstagram": "Instagram",
+        "socialFacebook": "Facebook",
+        "socialTiktok": "TikTok",
+        "socialYoutube": "YouTube"
       },
       "hints": {
         "email": "Widoczny na fakturach i używany jako nadawca e-maili sklepu.",
         "invoicing": "Te dane pojawiają się na fakturach klientów.",
         "taxId": "Identyfikator podatkowy VAT / NIP, np. PL1234567890.",
-        "invoiceVatRate": "Stawka VAT (brutto) stosowana na fakturach, 0–100."
+        "invoiceVatRate": "Stawka VAT (brutto) stosowana na fakturach, 0–100.",
+        "legalName": "Zarejestrowana nazwa firmy, widoczna na fakturach i w stopce sklepu.",
+        "identifiers": "Numery rejestrowe pokazywane w stopce sklepu tam, gdzie są wymagane. Pozostaw puste, jeśli nie dotyczy.",
+        "social": "Pełny adres URL profilu lub nazwa — wyświetlane jako ikony w stopce. Pozostaw puste, aby ukryć."
       },
       "actions": {
         "save": "Zapisz zmiany"
