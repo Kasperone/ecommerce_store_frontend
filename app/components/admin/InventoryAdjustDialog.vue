@@ -153,6 +153,7 @@ async function onSubmit() {
         <UFormField
           :label="$t('admin.inventory.adjust.warehouse')"
           name="warehouse_id"
+          required
         >
           <USelect
             v-model="selectedWarehouseId"
@@ -170,6 +171,7 @@ async function onSubmit() {
         <UFormField
           :label="$t('admin.inventory.adjust.newStock')"
           name="new_stock"
+          required
         >
           <UInputNumber
             v-model="newStock"

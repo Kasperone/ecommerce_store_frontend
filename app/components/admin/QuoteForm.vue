@@ -90,6 +90,7 @@ defineExpose({ validationError })
       <UFormField
         :label="t('admin.quotes.form.company')"
         name="company_id"
+        required
       >
         <USelectMenu
           v-model="companyId"
