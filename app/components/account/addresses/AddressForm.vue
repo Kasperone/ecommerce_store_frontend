@@ -6,6 +6,7 @@ import type { SupportedLocale } from '#shared/utils/countries'
 import { createAddressSchema } from '#shared/validators/address'
 import type { AddressInput } from '#shared/validators/address'
 import type { Address } from '~/composables/queries/useAddresses'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 /**
  * Address add/edit form. Stateless + parent-driven: the page owns the
@@ -21,6 +22,8 @@ import type { Address } from '~/composables/queries/useAddresses'
 const props = defineProps<{
   address?: Address | null
   loading?: boolean
+  /** Raw caught submit error, surfaced via the gold-standard flow. */
+  error?: unknown
 }>()
 
 const emit = defineEmits<{
@@ -29,7 +32,11 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useI18n()
-const schema = computed(() => createAddressSchema(t))
+const toast = useToast()
+const schema = computed(() => {
+  void locale.value
+  return createAddressSchema(t)
+})
 
 const countryItems = computed(() => countryOptions(locale.value as SupportedLocale))
 
@@ -46,6 +53,24 @@ const state = reactive<AddressInput>({
   is_default_billing: props.address?.is_default_billing ?? false,
 })
 
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'account.settings.addresses.saveError',
+})
+
+// The page owns the create/update mutation; surface its raw error here so the
+// form drives the same flow as signin (message + backend field mapping).
+watch(
+  () => props.error,
+  (err) => {
+    if (err) applyApiError(err, t('account.settings.addresses.saveError'))
+    else errorMessage.value = ''
+  },
+)
+
 function onSubmit(event: { data: AddressInput }) {
   emit('submit', event.data)
 }
@@ -57,12 +82,22 @@ defineExpose({ state })
 
 <template>
   <UForm
+    ref="formRef"
     :schema="schema"
     :state="state"
     :validate-on="['submit']"
     class="space-y-4"
     @submit="onSubmit"
   >
+    <UAlert
+      v-if="errorMessage"
+      color="error"
+      variant="soft"
+      :title="t('account.settings.addresses.saveError')"
+      :description="errorMessage"
+      :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+      @close="errorMessage = ''"
+    />
     <UFormField
       :label="t('account.settings.addresses.form.label')"
       :help="t('account.settings.addresses.form.labelHint')"

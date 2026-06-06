@@ -48,6 +48,8 @@ const notAMember = computed(
 )
 
 const saving = ref(false)
+// Raw caught submit error, passed to the form which drives the signin flow.
+const formError = ref<unknown>(null)
 
 /**
  * Build the partial PATCH body: only keys whose trimmed value differs from the
@@ -85,14 +87,16 @@ async function onSubmit(values: CompanyProfileInput) {
     return
   }
   saving.value = true
+  formError.value = null
   try {
     await updateProfile(patch)
     toast.add({ title: t('account.settings.company.saved'), color: 'success' })
   }
-  catch {
+  catch (err) {
     // Non-optimistic mutation: the cached company is untouched on failure, so the
-    // form's seeded values remain the last-known-good state (rollback).
-    toast.add({ title: t('account.settings.company.saveError'), color: 'error' })
+    // form's seeded values remain the last-known-good state (rollback). The form
+    // surfaces the message inline + raises the error toast.
+    formError.value = err
   }
   finally {
     saving.value = false
@@ -161,6 +165,7 @@ async function onSubmit(values: CompanyProfileInput) {
               v-if="isAdmin"
               :company="company"
               :loading="saving"
+              :error="formError"
               @submit="onSubmit"
             />
             <template v-else>

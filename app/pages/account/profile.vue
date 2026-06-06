@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { FormError, FormSubmitEvent } from '@nuxt/ui'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import { createProfileSchema, type ProfileFormData } from '#shared/validators/profile'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 definePageMeta({
   layout: 'account',
@@ -44,19 +45,19 @@ watch(
 
 const schema = computed(() => createProfileSchema(t))
 
-function validate(values: FormState): FormError[] {
-  const result = schema.value.safeParse(values)
-  if (result.success) return []
-  return result.error.issues.map(issue => ({
-    name: String(issue.path[0] ?? ''),
-    message: issue.message,
-  }))
-}
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'account.settings.profile.error',
+})
 
 const saving = ref(false)
 
 async function onSubmit(_event: FormSubmitEvent<ProfileFormData>) {
   saving.value = true
+  errorMessage.value = ''
   const phone = state.phone.trim()
   const result = await authStore.updateProfile({
     first_name: state.first_name.trim(),
@@ -70,10 +71,7 @@ async function onSubmit(_event: FormSubmitEvent<ProfileFormData>) {
     toast.add({ title: t('account.settings.profile.saved'), color: 'success' })
   }
   else {
-    toast.add({
-      title: result.error ?? t('account.settings.profile.error'),
-      color: 'error',
-    })
+    applyApiError(result.raw, result.error ?? t('account.settings.profile.error'))
   }
 }
 </script>
@@ -92,12 +90,22 @@ async function onSubmit(_event: FormSubmitEvent<ProfileFormData>) {
 
       <UCard>
         <UForm
+          ref="formRef"
+          :schema="schema"
           :state="state"
-          :validate="validate"
           :validate-on="['submit']"
           class="space-y-6"
           @submit="onSubmit"
         >
+          <UAlert
+            v-if="errorMessage"
+            color="error"
+            variant="soft"
+            :title="t('account.settings.profile.error')"
+            :description="errorMessage"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="errorMessage = ''"
+          />
           <UFormField
             :label="t('account.settings.profile.firstName')"
             name="first_name"
