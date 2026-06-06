@@ -21,6 +21,8 @@ const toast = useToast()
 
 interface FormState {
   store_name: string
+  brand_tagline: string
+  logo_url: string
   legal_name: string
   email: string
   phone: string
@@ -41,6 +43,8 @@ interface FormState {
 
 const state = reactive<FormState>({
   store_name: '',
+  brand_tagline: '',
+  logo_url: '',
   legal_name: '',
   email: '',
   phone: '',
@@ -64,6 +68,8 @@ watch(
   (config) => {
     if (!config) return
     state.store_name = config.store_name
+    state.brand_tagline = config.brand_tagline
+    state.logo_url = config.logo_url
     state.legal_name = config.legal_name
     state.email = config.email
     state.phone = config.phone
@@ -114,6 +120,8 @@ watch(
 const schema = computed(() =>
   z.object({
     store_name: z.string().min(1, t('admin.settings.errors.required')),
+    brand_tagline: z.string(),
+    logo_url: z.string(),
     legal_name: z.string(),
     email: z.string().email(t('admin.settings.errors.email')).or(z.literal('')),
     phone: z.string(),
@@ -151,6 +159,8 @@ function validate(values: FormState): FormError[] {
 function onSubmit(_event: FormSubmitEvent<FormState>) {
   const patch: StoreConfigUpdate = {
     store_name: state.store_name.trim(),
+    brand_tagline: state.brand_tagline.trim(),
+    logo_url: state.logo_url.trim(),
     legal_name: state.legal_name.trim(),
     email: state.email.trim(),
     phone: state.phone.trim(),
@@ -246,6 +256,42 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
           />
         </UFormField>
       </div>
+    </section>
+
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold">
+          {{ t('admin.settings.sections.branding') }}
+        </h2>
+        <p class="text-xs text-muted mt-1">
+          {{ t('admin.settings.hints.branding') }}
+        </p>
+      </div>
+
+      <UFormField
+        :label="t('admin.settings.fields.brandTagline')"
+        :help="t('admin.settings.hints.brandTagline')"
+        name="brand_tagline"
+      >
+        <UInput
+          v-model="state.brand_tagline"
+          :disabled="loading"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('admin.settings.fields.logoUrl')"
+        :help="t('admin.settings.hints.logoUrl')"
+        name="logo_url"
+      >
+        <UInput
+          v-model="state.logo_url"
+          type="url"
+          :disabled="loading"
+          class="w-full"
+        />
+      </UFormField>
     </section>
 
     <section class="space-y-4">
