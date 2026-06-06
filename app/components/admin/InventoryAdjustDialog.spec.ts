@@ -138,7 +138,7 @@ describe('InventoryAdjustDialog', () => {
     expect(adjustMutate).not.toHaveBeenCalled()
   })
 
-  it('shows an error alert and no success toast when a mutation fails', async () => {
+  it('shows the inline error alert + an error toast (no success toast) when a mutation fails', async () => {
     adjustMutate.mockRejectedValue({ data: { detail: 'Stock conflict' } })
     const wrapper = await mountSuspended(InventoryAdjustDialog, { props: baseProps() })
     await new Promise(r => setTimeout(r, 0))
@@ -149,7 +149,11 @@ describe('InventoryAdjustDialog', () => {
     clickSave()
     await new Promise(r => setTimeout(r, 0))
 
+    // Gold-standard flow: server detail surfaces inline (role=alert) + an error
+    // toast; the success toast is not raised.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(document.body.textContent).toContain('Stock conflict')
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+    expect(toastAdd).not.toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
   })
 })
