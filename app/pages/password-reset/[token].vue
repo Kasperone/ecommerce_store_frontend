@@ -3,7 +3,7 @@ import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '~/stores/auth'
 import { createResetPasswordSchema } from '#shared/validators/auth'
-import type { AuthFormPublicInstance } from '~/composables/useFormErrorClearing'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import type { ResetPasswordFormData } from '#shared/validators/auth'
 
@@ -17,10 +17,13 @@ const token = computed(() => String(route.params.token ?? ''))
 
 const isLoading = ref(false)
 const isSuccess = ref(false)
-const errorMessage = ref('')
-const authFormRef = useTemplateRef<AuthFormPublicInstance>('authFormRef')
+const authFormRef = useTemplateRef<ValidatedFormInstance>('authFormRef')
 
-useFormErrorClearing(authFormRef, errorMessage)
+const { errorMessage, applyApiError } = useValidatedForm(authFormRef, {
+  toast,
+  t,
+  toastTitleKey: 'auth.passwordReset.confirmError',
+})
 
 useHead({
   titleTemplate: '%s | Reset Password',
@@ -76,12 +79,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
     setTimeout(() => router.push('/login'), 2000)
   }
   else {
-    errorMessage.value = result.error || t('auth.passwordReset.confirmError')
-    toast.add({
-      title: errorMessage.value,
-      color: 'error',
-      icon: 'i-lucide-circle-x',
-    })
+    applyApiError(result.raw, result.error || t('auth.passwordReset.confirmError'))
   }
 }
 </script>

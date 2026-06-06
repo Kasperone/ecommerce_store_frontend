@@ -104,7 +104,7 @@ describe('StaffRoleDialog', () => {
     expect(patch).toMatchObject({ role: 'CUSTOMER', is_active: false })
   })
 
-  it('surfaces the backend guard message (self-lockout) via ErrorAlert and shows no toast', async () => {
+  it('surfaces the backend guard message (self-lockout) inline + as an error toast', async () => {
     updateMutate.mockRejectedValue({
       data: { detail: 'You cannot demote or deactivate your own account.' },
     })
@@ -113,11 +113,12 @@ describe('StaffRoleDialog', () => {
     clickSave()
     await tick()
 
+    // Gold-standard flow: the guard message surfaces inline (role=alert) + a toast.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
     expect(document.body.textContent).toContain(
       'You cannot demote or deactivate your own account.',
     )
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 
   it('surfaces the last-active-admin guard message', async () => {
@@ -130,6 +131,6 @@ describe('StaffRoleDialog', () => {
     await tick()
 
     expect(document.body.textContent).toContain('Cannot demote the last active admin.')
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 })

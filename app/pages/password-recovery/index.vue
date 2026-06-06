@@ -3,7 +3,7 @@ import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '~/stores/auth'
 import { createForgotPasswordSchema } from '#shared/validators/auth'
-import type { AuthFormPublicInstance } from '~/composables/useFormErrorClearing'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 import type { ForgotPasswordFormData } from '#shared/validators/auth'
 
@@ -13,9 +13,12 @@ const toast = useToast()
 
 const isLoading = ref(false)
 const submitted = ref(false)
-const authFormRef = useTemplateRef<AuthFormPublicInstance>('authFormRef')
+const authFormRef = useTemplateRef<ValidatedFormInstance>('authFormRef')
 
-useFormErrorClearing(authFormRef)
+// Anti-enumeration: both success AND failure show the same success toast, so we
+// deliberately don't surface server errors. useValidatedForm still wires the
+// scroll-to-first-error + type-to-clear for client-side (Zod) email validation.
+useValidatedForm(authFormRef)
 
 useHead({
   titleTemplate: '%s | Password Recovery',
