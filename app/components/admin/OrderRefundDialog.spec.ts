@@ -212,18 +212,18 @@ describe('AdminOrderRefundDialog', () => {
     })
   })
 
-  it('renders an inline ErrorAlert when error is set', async () => {
-    await mountSuspended(OrderRefundDialog, {
-      props: {
-        order: makeOrder(),
-        open: true,
-        error: {
-          status: 400,
-          title: 'Bad Request',
-          detail: 'Refund amount would exceed the order total.',
-        },
-      },
+  it('surfaces the server error inline when a raw error is passed', async () => {
+    // The parent passes the raw caught error; the gold-standard flow normalizes
+    // its `detail` into the inline UAlert. Set it after mount so the null→error
+    // transition fires the watch (matches real usage).
+    const wrapper = await mountSuspended(OrderRefundDialog, {
+      props: { order: makeOrder(), open: true, error: null },
     })
+    await wrapper.setProps({
+      error: { data: { detail: 'Refund amount would exceed the order total.' } },
+    })
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
     expect(document.body.textContent).toContain('exceed the order total')
   })
 
