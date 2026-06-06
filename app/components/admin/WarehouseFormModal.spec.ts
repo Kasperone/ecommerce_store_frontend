@@ -132,7 +132,7 @@ describe('WarehouseFormModal', () => {
     expect(switches[1]!.props('disabled')).toBe(true)
   })
 
-  it('shows an error alert and no toast when the mutation fails', async () => {
+  it('shows the inline error alert + an error toast when the mutation fails', async () => {
     createMutate.mockRejectedValue({ data: { detail: 'Code already exists' } })
     const wrapper = await mountSuspended(WarehouseFormModal, {
       props: { open: true, warehouse: null },
@@ -145,7 +145,10 @@ describe('WarehouseFormModal', () => {
     clickSave()
     await new Promise(r => setTimeout(r, 0))
 
+    // Gold-standard flow: the normalized detail surfaces inline (role=alert) and
+    // as an error toast.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(document.body.textContent).toContain('Code already exists')
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 })

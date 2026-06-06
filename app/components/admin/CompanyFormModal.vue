@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { useDebounceFn } from '@vueuse/core'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import { z } from 'zod'
 import type {
   CompanyCreate,
   CompanyResponse,
   CompanyStatus,
   CompanyUpdate,
 } from '~/composables/queries/useCompanyQueries'
-import { parseProblem } from '#shared/utils/problemDetails'
 
 /**
  * Create / edit a B2B company.
@@ -38,14 +37,28 @@ const updateCompany = useUpdateCompany()
 
 const STATUSES: CompanyStatus[] = ['pending', 'approved', 'rejected']
 
-const name = ref('')
-const taxId = ref('')
-const email = ref('')
-const phone = ref('')
-const status = ref<CompanyStatus>('pending')
-const accountManager = ref('')
-const notes = ref('')
-const error = ref<ProblemDetails | null>(null)
+const state = reactive({
+  name: '',
+  tax_id: '',
+  email: '',
+  phone: '',
+  status: 'pending' as CompanyStatus,
+  account_manager: '',
+  notes: '',
+})
+const error = ref<unknown>(null)
+
+const schema = computed(() =>
+  z.object({
+    name: z.string().trim().min(1, t('admin.companies.errors.nameRequired')),
+    tax_id: z.string(),
+    email: z.string(),
+    phone: z.string(),
+    status: z.enum(STATUSES as [CompanyStatus, ...CompanyStatus[]]),
+    account_manager: z.string(),
+    notes: z.string(),
+  }),
+)
 
 // Primary contact: the company's designated customer. Picking one binds its id to
 // `primary_user_id`; the converted order (QC) is owned by this real customer. The
@@ -105,13 +118,13 @@ watch(
     if (!isOpen) return
     error.value = null
     const c = props.company
-    name.value = c?.name ?? ''
-    taxId.value = c?.tax_id ?? ''
-    email.value = c?.email ?? ''
-    phone.value = c?.phone ?? ''
-    status.value = c?.status ?? 'pending'
-    accountManager.value = c?.account_manager ?? ''
-    notes.value = c?.notes ?? ''
+    state.name = c?.name ?? ''
+    state.tax_id = c?.tax_id ?? ''
+    state.email = c?.email ?? ''
+    state.phone = c?.phone ?? ''
+    state.status = c?.status ?? 'pending'
+    state.account_manager = c?.account_manager ?? ''
+    state.notes = c?.notes ?? ''
     primaryUserId.value = c?.primary_user_id ?? null
     primaryContactEmail.value = c?.primary_user_email ?? null
     contactSearch.value = ''
@@ -125,25 +138,17 @@ const openModel = computed({
   set: value => emit('update:open', value),
 })
 
-function fail(messageKey: string): null {
-  error.value = { title: t(messageKey) }
-  return null
-}
-
-/** Validate + assemble the create body. Returns null (and sets `error`) on failure. */
-function buildCreateBody(): CompanyCreate | null {
-  const trimmedName = name.value.trim()
-  if (!trimmedName) return fail('admin.companies.errors.nameRequired')
-
+/** Assemble the create body from validated state (client validation runs in UForm). */
+function buildCreateBody(): CompanyCreate {
   const trim = (s: string) => s.trim() || null
   return {
-    name: trimmedName,
-    tax_id: trim(taxId.value),
-    email: trim(email.value),
-    phone: trim(phone.value),
-    status: status.value,
-    account_manager: trim(accountManager.value),
-    notes: trim(notes.value),
+    name: state.name.trim(),
+    tax_id: trim(state.tax_id),
+    email: trim(state.email),
+    phone: trim(state.phone),
+    status: state.status,
+    account_manager: trim(state.account_manager),
+    notes: trim(state.notes),
     primary_user_id: primaryUserId.value,
   }
 }
@@ -151,7 +156,6 @@ function buildCreateBody(): CompanyCreate | null {
 async function onSubmit() {
   error.value = null
   const body = buildCreateBody()
-  if (body === null) return
   try {
     if (props.company) {
       // The whole validated body doubles as the PATCH payload — the backend
@@ -176,7 +180,7 @@ async function onSubmit() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>
@@ -189,6 +193,8 @@ async function onSubmit() {
     :cancel-label="t('admin.companies.form.cancel')"
     :loading="loading"
     :error="error"
+    :schema="schema"
+    :state="state"
     @update:open="(v) => (openModel = v)"
     @submit="onSubmit"
   >
@@ -200,7 +206,7 @@ async function onSubmit() {
           required
         >
           <UInput
-            v-model="name"
+            v-model="state.name"
             class="w-full"
           />
         </UFormField>
@@ -212,7 +218,7 @@ async function onSubmit() {
             name="tax_id"
           >
             <UInput
-              v-model="taxId"
+              v-model="state.tax_id"
               class="w-full"
             />
           </UFormField>
@@ -222,7 +228,7 @@ async function onSubmit() {
             name="status"
           >
             <USelect
-              v-model="status"
+              v-model="state.status"
               :items="statusOptions"
               value-key="value"
               class="w-full"
@@ -236,7 +242,7 @@ async function onSubmit() {
             name="email"
           >
             <UInput
-              v-model="email"
+              v-model="state.email"
               type="email"
               class="w-full"
             />
@@ -247,7 +253,7 @@ async function onSubmit() {
             name="phone"
           >
             <UInput
-              v-model="phone"
+              v-model="state.phone"
               class="w-full"
             />
           </UFormField>
@@ -259,7 +265,7 @@ async function onSubmit() {
           name="account_manager"
         >
           <UInput
-            v-model="accountManager"
+            v-model="state.account_manager"
             class="w-full"
           />
         </UFormField>
@@ -306,7 +312,7 @@ async function onSubmit() {
           name="notes"
         >
           <UTextarea
-            v-model="notes"
+            v-model="state.notes"
             :rows="3"
             class="w-full"
           />

@@ -123,8 +123,9 @@ describe('CampaignFormModal', () => {
     clickSave()
     await tick()
 
+    // Client-side Zod validation blocks submit and renders the field error.
     expect(createMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('Name is required.')
   })
 
   it('requires a scheduled date when status is scheduled', async () => {
@@ -141,7 +142,7 @@ describe('CampaignFormModal', () => {
     await tick()
 
     expect(createMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('A scheduled date is required')
   })
 
   it('creates a scheduled campaign once a date is supplied', async () => {
@@ -181,7 +182,7 @@ describe('CampaignFormModal', () => {
     expect(patch).toMatchObject({ name: 'Winter blast v2', audience: 'b2b', status: 'draft' })
   })
 
-  it('shows an error alert and no toast when the mutation fails (server 422)', async () => {
+  it('shows the inline error alert + an error toast when the mutation fails (server 422)', async () => {
     createMutate.mockRejectedValue({ data: { detail: 'scheduled_at is required' } })
     const wrapper = await mountSuspended(CampaignFormModal, {
       props: { open: true, campaign: null },
@@ -193,8 +194,9 @@ describe('CampaignFormModal', () => {
     clickSave()
     await tick()
 
+    // Gold-standard flow: server detail surfaces inline (role=alert) + as a toast.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
     expect(document.body.textContent).toContain('scheduled_at is required')
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 })
