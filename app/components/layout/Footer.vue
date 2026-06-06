@@ -286,7 +286,7 @@ const paymentMethods: PaymentMethod[] = [
           <div class="col-span-2 flex flex-col gap-5 lg:col-span-4">
             <LayoutLogo />
             <p class="max-w-xs text-sm text-muted">
-              {{ t('footer.brand.tagline') }}
+              {{ storeConfig?.brand_tagline?.trim() || t('footer.brand.tagline') }}
             </p>
 
             <!-- Newsletter -->
@@ -465,7 +465,7 @@ const paymentMethods: PaymentMethod[] = [
     <!-- Baseline bar -->
     <template #left>
       <p class="text-sm text-muted">
-        {{ t('footer.copyright', { year }) }}
+        {{ t('footer.copyright', { year, name: storeConfig?.store_name?.trim() || t('footer.logo.name') }) }}
       </p>
     </template>
 
