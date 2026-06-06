@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import { z } from 'zod'
 import type {
   CampaignAudience,
   CampaignCreate,
@@ -7,7 +7,6 @@ import type {
   CampaignStatus,
   CampaignUpdate,
 } from '~/composables/queries/useCampaignQueries'
-import { parseProblem } from '#shared/utils/problemDetails'
 
 /**
  * Create / edit an email campaign.
@@ -46,17 +45,38 @@ const updateCampaign = useUpdateCampaign()
 const AUDIENCES: CampaignAudience[] = ['all', 'customers', 'b2b']
 const STATUSES: CampaignStatus[] = ['draft', 'scheduled', 'sent']
 
-const name = ref('')
-const subject = ref('')
-const audience = ref<CampaignAudience>('all')
-const status = ref<CampaignStatus>('draft')
-const body = ref('')
-const scheduledAt = ref('')
-const error = ref<ProblemDetails | null>(null)
+const state = reactive({
+  name: '',
+  subject: '',
+  audience: 'all' as CampaignAudience,
+  status: 'draft' as CampaignStatus,
+  body: '',
+  scheduled_at: '',
+})
+const error = ref<unknown>(null)
 
 const isEdit = computed(() => props.campaign !== null)
 const loading = computed(() => createCampaign.isLoading.value || updateCampaign.isLoading.value)
-const isScheduled = computed(() => status.value === 'scheduled')
+const isScheduled = computed(() => state.status === 'scheduled')
+
+const schema = computed(() =>
+  z.object({
+    name: z.string().trim().min(1, t('admin.campaigns.errors.nameRequired')),
+    subject: z.string().trim().min(1, t('admin.campaigns.errors.subjectRequired')),
+    audience: z.enum(AUDIENCES as [CampaignAudience, ...CampaignAudience[]]),
+    status: z.enum(STATUSES as [CampaignStatus, ...CampaignStatus[]]),
+    body: z.string(),
+    scheduled_at: z.string(),
+  }).superRefine((val, ctx) => {
+    if (val.status === 'scheduled' && !toIso(val.scheduled_at)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: t('admin.campaigns.errors.scheduledAtRequired'),
+        path: ['scheduled_at'],
+      })
+    }
+  }),
+)
 
 const audienceOptions = computed(() =>
   AUDIENCES.map(a => ({ label: t(`admin.campaigns.audience.${a}`), value: a })),
@@ -93,12 +113,12 @@ watch(
     if (!isOpen) return
     error.value = null
     const c = props.campaign
-    name.value = c?.name ?? ''
-    subject.value = c?.subject ?? ''
-    audience.value = c?.audience ?? 'all'
-    status.value = c?.status ?? 'draft'
-    body.value = c?.body ?? ''
-    scheduledAt.value = toLocalInput(c?.scheduled_at)
+    state.name = c?.name ?? ''
+    state.subject = c?.subject ?? ''
+    state.audience = c?.audience ?? 'all'
+    state.status = c?.status ?? 'draft'
+    state.body = c?.body ?? ''
+    state.scheduled_at = toLocalInput(c?.scheduled_at)
   },
   // immediate so an already-open mount (and re-opens) prefill from the campaign prop.
   { immediate: true },
@@ -109,39 +129,21 @@ const openModel = computed({
   set: value => emit('update:open', value),
 })
 
-function fail(messageKey: string): null {
-  error.value = { title: t(messageKey) }
-  return null
-}
-
-/** Validate + assemble the create body. Returns null (and sets `error`) on failure. */
-function buildCreateBody(): CampaignCreate | null {
-  const trimmedName = name.value.trim()
-  if (!trimmedName) return fail('admin.campaigns.errors.nameRequired')
-
-  const trimmedSubject = subject.value.trim()
-  if (!trimmedSubject) return fail('admin.campaigns.errors.subjectRequired')
-
-  const scheduledIso = toIso(scheduledAt.value)
-  if (isScheduled.value && !scheduledIso) {
-    return fail('admin.campaigns.errors.scheduledAtRequired')
-  }
-
-  const trimmedBody = body.value.trim()
+/** Assemble the create body from validated state (client validation runs in UForm). */
+function buildCreateBody(): CampaignCreate {
   return {
-    name: trimmedName,
-    subject: trimmedSubject,
-    audience: audience.value,
-    status: status.value,
-    body: trimmedBody || null,
-    scheduled_at: scheduledIso,
+    name: state.name.trim(),
+    subject: state.subject.trim(),
+    audience: state.audience,
+    status: state.status,
+    body: state.body.trim() || null,
+    scheduled_at: toIso(state.scheduled_at),
   }
 }
 
 async function onSubmit() {
   error.value = null
   const built = buildCreateBody()
-  if (built === null) return
   try {
     if (props.campaign) {
       // The whole validated body doubles as the PATCH payload — the backend
@@ -166,7 +168,7 @@ async function onSubmit() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>
@@ -179,6 +181,8 @@ async function onSubmit() {
     :cancel-label="t('admin.campaigns.form.cancel')"
     :loading="loading"
     :error="error"
+    :schema="schema"
+    :state="state"
     @update:open="(v) => (openModel = v)"
     @submit="onSubmit"
   >
@@ -191,7 +195,7 @@ async function onSubmit() {
           required
         >
           <UInput
-            v-model="name"
+            v-model="state.name"
             class="w-full"
           />
         </UFormField>
@@ -203,7 +207,7 @@ async function onSubmit() {
           required
         >
           <UInput
-            v-model="subject"
+            v-model="state.subject"
             class="w-full"
           />
         </UFormField>
@@ -214,7 +218,7 @@ async function onSubmit() {
             name="audience"
           >
             <USelect
-              v-model="audience"
+              v-model="state.audience"
               :items="audienceOptions"
               value-key="value"
               class="w-full"
@@ -226,7 +230,7 @@ async function onSubmit() {
             name="status"
           >
             <USelect
-              v-model="status"
+              v-model="state.status"
               :items="statusOptions"
               value-key="value"
               class="w-full"
@@ -241,7 +245,7 @@ async function onSubmit() {
           name="scheduled_at"
         >
           <UInput
-            v-model="scheduledAt"
+            v-model="state.scheduled_at"
             type="datetime-local"
             class="w-full"
           />
@@ -253,7 +257,7 @@ async function onSubmit() {
           name="body"
         >
           <UTextarea
-            v-model="body"
+            v-model="state.body"
             :rows="6"
             class="w-full"
           />

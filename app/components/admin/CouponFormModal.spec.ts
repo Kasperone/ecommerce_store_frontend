@@ -150,8 +150,9 @@ describe('CouponFormModal', () => {
     clickSave()
     await tick()
 
+    // Client-side Zod validation blocks submit and renders the field error.
     expect(createMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('Percentage must be between 1 and 100.')
   })
 
   it('requires a currency for a fixed-amount coupon', async () => {
@@ -168,7 +169,7 @@ describe('CouponFormModal', () => {
     await tick()
 
     expect(createMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('Currency is required for a fixed-amount discount.')
   })
 
   it('updates an existing coupon on save (PATCH payload)', async () => {
@@ -187,7 +188,7 @@ describe('CouponFormModal', () => {
     expect(patch).toMatchObject({ code: 'WINTER', discount_type: 'fixed', value: 30, currency: 'EUR' })
   })
 
-  it('shows an error alert and no toast when the mutation fails (e.g. duplicate code)', async () => {
+  it('shows the inline error alert + an error toast when the mutation fails (e.g. duplicate code)', async () => {
     createMutate.mockRejectedValue({ data: { detail: 'Coupon code already exists' } })
     const wrapper = await mountSuspended(CouponFormModal, {
       props: { open: true, coupon: null },
@@ -199,8 +200,9 @@ describe('CouponFormModal', () => {
     clickSave()
     await tick()
 
+    // Gold-standard flow: server detail surfaces inline (role=alert) + as a toast.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
     expect(document.body.textContent).toContain('Coupon code already exists')
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 })

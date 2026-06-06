@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import { z } from 'zod'
 import type {
   CouponCreate,
   CouponCurrency,
@@ -7,7 +7,6 @@ import type {
   CouponResponse,
   CouponUpdate,
 } from '~/composables/queries/useCouponQueries'
-import { parseProblem } from '#shared/utils/problemDetails'
 
 /**
  * Create / edit a coupon.
@@ -42,22 +41,24 @@ const updateCoupon = useUpdateCoupon()
 
 const CURRENCIES: CouponCurrency[] = ['USD', 'PLN', 'EUR']
 
-const code = ref('')
-const description = ref('')
-const discountType = ref<CouponDiscountType>('percent')
-const value = ref<number | null>(null)
-const currency = ref<CouponCurrency | null>(null)
-const minOrderAmount = ref<number | null>(null)
-const maxUses = ref<number | null>(null)
-const perUserLimit = ref<number | null>(null)
-const startsAt = ref('')
-const endsAt = ref('')
-const isActive = ref(true)
-const error = ref<ProblemDetails | null>(null)
+const state = reactive({
+  code: '',
+  description: '',
+  discount_type: 'percent' as CouponDiscountType,
+  value: null as number | null,
+  currency: null as CouponCurrency | null,
+  min_order_amount: null as number | null,
+  max_uses: null as number | null,
+  per_user_limit: null as number | null,
+  starts_at: '',
+  ends_at: '',
+  is_active: true,
+})
+const error = ref<unknown>(null)
 
 const isEdit = computed(() => props.coupon !== null)
 const loading = computed(() => createCoupon.isLoading.value || updateCoupon.isLoading.value)
-const isPercent = computed(() => discountType.value === 'percent')
+const isPercent = computed(() => state.discount_type === 'percent')
 
 const discountTypeOptions = computed(() => [
   { label: t('admin.coupons.discountType.percent'), value: 'percent' as const },
@@ -87,23 +88,58 @@ function toIso(local: string): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString()
 }
 
+const schema = computed(() =>
+  z.object({
+    code: z.string().trim().min(1, t('admin.coupons.errors.codeRequired')),
+    description: z.string(),
+    discount_type: z.enum(['percent', 'fixed']),
+    value: z.number().nullable(),
+    currency: z.enum(CURRENCIES as [CouponCurrency, ...CouponCurrency[]]).nullable(),
+    min_order_amount: z.number().nullable(),
+    max_uses: z.number().nullable(),
+    per_user_limit: z.number().nullable(),
+    starts_at: z.string(),
+    ends_at: z.string(),
+    is_active: z.boolean(),
+  }).superRefine((val, ctx) => {
+    if (val.discount_type === 'percent') {
+      if (val.value === null || val.value < 1 || val.value > 100) {
+        ctx.addIssue({ code: 'custom', message: t('admin.coupons.errors.valuePercentRange'), path: ['value'] })
+      }
+    }
+    else {
+      if (val.value === null || val.value <= 0) {
+        ctx.addIssue({ code: 'custom', message: t('admin.coupons.errors.valueFixedPositive'), path: ['value'] })
+      }
+      if (!val.currency) {
+        ctx.addIssue({ code: 'custom', message: t('admin.coupons.errors.currencyRequired'), path: ['currency'] })
+      }
+    }
+    const startsIso = toIso(val.starts_at)
+    const endsIso = toIso(val.ends_at)
+    if (startsIso && endsIso && new Date(endsIso) <= new Date(startsIso)) {
+      ctx.addIssue({ code: 'custom', message: t('admin.coupons.errors.endsBeforeStarts'), path: ['ends_at'] })
+    }
+  }),
+)
+
 watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
     error.value = null
     const c = props.coupon
-    code.value = c?.code ?? ''
-    description.value = c?.description ?? ''
-    discountType.value = c?.discount_type ?? 'percent'
-    value.value = c?.value ?? null
-    currency.value = c?.currency ?? null
-    minOrderAmount.value = c?.min_order_amount ?? null
-    maxUses.value = c?.max_uses ?? null
-    perUserLimit.value = c?.per_user_limit ?? null
-    startsAt.value = toLocalInput(c?.starts_at)
-    endsAt.value = toLocalInput(c?.ends_at)
-    isActive.value = c?.is_active ?? true
+    state.code = c?.code ?? ''
+    state.description = c?.description ?? ''
+    state.discount_type = c?.discount_type ?? 'percent'
+    state.value = c?.value ?? null
+    state.currency = c?.currency ?? null
+    state.min_order_amount = c?.min_order_amount ?? null
+    state.max_uses = c?.max_uses ?? null
+    state.per_user_limit = c?.per_user_limit ?? null
+    state.starts_at = toLocalInput(c?.starts_at)
+    state.ends_at = toLocalInput(c?.ends_at)
+    state.is_active = c?.is_active ?? true
   },
   // immediate so an already-open mount (and re-opens) prefill from the coupon prop.
   { immediate: true },
@@ -112,7 +148,7 @@ watch(
 // Percent coupons carry no currency — clear it when switching away from fixed so a
 // stale value never rides along on submit.
 watch(isPercent, (percent) => {
-  if (percent) currency.value = null
+  if (percent) state.currency = null
 })
 
 const openModel = computed({
@@ -120,51 +156,26 @@ const openModel = computed({
   set: value => emit('update:open', value),
 })
 
-function fail(messageKey: string): null {
-  error.value = { title: t(messageKey) }
-  return null
-}
-
-/** Validate + assemble the create body. Returns null (and sets `error`) on failure. */
-function buildCreateBody(): CouponCreate | null {
-  const trimmedCode = code.value.trim().toUpperCase()
-  if (!trimmedCode) return fail('admin.coupons.errors.codeRequired')
-
-  const v = value.value
-  if (isPercent.value) {
-    if (v === null || v < 1 || v > 100) return fail('admin.coupons.errors.valuePercentRange')
-  }
-  else {
-    if (v === null || v <= 0) return fail('admin.coupons.errors.valueFixedPositive')
-    if (!currency.value) return fail('admin.coupons.errors.currencyRequired')
-  }
-
-  const startsIso = toIso(startsAt.value)
-  const endsIso = toIso(endsAt.value)
-  if (startsIso && endsIso && new Date(endsIso) <= new Date(startsIso)) {
-    return fail('admin.coupons.errors.endsBeforeStarts')
-  }
-
-  const trimmedDescription = description.value.trim()
+/** Assemble the create body from validated state (client validation runs in UForm). */
+function buildCreateBody(): CouponCreate {
   return {
-    code: trimmedCode,
-    description: trimmedDescription || null,
-    discount_type: discountType.value,
-    value: v as number,
-    currency: isPercent.value ? null : currency.value,
-    min_order_amount: minOrderAmount.value,
-    max_uses: maxUses.value,
-    per_user_limit: perUserLimit.value,
-    starts_at: startsIso,
-    ends_at: endsIso,
-    is_active: isActive.value,
+    code: state.code.trim().toUpperCase(),
+    description: state.description.trim() || null,
+    discount_type: state.discount_type,
+    value: state.value as number,
+    currency: isPercent.value ? null : state.currency,
+    min_order_amount: state.min_order_amount,
+    max_uses: state.max_uses,
+    per_user_limit: state.per_user_limit,
+    starts_at: toIso(state.starts_at),
+    ends_at: toIso(state.ends_at),
+    is_active: state.is_active,
   }
 }
 
 async function onSubmit() {
   error.value = null
   const body = buildCreateBody()
-  if (body === null) return
   try {
     if (props.coupon) {
       // The whole validated body doubles as the PATCH payload — the backend
@@ -189,7 +200,7 @@ async function onSubmit() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>
@@ -202,6 +213,8 @@ async function onSubmit() {
     :cancel-label="t('admin.coupons.form.cancel')"
     :loading="loading"
     :error="error"
+    :schema="schema"
+    :state="state"
     @update:open="(v) => (openModel = v)"
     @submit="onSubmit"
   >
@@ -214,7 +227,7 @@ async function onSubmit() {
           required
         >
           <UInput
-            v-model="code"
+            v-model="state.code"
             class="w-full font-mono uppercase"
           />
         </UFormField>
@@ -224,7 +237,7 @@ async function onSubmit() {
           name="description"
         >
           <UTextarea
-            v-model="description"
+            v-model="state.description"
             :rows="2"
             class="w-full"
           />
@@ -236,7 +249,7 @@ async function onSubmit() {
             name="discount_type"
           >
             <USelect
-              v-model="discountType"
+              v-model="state.discount_type"
               :items="discountTypeOptions"
               value-key="value"
               class="w-full"
@@ -250,7 +263,7 @@ async function onSubmit() {
             required
           >
             <UInputNumber
-              v-model="value"
+              v-model="state.value"
               :min="0"
               :step="isPercent ? 1 : 0.01"
               class="w-full"
@@ -265,7 +278,7 @@ async function onSubmit() {
           name="currency"
         >
           <USelect
-            v-model="currency"
+            v-model="state.currency"
             :items="currencyOptions"
             value-key="value"
             :placeholder="t('admin.coupons.form.currency')"
@@ -280,7 +293,7 @@ async function onSubmit() {
             name="min_order_amount"
           >
             <UInputNumber
-              v-model="minOrderAmount"
+              v-model="state.min_order_amount"
               :min="0"
               :step="0.01"
               class="w-full"
@@ -293,7 +306,7 @@ async function onSubmit() {
             name="max_uses"
           >
             <UInputNumber
-              v-model="maxUses"
+              v-model="state.max_uses"
               :min="1"
               :step="1"
               class="w-full"
@@ -306,7 +319,7 @@ async function onSubmit() {
             name="per_user_limit"
           >
             <UInputNumber
-              v-model="perUserLimit"
+              v-model="state.per_user_limit"
               :min="1"
               :step="1"
               class="w-full"
@@ -320,7 +333,7 @@ async function onSubmit() {
             name="starts_at"
           >
             <UInput
-              v-model="startsAt"
+              v-model="state.starts_at"
               type="datetime-local"
               class="w-full"
             />
@@ -332,7 +345,7 @@ async function onSubmit() {
             name="ends_at"
           >
             <UInput
-              v-model="endsAt"
+              v-model="state.ends_at"
               type="datetime-local"
               class="w-full"
             />
@@ -343,7 +356,7 @@ async function onSubmit() {
           :label="t('admin.coupons.form.isActive')"
           name="is_active"
         >
-          <USwitch v-model="isActive" />
+          <USwitch v-model="state.is_active" />
         </UFormField>
       </div>
     </template>

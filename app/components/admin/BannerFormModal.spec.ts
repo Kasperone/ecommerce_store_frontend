@@ -130,8 +130,9 @@ describe('BannerFormModal', () => {
     clickSave()
     await tick()
 
+    // Client-side Zod validation blocks submit and renders the field error.
     expect(createMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('Title is required.')
   })
 
   it('rejects a missing image URL without calling the mutation', async () => {
@@ -146,7 +147,7 @@ describe('BannerFormModal', () => {
     await tick()
 
     expect(createMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('Image URL is required.')
   })
 
   it('rejects an end date on/before the start date', async () => {
@@ -164,7 +165,7 @@ describe('BannerFormModal', () => {
     await tick()
 
     expect(createMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('End date must be after the start date.')
   })
 
   it('updates an existing banner on save (PATCH payload)', async () => {
@@ -188,7 +189,7 @@ describe('BannerFormModal', () => {
     })
   })
 
-  it('shows an error alert and no toast when the mutation fails', async () => {
+  it('shows the inline error alert + an error toast when the mutation fails', async () => {
     createMutate.mockRejectedValue({ data: { detail: 'Invalid placement' } })
     const wrapper = await mountSuspended(BannerFormModal, {
       props: { open: true, banner: null },
@@ -201,8 +202,9 @@ describe('BannerFormModal', () => {
     clickSave()
     await tick()
 
+    // Gold-standard flow: server detail surfaces inline (role=alert) + as a toast.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
     expect(document.body.textContent).toContain('Invalid placement')
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 })

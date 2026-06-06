@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import { z } from 'zod'
 import type { WarehouseResponse } from '#shared/types/api'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
-import { parseProblem } from '#shared/utils/problemDetails'
 
 const props = defineProps<{
   open: boolean
@@ -20,11 +19,22 @@ const toast = useToast()
 const createWarehouse = useCreateWarehouse()
 const updateWarehouse = useUpdateWarehouse()
 
-const name = ref('')
-const code = ref('')
-const isActive = ref(true)
-const isDefault = ref(false)
-const error = ref<ProblemDetails | null>(null)
+const state = reactive({
+  name: '',
+  code: '',
+  is_active: true,
+  is_default: false,
+})
+const error = ref<unknown>(null)
+
+const schema = computed(() =>
+  z.object({
+    name: z.string().trim().min(1, t('messages.fieldRequired')),
+    code: z.string().trim().min(1, t('messages.fieldRequired')),
+    is_active: z.boolean(),
+    is_default: z.boolean(),
+  }),
+)
 
 const isEdit = computed(() => props.warehouse !== null)
 const loading = computed(() => createWarehouse.isLoading.value || updateWarehouse.isLoading.value)
@@ -42,10 +52,10 @@ watch(
   (isOpen) => {
     if (!isOpen) return
     error.value = null
-    name.value = props.warehouse?.name ?? ''
-    code.value = props.warehouse?.code ?? ''
-    isActive.value = props.warehouse?.is_active ?? true
-    isDefault.value = props.warehouse?.is_default ?? false
+    state.name = props.warehouse?.name ?? ''
+    state.code = props.warehouse?.code ?? ''
+    state.is_active = props.warehouse?.is_active ?? true
+    state.is_default = props.warehouse?.is_default ?? false
   },
   // immediate so an already-open mount (and re-opens) prefill from the warehouse prop.
   { immediate: true },
@@ -59,10 +69,10 @@ const openModel = computed({
 async function onSubmit() {
   error.value = null
   const body = {
-    name: name.value.trim(),
-    code: code.value.trim(),
-    is_active: isActive.value,
-    is_default: isDefault.value,
+    name: state.name.trim(),
+    code: state.code.trim(),
+    is_active: state.is_active,
+    is_default: state.is_default,
   }
   try {
     if (props.warehouse) {
@@ -85,7 +95,7 @@ async function onSubmit() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>
@@ -98,6 +108,8 @@ async function onSubmit() {
     :cancel-label="t('admin.warehouses.form.cancel')"
     :loading="loading"
     :error="error"
+    :schema="schema"
+    :state="state"
     @update:open="(v) => (openModel = v)"
     @submit="onSubmit"
   >
@@ -109,7 +121,7 @@ async function onSubmit() {
           required
         >
           <UInput
-            v-model="name"
+            v-model="state.name"
             class="w-full"
           />
         </UFormField>
@@ -121,7 +133,7 @@ async function onSubmit() {
           required
         >
           <UInput
-            v-model="code"
+            v-model="state.code"
             class="w-full"
           />
         </UFormField>
@@ -130,7 +142,7 @@ async function onSubmit() {
           :label="t('admin.warehouses.form.isActive')"
           name="is_active"
         >
-          <USwitch v-model="isActive" />
+          <USwitch v-model="state.is_active" />
         </UFormField>
 
         <UFormField
@@ -139,7 +151,7 @@ async function onSubmit() {
           name="is_default"
         >
           <USwitch
-            v-model="isDefault"
+            v-model="state.is_default"
             :disabled="defaultLocked"
           />
         </UFormField>
