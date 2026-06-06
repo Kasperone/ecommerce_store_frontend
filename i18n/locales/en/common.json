@@ -346,7 +346,8 @@
         "invoicing": "Invoicing",
         "address": "Address",
         "identifiers": "Business identifiers",
-        "social": "Social media"
+        "social": "Social media",
+        "branding": "Branding"
       },
       "fields": {
         "storeName": "Store name",
@@ -365,7 +366,9 @@
         "socialInstagram": "Instagram",
         "socialFacebook": "Facebook",
         "socialTiktok": "TikTok",
-        "socialYoutube": "YouTube"
+        "socialYoutube": "YouTube",
+        "brandTagline": "Tagline",
+        "logoUrl": "Logo URL"
       },
       "hints": {
         "email": "Shown on invoices and used as the sender for store emails.",
@@ -374,7 +377,10 @@
         "invoiceVatRate": "Gross-inclusive VAT rate applied to invoices, 0–100.",
         "legalName": "Registered company name, shown on invoices and in the storefront footer.",
         "identifiers": "Business registry numbers shown in the storefront footer where required. Leave blank if not applicable.",
-        "social": "Full profile URL or handle — rendered as footer icons. Leave blank to hide."
+        "social": "Full profile URL or handle — rendered as footer icons. Leave blank to hide.",
+        "branding": "The wordmark + tagline shown in the header and footer. The store name above is used as the brand name.",
+        "brandTagline": "Short line shown under the logo in the footer.",
+        "logoUrl": "Optional image URL for your logo. Leave blank to use the default wordmark."
       },
       "actions": {
         "save": "Save changes"
@@ -2271,7 +2277,7 @@
   "footer": {
     "logo": {
       "name": "E-commerce Store",
-      "homeAria": "E-commerce Store - go to homepage"
+      "homeAria": "{name} - go to homepage"
     },
     "brand": {
       "tagline": "Quality goods, delivered in USD, PLN and EUR."
@@ -2352,7 +2358,7 @@
       "heading": "We accept"
     },
     "backToTop": "Back to top",
-    "copyright": "© {year} E-commerce Store. All rights reserved.",
+    "copyright": "© {year} {name}. All rights reserved.",
     "madeIn": "Made with care in Poland.",
     "stubPage": {
       "comingSoon": "This page is coming soon.",

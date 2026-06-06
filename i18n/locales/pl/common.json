@@ -350,7 +350,8 @@
         "invoicing": "Fakturowanie",
         "address": "Adres",
         "identifiers": "Dane rejestrowe",
-        "social": "Media społecznościowe"
+        "social": "Media społecznościowe",
+        "branding": "Marka"
       },
       "fields": {
         "storeName": "Nazwa sklepu",
@@ -369,7 +370,9 @@
         "socialInstagram": "Instagram",
         "socialFacebook": "Facebook",
         "socialTiktok": "TikTok",
-        "socialYoutube": "YouTube"
+        "socialYoutube": "YouTube",
+        "brandTagline": "Hasło",
+        "logoUrl": "Adres URL logo"
       },
       "hints": {
         "email": "Widoczny na fakturach i używany jako nadawca e-maili sklepu.",
@@ -378,7 +381,10 @@
         "invoiceVatRate": "Stawka VAT (brutto) stosowana na fakturach, 0–100.",
         "legalName": "Zarejestrowana nazwa firmy, widoczna na fakturach i w stopce sklepu.",
         "identifiers": "Numery rejestrowe pokazywane w stopce sklepu tam, gdzie są wymagane. Pozostaw puste, jeśli nie dotyczy.",
-        "social": "Pełny adres URL profilu lub nazwa — wyświetlane jako ikony w stopce. Pozostaw puste, aby ukryć."
+        "social": "Pełny adres URL profilu lub nazwa — wyświetlane jako ikony w stopce. Pozostaw puste, aby ukryć.",
+        "branding": "Logo i hasło widoczne w nagłówku i stopce. Jako nazwa marki używana jest powyższa nazwa sklepu.",
+        "brandTagline": "Krótkie hasło pokazywane pod logo w stopce.",
+        "logoUrl": "Opcjonalny adres URL obrazu logo. Pozostaw puste, aby użyć domyślnego znaku słownego."
       },
       "actions": {
         "save": "Zapisz zmiany"
@@ -2275,7 +2281,7 @@
   "footer": {
     "logo": {
       "name": "E-commerce Store",
-      "homeAria": "E-commerce Store - przejdź na stronę główną"
+      "homeAria": "{name} - przejdź na stronę główną"
     },
     "brand": {
       "tagline": "Sprawdzone produkty, dostawa w USD, PLN i EUR."
@@ -2356,7 +2362,7 @@
       "heading": "Akceptujemy"
     },
     "backToTop": "Powrót na górę",
-    "copyright": "© {year} E-commerce Store. Wszelkie prawa zastrzeżone.",
+    "copyright": "© {year} {name}. Wszelkie prawa zastrzeżone.",
     "madeIn": "Tworzone z troską w Polsce.",
     "stubPage": {
       "comingSoon": "Ta strona jest w przygotowaniu.",
