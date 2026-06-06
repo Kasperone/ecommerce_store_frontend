@@ -1,4 +1,5 @@
 // @vitest-environment nuxt
+import { ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 
@@ -16,6 +17,13 @@ const toastAdd = vi.fn()
 
 mockNuxtImport('useApi', () => () => ({ apiFetch }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
+
+// The page reads the public store_config for the contact email/phone. Mock it so
+// the only apiFetch call under test is the contact-form POST (the real composable
+// would otherwise fire its own GET /api/v1/store-config on mount). Declared
+// post-imports; the mock factory closes over it lazily (mockNuxtImport hoists).
+const storeConfig = ref<{ email?: string, phone?: string } | null>(null)
+mockNuxtImport('useStoreConfig', () => () => ({ data: storeConfig }))
 
 const tick = () => new Promise(r => setTimeout(r, 0))
 

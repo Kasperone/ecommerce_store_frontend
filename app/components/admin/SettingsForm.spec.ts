@@ -31,11 +31,21 @@ const AXE_OPTIONS = {
 const config = {
   id: 1,
   store_name: 'Acme Store',
+  legal_name: 'Acme Sp. z o.o.',
+  email: 'shop@acme.test',
+  phone: '+48 22 000 00 00',
   address_line: '1 Market St',
+  address_line2: '',
   postal_city: '00-001 Warsaw',
   country: 'Poland',
+  nip: '1234567890',
+  regon: '000000000',
+  krs: '0000000000',
+  social_instagram: '',
+  social_facebook: '',
+  social_tiktok: '',
+  social_youtube: '',
   tax_id: 'PL1234567890',
-  email: 'shop@acme.test',
   invoice_vat_rate: 23,
   created_at: '2026-05-28T00:00:00Z',
   updated_at: '2026-05-28T00:00:00Z',
@@ -116,9 +126,9 @@ describe('SettingsForm', () => {
 
   it('blocks save when an email is entered but malformed', async () => {
     const wrapper = await mountSuspended(SettingsForm, { props: { config } })
-    // Second UInput is email (identity section, after store_name).
+    // Email is the third UInput (identity section: store_name, legal_name, email).
     const inputs = wrapper.findAllComponents({ name: 'UInput' })
-    inputs[1]!.vm.$emit('update:modelValue', 'not-an-email')
+    inputs[2]!.vm.$emit('update:modelValue', 'not-an-email')
     await new Promise(r => setTimeout(r, 0))
 
     await wrapper.find('form').trigger('submit')

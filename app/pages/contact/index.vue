@@ -10,6 +10,10 @@ const { t } = useI18n()
 const toast = useToast()
 const { apiFetch } = useApi()
 
+// Prefer the admin-editable store_config contact details (owner-customisable in
+// Settings); fall back to the i18n placeholders when a field is unset.
+const { data: storeConfig } = useStoreConfig()
+
 useSeoMeta({
   title: () => t('legal.contact.meta.title'),
   description: () => t('legal.contact.meta.description'),
@@ -100,7 +104,7 @@ async function onSubmit(event: FormSubmitEvent<ContactFormData>) {
                 {{ t('legal.contact.details.emailLabel') }}
               </dt>
               <dd class="font-medium">
-                {{ t('legal.contact.details.email') }}
+                {{ storeConfig?.email || t('legal.contact.details.email') }}
               </dd>
             </div>
             <div>
@@ -108,7 +112,7 @@ async function onSubmit(event: FormSubmitEvent<ContactFormData>) {
                 {{ t('legal.contact.details.phoneLabel') }}
               </dt>
               <dd class="font-medium">
-                {{ t('legal.contact.details.phone') }}
+                {{ storeConfig?.phone || t('legal.contact.details.phone') }}
               </dd>
             </div>
             <div>
