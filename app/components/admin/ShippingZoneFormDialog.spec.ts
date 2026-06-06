@@ -18,6 +18,10 @@ const AXE_OPTIONS = {
     'aria-hidden-focus': { enabled: false },
     'aria-dialog-name': { enabled: false },
     'label-title-only': { enabled: false },
+    // Nuxt UI's UCheckbox inside a UForm renders a button[role=checkbox]
+    // wrapping a visually-hidden input for submission; axe flags that as
+    // nested-interactive. Library rendering artifact (same as WarehouseFormModal).
+    'nested-interactive': { enabled: false },
   },
 }
 

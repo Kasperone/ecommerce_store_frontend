@@ -23,16 +23,16 @@
 
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { z } from 'zod'
 import { formatMoney } from '#shared/utils/money'
 import { applyShippingRate } from '#shared/utils/shippingRate'
-import { parseProblem } from '#shared/utils/problemDetails'
-import type { ProblemDetails } from '#shared/utils/problemDetails'
 import type {
   ShippingMethodResponse,
   ShippingRateListItem,
   ShippingZoneListItem,
 } from '#shared/types/api'
 import type { ShippingCurrency } from '~/composables/queries/useShippingQueries'
+import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{
   open: boolean
@@ -80,7 +80,27 @@ const tiersExpanded = ref(false)
 const weightTiersExpanded = ref(false)
 const previewSubtotal = ref(0)
 const previewWeightKg = ref(0)
-const error = ref<ProblemDetails | null>(null)
+
+const schema = computed(() =>
+  z.object({
+    zone_id: z.number({ message: t('messages.fieldRequired') }),
+    method_id: z.number({ message: t('messages.fieldRequired') }),
+    currency: z.enum(['USD', 'PLN', 'EUR']),
+    amount: z.number().min(0),
+    free_above_subtotal: z.number().min(0).nullable(),
+    tiers: z.array(z.object({ min_subtotal: z.number(), amount: z.number() })),
+    weight_tiers: z.array(z.object({ max_weight_kg: z.number(), amount: z.number() })),
+  }),
+)
+
+const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
+const hiddenSubmitRef = ref<HTMLButtonElement | null>(null)
+const { errorMessage, applyApiError } = useValidatedForm(formRef, {
+  state: () => state,
+  toast,
+  t,
+  toastTitleKey: 'messages.saveErrorTitle',
+})
 
 const zoneOptions = computed(() => props.zones.map(z => ({ value: z.id, label: z.name })))
 const methodOptions = computed(() => props.methods.map(m => ({ value: m.id, label: m.name })))
@@ -107,7 +127,7 @@ watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
-    error.value = null
+    errorMessage.value = ''
     tiersExpanded.value = false
     weightTiersExpanded.value = false
     previewSubtotal.value = 0
@@ -180,7 +200,7 @@ const submitDisabled = computed(
 
 async function onSubmit() {
   if (submitDisabled.value) return
-  error.value = null
+  errorMessage.value = ''
 
   // Tiers normalised: drop empties + sort ascending. Backend does its own
   // canonicalisation but we send a clean payload so the admin sees the same
@@ -222,7 +242,7 @@ async function onSubmit() {
     emit('update:open', false)
   }
   catch (err) {
-    error.value = parseProblem(err)
+    applyApiError(err, t('messages.saveError'))
   }
 }
 </script>
@@ -237,18 +257,29 @@ async function onSubmit() {
           </h2>
         </template>
 
-        <form
+        <UForm
+          ref="formRef"
+          :schema="schema"
+          :state="state"
+          :validate-on="['submit']"
           class="space-y-4"
-          @submit.prevent="onSubmit"
+          @submit="onSubmit"
         >
-          <ErrorAlert
-            v-if="error"
-            :problem="error"
+          <UAlert
+            v-if="errorMessage"
+            role="alert"
+            color="error"
+            variant="soft"
+            :title="t('messages.saveErrorTitle')"
+            :description="errorMessage"
+            :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+            @close="errorMessage = ''"
           />
 
           <div class="grid gap-4 sm:grid-cols-3">
             <UFormField
               :label="t('admin.shipping.rates.zone')"
+              name="zone_id"
               required
             >
               <USelectMenu
@@ -262,6 +293,7 @@ async function onSubmit() {
             </UFormField>
             <UFormField
               :label="t('admin.shipping.rates.method')"
+              name="method_id"
               required
             >
               <USelectMenu
@@ -275,6 +307,7 @@ async function onSubmit() {
             </UFormField>
             <UFormField
               :label="t('admin.shipping.rates.currency')"
+              name="currency"
               required
             >
               <USelect
@@ -290,6 +323,7 @@ async function onSubmit() {
           <UFormField
             :label="t('admin.shipping.rates.amount')"
             :hint="t('admin.shipping.rates.amountHint')"
+            name="amount"
             required
           >
             <UInputNumber
@@ -303,6 +337,7 @@ async function onSubmit() {
           <UFormField
             :label="t('admin.shipping.rates.freeAbove')"
             :hint="t('admin.shipping.rates.freeAboveHint')"
+            name="free_above_subtotal"
           >
             <div class="flex items-center gap-2">
               <UInputNumber
@@ -455,7 +490,16 @@ async function onSubmit() {
               <span class="font-semibold">{{ previewFormatted }}</span>
             </div>
           </div>
-        </form>
+
+          <button
+            ref="hiddenSubmitRef"
+            type="submit"
+            hidden
+            aria-hidden="true"
+            tabindex="-1"
+            :disabled="loading"
+          />
+        </UForm>
 
         <template #footer>
           <div class="flex justify-end gap-2">
@@ -470,7 +514,7 @@ async function onSubmit() {
               color="primary"
               :loading="loading"
               :disabled="submitDisabled"
-              @click="onSubmit"
+              @click="hiddenSubmitRef?.click()"
             >
               {{ t('actions.save') }}
             </UButton>
