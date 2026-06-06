@@ -102,8 +102,9 @@ describe('InventoryTransferDialog', () => {
     clickSave()
     await new Promise(r => setTimeout(r, 0))
 
+    // Client-side Zod superRefine blocks submit and renders the field error.
     expect(transferMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('Source and destination warehouses must differ.')
   })
 
   it('blocks a transfer exceeding the source level client-side', async () => {
@@ -117,6 +118,6 @@ describe('InventoryTransferDialog', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(transferMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('Not enough stock in the source warehouse')
   })
 })
