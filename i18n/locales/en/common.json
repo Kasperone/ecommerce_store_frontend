@@ -343,7 +343,10 @@
       "subtitle": "Store identity and invoicing details used on invoices and emails",
       "sections": {
         "identity": "Store identity",
-        "invoicing": "Invoicing"
+        "invoicing": "Invoicing",
+        "address": "Address",
+        "identifiers": "Business identifiers",
+        "social": "Social media"
       },
       "fields": {
         "storeName": "Store name",
@@ -352,13 +355,26 @@
         "postalCity": "Postal code & city",
         "country": "Country",
         "taxId": "Tax ID",
-        "invoiceVatRate": "VAT rate (%)"
+        "invoiceVatRate": "VAT rate (%)",
+        "legalName": "Legal name",
+        "phone": "Phone",
+        "addressLine2": "Address line 2",
+        "nip": "NIP",
+        "regon": "REGON",
+        "krs": "KRS",
+        "socialInstagram": "Instagram",
+        "socialFacebook": "Facebook",
+        "socialTiktok": "TikTok",
+        "socialYoutube": "YouTube"
       },
       "hints": {
         "email": "Shown on invoices and used as the sender for store emails.",
         "invoicing": "These details appear on customer invoices.",
         "taxId": "VAT / company tax identifier, e.g. PL1234567890.",
-        "invoiceVatRate": "Gross-inclusive VAT rate applied to invoices, 0–100."
+        "invoiceVatRate": "Gross-inclusive VAT rate applied to invoices, 0–100.",
+        "legalName": "Registered company name, shown on invoices and in the storefront footer.",
+        "identifiers": "Business registry numbers shown in the storefront footer where required. Leave blank if not applicable.",
+        "social": "Full profile URL or handle — rendered as footer icons. Leave blank to hide."
       },
       "actions": {
         "save": "Save changes"
