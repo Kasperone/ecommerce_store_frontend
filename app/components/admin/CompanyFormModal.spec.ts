@@ -171,8 +171,9 @@ describe('CompanyFormModal', () => {
     clickSave()
     await tick()
 
+    // Client-side Zod validation blocks submit and renders the field error.
     expect(createMutate).not.toHaveBeenCalled()
-    expect(document.querySelector('[role="alert"]')).toBeTruthy()
+    expect(document.body.textContent).toContain('Name is required.')
   })
 
   it('updates an existing company on save (PATCH payload carries status)', async () => {
@@ -192,7 +193,7 @@ describe('CompanyFormModal', () => {
     expect(patch).toMatchObject({ name: 'Globex', status: 'approved', tax_id: 'PL1234567890' })
   })
 
-  it('shows an error alert and no toast when the mutation fails', async () => {
+  it('shows the inline error alert + an error toast when the mutation fails', async () => {
     createMutate.mockRejectedValue({ data: { detail: 'Tax id already exists' } })
     const wrapper = await mountSuspended(CompanyFormModal, {
       props: { open: true, company: null },
@@ -203,8 +204,9 @@ describe('CompanyFormModal', () => {
     clickSave()
     await tick()
 
+    // Gold-standard flow: server detail surfaces inline (role=alert) + as a toast.
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
     expect(document.body.textContent).toContain('Tax id already exists')
-    expect(toastAdd).not.toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
   })
 })

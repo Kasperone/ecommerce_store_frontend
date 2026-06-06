@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { ProblemDetails } from '#shared/utils/problemDetails'
+import { z } from 'zod'
 import type {
   BannerCreate,
   BannerPlacement,
   BannerResponse,
   BannerUpdate,
 } from '~/composables/queries/useBannerQueries'
-import { parseProblem } from '#shared/utils/problemDetails'
 
 /**
  * Create / edit a banner.
@@ -41,16 +40,18 @@ const updateBanner = useUpdateBanner()
 
 const PLACEMENTS: BannerPlacement[] = ['home_hero', 'promo_strip']
 
-const title = ref('')
-const subtitle = ref('')
-const imageUrl = ref('')
-const linkUrl = ref('')
-const placement = ref<BannerPlacement>('home_hero')
-const sortOrder = ref<number | null>(0)
-const startsAt = ref('')
-const endsAt = ref('')
-const isActive = ref(true)
-const error = ref<ProblemDetails | null>(null)
+const state = reactive({
+  title: '',
+  subtitle: '',
+  image_url: '',
+  link_url: '',
+  placement: 'home_hero' as BannerPlacement,
+  sort_order: 0 as number | null,
+  starts_at: '',
+  ends_at: '',
+  is_active: true,
+})
+const error = ref<unknown>(null)
 
 const isEdit = computed(() => props.banner !== null)
 const loading = computed(() => createBanner.isLoading.value || updateBanner.isLoading.value)
@@ -73,21 +74,45 @@ function toIso(local: string): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString()
 }
 
+const schema = computed(() =>
+  z.object({
+    title: z.string().trim().min(1, t('admin.banners.errors.titleRequired')),
+    subtitle: z.string(),
+    image_url: z.string().trim().min(1, t('admin.banners.errors.imageUrlRequired')),
+    link_url: z.string(),
+    placement: z.enum(PLACEMENTS as [BannerPlacement, ...BannerPlacement[]]),
+    sort_order: z.number().nullable(),
+    starts_at: z.string(),
+    ends_at: z.string(),
+    is_active: z.boolean(),
+  }).superRefine((val, ctx) => {
+    const startsIso = toIso(val.starts_at)
+    const endsIso = toIso(val.ends_at)
+    if (startsIso && endsIso && new Date(endsIso) <= new Date(startsIso)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: t('admin.banners.errors.endsBeforeStarts'),
+        path: ['ends_at'],
+      })
+    }
+  }),
+)
+
 watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
     error.value = null
     const b = props.banner
-    title.value = b?.title ?? ''
-    subtitle.value = b?.subtitle ?? ''
-    imageUrl.value = b?.image_url ?? ''
-    linkUrl.value = b?.link_url ?? ''
-    placement.value = b?.placement ?? 'home_hero'
-    sortOrder.value = b?.sort_order ?? 0
-    startsAt.value = toLocalInput(b?.starts_at)
-    endsAt.value = toLocalInput(b?.ends_at)
-    isActive.value = b?.is_active ?? true
+    state.title = b?.title ?? ''
+    state.subtitle = b?.subtitle ?? ''
+    state.image_url = b?.image_url ?? ''
+    state.link_url = b?.link_url ?? ''
+    state.placement = b?.placement ?? 'home_hero'
+    state.sort_order = b?.sort_order ?? 0
+    state.starts_at = toLocalInput(b?.starts_at)
+    state.ends_at = toLocalInput(b?.ends_at)
+    state.is_active = b?.is_active ?? true
   },
   // immediate so an already-open mount (and re-opens) prefill from the banner prop.
   { immediate: true },
@@ -98,48 +123,24 @@ const openModel = computed({
   set: value => emit('update:open', value),
 })
 
-function fail(messageKey: string): null {
-  error.value = { title: t(messageKey) }
-  return null
-}
-
-/** Validate + assemble the create body. Returns null (and sets `error`) on failure. */
-function buildCreateBody(): BannerCreate | null {
-  const trimmedTitle = title.value.trim()
-  if (!trimmedTitle) return fail('admin.banners.errors.titleRequired')
-
-  const trimmedImageUrl = imageUrl.value.trim()
-  if (!trimmedImageUrl) return fail('admin.banners.errors.imageUrlRequired')
-
-  if (!PLACEMENTS.includes(placement.value)) {
-    return fail('admin.banners.errors.placementRequired')
-  }
-
-  const startsIso = toIso(startsAt.value)
-  const endsIso = toIso(endsAt.value)
-  if (startsIso && endsIso && new Date(endsIso) <= new Date(startsIso)) {
-    return fail('admin.banners.errors.endsBeforeStarts')
-  }
-
-  const trimmedSubtitle = subtitle.value.trim()
-  const trimmedLinkUrl = linkUrl.value.trim()
+/** Assemble the create body from validated state (client validation runs in UForm). */
+function buildCreateBody(): BannerCreate {
   return {
-    title: trimmedTitle,
-    subtitle: trimmedSubtitle || null,
-    image_url: trimmedImageUrl,
-    link_url: trimmedLinkUrl || null,
-    placement: placement.value,
-    sort_order: sortOrder.value ?? 0,
-    starts_at: startsIso,
-    ends_at: endsIso,
-    is_active: isActive.value,
+    title: state.title.trim(),
+    subtitle: state.subtitle.trim() || null,
+    image_url: state.image_url.trim(),
+    link_url: state.link_url.trim() || null,
+    placement: state.placement,
+    sort_order: state.sort_order ?? 0,
+    starts_at: toIso(state.starts_at),
+    ends_at: toIso(state.ends_at),
+    is_active: state.is_active,
   }
 }
 
 async function onSubmit() {
   error.value = null
   const body = buildCreateBody()
-  if (body === null) return
   try {
     if (props.banner) {
       // The whole validated body doubles as the PATCH payload — the backend
@@ -164,7 +165,7 @@ async function onSubmit() {
     openModel.value = false
   }
   catch (err) {
-    error.value = parseProblem(err)
+    error.value = err
   }
 }
 </script>
@@ -177,6 +178,8 @@ async function onSubmit() {
     :cancel-label="t('admin.banners.form.cancel')"
     :loading="loading"
     :error="error"
+    :schema="schema"
+    :state="state"
     @update:open="(v) => (openModel = v)"
     @submit="onSubmit"
   >
@@ -188,7 +191,7 @@ async function onSubmit() {
           required
         >
           <UInput
-            v-model="title"
+            v-model="state.title"
             class="w-full"
           />
         </UFormField>
@@ -198,7 +201,7 @@ async function onSubmit() {
           name="subtitle"
         >
           <UTextarea
-            v-model="subtitle"
+            v-model="state.subtitle"
             :rows="2"
             class="w-full"
           />
@@ -211,7 +214,7 @@ async function onSubmit() {
           required
         >
           <UInput
-            v-model="imageUrl"
+            v-model="state.image_url"
             class="w-full"
           />
         </UFormField>
@@ -222,7 +225,7 @@ async function onSubmit() {
           name="link_url"
         >
           <UInput
-            v-model="linkUrl"
+            v-model="state.link_url"
             class="w-full"
           />
         </UFormField>
@@ -234,7 +237,7 @@ async function onSubmit() {
             required
           >
             <USelect
-              v-model="placement"
+              v-model="state.placement"
               :items="placementOptions"
               value-key="value"
               class="w-full"
@@ -247,7 +250,7 @@ async function onSubmit() {
             name="sort_order"
           >
             <UInputNumber
-              v-model="sortOrder"
+              v-model="state.sort_order"
               :min="0"
               :step="1"
               class="w-full"
@@ -261,7 +264,7 @@ async function onSubmit() {
             name="starts_at"
           >
             <UInput
-              v-model="startsAt"
+              v-model="state.starts_at"
               type="datetime-local"
               class="w-full"
             />
@@ -273,7 +276,7 @@ async function onSubmit() {
             name="ends_at"
           >
             <UInput
-              v-model="endsAt"
+              v-model="state.ends_at"
               type="datetime-local"
               class="w-full"
             />
@@ -284,7 +287,7 @@ async function onSubmit() {
           :label="t('admin.banners.form.isActive')"
           name="is_active"
         >
-          <USwitch v-model="isActive" />
+          <USwitch v-model="state.is_active" />
         </UFormField>
       </div>
     </template>
