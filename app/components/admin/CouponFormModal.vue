@@ -211,6 +211,7 @@ async function onSubmit() {
           :label="t('admin.coupons.form.code')"
           :help="t('admin.coupons.form.codeHint')"
           name="code"
+          required
         >
           <UInput
             v-model="code"
@@ -246,6 +247,7 @@ async function onSubmit() {
             :label="t('admin.coupons.form.value')"
             :help="valueHint"
             name="value"
+            required
           >
             <UInputNumber
               v-model="value"

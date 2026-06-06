@@ -91,6 +91,7 @@ async function onSubmit() {
         <UFormField
           :label="t('admin.inventory.restock.warehouse')"
           name="warehouse_id"
+          required
         >
           <USelect
             v-model="warehouseId"
@@ -103,6 +104,7 @@ async function onSubmit() {
         <UFormField
           :label="t('admin.inventory.restock.quantity')"
           name="quantity"
+          required
         >
           <UInputNumber
             v-model="quantity"

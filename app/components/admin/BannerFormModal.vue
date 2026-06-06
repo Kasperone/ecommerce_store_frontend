@@ -185,6 +185,7 @@ async function onSubmit() {
         <UFormField
           :label="t('admin.banners.form.title')"
           name="title"
+          required
         >
           <UInput
             v-model="title"
@@ -207,6 +208,7 @@ async function onSubmit() {
           :label="t('admin.banners.form.imageUrl')"
           :help="t('admin.banners.form.imageUrlHint')"
           name="image_url"
+          required
         >
           <UInput
             v-model="imageUrl"
@@ -229,6 +231,7 @@ async function onSubmit() {
           <UFormField
             :label="t('admin.banners.form.placement')"
             name="placement"
+            required
           >
             <USelect
               v-model="placement"
