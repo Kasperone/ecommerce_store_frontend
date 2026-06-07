@@ -19,11 +19,15 @@ const hasCmsPage = computed(() => sections.value.length > 0)
 useHead({
   title: () => (hasCmsPage.value ? (page.value?.seo_title ?? t('hero.welcome')) : t('hero.welcome')),
 })
+// og:image falls back to the site-wide static share image when the CMS page
+// carries none — a page-level `undefined` would otherwise clobber the global
+// fallback registered in app.vue (verified: no og:image rendered at all).
+const { url: siteUrl } = useSiteConfig()
 useSeoMeta({
   description: () => (hasCmsPage.value ? page.value?.seo_description : undefined),
   ogTitle: () => (hasCmsPage.value ? page.value?.seo_title : undefined),
   ogDescription: () => (hasCmsPage.value ? page.value?.seo_description : undefined),
-  ogImage: () => (hasCmsPage.value ? page.value?.seo_image_url : undefined),
+  ogImage: () => page.value?.seo_image_url || `${siteUrl}/social-share.png`,
 })
 </script>
 

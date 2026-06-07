@@ -46,6 +46,16 @@ useHead(() => ({
   meta: [...(i18nHead.value.meta ?? [])],
 }))
 
+// Site-wide og:image fallback (SEO blueprint SEO-1.4 / D9): no URL ever
+// shares imageless. Page-level useSeoMeta ogImage (PDP photo, category hero,
+// CMS seo_image_url) overrides this via head dedupe; absolute URL built from
+// the canonical site origin since og:image must be fully qualified.
+const site = useSiteConfig()
+useSeoMeta({
+  ogImage: `${site.url}/social-share.png`,
+  ogSiteName: () => brandName.value,
+})
+
 // Site-wide structured data (SEO blueprint SEO-1.1 / D6). Identity lives here
 // rather than nuxt.config because every value is runtime data from the
 // admin-editable store_config (brand SoT). nuxt-schema-org auto-adds linked

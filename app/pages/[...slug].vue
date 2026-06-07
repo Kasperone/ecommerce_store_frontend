@@ -47,12 +47,16 @@ if (!page.value) {
 
 const sections = computed(() => page.value?.layout?.sections ?? [])
 
+// og:image falls back to the site-wide static share image when the CMS page
+// carries none — an empty page-level value would otherwise clobber the global
+// fallback registered in app.vue.
+const { url: siteUrl } = useSiteConfig()
 useSeoMeta({
   title: () => page.value?.seo_title ?? '',
   description: () => page.value?.seo_description ?? '',
   ogTitle: () => page.value?.seo_title ?? '',
   ogDescription: () => page.value?.seo_description ?? '',
-  ogImage: () => page.value?.seo_image_url ?? '',
+  ogImage: () => page.value?.seo_image_url || `${siteUrl}/social-share.png`,
 })
 </script>
 
