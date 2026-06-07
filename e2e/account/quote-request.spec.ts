@@ -10,6 +10,11 @@ import { KNOWN_ADMIN, randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
+// CI runs several E2E jobs concurrently on the shared hive host and the
+// dev server compiles page chunks on first hit — generous budget, same
+// pattern as auth/refresh.spec.ts.
+test.setTimeout(120_000)
+
 test.describe('B2B quote request', () => {
   test('B2B customer requests a server-priced quote from the cart', async ({ page }) => {
     const api = await ApiClient.create()
@@ -59,19 +64,19 @@ test.describe('B2B quote request', () => {
       // The CTA is gated by GET /companies/me — it renders only for B2B
       // users. 30s: first CI hit compiles the chunk on the cold dev server.
       const requestQuote = page.getByTestId('request-quote-cta')
-      await expect(requestQuote).toBeVisible({ timeout: 30_000 })
+      await expect(requestQuote).toBeVisible({ timeout: 60_000 })
       await requestQuote.click()
 
       // --- lands on the quote detail with the requested status (cold-chunk
       // timeouts as above)
-      await expect(page).toHaveURL(/\/account\/quotes\/\d+$/, { timeout: 30_000 })
+      await expect(page).toHaveURL(/\/account\/quotes\/\d+$/, { timeout: 60_000 })
       await expect(page.getByText('Requested', { exact: true }).first())
-        .toBeVisible({ timeout: 30_000 })
+        .toBeVisible({ timeout: 60_000 })
       await expect(page.getByText('E2E Quote Widget').first()).toBeVisible()
 
       // --- the quote is listed for the company
       await page.goto('/account/quotes')
-      await expect(page.getByText(/QT-\d+/).first()).toBeVisible({ timeout: 30_000 })
+      await expect(page.getByText(/QT-\d+/).first()).toBeVisible({ timeout: 60_000 })
       await expect(page.getByText('Requested', { exact: true }).first()).toBeVisible()
 
       // --- server-side truth: requested status + server-priced line
