@@ -12,7 +12,7 @@ test.use({ storageState: { cookies: [], origins: [] } })
 // CI runs several E2E jobs concurrently on the shared hive host and the
 // dev server compiles page chunks on first hit — generous budget, same
 // pattern as auth/refresh.spec.ts.
-test.setTimeout(120_000)
+test.setTimeout(180_000)
 
 test.describe('Account panel', () => {
   test('profile edit persists across a reload', async ({ page }) => {
@@ -39,22 +39,24 @@ test.describe('Account panel', () => {
       // 30s: first CI hit compiles the page chunk on the cold dev server.
       await expect(firstName).toHaveValue(user.firstName, { timeout: 60_000 })
 
-      // The form pre-fills from the auth store and a late user re-fetch can
-      // clobber values typed too early — fill, let the watchers settle, and
-      // re-fill if the values were overwritten.
+      // The form's watch(authStore.user) re-seeds the fields whenever a
+      // background user re-fetch lands (boot /auth/me, proactive token
+      // refresh at TTL−60s, 401-retry) — any fill can be clobbered before
+      // the save click. One atomic fill→save→verify loop converges: if the
+      // PUT carried stale values the store round-trips them back into the
+      // fields, the trailing check fails the iteration, and we re-fill and
+      // re-save until a clean save lands.
       await expect(async () => {
         await firstName.fill('Updated')
         await page.getByLabel('Last name').fill('Customer')
         await page.getByLabel('Phone', { exact: true }).fill('+1 555 010 0199')
-        await page.waitForTimeout(300)
-        await expect(firstName).toHaveValue('Updated')
-        await expect(page.getByLabel('Last name')).toHaveValue('Customer')
-      }).toPass({ timeout: 20_000 })
-
-      await expect(async () => {
         await page.getByRole('button', { name: 'Save changes' }).click()
-        await expect(page.getByText('Profile updated.').first()).toBeVisible({ timeout: 3_000 })
-      }).toPass({ timeout: 15_000 })
+        await expect(page.getByText('Profile updated.').first()).toBeVisible({ timeout: 5_000 })
+        // Post-save the watcher re-seeds from the SAVED user — these holding
+        // the new values proves the PUT carried them.
+        await expect(firstName).toHaveValue('Updated', { timeout: 2_000 })
+        await expect(page.getByLabel('Last name')).toHaveValue('Customer', { timeout: 2_000 })
+      }).toPass({ timeout: 90_000 })
 
       // Server-side persistence: a fresh load re-fetches the user.
       await page.goto('/account/profile')
