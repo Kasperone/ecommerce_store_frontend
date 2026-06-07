@@ -51,6 +51,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Tripwire for the Vue split-brain class (2026-06-07): a second nested vue
+      # copy in node_modules gets bundled twice by Nitro and 500s every SSR route
+      # in production builds, while dev/E2E stay green (Vite dedupes). `npm ls vue`
+      # exits non-zero on invalid trees; the find asserts no nested copies even
+      # when the tree is technically valid.
+      - name: Assert single Vue copy
+        run: |
+          npm ls vue
+          dups=$(find node_modules -maxdepth 6 -path '*node_modules/vue/package.json' -not -path 'node_modules/vue/*')
+          if [ -n "$dups" ]; then
+            echo "Nested vue copies found (SSR split-brain risk):"
+            echo "$dups"
+            exit 1
+          fi
+
       - name: Run unit tests with coverage
         run: npm run test:coverage
 
