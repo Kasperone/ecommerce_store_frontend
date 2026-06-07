@@ -5906,6 +5906,8 @@ export interface components {
         OrderItemCreate: {
             /** Product Id */
             product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Quantity */
             quantity: number;
         };
@@ -5928,12 +5930,16 @@ export interface components {
             updated_at: string;
             /** Product Id */
             product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Quantity */
             quantity: number;
             /** Order Id */
             order_id: number;
             /** Product Name */
             product_name: string;
+            /** Variant Title */
+            variant_title?: string | null;
             /** Product Sku */
             product_sku: string | null;
             /** Unit Price */
@@ -7384,6 +7390,8 @@ export interface components {
             unit_price: number;
             /** Product Id */
             product_id?: number | null;
+            /** Variant Id */
+            variant_id?: number | null;
         };
         /**
          * QuoteItemResponse
@@ -7406,6 +7414,8 @@ export interface components {
             quote_id: number;
             /** Product Id */
             product_id: number | null;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Description */
             description: string;
             /** Quantity */
@@ -7494,10 +7504,14 @@ export interface components {
          *
          *     No price — the server prices the line from the live product in the requested
          *     currency (``unit_price`` is deliberately absent so a client cannot inject one).
+         *     ``variant_id`` follows the order-create rules: required when the product has
+         *     active variants, rejected when missing/inactive/another product's (422).
          */
         QuoteRequestItem: {
             /** Product Id */
             product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Quantity */
             quantity: number;
         };
