@@ -1063,7 +1063,14 @@
         "paymentMethod": "Metoda płatności",
         "paymentPlaceholder": "np. stripe, payu",
         "internalNotes": "Notatki wewnętrzne",
-        "discount": "Rabat"
+        "discount": "Rabat",
+        "trackingSection": "Śledzenie przesyłki",
+        "shippingCarrier": "Przewoźnik",
+        "carrierPlaceholder": "np. DHL, InPost, UPS",
+        "trackingNumber": "Numer śledzenia",
+        "trackingNumberPlaceholder": "np. 1Z999AA10123456784",
+        "trackingUrl": "Adres URL śledzenia",
+        "trackingUrlPlaceholder": "https://…"
       },
       "cancel": {
         "title": "Anuluj zamówienie",

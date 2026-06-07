@@ -146,6 +146,12 @@ useHead({
           />
         </div>
 
+        <OrdersTrackingSection
+          :shipping-carrier="order.shipping_carrier"
+          :tracking-number="order.tracking_number"
+          :tracking-url="order.tracking_url"
+        />
+
         <OrdersRefundsSection
           :refunds="order.refunds ?? []"
           :currency="order.currency"

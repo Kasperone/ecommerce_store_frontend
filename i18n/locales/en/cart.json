@@ -124,6 +124,12 @@
       "notes": "Notes",
       "discount": "Discount"
     },
+    "tracking": {
+      "title": "Shipment",
+      "carrier": "Carrier",
+      "number": "Tracking number",
+      "track": "Track shipment"
+    },
     "status": {
       "pending": "Pending",
       "paid": "Paid",
