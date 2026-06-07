@@ -11,6 +11,11 @@ import { KNOWN_ADMIN, randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
+// CI runs several E2E jobs concurrently on the shared hive host and the
+// dev server compiles page chunks on first hit — generous budget, same
+// pattern as auth/refresh.spec.ts.
+test.setTimeout(120_000)
+
 test.describe('Order lifecycle', () => {
   test('customer can view order history and cancel a pending order', async ({ page }) => {
     const api = await ApiClient.create()
@@ -56,12 +61,12 @@ test.describe('Order lifecycle', () => {
       // compiles the page chunk on the cold dev server)
       await page.goto('/account/orders')
       const row = page.getByText(order.order_number).first()
-      await expect(row).toBeVisible({ timeout: 30_000 })
+      await expect(row).toBeVisible({ timeout: 60_000 })
       await expect(page.getByText('Pending', { exact: true }).first()).toBeVisible()
 
       // --- order detail (30s: cold-chunk compile, as above)
       await page.goto(`/account/orders/${order.id}`)
-      await expect(page.getByText(order.order_number).first()).toBeVisible({ timeout: 30_000 })
+      await expect(page.getByText(order.order_number).first()).toBeVisible({ timeout: 60_000 })
       await expect(page.getByText('E2E Lifecycle Widget').first()).toBeVisible()
 
       // --- cancel: button → confirm modal → status flips
