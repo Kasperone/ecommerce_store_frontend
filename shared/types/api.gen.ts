@@ -510,7 +510,12 @@ export interface paths {
         };
         /**
          * Get Product By Slug
-         * @description Get product by slug with category details
+         * @description Get product by slug with category details.
+         *
+         *     Never-existed slug -> 404; deactivated product -> 410 Gone. The distinct
+         *     410 tells crawlers to drop the URL faster than a 404 (SEO blueprint D12)
+         *     and stops delisted products from being publicly reachable by direct slug.
+         *     Admin surfaces fetch by integer ID and are unaffected.
          */
         get: operations["get_product_by_slug_api_v1_products_slug__slug__get"];
         put?: never;
@@ -1257,6 +1262,46 @@ export interface paths {
          *     503 when Meilisearch is unconfigured.
          */
         get: operations["suggest_api_v1_search_suggest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sitemap/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sitemap Products
+         * @description All active products: slug, updated_at, image URLs (sort_order asc).
+         */
+        get: operations["sitemap_products_api_v1_sitemap_products_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sitemap/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sitemap Categories
+         * @description All active categories: slug, optional Polish slug, updated_at.
+         */
+        get: operations["sitemap_categories_api_v1_sitemap_categories_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -6400,6 +6445,26 @@ export interface components {
             name_pl?: string | null;
             /** Description Pl */
             description_pl?: string | null;
+            /** Brand */
+            brand?: string | null;
+            /** Gtin */
+            gtin?: string | null;
+            /** Mpn */
+            mpn?: string | null;
+            /**
+             * Condition
+             * @default new
+             * @enum {string}
+             */
+            condition: "new" | "refurbished" | "used";
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
             /** Price Usd */
             price_usd?: number | null;
             /** Price Pln */
@@ -6597,6 +6662,26 @@ export interface components {
             name_pl?: string | null;
             /** Description Pl */
             description_pl?: string | null;
+            /** Brand */
+            brand?: string | null;
+            /** Gtin */
+            gtin?: string | null;
+            /** Mpn */
+            mpn?: string | null;
+            /**
+             * Condition
+             * @default new
+             * @enum {string}
+             */
+            condition: "new" | "refurbished" | "used";
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
             /** Price Usd */
             price_usd?: number | null;
             /** Price Pln */
@@ -6674,6 +6759,22 @@ export interface components {
             name_pl?: string | null;
             /** Description Pl */
             description_pl?: string | null;
+            /** Brand */
+            brand?: string | null;
+            /** Gtin */
+            gtin?: string | null;
+            /** Mpn */
+            mpn?: string | null;
+            /** Condition */
+            condition?: ("new" | "refurbished" | "used") | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
             /** Price Usd */
             price_usd?: number | null;
             /** Price Pln */
@@ -6728,6 +6829,26 @@ export interface components {
             name_pl?: string | null;
             /** Description Pl */
             description_pl?: string | null;
+            /** Brand */
+            brand?: string | null;
+            /** Gtin */
+            gtin?: string | null;
+            /** Mpn */
+            mpn?: string | null;
+            /**
+             * Condition
+             * @default new
+             * @enum {string}
+             */
+            condition: "new" | "refurbished" | "used";
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
             /** Price Usd */
             price_usd?: number | null;
             /** Price Pln */
@@ -7903,6 +8024,36 @@ export interface components {
             country_codes?: string[] | null;
             /** Dim Divisor */
             dim_divisor?: number | null;
+        };
+        /**
+         * SitemapCategoryEntry
+         * @description One active category: slug (+ optional Polish slug) + lastmod.
+         */
+        SitemapCategoryEntry: {
+            /** Slug */
+            slug: string;
+            /** Slug Pl */
+            slug_pl: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * SitemapProductEntry
+         * @description One active product: slug + lastmod + image URLs (sorted by sort_order).
+         */
+        SitemapProductEntry: {
+            /** Slug */
+            slug: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Images */
+            images: string[];
         };
         /** SlideBlock */
         SlideBlock: {
@@ -10651,6 +10802,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sitemap_products_api_v1_sitemap_products_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SitemapProductEntry"][];
+                };
+            };
+        };
+    };
+    sitemap_categories_api_v1_sitemap_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SitemapCategoryEntry"][];
                 };
             };
         };
