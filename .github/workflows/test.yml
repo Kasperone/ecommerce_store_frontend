@@ -140,6 +140,7 @@ jobs:
             -e EMAIL_FROM_NAME="Codegen" \
             -e FRONTEND_URL=http://localhost:3000 \
             -e RATE_LIMIT_STORAGE_URL=memory:// \
+            -e E2E_DISABLE_RATE_LIMIT=true \
             "$BACKEND_IMAGE"
 
       - name: Wait for backend /openapi.json
@@ -250,6 +251,7 @@ jobs:
             -e FRONTEND_URL=http://localhost:3100 \
             -e CORS_ORIGINS='["http://localhost:3100"]' \
             -e RATE_LIMIT_STORAGE_URL=memory:// \
+            -e E2E_DISABLE_RATE_LIMIT=true \
             "$BACKEND_IMAGE"
 
       - name: Wait for backend /health

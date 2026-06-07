@@ -112,13 +112,20 @@ await clearUInputNumber(pln)
 
 `/auth/login` is rate-limited at 5/15min per IP **and** per email. Each
 `npm run e2e` does ~3 logins (login happy + lockout + refresh, on
-distinct emails). Running the suite 2× back-to-back can trip the per-IP
-limit; restart `uvicorn` to reset the in-memory limiter (`memory://`).
+distinct emails), so back-to-back runs used to trip the per-IP limit.
 
-A future improvement: a backend env flag to disable rate limiting in E2E
-(or a separate Redis store the suite can flush). For now, restart
-between iterations and don't be surprised by the `Rate limit exceeded:
-5 per 15 minute` message.
+**Fixed (backend PR #147):** run the backend with the double-gated
+kill-switch and the limiter becomes a true no-op:
+
+```bash
+ENVIRONMENT=development E2E_DISABLE_RATE_LIMIT=true ... uvicorn app.main:app
+```
+
+Both gates are required — the flag is ignored (with a startup warning)
+outside `development`, so production can never lose rate limiting. CI's
+backend containers set it (see `.github/workflows/test.yml`). If you run
+the backend *without* the flag, the old advice applies: restart `uvicorn`
+to reset the in-memory limiter (`memory://`).
 
 ### Real-R2 gallery spec
 
