@@ -166,7 +166,8 @@ describe('AdminProductVariantsMatrix', () => {
     })
     expect(lastEmitted(wrapper)).toHaveLength(110)
     expect(wrapper.find('[data-testid="variants-over-cap"]').exists()).toBe(true)
-  })
+    // 110 mounted rows take ~20s on the shared CI runner — give this spec headroom.
+  }, 60_000)
 
   it('picks a gallery image for a row (and clears it)', async () => {
     const wrapper = await mountMatrix({ images: [image(1), image(2)] })
