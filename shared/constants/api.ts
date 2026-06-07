@@ -33,6 +33,9 @@ export const API_ENDPOINTS = {
     CREATE: '/api/v1/products/', // POST - Create product (admin)
     UPDATE: '/api/v1/products/{id}', // PUT - Update product (admin)
     DELETE: '/api/v1/products/{id}', // DELETE - Delete product (admin)
+    OPTIONS_MATRIX: '/api/v1/products/{id}/options', // PUT - Reconcile options/variants matrix (admin)
+    VARIANTS: '/api/v1/products/{id}/variants', // GET - List variants incl. inactive (admin)
+    VARIANT_BY_ID: '/api/v1/products/{id}/variants/{variantId}', // PATCH/DELETE - Single variant (admin)
   },
 
   // Categories endpoints
@@ -109,6 +112,30 @@ export const buildApiUrl = {
    */
   deleteProduct: (id: number | string) =>
     API_ENDPOINTS.PRODUCTS.DELETE.replace('{id}', String(id)),
+
+  /**
+   * Build the options/variants matrix URL (PUT)
+   * @param id Product ID
+   */
+  productOptionsMatrix: (id: number | string) =>
+    API_ENDPOINTS.PRODUCTS.OPTIONS_MATRIX.replace('{id}', String(id)),
+
+  /**
+   * Build the admin variants list URL (GET)
+   * @param id Product ID
+   */
+  productVariants: (id: number | string) =>
+    API_ENDPOINTS.PRODUCTS.VARIANTS.replace('{id}', String(id)),
+
+  /**
+   * Build a single-variant URL (PATCH/DELETE)
+   * @param id Product ID
+   * @param variantId Variant ID
+   */
+  productVariantById: (id: number | string, variantId: number | string) =>
+    API_ENDPOINTS.PRODUCTS.VARIANT_BY_ID
+      .replace('{id}', String(id))
+      .replace('{variantId}', String(variantId)),
 
   /**
    * Build update category URL

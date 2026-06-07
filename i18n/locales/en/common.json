@@ -820,7 +820,8 @@
       "sections": {
         "basics": "Basics",
         "pricing": "Pricing & stock",
-        "media": "Media"
+        "media": "Media",
+        "variants": "Variants"
       },
       "tabs": {
         "en": "English",
@@ -998,6 +999,54 @@
         "new": "New",
         "refurbished": "Refurbished",
         "used": "Used"
+      },
+      "variants": {
+        "subtitle": "Define up to 3 options (e.g. Color, Size). Every combination becomes a sellable variant with its own SKU, price overrides, stock, and image.",
+        "count": "{count} variant | {count} variants",
+        "save": "Save variants",
+        "saved": "Variants saved.",
+        "stockResetWarningTitle": "Current stock will be reset",
+        "stockResetWarning": "Adding the first option moves stock to the variants: the product's current stock is zeroed on save — set per-variant stock below.",
+        "options": {
+          "name": "Option name",
+          "namePlaceholder": "e.g. Color",
+          "namePl": "Option name (PL)",
+          "namePlPlaceholder": "np. Kolor",
+          "values": "Values",
+          "value": "Value",
+          "valuePlaceholder": "e.g. Red",
+          "valuePl": "Value (PL)",
+          "valuePlPlaceholder": "np. Czerwony",
+          "add": "Add option",
+          "addValue": "Add value",
+          "remove": "Remove option",
+          "removeValue": "Remove value",
+          "moveUp": "Move option up",
+          "moveDown": "Move option down",
+          "maxReached": "Up to {max} options per product"
+        },
+        "matrix": {
+          "combination": "Variant",
+          "image": "Image",
+          "inherit": "Inherit",
+          "initialStock": "Initial stock",
+          "stockViaInventory": "Stock is managed per warehouse from Inventory (adjust, restock, transfer).",
+          "newBadge": "New",
+          "empty": "Add an option with at least one value to generate variant rows.",
+          "removeRow": "Remove variant",
+          "pickImage": "Pick variant image",
+          "clearImage": "No image",
+          "noImages": "No gallery images yet — upload product images first.",
+          "overCapTitle": "Too many variants",
+          "overCap": "{count} combinations exceed the {max}-variant limit. Remove options or values before saving."
+        },
+        "errors": {
+          "saveErrorTitle": "Could not save variants",
+          "fallback": "Could not save the variants.",
+          "optionNameRequired": "Every option needs a name.",
+          "optionValuesRequired": "Option \"{name}\" needs at least one value.",
+          "tooManyVariants": "A product can have at most {max} variants."
+        }
       }
     },
     "orders": {
