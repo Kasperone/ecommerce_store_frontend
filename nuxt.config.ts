@@ -116,6 +116,30 @@ export default defineNuxtConfig({
     // path shapes; the admin editor itself is auth-gated and uncached by default.
     '/preview/**': { isr: false, robots: false },
     '/pl/preview/**': { isr: false, robots: false },
+    // Static/legal pages: prerender at build time, BOTH locale paths (each is
+    // its own route — SEO blueprint SEO-0.4/D8). Content is i18n-static; the
+    // header/footer chrome (store-config) is empty-safe if the backend is
+    // unreachable during build, and auth/cart state hydrates client-side.
+    // Prerender only runs in `nuxt build` — dev + the E2E job (dev server)
+    // are unaffected. Catalog/home stay plain SSR (no swr — see above).
+    '/about': { prerender: true },
+    '/pl/about': { prerender: true },
+    '/accessibility': { prerender: true },
+    '/pl/accessibility': { prerender: true },
+    '/contact': { prerender: true },
+    '/pl/contact': { prerender: true },
+    '/cookie-policy': { prerender: true },
+    '/pl/cookie-policy': { prerender: true },
+    '/faq': { prerender: true },
+    '/pl/faq': { prerender: true },
+    '/privacy-policy': { prerender: true },
+    '/pl/privacy-policy': { prerender: true },
+    '/returns': { prerender: true },
+    '/pl/returns': { prerender: true },
+    '/shipping-returns': { prerender: true },
+    '/pl/shipping-returns': { prerender: true },
+    '/terms-of-service': { prerender: true },
+    '/pl/terms-of-service': { prerender: true },
     // Noindex for authed/transactional/thin sections (SEO blueprint D5).
     // `robots: false` emits an X-Robots-Tag header (SSR) + <meta name="robots">
     // — index control on top of the crawl control in `robots.groups` below
