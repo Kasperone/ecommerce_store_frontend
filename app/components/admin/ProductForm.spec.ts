@@ -156,6 +156,50 @@ describe('ProductForm', () => {
     expect(payload.description_pl).toBe('Dzieło')
   })
 
+  it('hydrates and emits the merchant + SEO meta fields (SEO blueprint D11)', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: {
+        categories: baseCategories,
+        product: {
+          ...baseProduct,
+          brand: 'Acme',
+          gtin: '00012345600012',
+          mpn: 'ACM-7',
+          condition: 'refurbished',
+          meta_title: 'Buy the Encyclopedia',
+          meta_description: 'The best reference work.',
+          meta_title_pl: 'Kup Encyklopedię',
+          meta_description_pl: 'Najlepsze dzieło.',
+        },
+      },
+    })
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    const payload = wrapper.emitted('submit')![0]![0] as Record<string, unknown>
+    expect(payload.brand).toBe('Acme')
+    expect(payload.gtin).toBe('00012345600012')
+    expect(payload.mpn).toBe('ACM-7')
+    expect(payload.condition).toBe('refurbished')
+    expect(payload.meta_title).toBe('Buy the Encyclopedia')
+    expect(payload.meta_description_pl).toBe('Najlepsze dzieło.')
+  })
+
+  it('defaults merchant fields to null + condition "new" in the create payload', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: { categories: baseCategories, product: baseProduct },
+    })
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    const payload = wrapper.emitted('submit')![0]![0] as Record<string, unknown>
+    expect(payload.brand).toBeNull()
+    expect(payload.gtin).toBeNull()
+    expect(payload.mpn).toBeNull()
+    expect(payload.condition).toBe('new')
+    expect(payload.meta_title).toBeNull()
+  })
+
   it('renders three currency input fields (USD, PLN, EUR)', async () => {
     const wrapper = await mountSuspended(ProductForm, {
       props: { categories: baseCategories },

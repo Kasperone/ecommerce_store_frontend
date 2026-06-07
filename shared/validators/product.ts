@@ -15,6 +15,24 @@ const _string = (msg: string) =>
     error: issue => issue.input === undefined ? msg : 'Invalid input',
   })
 
+/**
+ * Merchant identity + per-locale SEO meta fields (SEO blueprint D11) —
+ * identical constraints on create and update, all optional/nullable. Lengths
+ * mirror the backend's column sizes + CHECK constraints (meta 70/160).
+ */
+const _merchantSeoFields = (t: TranslateFunction) => ({
+  brand: z.string().max(100, { error: t('admin.products.errors.brandTooLong', { default: 'Brand must be 100 characters or fewer' }) }).optional().nullable(),
+  gtin: z.string().max(14, { error: t('admin.products.errors.gtinTooLong', { default: 'GTIN must be 14 characters or fewer' }) }).optional().nullable(),
+  mpn: z.string().max(70, { error: t('admin.products.errors.mpnTooLong', { default: 'MPN must be 70 characters or fewer' }) }).optional().nullable(),
+  condition: z.enum(['new', 'refurbished', 'used'], {
+    error: t('admin.products.errors.conditionInvalid', { default: 'Condition must be new, refurbished, or used' }),
+  }).optional(),
+  meta_title: z.string().max(70, { error: t('admin.products.errors.metaTitleTooLong', { default: 'Meta title must be 70 characters or fewer' }) }).optional().nullable(),
+  meta_description: z.string().max(160, { error: t('admin.products.errors.metaDescriptionTooLong', { default: 'Meta description must be 160 characters or fewer' }) }).optional().nullable(),
+  meta_title_pl: z.string().max(70, { error: t('admin.products.errors.metaTitleTooLong', { default: 'Meta title must be 70 characters or fewer' }) }).optional().nullable(),
+  meta_description_pl: z.string().max(160, { error: t('admin.products.errors.metaDescriptionTooLong', { default: 'Meta description must be 160 characters or fewer' }) }).optional().nullable(),
+})
+
 const _price = (t: TranslateFunction) =>
   z.number({
     error: issue => issue.input === undefined
@@ -37,6 +55,7 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
     description: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
     description_pl: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
     sku: z.string().max(100, { error: t('admin.products.errors.skuTooLong', { default: 'SKU must be 100 characters or fewer' }) }).optional().nullable(),
+    ..._merchantSeoFields(t),
     price_usd: _price(t).nullable().optional(),
     price_pln: _price(t).nullable().optional(),
     price_eur: _price(t).nullable().optional(),
@@ -112,6 +131,7 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
     description: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
     description_pl: z.string().max(5000, { error: t('admin.products.errors.descriptionTooLong', { default: 'Description must be 5000 characters or fewer' }) }).optional().nullable(),
     sku: z.string().max(100, { error: t('admin.products.errors.skuTooLong', { default: 'SKU must be 100 characters or fewer' }) }).optional().nullable(),
+    ..._merchantSeoFields(t),
     price_usd: _price(t).nullable().optional(),
     price_pln: _price(t).nullable().optional(),
     price_eur: _price(t).nullable().optional(),
