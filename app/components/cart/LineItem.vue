@@ -30,12 +30,15 @@ const lineTotal = computed(() => {
       :aria-label="item.name"
       class="size-16 shrink-0 overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800"
     >
-      <img
+      <NuxtImg
         v-if="item.imageUrl"
         :src="item.imageUrl"
         :alt="item.name"
+        width="64"
+        height="64"
+        loading="lazy"
         class="h-full w-full object-cover"
-      >
+      />
       <div
         v-else
         class="flex h-full w-full items-center justify-center text-muted"
