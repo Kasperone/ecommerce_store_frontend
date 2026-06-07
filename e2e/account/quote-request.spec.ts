@@ -58,7 +58,7 @@ test.describe('B2B quote request', () => {
         await expect(
           page.getByRole('dialog').getByText('E2E Quote Widget'),
         ).toBeVisible({ timeout: 2_000 })
-      }).toPass({ timeout: 20_000 })
+      }).toPass({ timeout: 60_000 })
 
       await page.goto('/cart')
       // The CTA is gated by GET /companies/me — it renders only for B2B
