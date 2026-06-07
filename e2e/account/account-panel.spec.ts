@@ -9,6 +9,11 @@ import { randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
+// CI runs several E2E jobs concurrently on the shared hive host and the
+// dev server compiles page chunks on first hit — generous budget, same
+// pattern as auth/refresh.spec.ts.
+test.setTimeout(120_000)
+
 test.describe('Account panel', () => {
   test('profile edit persists across a reload', async ({ page }) => {
     const api = await ApiClient.create()
@@ -32,7 +37,7 @@ test.describe('Account panel', () => {
       await meSettled
       const firstName = page.getByLabel('First name')
       // 30s: first CI hit compiles the page chunk on the cold dev server.
-      await expect(firstName).toHaveValue(user.firstName, { timeout: 30_000 })
+      await expect(firstName).toHaveValue(user.firstName, { timeout: 60_000 })
 
       // The form pre-fills from the auth store and a late user re-fetch can
       // clobber values typed too early — fill, let the watchers settle, and
@@ -74,7 +79,7 @@ test.describe('Account panel', () => {
       await page.goto('/account/addresses')
       // 30s: first CI hit compiles the page chunk on the cold dev server.
       await expect(page.getByText('You have no saved addresses yet.'))
-        .toBeVisible({ timeout: 30_000 })
+        .toBeVisible({ timeout: 60_000 })
 
       // --- add the first address as default shipping
       const dialog = page.getByRole('dialog')
