@@ -2514,5 +2514,21 @@
       "heroLabel": "Featured promotions",
       "promoLabel": "Promotions"
     }
+  },
+  "errorPage": {
+    "404": {
+      "title": "Page not found",
+      "description": "The page you're looking for doesn't exist or may have been moved."
+    },
+    "410": {
+      "title": "No longer available",
+      "description": "This product has been discontinued and is no longer available in our store."
+    },
+    "500": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred on our side. Please try again in a moment."
+    },
+    "goHome": "Back to homepage",
+    "browseProducts": "Browse products"
   }
 }

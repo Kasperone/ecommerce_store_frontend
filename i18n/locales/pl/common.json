@@ -2518,5 +2518,21 @@
       "heroLabel": "Wyróżnione promocje",
       "promoLabel": "Promocje"
     }
+  },
+  "errorPage": {
+    "404": {
+      "title": "Nie znaleziono strony",
+      "description": "Strona, której szukasz, nie istnieje lub została przeniesiona."
+    },
+    "410": {
+      "title": "Produkt niedostępny",
+      "description": "Ten produkt został wycofany i nie jest już dostępny w naszym sklepie."
+    },
+    "500": {
+      "title": "Coś poszło nie tak",
+      "description": "Po naszej stronie wystąpił nieoczekiwany błąd. Spróbuj ponownie za chwilę."
+    },
+    "goHome": "Wróć na stronę główną",
+    "browseProducts": "Przeglądaj produkty"
   }
 }
