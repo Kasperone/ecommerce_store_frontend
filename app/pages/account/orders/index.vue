@@ -38,6 +38,7 @@ async function onReorder(orderId: number) {
     await reorder(
       detail.items.map(item => ({
         product_id: item.product_id,
+        variant_id: item.variant_id ?? null,
         quantity: item.quantity,
         product_name: item.product_name,
       })),

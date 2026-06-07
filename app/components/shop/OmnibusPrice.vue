@@ -21,16 +21,27 @@ import { formatMoney, selectPrice } from '#shared/utils/money'
 
 const props = defineProps<{
   product: Pick<ProductResponse, 'id' | 'price_usd' | 'price_pln' | 'price_eur'>
+  /**
+   * Selected variant's id (variants F2) — scopes the lowest-30d lookup to the
+   * variant's own price trail (Omnibus is per-offer; plan risk 7). null/absent
+   * → product-grain lookup, today's behavior.
+   */
+  variantId?: number | null
+  /** Selected variant's effective prices — the comparison base when present. */
+  variant?: {
+    price_usd?: number | null
+    price_pln?: number | null
+    price_eur?: number | null
+  } | null
 }>()
 
 const { t, locale } = useI18n()
 const { currency: activeCurrency } = useCurrencyPreference()
 
 // Mirror ShopPriceDisplay's `selectPrice` call so we compare against the
-// currency the customer is actually seeing — not the one they picked, if the
-// product doesn't have a price in it.
+// currency — and the variant price — the customer is actually seeing.
 const picked = computed(() =>
-  selectPrice(props.product, activeCurrency.value),
+  selectPrice(props.variant ?? props.product, activeCurrency.value),
 )
 
 // The currency to fetch lowest-30d for; falls back to the picked currency
@@ -38,8 +49,12 @@ const picked = computed(() =>
 const lookupCurrency = computed(() => picked.value?.currency ?? activeCurrency.value)
 
 // SSR-fetched so the comparison is in the crawlable HTML. Refetches when the
-// shopper flips the currency picker.
-const { data } = await useProductLowest30d(props.product.id, lookupCurrency)
+// shopper flips the currency picker or resolves a different variant.
+const { data } = await useProductLowest30d(
+  props.product.id,
+  lookupCurrency,
+  () => props.variantId ?? null,
+)
 
 const shouldRender = computed(() => {
   if (!picked.value || !data.value) return false

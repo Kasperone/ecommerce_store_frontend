@@ -219,4 +219,101 @@ describe('useReorder', () => {
     await pending
     expect(isReordering.value).toBe(false)
   })
+
+  describe('variants (F2)', () => {
+    function variantFixture(overrides: Record<string, unknown> = {}) {
+      return {
+        id: 11,
+        title: 'Red / XL',
+        title_pl: null,
+        sku: null,
+        price_usd: 12,
+        price_pln: 48,
+        price_eur: 11,
+        image_id: null,
+        image_url: null,
+        stock: 4,
+        in_stock: true,
+        option_value_ids: [1, 2],
+        ...overrides,
+      }
+    }
+
+    it('re-matches the variant on the current product and adds the variant line', async () => {
+      apiFetch.mockResolvedValue(product({
+        has_variants: true,
+        variants: [variantFixture({ id: 11, price_usd: 12 })],
+      }))
+      const cart = useCartStore()
+      const { reorder } = await importReorder()
+
+      const result = await reorder([line({ variant_id: 11, quantity: 2 })])
+
+      expect(result).toEqual({ added: 1, skipped: 0 })
+      expect(cart.items[0]).toMatchObject({
+        productId: 1,
+        variantId: 11,
+        variantTitle: 'Red / XL',
+        price_usd: 12,
+        quantity: 2,
+      })
+    })
+
+    it('skips a variant that is gone or inactive (not in the public list)', async () => {
+      apiFetch.mockResolvedValue(product({
+        has_variants: true,
+        variants: [variantFixture({ id: 99 })],
+      }))
+      const cart = useCartStore()
+      const { reorder } = await importReorder()
+
+      const result = await reorder([line({ variant_id: 11 })])
+
+      expect(result).toEqual({ added: 0, skipped: 1 })
+      expect(cart.items).toHaveLength(0)
+    })
+
+    it('skips an out-of-stock variant without backorder', async () => {
+      apiFetch.mockResolvedValue(product({
+        stock: 10, // product sum positive — the variant grain decides
+        has_variants: true,
+        variants: [variantFixture({ id: 11, stock: 0, in_stock: false })],
+      }))
+      const { reorder } = await importReorder()
+
+      const result = await reorder([line({ variant_id: 11 })])
+
+      expect(result).toEqual({ added: 0, skipped: 1 })
+    })
+
+    it('adds an out-of-stock variant when the product allows backorder', async () => {
+      apiFetch.mockResolvedValue(product({
+        stock: 0,
+        allow_backorder: true,
+        has_variants: true,
+        variants: [variantFixture({ id: 11, stock: 0, in_stock: false })],
+      }))
+      const cart = useCartStore()
+      const { reorder } = await importReorder()
+
+      const result = await reorder([line({ variant_id: 11, quantity: 3 })])
+
+      expect(result).toEqual({ added: 1, skipped: 0 })
+      expect(cart.items[0]).toMatchObject({ variantId: 11, quantity: 3 })
+    })
+
+    it('skips a variantless line whose product has since gained variants', async () => {
+      apiFetch.mockResolvedValue(product({
+        has_variants: true,
+        variants: [variantFixture()],
+      }))
+      const cart = useCartStore()
+      const { reorder } = await importReorder()
+
+      const result = await reorder([line()])
+
+      expect(result).toEqual({ added: 0, skipped: 1 })
+      expect(cart.items).toHaveLength(0)
+    })
+  })
 })

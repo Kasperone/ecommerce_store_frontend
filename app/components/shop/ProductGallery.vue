@@ -5,6 +5,12 @@ import type { ProductResponse } from '#shared/types/api'
 const props = defineProps<{
   images: ProductResponse['images']
   name: string
+  /**
+   * Externally-driven active image (variants F2): when the PDP resolves a
+   * variant with its own `image_id`, the gallery swaps to that image. Manual
+   * thumbnail clicks still work afterwards; null/absent changes nothing.
+   */
+  activeImageId?: number | null
 }>()
 
 const sorted = computed(() =>
@@ -15,6 +21,13 @@ const selected = ref(0)
 // Reset the active thumbnail if the gallery's product changes.
 watch(sorted, () => {
   selected.value = 0
+})
+
+// Swap to the variant's image when the PDP resolves one carrying an image_id.
+watch(() => props.activeImageId, (id) => {
+  if (id == null) return
+  const index = sorted.value.findIndex(image => image.id === id)
+  if (index >= 0) selected.value = index
 })
 
 const current = computed(() => sorted.value[selected.value] ?? null)

@@ -50,4 +50,42 @@ describe('ShopPriceDisplay', () => {
     const wrapper = await mountSuspended(PriceDisplay, { props: { product: priced } })
     expect(await axe(wrapper.element, AXE_OPTIONS)).toHaveNoViolations()
   })
+
+  describe('variants (F2)', () => {
+    const variant = {
+      id: 11,
+      title: 'Red / XL',
+      title_pl: null,
+      sku: null,
+      price_usd: 25,
+      price_pln: 99,
+      price_eur: 22,
+      image_id: null,
+      image_url: null,
+      stock: 3,
+      in_stock: true,
+      option_value_ids: [1, 2],
+    }
+
+    it('prefixes a variant product\'s base price with "From" when no variant is resolved', async () => {
+      const wrapper = await mountSuspended(PriceDisplay, {
+        props: { product: { ...priced, has_variants: true } },
+      })
+      expect(wrapper.text()).toContain('From')
+      expect(wrapper.text()).toContain('10')
+    })
+
+    it('shows the resolved variant\'s effective price without the prefix', async () => {
+      const wrapper = await mountSuspended(PriceDisplay, {
+        props: { product: { ...priced, has_variants: true }, variant },
+      })
+      expect(wrapper.text()).not.toContain('From')
+      expect(wrapper.text()).toContain('25')
+    })
+
+    it('never prefixes a variantless product', async () => {
+      const wrapper = await mountSuspended(PriceDisplay, { props: { product: priced } })
+      expect(wrapper.text()).not.toContain('From')
+    })
+  })
 })

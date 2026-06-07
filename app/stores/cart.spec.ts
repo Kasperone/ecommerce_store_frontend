@@ -76,9 +76,9 @@ describe('useCartStore', () => {
   it('setQuantity clamps to stock and removes on zero', () => {
     const cart = useCartStore()
     cart.add(product({ stock: 4 }))
-    cart.setQuantity(1, 10)
+    cart.setQuantity(1, null, 10)
     expect(cart.items[0]!.quantity).toBe(4)
-    cart.setQuantity(1, 0)
+    cart.setQuantity(1, null, 0)
     expect(cart.isEmpty).toBe(true)
   })
 
@@ -100,7 +100,7 @@ describe('useCartStore', () => {
   it('setQuantity is not clamped for backorder lines', () => {
     const cart = useCartStore()
     cart.add(product({ stock: 2, allow_backorder: true }))
-    cart.setQuantity(1, 10)
+    cart.setQuantity(1, null, 10)
     expect(cart.items[0]!.quantity).toBe(10)
   })
 
@@ -168,5 +168,139 @@ describe('useCartStore', () => {
       widthCm: null,
       heightCm: null,
     })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Variants (F2) — line identity is the (productId, variantId) pair.
+// ---------------------------------------------------------------------------
+
+function variant(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 11,
+    title: 'Red / XL',
+    title_pl: 'Czerwony / XL',
+    sku: 'W-RED-XL',
+    price_usd: 12,
+    price_pln: 48,
+    price_eur: 11,
+    image_id: null,
+    image_url: null,
+    stock: 3,
+    in_stock: true,
+    option_value_ids: [1, 2],
+    ...overrides,
+    // Loose test fixture for ProductVariantPublic.
+  } as never
+}
+
+describe('useCartStore — variants', () => {
+  it('snapshots the variant id, titles, prices and stock on the line', () => {
+    const cart = useCartStore()
+    cart.add(product({ stock: 99 }), 1, variant())
+    expect(cart.items[0]).toMatchObject({
+      productId: 1,
+      variantId: 11,
+      variantTitle: 'Red / XL',
+      variantTitlePl: 'Czerwony / XL',
+      price_usd: 12,
+      price_pln: 48,
+      price_eur: 11,
+      stock: 3,
+    })
+  })
+
+  it('keeps separate lines per variant of the same product', () => {
+    const cart = useCartStore()
+    cart.add(product(), 1, variant({ id: 11 }))
+    cart.add(product(), 1, variant({ id: 12, title: 'Blue / XL' }))
+    expect(cart.items).toHaveLength(2)
+    cart.add(product(), 1, variant({ id: 11 }))
+    expect(cart.items).toHaveLength(2)
+    expect(cart.items[0]!.quantity).toBe(2)
+  })
+
+  it('keeps a variant line distinct from a variantless line of the same product', () => {
+    const cart = useCartStore()
+    cart.add(product())
+    cart.add(product(), 1, variant())
+    expect(cart.items).toHaveLength(2)
+    expect(cart.items.map(i => i.variantId ?? null)).toEqual([null, 11])
+  })
+
+  it('clamps quantity to the VARIANT stock, not the product sum', () => {
+    const cart = useCartStore()
+    cart.add(product({ stock: 50 }), 10, variant({ stock: 2 }))
+    expect(cart.items[0]!.quantity).toBe(2)
+  })
+
+  it('blocks an out-of-stock variant without backorder even when the product sum is positive', () => {
+    const cart = useCartStore()
+    cart.add(product({ stock: 50 }), 1, variant({ stock: 0, in_stock: false }))
+    expect(cart.isEmpty).toBe(true)
+  })
+
+  it('adds an out-of-stock variant when the product allows backorder', () => {
+    const cart = useCartStore()
+    cart.add(product({ stock: 0, allow_backorder: true }), 2, variant({ stock: 0, in_stock: false }))
+    expect(cart.items[0]).toMatchObject({ variantId: 11, quantity: 2, allowBackorder: true })
+  })
+
+  it('uses the variant image when it has one', () => {
+    const cart = useCartStore()
+    cart.add(
+      product({ images: [{ url: 'https://cdn/prod.jpg', is_primary: true }] }),
+      1,
+      variant({ image_url: 'https://cdn/variant.jpg' }),
+    )
+    expect(cart.items[0]!.imageUrl).toBe('https://cdn/variant.jpg')
+  })
+
+  it('removes and setQuantity target only the matching (product, variant) line', () => {
+    const cart = useCartStore()
+    cart.add(product())
+    cart.add(product(), 1, variant())
+    cart.setQuantity(1, 11, 3)
+    expect(cart.items.find(i => i.variantId === 11)!.quantity).toBe(3)
+    expect(cart.items.find(i => i.variantId === null)!.quantity).toBe(1)
+    cart.remove(1, 11)
+    expect(cart.items).toHaveLength(1)
+    expect(cart.items[0]!.variantId).toBeNull()
+  })
+
+  it('merges into an old persisted line missing the variantId key (back-compat)', () => {
+    // Pre-variants persisted carts have NO variantId key at all. A variantless
+    // add must merge into that line, not duplicate it (risk 4).
+    const legacy = [{
+      productId: 1,
+      slug: 'widget',
+      name: 'Widget',
+      imageUrl: null,
+      price_usd: 10,
+      price_pln: 40,
+      price_eur: 9,
+      stock: 5,
+      allowBackorder: false,
+      quantity: 1,
+    }]
+    try {
+      globalThis.localStorage?.setItem('cart', JSON.stringify(legacy))
+    }
+    catch {
+      // localStorage unavailable — the seeded-hydration path can't run here.
+    }
+    const cart = useCartStore()
+    if (cart.items.length === 0) {
+      // Env without localStorage: seed the same legacy shape directly.
+      cart.items.push(legacy[0] as never)
+    }
+    cart.add(product())
+    expect(cart.items).toHaveLength(1)
+    expect(cart.items[0]!.quantity).toBe(2)
+    // setQuantity/remove with a null variantId also hit the legacy line.
+    cart.setQuantity(1, null, 4)
+    expect(cart.items[0]!.quantity).toBe(4)
+    cart.remove(1, null)
+    expect(cart.isEmpty).toBe(true)
   })
 })

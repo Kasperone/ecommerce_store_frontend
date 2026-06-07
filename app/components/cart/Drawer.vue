@@ -65,7 +65,7 @@ function goToCheckout() {
       >
         <CartLineItem
           v-for="item in cart.items"
-          :key="item.productId"
+          :key="`${item.productId}:${item.variantId ?? ''}`"
           :item="item"
         />
       </div>

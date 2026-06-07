@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCartStore } from '~/stores/cart'
-import type { ProductWithCategory } from '#shared/types/api'
+import type { ProductVariantPublic, ProductWithCategory } from '#shared/types/api'
 
 /**
  * "Buy again" / reorder support for the customer order pages.
@@ -12,6 +12,11 @@ import type { ProductWithCategory } from '#shared/types/api'
  * whose product no longer exists, is inactive, or is out of stock (and not
  * backorderable) are skipped; a summary toast reports added vs skipped counts.
  *
+ * Variant lines (F2) re-match against the re-fetched product's ACTIVE
+ * variants: a variant that's gone/inactive (not in the public list) or out of
+ * stock without backorder is skipped, as is a variantless line whose product
+ * has since gained variants (the backend would 422 it at order create).
+ *
  * No server-side order re-creation — this only hydrates the client cart (the
  * cart store owns checkout against `POST /orders/`).
  */
@@ -19,6 +24,7 @@ import type { ProductWithCategory } from '#shared/types/api'
 /** Minimal shape the reorder flow needs from an order line. */
 export interface ReorderLine {
   product_id: number
+  variant_id?: number | null
   quantity: number
   product_name: string
 }
@@ -61,7 +67,24 @@ export function useReorder() {
           continue
         }
 
-        cart.add(product, Math.max(line.quantity, 1))
+        // Variant lines: re-match against the product's CURRENT active variants.
+        let variant: ProductVariantPublic | null = null
+        if (line.variant_id != null) {
+          // Gone/inactive variants aren't in the public list → skip.
+          variant = product.variants?.find(v => v.id === line.variant_id) ?? null
+          if (!variant || (!variant.in_stock && !product.allow_backorder)) {
+            skipped += 1
+            continue
+          }
+        }
+        else if (product.has_variants) {
+          // The product gained variants since this order — a product-grain
+          // line would 422 at order create, so skip it.
+          skipped += 1
+          continue
+        }
+
+        cart.add(product, Math.max(line.quantity, 1), variant)
         added += 1
       }
     }
