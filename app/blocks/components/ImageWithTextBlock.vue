@@ -30,7 +30,7 @@ const imageLeft = computed(() => (props.settings?.image_position ?? 'left') === 
           :src="settings.image_url"
           :alt="settings?.heading ?? ''"
           class="aspect-[4/3] w-full object-cover"
-          sizes="100vw md:50vw"
+          sizes="xs:100vw md:50vw"
           loading="lazy"
         />
         <CmsImagePlaceholder

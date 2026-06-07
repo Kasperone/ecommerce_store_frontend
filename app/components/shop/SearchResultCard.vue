@@ -25,13 +25,16 @@ const outOfStock = computed(() => !props.result.in_stock)
       :aria-label="result.name"
     >
       <div class="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-        <img
+        <NuxtImg
           v-if="result.image_url"
           :src="result.image_url"
           :alt="result.name"
-          class="h-full w-full object-cover transition-transform group-hover:scale-105"
+          width="400"
+          height="400"
+          sizes="xs:50vw sm:33vw lg:25vw"
           loading="lazy"
-        >
+          class="h-full w-full object-cover transition-transform group-hover:scale-105"
+        />
         <div
           v-else
           class="flex h-full w-full items-center justify-center text-muted"

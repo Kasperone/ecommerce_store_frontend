@@ -57,7 +57,7 @@ const columnClass = computed(() => {
           :src="tile.settings.image_url"
           :alt="tile.settings?.label ?? ''"
           class="absolute inset-0 -z-10 h-full w-full object-cover transition-transform group-hover:scale-105"
-          sizes="50vw sm:33vw lg:25vw"
+          sizes="xs:50vw sm:33vw lg:25vw"
           loading="lazy"
         />
         <CmsImagePlaceholder

@@ -23,12 +23,19 @@ const current = computed(() => sorted.value[selected.value] ?? null)
 <template>
   <div class="flex flex-col gap-4">
     <div class="aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-      <img
+      <!-- The PDP hero is the LCP element: preload + fetchpriority=high,
+           NEVER lazy (nuxt4 audit P1 / SEO blueprint Phase 6). -->
+      <NuxtImg
         v-if="current"
         :src="current.url"
         :alt="current.alt_text ?? name"
+        width="800"
+        height="800"
+        sizes="xs:100vw sm:100vw lg:50vw"
+        preload
+        fetchpriority="high"
         class="h-full w-full object-cover"
-      >
+      />
       <div
         v-else
         class="flex h-full w-full items-center justify-center text-muted"
@@ -54,11 +61,14 @@ const current = computed(() => sorted.value[selected.value] ?? null)
         :aria-current="index === selected"
         @click="selected = index"
       >
-        <img
+        <NuxtImg
           :src="image.url"
           :alt="image.alt_text ?? ''"
+          width="64"
+          height="64"
+          loading="lazy"
           class="h-full w-full object-cover"
-        >
+        />
       </button>
     </div>
   </div>

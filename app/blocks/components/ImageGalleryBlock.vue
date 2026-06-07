@@ -62,7 +62,7 @@ const columnClass = computed(() => {
           :src="item.settings.image_url"
           :alt="item.settings?.alt ?? ''"
           class="aspect-square w-full rounded-lg object-cover"
-          sizes="66vw sm:50vw md:33vw"
+          sizes="xs:66vw sm:50vw md:33vw"
           loading="lazy"
         />
         <CmsImagePlaceholder
@@ -91,7 +91,7 @@ const columnClass = computed(() => {
           :alt="img.settings?.alt ?? ''"
           class="h-full w-full object-cover"
           :class="layout === 'grid' && 'aspect-square'"
-          sizes="50vw sm:33vw lg:25vw"
+          sizes="xs:50vw sm:33vw lg:25vw"
           loading="lazy"
         />
         <CmsImagePlaceholder
