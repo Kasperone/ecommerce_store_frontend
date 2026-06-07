@@ -94,21 +94,37 @@ function onKeydown(event: KeyboardEvent) {
               {{ t('cookies.banner.description') }}
             </p>
             <p class="text-sm text-muted">
-              <i18n-t keypath="cookies.banner.policyPrompt" tag="span" scope="global">
+              <i18n-t
+                keypath="cookies.banner.policyPrompt"
+                tag="span"
+                scope="global"
+              >
                 <template #policyLink>
-                  <ULink :to="cookiePolicyTo" class="underline">
+                  <ULink
+                    :to="cookiePolicyTo"
+                    class="underline"
+                  >
                     {{ t('cookies.banner.policyLink') }}
                   </ULink>
                 </template>
                 <template #privacyLink>
-                  <ULink :to="privacyPolicyTo" class="underline">
+                  <ULink
+                    :to="privacyPolicyTo"
+                    class="underline"
+                  >
                     {{ t('cookies.banner.privacyLink') }}
                   </ULink>
                 </template>
               </i18n-t>
             </p>
-            <p v-if="gpc" class="text-sm text-muted">
-              <UIcon name="i-lucide-shield-check" class="mr-1 inline-block align-text-bottom" />
+            <p
+              v-if="gpc"
+              class="text-sm text-muted"
+            >
+              <UIcon
+                name="i-lucide-shield-check"
+                class="mr-1 inline-block align-text-bottom"
+              />
               {{ t('cookies.banner.gpcNotice') }}
             </p>
           </div>

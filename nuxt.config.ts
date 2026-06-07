@@ -278,4 +278,17 @@ export default defineNuxtConfig({
   seo: {
     canonicalQueryWhitelist: ['page'],
   },
+
+  // @nuxtjs/sitemap — dynamic product/category URLs come from the Nitro
+  // source endpoint (server/api/__sitemap__/urls.ts → backend slim sitemap
+  // endpoints). With i18n present the module auto-emits sitemap_index.xml +
+  // one sitemap per locale with hreflang alternates. Static app routes are
+  // auto-discovered; the D5 noindex sections are already excluded via their
+  // `robots: false` routeRules (verified) — no manual exclude list needed.
+  // Real `lastmod` only (changefreq/priority are dead). Output cached
+  // server-side; the backend source is hit at most once per TTL.
+  sitemap: {
+    sources: ['/api/__sitemap__/urls'],
+    cacheMaxAgeSeconds: 600,
+  },
 })
