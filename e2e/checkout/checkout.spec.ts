@@ -78,11 +78,15 @@ test.describe('Checkout', () => {
       await expect(placeOrder).toBeEnabled()
       await placeOrder.click()
 
-      // --- success page. Only the heading is asserted: the order-number box
-      // reads an in-memory useState that legitimately resets if the dev
-      // server falls back to a hard load on the first /checkout/success
-      // chunk — the order itself is verified server-side below.
-      await expect(page.getByRole('heading', { name: 'Order placed!' })).toBeVisible()
+      // --- success page. Generous timeouts: the first hit compiles the
+      // /checkout/success chunk on the dev server (cold CI runs take >5s).
+      // Only the heading is asserted: the order-number box reads an
+      // in-memory useState that legitimately resets if the dev server falls
+      // back to a hard load on that first chunk — the order itself is
+      // verified server-side below.
+      await expect(page).toHaveURL(/\/checkout\/success/, { timeout: 30_000 })
+      await expect(page.getByRole('heading', { name: 'Order placed!' }))
+        .toBeVisible({ timeout: 30_000 })
 
       // --- server-side truth: one pending order with the right money math
       const orders = await api.listOrders(accessToken)
