@@ -141,6 +141,349 @@ export class ApiClient {
     return { id: product.id }
   }
 
+  /**
+   * Ensures the minimal shipping setup a checkout needs to quote: one zone
+   * covering the given countries, one method (stable name), and one flat
+   * rate per currency. Idempotent ("ensure" semantics, like the seeded
+   * users): a country may belong to only ONE zone backend-side, and order
+   * rows keep FK references to methods — so this fixture is shared and
+   * never torn down. Re-running converges on the same setup.
+   */
+  async ensureShippingFixture(
+    accessToken: string,
+    input: {
+      methodName: string
+      countryCodes: string[]
+      rates: Array<{ currency: 'USD' | 'PLN' | 'EUR', amount: number }>
+    },
+  ): Promise<{ zoneId: number, methodId: number }> {
+    const auth = { authorization: `Bearer ${accessToken}` }
+    const list = async <T>(path: string): Promise<T[]> => {
+      const res = await this.http.get(path, { headers: auth })
+      if (!res.ok()) throw new Error(`${path} failed: ${res.status()} ${await res.text()}`)
+      return (await res.json() as { items: T[] }).items
+    }
+
+    // Zone: reuse any zone already covering the first country (countries are
+    // exclusive across zones), else create one for all requested countries.
+    let zoneId: number | null = null
+    const zones = await list<{ id: number }>('/api/v1/admin/shipping/zones')
+    for (const z of zones) {
+      const detailRes = await this.http.get(`/api/v1/admin/shipping/zones/${z.id}`, { headers: auth })
+      if (!detailRes.ok()) continue
+      const detail = await detailRes.json() as { id: number, country_codes: string[] }
+      if (input.countryCodes.every(c => detail.country_codes.includes(c))) {
+        zoneId = detail.id
+        break
+      }
+    }
+    if (zoneId === null) {
+      const zoneRes = await this.http.post('/api/v1/admin/shipping/zones', {
+        headers: auth,
+        data: { name: `${input.methodName} zone`, country_codes: input.countryCodes },
+      })
+      if (!zoneRes.ok()) {
+        throw new Error(`create zone failed: ${zoneRes.status()} ${await zoneRes.text()}`)
+      }
+      zoneId = (await zoneRes.json() as { id: number }).id
+    }
+
+    // Method: match by exact name, else create.
+    const methods = await list<{ id: number, name: string }>('/api/v1/admin/shipping/methods')
+    let methodId = methods.find(m => m.name === input.methodName)?.id ?? null
+    if (methodId === null) {
+      const methodRes = await this.http.post('/api/v1/admin/shipping/methods', {
+        headers: auth,
+        data: { name: input.methodName },
+      })
+      if (!methodRes.ok()) {
+        throw new Error(`create method failed: ${methodRes.status()} ${await methodRes.text()}`)
+      }
+      methodId = (await methodRes.json() as { id: number }).id
+    }
+
+    // Rates: per currency — update the amount if a rate exists, else create.
+    interface RateRow {
+      id: number
+      zone_id: number
+      method_id: number
+      currency: string
+      amount: number
+    }
+    const rates = await list<RateRow>('/api/v1/admin/shipping/rates')
+    for (const wanted of input.rates) {
+      const existing = rates.find(r =>
+        r.zone_id === zoneId && r.method_id === methodId && r.currency === wanted.currency,
+      )
+      if (existing && existing.amount === wanted.amount) continue
+      const res = existing
+        ? await this.http.put(`/api/v1/admin/shipping/rates/${existing.id}`, {
+            headers: auth,
+            data: { amount: wanted.amount },
+          })
+        : await this.http.post('/api/v1/admin/shipping/rates', {
+            headers: auth,
+            data: {
+              zone_id: zoneId,
+              method_id: methodId,
+              currency: wanted.currency,
+              amount: wanted.amount,
+            },
+          })
+      if (!res.ok()) {
+        throw new Error(`ensure rate failed: ${res.status()} ${await res.text()}`)
+      }
+    }
+    return { zoneId, methodId }
+  }
+
+  /** Admin-creates a discount code for coupon-redemption specs. */
+  async createCoupon(
+    accessToken: string,
+    input: {
+      code: string
+      discount_type: 'percent' | 'fixed'
+      value: number
+      currency?: 'USD' | 'PLN' | 'EUR' | null
+      min_order_amount?: number | null
+      is_active?: boolean
+    },
+  ): Promise<{ id: number, code: string }> {
+    const res = await this.http.post('/api/v1/admin/coupons/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: input,
+    })
+    if (!res.ok()) {
+      throw new Error(`createCoupon failed: ${res.status()} ${await res.text()}`)
+    }
+    const coupon = await res.json() as { id: number, code: string }
+    return { id: coupon.id, code: coupon.code }
+  }
+
+  /** Admin coupon detail — used to assert server-side redemption state. */
+  async getCoupon(accessToken: string, couponId: number): Promise<{
+    id: number
+    code: string
+    used_count: number
+  }> {
+    const res = await this.http.get(`/api/v1/admin/coupons/${couponId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`getCoupon failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
+  async deleteCoupon(accessToken: string, couponId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/coupons/${couponId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteCoupon failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
+   * Creates an order as the customer straight through the API — for specs
+   * that need an existing order without driving the checkout UI.
+   */
+  async createOrderViaApi(
+    accessToken: string,
+    input: {
+      productId: number
+      quantity: number
+      shippingMethodId: number
+      currency?: 'USD' | 'PLN' | 'EUR'
+    },
+  ): Promise<{ id: number, order_number: string, status: string }> {
+    const res = await this.http.post('/api/v1/orders/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        items: [{ product_id: input.productId, quantity: input.quantity }],
+        shipping_address: '1 Fixture Way',
+        shipping_city: 'New York',
+        shipping_postal_code: '10001',
+        shipping_country: 'US',
+        shipping_method_id: input.shippingMethodId,
+        currency: input.currency ?? 'USD',
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createOrderViaApi failed: ${res.status()} ${await res.text()}`)
+    }
+    const order = await res.json() as { id: number, order_number: string, status: string }
+    return { id: order.id, order_number: order.order_number, status: order.status }
+  }
+
+  async getUserId(email: string): Promise<number> {
+    const res = await this.pg.query<{ id: number }>(
+      'SELECT id FROM users WHERE email = $1',
+      [email],
+    )
+    const id = res.rows[0]?.id
+    if (id === undefined) throw new Error(`getUserId: no user for ${email}`)
+    return id
+  }
+
+  /**
+   * Makes a user B2B: admin-creates a company with the user as its primary
+   * contact. The membership fallback resolves them as COMPANY_ADMIN — no
+   * explicit company_users row needed.
+   */
+  async createCompanyWithPrimaryUser(
+    accessToken: string,
+    input: { name: string, primaryUserId: number },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post('/api/v1/admin/companies/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: { name: input.name, primary_user_id: input.primaryUserId, status: 'approved' },
+    })
+    if (!res.ok()) {
+      throw new Error(`createCompany failed: ${res.status()} ${await res.text()}`)
+    }
+    const company = await res.json() as { id: number }
+    return { id: company.id }
+  }
+
+  async deleteCompany(accessToken: string, companyId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/companies/${companyId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteCompany failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** The company's quotes as seen by a B2B customer (newest first). */
+  async listQuotes(accessToken: string): Promise<Array<{
+    id: number
+    status: string
+    currency: string
+    subtotal: number
+    total: number
+    items?: Array<{ product_id: number | null, quantity: number, unit_price: number }>
+  }>> {
+    const res = await this.http.get('/api/v1/quotes/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`listQuotes failed: ${res.status()} ${await res.text()}`)
+    }
+    interface QuoteRow {
+      id: number
+      status: string
+      currency: string
+      subtotal: number
+      total: number
+    }
+    const body = await res.json() as QuoteRow[] | { items: QuoteRow[] }
+    return Array.isArray(body) ? body : body.items
+  }
+
+  /** Full quote detail incl. server-priced line items. */
+  async getQuote(accessToken: string, quoteId: number): Promise<{
+    id: number
+    status: string
+    currency: string
+    subtotal: number
+    total: number
+    items: Array<{ product_id: number | null, quantity: number, unit_price: number }>
+  }> {
+    const res = await this.http.get(`/api/v1/quotes/${quoteId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`getQuote failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
+  /** Customer address book — server-side source of truth for address specs. */
+  async listAddresses(accessToken: string): Promise<Array<{
+    id: number
+    recipient_name: string
+    street: string
+    city: string
+    is_default_shipping: boolean
+    is_default_billing: boolean
+  }>> {
+    const res = await this.http.get('/api/v1/addresses/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`listAddresses failed: ${res.status()} ${await res.text()}`)
+    }
+    const body = await res.json() as Array<{
+      id: number
+      recipient_name: string
+      street: string
+      city: string
+      is_default_shipping: boolean
+      is_default_billing: boolean
+    }> | { items: Array<never> }
+    return Array.isArray(body) ? body : body.items
+  }
+
+  /** Current stock for a product — verifies cancel restores reserved stock. */
+  async getProductStock(productId: number): Promise<number> {
+    const res = await this.pg.query<{ stock: number }>(
+      'SELECT stock FROM products WHERE id = $1',
+      [productId],
+    )
+    return res.rows[0]?.stock ?? -1
+  }
+
+  /** Customer order list — newest first, used to verify checkout created an order. */
+  async listOrders(accessToken: string): Promise<Array<{
+    id: number
+    order_number: string
+    status: string
+    total: number
+    currency: string
+  }>> {
+    const res = await this.http.get('/api/v1/orders/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`listOrders failed: ${res.status()} ${await res.text()}`)
+    }
+    const page = await res.json() as { items: Array<{
+      id: number
+      order_number: string
+      status: string
+      total: number
+      currency: string
+    }> }
+    return page.items
+  }
+
+  /** Full order detail (customer-owned) — the server-side source of truth. */
+  async getOrder(accessToken: string, orderId: number): Promise<{
+    id: number
+    order_number: string
+    status: string
+    subtotal: number
+    shipping: number
+    discount: number
+    total: number
+    currency: string
+    coupon_code: string | null
+    shipping_address: string
+    shipping_city: string
+    shipping_postal_code: string
+    shipping_country: string
+    items: Array<{ product_id: number, quantity: number, unit_price: number }>
+  }> {
+    const res = await this.http.get(`/api/v1/orders/${orderId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`getOrder failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
   async deleteProduct(accessToken: string, productId: number): Promise<void> {
     const res = await this.http.delete(`/api/v1/products/${productId}`, {
       headers: { authorization: `Bearer ${accessToken}` },
