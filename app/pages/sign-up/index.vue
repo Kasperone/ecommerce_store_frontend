@@ -1,6 +1,9 @@
 <script setup lang="ts">
-useHead({
-  titleTemplate: '%s | SIGN-UP PAGE',
+const { t } = useI18n()
+
+// Locale-aware title (the global titleTemplate in app.vue appends the brand).
+useSeoMeta({
+  title: () => t('auth.signUp'),
 })
 </script>
 
