@@ -45,4 +45,62 @@ useHead(() => ({
   link: [...(i18nHead.value.link ?? [])],
   meta: [...(i18nHead.value.meta ?? [])],
 }))
+
+// Site-wide structured data (SEO blueprint SEO-1.1 / D6). Identity lives here
+// rather than nuxt.config because every value is runtime data from the
+// admin-editable store_config (brand SoT). nuxt-schema-org auto-adds linked
+// WebSite + WebPage nodes per page (per-locale, no SearchAction — the
+// sitelinks search box is dead since Nov 2024) and renders during SSR only.
+const sameAs = computed(() =>
+  [
+    storeConfig.value?.social_instagram,
+    storeConfig.value?.social_facebook,
+    storeConfig.value?.social_tiktok,
+    storeConfig.value?.social_youtube,
+  ].filter((url): url is string => !!url?.trim()),
+)
+
+const postalAddress = computed(() => {
+  const cfg = storeConfig.value
+  if (!cfg?.address_line?.trim()) return undefined
+  return {
+    '@type': 'PostalAddress',
+    'streetAddress': [cfg.address_line, cfg.address_line2].filter(s => s?.trim()).join(', '),
+    'addressLocality': cfg.postal_city?.trim() || undefined,
+    'addressCountry': cfg.country?.trim() || undefined,
+  }
+})
+
+useSchemaOrg([
+  defineOrganization({
+    // String shorthand can't express sub-types; OnlineStore is the commerce
+    // signal AI/shopping surfaces look for.
+    '@type': ['Organization', 'OnlineStore'],
+    'name': () => brandName.value,
+    'logo': () => storeConfig.value?.logo_url?.trim() || undefined,
+    'email': () => storeConfig.value?.email?.trim() || undefined,
+    'telephone': () => storeConfig.value?.phone?.trim() || undefined,
+    'address': () => postalAddress.value,
+    'sameAs': () => (sameAs.value.length ? sameAs.value : undefined),
+    // Nov-2025 Google change: declare the returns policy ONCE at Organization
+    // level instead of per-Offer. Values mirror the /returns legal page
+    // (EU 14-day right of withdrawal, customer bears the return shipping) —
+    // markup must match on-page reality. PL + US = the two storefront-locale
+    // markets. hasShippingService is intentionally absent: shipping rates are
+    // zone/weight-dynamic, declared later with the merchant feeds (Phase 5).
+    'hasMerchantReturnPolicy': {
+      '@type': 'MerchantReturnPolicy',
+      'applicableCountry': ['PL', 'US'],
+      'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
+      'merchantReturnDays': 14,
+      'returnMethod': 'https://schema.org/ReturnByMail',
+      'returnFees': 'https://schema.org/ReturnFeesCustomerResponsibility',
+    },
+  }),
+  // Explicit WebSite node so its name follows the store_config brand instead
+  // of the static site.name fallback. Dedupes by @id with the auto-added node.
+  defineWebSite({
+    name: () => brandName.value,
+  }),
+])
 </script>
