@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { findCategoryNode, localizedCategoryName } from '#shared/utils/categoryTree'
+import { findCategoryNode, findCategoryPath, localizedCategoryName } from '#shared/utils/categoryTree'
+import { localizedProductName } from '#shared/utils/localizedProduct'
 import { parseProblem } from '#shared/utils/problemDetails'
 
 const { t, locale } = useI18n()
@@ -34,6 +35,15 @@ useSeoMeta({
     const c = category.value
     return ((isPl.value ? c?.meta_description_pl : c?.meta_description) || c?.meta_description || description.value) ?? ''
   },
+  ogTitle: () => title.value,
+  ogDescription: () => {
+    const c = category.value
+    return ((isPl.value ? c?.meta_description_pl : c?.meta_description) || c?.meta_description || description.value) ?? ''
+  },
+  // Real R2 hero photo (SEO blueprint D9); the site-wide static share image
+  // (app.vue) covers hero-less categories.
+  ogImage: () => category.value?.hero_image_url ?? undefined,
+  ogImageAlt: () => category.value?.hero_image_alt ?? title.value,
 })
 
 // Products in this category — distinct cache key so it never collides with the
@@ -50,6 +60,47 @@ const subcategories = computed(() => {
   if (!category.value) return []
   return findCategoryNode(tree.value ?? [], category.value.id)?.children ?? []
 })
+
+// Ancestor chain (root → current) for the breadcrumb UI + BreadcrumbList.
+const breadcrumbPath = computed(() => {
+  if (!category.value) return []
+  return findCategoryPath(tree.value ?? [], category.value.id)
+})
+
+// ---------------------------------------------------------------------------
+// Structured data (SEO blueprint SEO-1.3 / D6): type the auto WebPage node as
+// CollectionPage + an ItemList of the visible products — Google's Carousels
+// beta covers Shopping category pages in all EEA countries (PL qualifies).
+// SSR-only; ItemList mirrors the first listing page actually rendered below.
+// ---------------------------------------------------------------------------
+// The module absolutizes Breadcrumb `item` URLs but NOT plain ItemList `url`s
+// (verified) — qualify them from the canonical site origin.
+const { url: siteUrl } = useSiteConfig()
+
+useSchemaOrg([
+  defineWebPage({ '@type': 'CollectionPage' }),
+  defineItemList({
+    itemListElement: () =>
+      items.value.map((p, i) => ({
+        '@type': 'ListItem',
+        'position': i + 1,
+        'name': localizedProductName(p, locale.value),
+        ...(p.images?.[0]?.url ? { image: p.images[0].url } : {}),
+        'url': `${siteUrl}${localePath(`/products/${p.slug}`)}`,
+      })),
+  }),
+  // Mirrors the visible breadcrumb nav (last item carries no `item`).
+  defineBreadcrumb({
+    itemListElement: () => [
+      { name: t('navigation.products'), item: localePath('/products') },
+      ...breadcrumbPath.value.slice(0, -1).map(node => ({
+        name: localizedCategoryName(node, locale.value),
+        item: localePath(`/category/${node.slug}`),
+      })),
+      { name: title.value },
+    ],
+  }),
+])
 </script>
 
 <template>
@@ -58,6 +109,30 @@ const subcategories = computed(() => {
       v-if="category"
       class="mx-auto w-full max-w-7xl space-y-6 px-4 py-8"
     >
+      <!-- Breadcrumb (PDP pattern): Products → ancestors → current. -->
+      <nav class="flex flex-wrap items-center gap-2 text-sm text-muted">
+        <NuxtLink
+          :to="localePath('/products')"
+          class="hover:text-primary"
+        >
+          {{ t('navigation.products') }}
+        </NuxtLink>
+        <template
+          v-for="node in breadcrumbPath.slice(0, -1)"
+          :key="node.id"
+        >
+          <span>/</span>
+          <NuxtLink
+            :to="localePath(`/category/${node.slug}`)"
+            class="hover:text-primary"
+          >
+            {{ localizedCategoryName(node, locale) }}
+          </NuxtLink>
+        </template>
+        <span>/</span>
+        <span class="font-medium text-highlighted">{{ title }}</span>
+      </nav>
+
       <div
         v-if="category.hero_image_url"
         class="relative overflow-hidden rounded-xl"

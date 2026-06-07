@@ -130,3 +130,17 @@ export function findCategoryNode(
   }
   return null
 }
+
+/** Root→target path to a category node (inclusive). Empty when the id isn't
+ * in the tree. Drives the category page's breadcrumb UI + BreadcrumbList. */
+export function findCategoryPath(
+  nodes: CategoryTreeNode[],
+  id: number,
+): CategoryTreeNode[] {
+  for (const node of nodes) {
+    if (node.id === id) return [node]
+    const childPath = findCategoryPath(node.children ?? [], id)
+    if (childPath.length) return [node, ...childPath]
+  }
+  return []
+}

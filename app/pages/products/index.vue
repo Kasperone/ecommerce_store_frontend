@@ -3,11 +3,13 @@ import { computed } from 'vue'
 import { z } from 'zod'
 import { useI18n } from 'vue-i18n'
 import { flattenCategoryTree } from '#shared/utils/categoryTree'
+import { localizedProductName } from '#shared/utils/localizedProduct'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { CatalogFilterValues } from '~/components/shop/CatalogToolbar.vue'
 import type { CatalogSort } from '~/composables/catalog/useCatalog'
 
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 
 useHead({ title: () => t('catalog.title') })
 useSeoMeta({
@@ -68,6 +70,25 @@ const items = computed(() => listing.value?.items ?? [])
 const total = computed(() => listing.value?.total ?? 0)
 const pageSize = computed(() => listing.value?.page_size ?? STOREFRONT_PAGE_SIZE)
 const currentPage = computed(() => listing.value?.page ?? 1)
+
+// Structured data (SEO blueprint SEO-1.3): ItemList over the visible listing
+// page. SSR-only — for a cookie-less crawler this is the deterministic
+// first-page listing (filtered/sorted variants canonicalize to the clean
+// listing anyway, D3). Plain ItemList `url`s aren't absolutized by the module
+// (verified) — qualify them from the canonical site origin.
+const { url: siteUrl } = useSiteConfig()
+useSchemaOrg([
+  defineItemList({
+    itemListElement: () =>
+      items.value.map((p, i) => ({
+        '@type': 'ListItem',
+        'position': (currentPage.value - 1) * pageSize.value + i + 1,
+        'name': localizedProductName(p, locale.value),
+        ...(p.images?.[0]?.url ? { image: p.images[0].url } : {}),
+        'url': `${siteUrl}${localePath(`/products/${p.slug}`)}`,
+      })),
+  }),
+])
 </script>
 
 <template>
