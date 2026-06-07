@@ -11,6 +11,8 @@ import {
   createProductUpdateSchema,
 } from '#shared/validators/product'
 
+export type ProductCondition = 'new' | 'refurbished' | 'used'
+
 export interface ProductFormPayload {
   name: string
   name_pl: string | null
@@ -18,6 +20,16 @@ export interface ProductFormPayload {
   description: string | null
   description_pl: string | null
   sku: string | null
+  // Merchant identity + per-locale SEO meta (SEO blueprint D11) — feed the
+  // PDP's Product JSON-LD and, post-deploy, the merchant feeds.
+  brand: string | null
+  gtin: string | null
+  mpn: string | null
+  condition: ProductCondition
+  meta_title: string | null
+  meta_description: string | null
+  meta_title_pl: string | null
+  meta_description_pl: string | null
   price_usd: number | null
   price_pln: number | null
   price_eur: number | null
@@ -62,6 +74,14 @@ interface FormState {
   description: string
   description_pl: string
   sku: string
+  brand: string
+  gtin: string
+  mpn: string
+  condition: ProductCondition
+  meta_title: string
+  meta_description: string
+  meta_title_pl: string
+  meta_description_pl: string
   price_usd: number | undefined
   price_pln: number | undefined
   price_eur: number | undefined
@@ -83,6 +103,14 @@ const state = reactive<FormState>({
   description: '',
   description_pl: '',
   sku: '',
+  brand: '',
+  gtin: '',
+  mpn: '',
+  condition: 'new',
+  meta_title: '',
+  meta_description: '',
+  meta_title_pl: '',
+  meta_description_pl: '',
   price_usd: undefined,
   price_pln: undefined,
   price_eur: undefined,
@@ -135,6 +163,14 @@ watch(
       state.description = product.description ?? ''
       state.description_pl = product.description_pl ?? ''
       state.sku = product.sku ?? ''
+      state.brand = product.brand ?? ''
+      state.gtin = product.gtin ?? ''
+      state.mpn = product.mpn ?? ''
+      state.condition = (product.condition ?? 'new') as ProductCondition
+      state.meta_title = product.meta_title ?? ''
+      state.meta_description = product.meta_description ?? ''
+      state.meta_title_pl = product.meta_title_pl ?? ''
+      state.meta_description_pl = product.meta_description_pl ?? ''
       state.price_usd = product.price_usd ?? undefined
       state.price_pln = product.price_pln ?? undefined
       state.price_eur = product.price_eur ?? undefined
@@ -156,6 +192,14 @@ watch(
       state.description = ''
       state.description_pl = ''
       state.sku = ''
+      state.brand = ''
+      state.gtin = ''
+      state.mpn = ''
+      state.condition = 'new'
+      state.meta_title = ''
+      state.meta_description = ''
+      state.meta_title_pl = ''
+      state.meta_description_pl = ''
       state.price_usd = undefined
       state.price_pln = undefined
       state.price_eur = undefined
@@ -201,6 +245,13 @@ async function validate(values: FormState): Promise<FormError[]> {
     description: values.description.trim() || null,
     description_pl: values.description_pl.trim() || null,
     sku: values.sku.trim() || null,
+    brand: values.brand.trim() || null,
+    gtin: values.gtin.trim() || null,
+    mpn: values.mpn.trim() || null,
+    meta_title: values.meta_title.trim() || null,
+    meta_description: values.meta_description.trim() || null,
+    meta_title_pl: values.meta_title_pl.trim() || null,
+    meta_description_pl: values.meta_description_pl.trim() || null,
     category_id: values.category_id ?? null,
     price_usd: values.price_usd ?? null,
     price_pln: values.price_pln ?? null,
@@ -226,6 +277,14 @@ function buildPayload(): ProductFormPayload {
     description: state.description.trim() || null,
     description_pl: state.description_pl.trim() || null,
     sku: state.sku.trim() || null,
+    brand: state.brand.trim() || null,
+    gtin: state.gtin.trim() || null,
+    mpn: state.mpn.trim() || null,
+    condition: state.condition,
+    meta_title: state.meta_title.trim() || null,
+    meta_description: state.meta_description.trim() || null,
+    meta_title_pl: state.meta_title_pl.trim() || null,
+    meta_description_pl: state.meta_description_pl.trim() || null,
     price_usd: state.price_usd ?? null,
     price_pln: state.price_pln ?? null,
     price_eur: state.price_eur ?? null,
@@ -244,6 +303,13 @@ function buildPayload(): ProductFormPayload {
 function onSubmit(_event: FormSubmitEvent<FormState>) {
   emit('submit', buildPayload())
 }
+
+// schema.org-mappable condition vocabulary (backend CHECK constraint).
+const conditionItems = computed(() => [
+  { label: t('admin.products.condition.new', { default: 'New' }), value: 'new' as const },
+  { label: t('admin.products.condition.refurbished', { default: 'Refurbished' }), value: 'refurbished' as const },
+  { label: t('admin.products.condition.used', { default: 'Used' }), value: 'used' as const },
+])
 
 const NO_CATEGORY = 0
 const categoryItems = computed(() => [
@@ -321,6 +387,35 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
             class="w-full"
           />
         </UFormField>
+
+        <UFormField
+          :label="t('admin.products.fields.metaTitle')"
+          name="meta_title"
+          :hint="t('admin.products.hints.metaTitle')"
+        >
+          <UInput
+            v-model="state.meta_title"
+            :placeholder="t('admin.products.placeholders.metaTitle')"
+            :disabled="loading"
+            maxlength="70"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          :label="t('admin.products.fields.metaDescription')"
+          name="meta_description"
+          :hint="t('admin.products.hints.metaDescription')"
+        >
+          <UTextarea
+            v-model="state.meta_description"
+            :placeholder="t('admin.products.placeholders.metaDescription')"
+            :disabled="loading"
+            :rows="2"
+            maxlength="160"
+            class="w-full"
+          />
+        </UFormField>
       </div>
 
       <div
@@ -349,6 +444,35 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
             :placeholder="t('admin.products.placeholders.descriptionPl')"
             :disabled="loading"
             :rows="4"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          :label="t('admin.products.fields.metaTitle')"
+          name="meta_title_pl"
+          :hint="t('admin.products.hints.localeOptional')"
+        >
+          <UInput
+            v-model="state.meta_title_pl"
+            :placeholder="t('admin.products.placeholders.metaTitlePl')"
+            :disabled="loading"
+            maxlength="70"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          :label="t('admin.products.fields.metaDescription')"
+          name="meta_description_pl"
+          :hint="t('admin.products.hints.localeOptional')"
+        >
+          <UTextarea
+            v-model="state.meta_description_pl"
+            :placeholder="t('admin.products.placeholders.metaDescriptionPl')"
+            :disabled="loading"
+            :rows="2"
+            maxlength="160"
             class="w-full"
           />
         </UFormField>
@@ -381,6 +505,62 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
           class="w-full"
         />
       </UFormField>
+
+      <!-- Merchant identity (SEO blueprint D11): feeds the PDP's Product
+           JSON-LD (rich results) and the future merchant feeds. -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <UFormField
+          :label="t('admin.products.fields.brand')"
+          name="brand"
+          :hint="t('admin.products.hints.brand')"
+        >
+          <UInput
+            v-model="state.brand"
+            :placeholder="t('admin.products.placeholders.brand')"
+            :disabled="loading"
+            maxlength="100"
+            class="w-full"
+          />
+        </UFormField>
+        <UFormField
+          :label="t('admin.products.fields.condition')"
+          name="condition"
+        >
+          <USelectMenu
+            v-model="state.condition"
+            :items="conditionItems"
+            value-key="value"
+            :disabled="loading"
+            class="w-full"
+          />
+        </UFormField>
+        <UFormField
+          :label="t('admin.products.fields.gtin')"
+          name="gtin"
+          :hint="t('admin.products.hints.gtin')"
+        >
+          <UInput
+            v-model="state.gtin"
+            :placeholder="t('admin.products.placeholders.gtin')"
+            :disabled="loading"
+            maxlength="14"
+            class="w-full"
+          />
+        </UFormField>
+        <UFormField
+          :label="t('admin.products.fields.mpn')"
+          name="mpn"
+          :hint="t('admin.products.hints.mpn')"
+        >
+          <UInput
+            v-model="state.mpn"
+            :placeholder="t('admin.products.placeholders.mpn')"
+            :disabled="loading"
+            maxlength="70"
+            class="w-full"
+          />
+        </UFormField>
+      </div>
 
       <UFormField
         :label="t('admin.products.fields.category')"

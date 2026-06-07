@@ -843,7 +843,12 @@
         "lengthCm": "Długość paczki w centymetrach. Razem z szerokością i wysokością wyznacza wagę gabarytową; zwykle uzupełnia się wszystkie trzy wartości.",
         "widthCm": "Szerokość paczki w centymetrach.",
         "heightCm": "Wysokość paczki w centymetrach.",
-        "lowest30d": "Najniższa cena z 30 dni: {price} (od {date})"
+        "lowest30d": "Najniższa cena z 30 dni: {price} (od {date})",
+        "brand": "Widoczna w wynikach z rozszerzeniami; domyślnie marka sklepu",
+        "gtin": "Kod kreskowy EAN/UPC (8–14 cyfr)",
+        "mpn": "Opcjonalne",
+        "metaTitle": "Maks. 70 znaków",
+        "metaDescription": "Maks. 160 znaków"
       },
       "placeholders": {
         "name": "Encyklopedia herbaty",
@@ -851,7 +856,14 @@
         "description": "Opcjonalny opis",
         "sku": "ENCY-TEA-001",
         "namePl": "Encyklopedia herbaty",
-        "descriptionPl": "Opcjonalny opis"
+        "descriptionPl": "Opcjonalny opis",
+        "brand": "np. Acme",
+        "gtin": "np. 00012345600012",
+        "mpn": "Numer katalogowy producenta",
+        "metaTitle": "Tytuł w wynikach wyszukiwania (domyślnie nazwa produktu)",
+        "metaDescription": "Opis w wynikach wyszukiwania (domyślnie opis produktu)",
+        "metaTitlePl": "Tytuł w wynikach wyszukiwania",
+        "metaDescriptionPl": "Opis w wynikach wyszukiwania"
       },
       "flashes": {
         "created": "Produkt utworzony.",
@@ -912,7 +924,13 @@
         "isActive": "Aktywny",
         "isFeatured": "Wyróżniony",
         "status": "Status",
-        "actions": ""
+        "actions": "",
+        "brand": "Marka",
+        "gtin": "GTIN",
+        "mpn": "MPN",
+        "condition": "Stan",
+        "metaTitle": "Meta tytuł (SEO)",
+        "metaDescription": "Meta opis (SEO)"
       },
       "status": {
         "active": "Aktywny",
@@ -972,7 +990,18 @@
         "weightInvalid": "Waga musi być liczbą",
         "weightNegative": "Waga nie może być ujemna",
         "dimensionInvalid": "Wymiar musi być liczbą",
-        "dimensionNegative": "Wymiar nie może być ujemny"
+        "dimensionNegative": "Wymiar nie może być ujemny",
+        "brandTooLong": "Marka może mieć najwyżej 100 znaków",
+        "gtinTooLong": "GTIN może mieć najwyżej 14 znaków",
+        "mpnTooLong": "MPN może mieć najwyżej 70 znaków",
+        "conditionInvalid": "Stan musi być: nowy, odnowiony lub używany",
+        "metaTitleTooLong": "Meta tytuł może mieć najwyżej 70 znaków",
+        "metaDescriptionTooLong": "Meta opis może mieć najwyżej 160 znaków"
+      },
+      "condition": {
+        "new": "Nowy",
+        "refurbished": "Odnowiony",
+        "used": "Używany"
       }
     },
     "orders": {
