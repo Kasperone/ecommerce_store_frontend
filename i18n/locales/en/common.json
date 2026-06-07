@@ -839,7 +839,12 @@
         "lengthCm": "Box length in centimetres. Combined with width and height to compute volumetric weight; admins typically set all three together.",
         "widthCm": "Box width in centimetres.",
         "heightCm": "Box height in centimetres.",
-        "lowest30d": "Lowest 30d: {price} (since {date})"
+        "lowest30d": "Lowest 30d: {price} (since {date})",
+        "brand": "Shown in rich results; defaults to the store brand",
+        "gtin": "EAN/UPC barcode (8–14 digits)",
+        "mpn": "Optional",
+        "metaTitle": "Max 70 characters",
+        "metaDescription": "Max 160 characters"
       },
       "placeholders": {
         "name": "Encyclopedia of Tea",
@@ -847,7 +852,14 @@
         "description": "Optional description",
         "sku": "ENCY-TEA-001",
         "namePl": "Encyklopedia herbaty",
-        "descriptionPl": "Opcjonalny opis"
+        "descriptionPl": "Opcjonalny opis",
+        "brand": "e.g. Acme",
+        "gtin": "e.g. 00012345600012",
+        "mpn": "Manufacturer part number",
+        "metaTitle": "Search-result title (defaults to the product name)",
+        "metaDescription": "Search-result snippet (defaults to the description)",
+        "metaTitlePl": "Tytuł w wynikach wyszukiwania",
+        "metaDescriptionPl": "Opis w wynikach wyszukiwania"
       },
       "flashes": {
         "created": "Product created.",
@@ -908,7 +920,13 @@
         "isActive": "Active",
         "isFeatured": "Featured",
         "status": "Status",
-        "actions": ""
+        "actions": "",
+        "brand": "Brand",
+        "gtin": "GTIN",
+        "mpn": "MPN",
+        "condition": "Condition",
+        "metaTitle": "Meta title (SEO)",
+        "metaDescription": "Meta description (SEO)"
       },
       "status": {
         "active": "Active",
@@ -968,7 +986,18 @@
         "weightInvalid": "Weight must be a number",
         "weightNegative": "Weight cannot be negative",
         "dimensionInvalid": "Dimension must be a number",
-        "dimensionNegative": "Dimension cannot be negative"
+        "dimensionNegative": "Dimension cannot be negative",
+        "brandTooLong": "Brand must be 100 characters or fewer",
+        "gtinTooLong": "GTIN must be 14 characters or fewer",
+        "mpnTooLong": "MPN must be 70 characters or fewer",
+        "conditionInvalid": "Condition must be new, refurbished, or used",
+        "metaTitleTooLong": "Meta title must be 70 characters or fewer",
+        "metaDescriptionTooLong": "Meta description must be 160 characters or fewer"
+      },
+      "condition": {
+        "new": "New",
+        "refurbished": "Refurbished",
+        "used": "Used"
       }
     },
     "orders": {
