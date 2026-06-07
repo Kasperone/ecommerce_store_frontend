@@ -20,8 +20,9 @@ const authFormRef = useTemplateRef<ValidatedFormInstance>('authFormRef')
 // scroll-to-first-error + type-to-clear for client-side (Zod) email validation.
 useValidatedForm(authFormRef)
 
-useHead({
-  titleTemplate: '%s | Password Recovery',
+// Locale-aware title (the global titleTemplate in app.vue appends the brand).
+useSeoMeta({
+  title: () => t('auth.passwordReset.requestTitle'),
 })
 
 const fields = computed<AuthFormField[]>(() => {
