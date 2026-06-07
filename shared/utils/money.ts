@@ -12,8 +12,6 @@
  * `$n` renders empty (the admin product list hit the same and uses Intl too).
  */
 
-import type { ProductResponse } from '#shared/types/api'
-
 export type CurrencyCode = 'USD' | 'PLN' | 'EUR'
 
 export const CURRENCIES: { code: CurrencyCode, symbol: string }[] = [
@@ -33,7 +31,14 @@ const PRICE_FIELD: Record<CurrencyCode, 'price_usd' | 'price_pln' | 'price_eur'>
 // `Product.get_price()` priority (chosen first, then USD→PLN→EUR).
 const FALLBACK_ORDER: CurrencyCode[] = ['USD', 'PLN', 'EUR']
 
-type PricedProduct = Pick<ProductResponse, 'price_usd' | 'price_pln' | 'price_eur'>
+// Loose on purpose: products carry `number | null` columns while variant
+// publics (`ProductVariantPublic`) have optional fields — `!= null` below
+// treats null and undefined the same.
+type PricedProduct = {
+  price_usd?: number | null
+  price_pln?: number | null
+  price_eur?: number | null
+}
 
 export interface SelectedPrice {
   amount: number

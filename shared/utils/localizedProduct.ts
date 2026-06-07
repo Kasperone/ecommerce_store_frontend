@@ -14,6 +14,20 @@ export function localizedProductName(
   return product.name
 }
 
+/**
+ * Locale-aware variant title for a CART line snapshot (`variantTitle` /
+ * `variantTitlePl` on `CartItem`). Returns null for variantless lines so
+ * renderers can `v-if` the row away.
+ */
+export function localizedCartVariantTitle(
+  line: { variantTitle?: string | null, variantTitlePl?: string | null },
+  locale: string,
+): string | null {
+  if (!line.variantTitle) return null
+  if (locale === 'pl' && line.variantTitlePl) return line.variantTitlePl
+  return line.variantTitle
+}
+
 export function localizedProductDescription(
   product: { description?: string | null, description_pl?: string | null },
   locale: string,

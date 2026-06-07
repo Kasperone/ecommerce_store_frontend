@@ -111,15 +111,19 @@ export function useProductDetail(slug: string) {
 export function useProductLowest30d(
   productId: number,
   currency: MaybeRefOrGetter<string>,
+  // OMNIBUS is per-offer: a variant price cut needs its own 30-day-low trail
+  // (variants F2, plan risk 7). null/undefined → product-grain rows (today's
+  // behavior, and the PDP default until the shopper resolves the option pills).
+  variantId: MaybeRefOrGetter<number | null | undefined> = null,
 ) {
   const { apiFetch } = useApi()
   return useAsyncData(
     `storefront-product-${productId}-lowest30d-${toValue(currency)}`,
     () =>
       apiFetch<LowestPriceResponse>(`/api/v1/products/${productId}/lowest-30d`, {
-        query: { currency: toValue(currency) },
+        query: { currency: toValue(currency), variant_id: toValue(variantId) ?? undefined },
       }),
-    { watch: [() => toValue(currency)] },
+    { watch: [() => toValue(currency), () => toValue(variantId)] },
   )
 }
 

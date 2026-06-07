@@ -775,10 +775,16 @@ export interface paths {
         put?: never;
         /**
          * Create Order
-         * @description Create an order from posted line items (authenticated).
+         * @description Create an order from posted line items (authenticated or guest).
          *
          *     Validates availability and stock, snapshots product data, decrements stock,
          *     and computes pricing. Sets ``status=pending``.
+         *
+         *     Auth is **optional**: an anonymous caller must supply ``guest_email``
+         *     (+ optional ``locale``) — 422 otherwise — and is IP-rate-limited at
+         *     10/minute; the order gets a unique ``guest_token`` for account-less
+         *     tracking + payment start. An authenticated caller must NOT send
+         *     ``guest_email`` (422 — the account email is authoritative).
          */
         post: operations["create_order_api_v1_orders__post"];
         delete?: never;
@@ -807,6 +813,35 @@ export interface paths {
          *     the literal ``"export"`` as an integer ``order_id`` (which would 422).
          */
         get: operations["export_orders_api_v1_orders_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/track/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Track Guest Order
+         * @description Track a guest order by its opaque tracking token (public, no account).
+         *
+         *     The token (256-bit, from the order-confirmation email / checkout success
+         *     page) is the credential. Returns a trimmed view — status, items, totals,
+         *     shipping method + shipment tracking, city/country — never the full address,
+         *     payment ids, or refund detail. Unknown token → plain 404 (no enumeration
+         *     signal); rate-limited per IP against token scanning.
+         *
+         *     NOTE: declared *before* ``GET /{order_id}`` (route-ordering discipline,
+         *     like ``/export``).
+         */
+        get: operations["track_guest_order_api_v1_orders_track__token__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -962,8 +997,9 @@ export interface paths {
          *     200 with the computed discount when eligible; 400 with the failure reason
          *     (expired / inactive / min-order-not-met / currency-mismatch / usage-exhausted
          *     / per-user-exhausted / not-found) otherwise. No state is mutated —
-         *     ``used_count`` is bumped only at order create. The authenticated user is
-         *     passed through so the preview reflects the per-user cap.
+         *     ``used_count`` is bumped only at order create. An authenticated user is
+         *     passed through so the preview reflects the per-user cap; an anonymous
+         *     (guest-checkout) preview skips that one check.
          */
         post: operations["validate_coupon_api_v1_coupons_validate_post"];
         delete?: never;
@@ -1116,7 +1152,7 @@ export interface paths {
         put?: never;
         /**
          * Create Payu Checkout
-         * @description Create a PayU payment for the caller's pending order.
+         * @description Create a PayU payment for the caller's pending order (authed or guest).
          */
         post: operations["create_payu_checkout_api_v1_payments_payu_orders__order_id__post"];
         delete?: never;
@@ -1156,7 +1192,7 @@ export interface paths {
         put?: never;
         /**
          * Create Stripe Checkout
-         * @description Create a Stripe Checkout Session for the caller's pending order.
+         * @description Create a Stripe Checkout Session for the caller's pending order (authed or guest).
          */
         post: operations["create_stripe_checkout_api_v1_payments_stripe_checkout__order_id__post"];
         delete?: never;
@@ -1179,7 +1215,9 @@ export interface paths {
          *     Deliberately does NOT 503 when Stripe is unconfigured: the frontend reads
          *     ``configured`` to decide whether to mount the wallet widget at all, so a
          *     keyless dev/CI env hides it gracefully instead of showing a dead button.
-         *     The publishable key is a browser key by design — safe to return.
+         *     The publishable key is a browser key by design — safe to return. Public
+         *     (was authed) since guest checkout: a guest's payment-method picker needs
+         *     it to mount the wallet widget, and nothing here is caller-specific.
          */
         get: operations["stripe_config_api_v1_payments_stripe_config_get"];
         put?: never;
@@ -1203,9 +1241,10 @@ export interface paths {
          * Create Stripe Payment Intent
          * @description Create a Stripe PaymentIntent for the caller's pending order (wallets).
          *
-         *     Mirrors ``create_stripe_checkout`` but returns a ``client_secret`` the
-         *     browser confirms in-page via the Express Checkout Element, instead of a
-         *     hosted redirect URL. Settled server-side by the ``payment_intent.succeeded``
+         *     Mirrors ``create_stripe_checkout`` (including the optional-auth +
+         *     ``guest_token`` resolution) but returns a ``client_secret`` the browser
+         *     confirms in-page via the Express Checkout Element, instead of a hosted
+         *     redirect URL. Settled server-side by the ``payment_intent.succeeded``
          *     webhook.
          */
         post: operations["create_stripe_payment_intent_api_v1_payments_stripe_payment_intent__order_id__post"];
@@ -5514,6 +5553,69 @@ export interface components {
             /** Message */
             message: string;
         };
+        /**
+         * GuestOrderItem
+         * @description Trimmed line item for the public guest-tracking view (snapshots only —
+         *     no product/variant ids, nothing an enumeration could pivot on).
+         */
+        GuestOrderItem: {
+            /** Product Name */
+            product_name: string;
+            /** Variant Title */
+            variant_title?: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price: number;
+            /** Total Price */
+            total_price: number;
+        };
+        /**
+         * GuestOrderResponse
+         * @description Public account-less order-tracking view (``GET /orders/track/{token}``).
+         *
+         *     Deliberately trimmed: status, items, totals, shipping method name, shipment
+         *     tracking fields, and the shipping city/country — no full street address, no
+         *     payment ids, no refund detail, no user data. View only (no cancel — a
+         *     stock-mutating action on token-possession-only auth is too weak).
+         */
+        GuestOrderResponse: {
+            /** Order Number */
+            order_number: string;
+            status: components["schemas"]["OrderStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Items */
+            items?: components["schemas"]["GuestOrderItem"][];
+            /** Subtotal */
+            subtotal: number;
+            /**
+             * Discount
+             * @default 0
+             */
+            discount: number;
+            /** Shipping */
+            shipping: number;
+            /** Total */
+            total: number;
+            /** Currency */
+            currency: string;
+            /** Shipping Method Name */
+            shipping_method_name?: string | null;
+            /** Shipping Carrier */
+            shipping_carrier?: string | null;
+            /** Tracking Number */
+            tracking_number?: string | null;
+            /** Tracking Url */
+            tracking_url?: string | null;
+            /** Shipping City */
+            shipping_city: string;
+            /** Shipping Country */
+            shipping_country: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -5898,6 +6000,10 @@ export interface components {
             shipping_method_id: number;
             /** Coupon Code */
             coupon_code?: string | null;
+            /** Guest Email */
+            guest_email?: string | null;
+            /** Locale */
+            locale?: ("en" | "pl") | null;
         };
         /**
          * OrderItemCreate
@@ -6033,7 +6139,11 @@ export interface components {
             /** Notes */
             notes?: string | null;
             /** User Id */
-            user_id: number;
+            user_id?: number | null;
+            /** Guest Email */
+            guest_email?: string | null;
+            /** Guest Token */
+            guest_token?: string | null;
             /** Order Number */
             order_number: string;
             status: components["schemas"]["OrderStatus"];
@@ -6107,7 +6217,7 @@ export interface components {
         };
         /**
          * OrderWithUser
-         * @description Order response with user details
+         * @description Order response with user details (``user`` is null on guest orders)
          */
         OrderWithUser: {
             /** Id */
@@ -6133,7 +6243,11 @@ export interface components {
             /** Notes */
             notes?: string | null;
             /** User Id */
-            user_id: number;
+            user_id?: number | null;
+            /** Guest Email */
+            guest_email?: string | null;
+            /** Guest Token */
+            guest_token?: string | null;
             /** Order Number */
             order_number: string;
             status: components["schemas"]["OrderStatus"];
@@ -6172,7 +6286,7 @@ export interface components {
             items?: components["schemas"]["OrderItemResponse"][];
             /** Refunds */
             refunds?: components["schemas"]["RefundResponse"][];
-            user: components["schemas"]["UserResponse"];
+            user?: components["schemas"]["UserResponse"] | null;
         };
         /**
          * PageCreate
@@ -10509,7 +10623,9 @@ export interface operations {
     create_order_api_v1_orders__post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -10563,6 +10679,37 @@ export interface operations {
                 content: {
                     "application/json": unknown;
                     "text/csv": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    track_guest_order_api_v1_orders_track__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuestOrderResponse"];
                 };
             };
             /** @description Validation Error */
@@ -10777,7 +10924,9 @@ export interface operations {
     validate_coupon_api_v1_coupons_validate_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -11002,8 +11151,12 @@ export interface operations {
     };
     create_payu_checkout_api_v1_payments_payu_orders__order_id__post: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: {
+                guest_token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 order_id: number;
             };
@@ -11053,8 +11206,12 @@ export interface operations {
     };
     create_stripe_checkout_api_v1_payments_stripe_checkout__order_id__post: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: {
+                guest_token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 order_id: number;
             };
@@ -11104,8 +11261,12 @@ export interface operations {
     };
     create_stripe_payment_intent_api_v1_payments_stripe_payment_intent__order_id__post: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: {
+                guest_token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 order_id: number;
             };

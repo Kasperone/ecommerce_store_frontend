@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CartItem } from '~/stores/cart'
+import { localizedCartVariantTitle } from '#shared/utils/localizedProduct'
 import { formatMoney, selectPrice } from '#shared/utils/money'
 
 const props = defineProps<{ item: CartItem }>()
@@ -12,6 +13,11 @@ const cart = useCartStore()
 const { currency } = useCurrencyPreference()
 
 const to = computed(() => localePath(`/products/${props.item.slug}`))
+// Variant lines show their localized title ("Red / XL") under the name.
+const variantLabel = computed(() => localizedCartVariantTitle(props.item, locale.value))
+// Line identity is the (productId, variantId) pair — old persisted lines have
+// no variantId key, normalized to null.
+const variantId = computed(() => props.item.variantId ?? null)
 // Backorder lines have no stock ceiling, so the "+" stepper never caps.
 const atMax = computed(() => !props.item.allowBackorder && props.item.quantity >= props.item.stock)
 
@@ -57,6 +63,13 @@ const lineTotal = computed(() => {
       >
         {{ item.name }}
       </NuxtLink>
+      <p
+        v-if="variantLabel"
+        class="text-xs text-muted"
+        data-testid="line-variant-title"
+      >
+        {{ variantLabel }}
+      </p>
       <ShopPriceDisplay
         :product="item"
         size="sm"
@@ -70,7 +83,7 @@ const lineTotal = computed(() => {
             size="xs"
             icon="i-lucide-minus"
             :aria-label="t('cart.item.decrease')"
-            @click="cart.setQuantity(item.productId, item.quantity - 1)"
+            @click="cart.setQuantity(item.productId, variantId, item.quantity - 1)"
           />
           <span class="min-w-8 text-center text-sm">{{ item.quantity }}</span>
           <UButton
@@ -80,7 +93,7 @@ const lineTotal = computed(() => {
             icon="i-lucide-plus"
             :disabled="atMax"
             :aria-label="t('cart.item.increase')"
-            @click="cart.setQuantity(item.productId, item.quantity + 1)"
+            @click="cart.setQuantity(item.productId, variantId, item.quantity + 1)"
           />
         </div>
         <span
@@ -96,7 +109,7 @@ const lineTotal = computed(() => {
       size="xs"
       icon="i-lucide-trash-2"
       :aria-label="t('cart.actions.remove')"
-      @click="cart.remove(item.productId)"
+      @click="cart.remove(item.productId, variantId)"
     />
   </div>
 </template>

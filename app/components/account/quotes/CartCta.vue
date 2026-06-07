@@ -31,6 +31,9 @@ async function onRequest() {
       currency: currency.value,
       items: cart.items.map(item => ({
         product_id: item.productId,
+        // Variant lines (F2): the server requires the variant on variant
+        // products (mirrors order create) and re-prices from it.
+        variant_id: item.variantId ?? undefined,
         quantity: item.quantity,
       })),
     })

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { ProductVariantPublic } from '#shared/types/api'
 import { localizedCategoryName } from '#shared/utils/categoryTree'
 import {
   localizedProductDescription,
@@ -62,18 +63,38 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
+// ---------------------------------------------------------------------------
+// Variants (F2). The selector resolves the shopper's option picks into a
+// variant; until then `selectedVariant` is null and the aggregate product
+// numbers (stock = sum across variants, base "from" price) drive the page.
+// ---------------------------------------------------------------------------
+const selectedVariant = ref<ProductVariantPublic | null>(null)
+const variants = computed(() => product.value?.variants ?? [])
+const hasVariants = computed(
+  () => product.value?.has_variants === true && variants.value.length > 0,
+)
+
+// Stock grain follows the selection: the variant's stock when one is resolved,
+// else the product's (the maintained sum for variant products).
+const effectiveStock = computed(() =>
+  selectedVariant.value ? selectedVariant.value.stock : product.value?.stock ?? 0,
+)
+
 // A backorderable product at zero stock is "on backorder", not "out of stock".
 const backorder = computed(
-  () => (product.value?.stock ?? 0) <= 0 && product.value?.allow_backorder === true,
+  () => effectiveStock.value <= 0 && product.value?.allow_backorder === true,
 )
 const outOfStock = computed(
-  () => (product.value?.stock ?? 0) <= 0 && !backorder.value,
+  () => effectiveStock.value <= 0 && !backorder.value,
 )
 const lowStock = computed(() => {
   const p = product.value
-  if (!p || p.stock <= 0 || p.low_stock_threshold == null) return false
-  return p.stock <= p.low_stock_threshold
+  if (!p || effectiveStock.value <= 0 || p.low_stock_threshold == null) return false
+  return effectiveStock.value <= p.low_stock_threshold
 })
+
+// Variant SKU wins once resolved; falls back to the product SKU.
+const displaySku = computed(() => selectedVariant.value?.sku ?? product.value?.sku ?? null)
 
 const category = computed(() => product.value?.category ?? null)
 const categoryTo = computed(() =>
@@ -126,6 +147,44 @@ const CONDITION_SCHEMA: Record<string, string> = {
 
 const reviewSummary = computed(() => reviews.value?.summary ?? null)
 
+// Variant products emit an AggregateOffer (lowPrice/highPrice across the
+// ACTIVE variants' effective prices in the URL locale's currency — D4 applies
+// unchanged) instead of the single Offer. Availability mirrors the visible
+// badge: product.stock is the maintained sum, so "any variant in stock" ⟺
+// `schemaAvailability` at SSR time (no variant selected yet).
+const variantOfferPrices = computed(() => {
+  const code = defaultCurrencyForLocale(locale.value)
+  return variants.value
+    .map(variant => selectPrice(variant, code))
+    .filter((picked): picked is NonNullable<typeof picked> => picked != null)
+})
+
+const offerUrl = () => `${siteUrl}${localePath(`/products/${slug}`)}`
+
+const schemaOffers
+  = hasVariants.value && variantOfferPrices.value.length > 0
+    ? [
+        defineAggregateOffer({
+          lowPrice: () => Math.min(...variantOfferPrices.value.map(p => p.amount)),
+          highPrice: () => Math.max(...variantOfferPrices.value.map(p => p.amount)),
+          priceCurrency: () => variantOfferPrices.value[0]!.currency,
+          offerCount: () => variantOfferPrices.value.length,
+          availability: () => schemaAvailability.value,
+          url: offerUrl,
+        }),
+      ]
+    : [{
+        price: () => schemaPrice.value?.amount,
+        priceCurrency: () => schemaPrice.value?.currency,
+        availability: () => schemaAvailability.value,
+        itemCondition: () =>
+          CONDITION_SCHEMA[product.value?.condition ?? 'new'] ?? CONDITION_SCHEMA.new,
+        // The module doesn't absolutize Offer.url (verified) — build it from the
+        // canonical site origin + the LOCALE path: each locale page is its own
+        // offer URL (EN/USD vs /pl/PLN — distinct URL per currency, D4).
+        url: offerUrl,
+      }]
+
 useSchemaOrg([
   defineProduct({
     name: () => displayName.value,
@@ -136,17 +195,7 @@ useSchemaOrg([
     brand: () => (product.value?.brand ? { name: product.value.brand } : undefined),
     gtin: () => product.value?.gtin ?? undefined,
     mpn: () => product.value?.mpn ?? undefined,
-    offers: [{
-      price: () => schemaPrice.value?.amount,
-      priceCurrency: () => schemaPrice.value?.currency,
-      availability: () => schemaAvailability.value,
-      itemCondition: () =>
-        CONDITION_SCHEMA[product.value?.condition ?? 'new'] ?? CONDITION_SCHEMA.new,
-      // The module doesn't absolutize Offer.url (verified) — build it from the
-      // canonical site origin + the LOCALE path: each locale page is its own
-      // offer URL (EN/USD vs /pl/PLN — distinct URL per currency, D4).
-      url: () => `${siteUrl}${localePath(`/products/${slug}`)}`,
-    }],
+    offers: schemaOffers,
     // Real first-party PDP reviews ARE eligible for review stars (the
     // self-serving ban only hits Organization/LocalBusiness). Only emitted
     // when reviews exist — markup must match the visible review section.
@@ -211,6 +260,7 @@ useSchemaOrg([
         <ShopProductGallery
           :images="product.images"
           :name="displayName"
+          :active-image-id="selectedVariant?.image_id ?? null"
         />
 
         <div class="flex flex-col gap-4">
@@ -221,10 +271,23 @@ useSchemaOrg([
           <div>
             <ShopPriceDisplay
               :product="product"
+              :variant="selectedVariant"
               size="lg"
             />
-            <ShopOmnibusPrice :product="product" />
+            <ShopOmnibusPrice
+              :product="product"
+              :variant="selectedVariant"
+              :variant-id="selectedVariant?.id ?? null"
+            />
           </div>
+
+          <ShopVariantSelector
+            v-if="hasVariants"
+            v-model="selectedVariant"
+            :options="product.options ?? []"
+            :variants="variants"
+            :allow-backorder="product.allow_backorder"
+          />
 
           <div class="flex flex-wrap items-center gap-2">
             <UBadge
@@ -246,7 +309,7 @@ useSchemaOrg([
               color="warning"
               variant="subtle"
             >
-              {{ t('stock.lowStock', { count: product.stock }) }}
+              {{ t('stock.lowStock', { count: effectiveStock }) }}
             </UBadge>
             <UBadge
               v-else
@@ -256,14 +319,15 @@ useSchemaOrg([
               {{ t('stock.inStock') }}
             </UBadge>
             <span
-              v-if="product.sku"
+              v-if="displaySku"
               class="text-sm text-muted"
-            >{{ t('details.sku') }}: {{ product.sku }}</span>
+            >{{ t('details.sku') }}: {{ displaySku }}</span>
           </div>
 
           <div class="max-w-md">
             <ShopAddToCartButton
               :product="product"
+              :variant="selectedVariant"
               block
             />
           </div>

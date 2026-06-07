@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { localizedCartVariantTitle } from '#shared/utils/localizedProduct'
 import { formatMoney, selectPrice } from '#shared/utils/money'
 import type { ShippingInput } from '#shared/validators/checkout'
 import type { OrderResponse } from '#shared/types/api'
@@ -125,8 +126,10 @@ const summaryLines = computed(() =>
   cart.items.map((item) => {
     const picked = selectPrice(item, currency.value)
     return {
-      productId: item.productId,
+      // Line identity is the (productId, variantId) pair (variants F2).
+      key: `${item.productId}:${item.variantId ?? ''}`,
       name: item.name,
+      variantTitle: localizedCartVariantTitle(item, locale.value),
       quantity: item.quantity,
       lineTotal: picked ? formatMoney(picked.amount * item.quantity, picked.currency, locale.value) : '—',
     }
@@ -161,7 +164,11 @@ async function placeOrder(shipping: ShippingInput) {
       notes: shipping.notes?.trim() || undefined,
       currency: currency.value,
       coupon_code: appliedCoupon.value?.code,
-      items: cart.items.map(item => ({ product_id: item.productId, quantity: item.quantity })),
+      items: cart.items.map(item => ({
+        product_id: item.productId,
+        variant_id: item.variantId ?? undefined,
+        quantity: item.quantity,
+      })),
     })
     lastOrder.value = order
     cart.clear()
@@ -251,10 +258,17 @@ async function placeOrder(shipping: ShippingInput) {
             <ul class="divide-y divide-gray-100 dark:divide-gray-800">
               <li
                 v-for="line in summaryLines"
-                :key="line.productId"
+                :key="line.key"
                 class="flex items-start justify-between gap-2 py-2 text-sm"
               >
-                <span class="text-muted">{{ line.name }} × {{ line.quantity }}</span>
+                <span class="text-muted">
+                  {{ line.name }} × {{ line.quantity }}
+                  <span
+                    v-if="line.variantTitle"
+                    class="block text-xs"
+                    data-testid="summary-variant-title"
+                  >{{ line.variantTitle }}</span>
+                </span>
                 <span class="font-medium">{{ line.lineTotal }}</span>
               </li>
             </ul>

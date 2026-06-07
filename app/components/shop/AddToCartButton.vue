@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ProductResponse, ProductWithCategory } from '#shared/types/api'
+import type { ProductResponse, ProductVariantPublic, ProductWithCategory } from '#shared/types/api'
 
 const props = defineProps<{
   product: ProductResponse | ProductWithCategory
+  /**
+   * Resolved variant (variants F2). A variant product without one (option
+   * pills not fully selected — or a product card, which never resolves one)
+   * disables the button with a "Select options" label so a product-grain
+   * line can never reach the cart (the backend 422s it at order create).
+   */
+  variant?: ProductVariantPublic | null
   block?: boolean
 }>()
 
@@ -12,15 +19,22 @@ const { t } = useI18n()
 const cart = useCartStore()
 const auth = useAuthStore()
 
+const needsSelection = computed(() => props.product.has_variants === true && !props.variant)
+// Stock grain follows the line: the variant's stock when one is resolved.
+const stock = computed(() => (props.variant ? props.variant.stock : props.product.stock))
 // Out of stock blocks the button only when backorder isn't allowed.
-const outOfStock = computed(() => props.product.stock <= 0 && !props.product.allow_backorder)
-const isBackorder = computed(() => props.product.stock <= 0 && props.product.allow_backorder)
+const outOfStock = computed(
+  () => !needsSelection.value && stock.value <= 0 && !props.product.allow_backorder,
+)
+const isBackorder = computed(
+  () => !needsSelection.value && stock.value <= 0 && props.product.allow_backorder,
+)
 // Impersonation is view-only — don't let an admin build the customer's cart.
-const disabled = computed(() => outOfStock.value || auth.isImpersonating)
+const disabled = computed(() => needsSelection.value || outOfStock.value || auth.isImpersonating)
 
 function addToCart() {
-  if (auth.isImpersonating) return
-  cart.add(props.product)
+  if (auth.isImpersonating || needsSelection.value) return
+  cart.add(props.product, 1, props.variant ?? null)
   cart.openDrawer()
 }
 </script>
@@ -34,7 +48,10 @@ function addToCart() {
     :title="auth.isImpersonating ? t('impersonation.writeBlocked') : undefined"
     @click="addToCart"
   >
-    <template v-if="outOfStock">
+    <template v-if="needsSelection">
+      {{ t('variants.selectOptions') }}
+    </template>
+    <template v-else-if="outOfStock">
       {{ t('stock.outOfStock') }}
     </template>
     <template v-else-if="isBackorder">

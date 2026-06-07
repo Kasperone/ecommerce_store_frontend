@@ -104,6 +104,12 @@
       }
     }
   },
+  "price": {
+    "from": "Od {price}"
+  },
+  "variants": {
+    "selectOptions": "Wybierz opcje"
+  },
   "currency": {
     "label": "Waluta",
     "select": "Wybierz walutę"
