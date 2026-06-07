@@ -1059,7 +1059,14 @@
         "paymentMethod": "Payment method",
         "paymentPlaceholder": "e.g. stripe, payu",
         "internalNotes": "Internal notes",
-        "discount": "Discount"
+        "discount": "Discount",
+        "trackingSection": "Shipment tracking",
+        "shippingCarrier": "Carrier",
+        "carrierPlaceholder": "e.g. DHL, InPost, UPS",
+        "trackingNumber": "Tracking number",
+        "trackingNumberPlaceholder": "e.g. 1Z999AA10123456784",
+        "trackingUrl": "Tracking URL",
+        "trackingUrlPlaceholder": "https://…"
       },
       "cancel": {
         "title": "Cancel order",

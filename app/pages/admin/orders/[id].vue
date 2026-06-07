@@ -27,6 +27,9 @@ const refundMutation = useIssueRefund()
 const statusModel = ref<OrderStatus | undefined>()
 const notesModel = ref('')
 const paymentModel = ref('')
+const carrierModel = ref('')
+const trackingNumberModel = ref('')
+const trackingUrlModel = ref('')
 const cancelOpen = ref(false)
 const refundOpen = ref(false)
 // Raw caught error — OrderRefundDialog drives the gold-standard flow internally.
@@ -61,7 +64,24 @@ watch(order, (o) => {
   statusModel.value = o.status
   notesModel.value = o.notes ?? ''
   paymentModel.value = o.payment_method ?? ''
+  carrierModel.value = o.shipping_carrier ?? ''
+  trackingNumberModel.value = o.tracking_number ?? ''
+  trackingUrlModel.value = o.tracking_url ?? ''
 }, { immediate: true })
+
+// Tracking inputs surface when transitioning to shipped (or already shipped/
+// delivered), or when the order carries tracking data that may need editing
+// (e.g. a later refund moved the status past delivered). All three fields are
+// optional; clearing one sends null (the backend also normalizes "" → null).
+const showTracking = computed(() =>
+  statusModel.value === 'shipped'
+  || statusModel.value === 'delivered'
+  || Boolean(
+    order.value?.shipping_carrier
+    || order.value?.tracking_number
+    || order.value?.tracking_url,
+  ),
+)
 
 // Forward-transition targets plus the current status (so the dropdown can
 // "stay put" while editing notes/payment only).
@@ -92,6 +112,13 @@ async function onSave() {
     status: statusModel.value,
     notes: notesModel.value.trim() || null,
     payment_method: paymentModel.value.trim() || null,
+    ...(showTracking.value
+      ? {
+          shipping_carrier: carrierModel.value.trim() || null,
+          tracking_number: trackingNumberModel.value.trim() || null,
+          tracking_url: trackingUrlModel.value.trim() || null,
+        }
+      : {}),
   }
   try {
     await updateMutation.mutateAsync({ id: order.value.id, patch })
@@ -226,6 +253,12 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
           </UCard>
         </div>
 
+        <OrdersTrackingSection
+          :shipping-carrier="order.shipping_carrier"
+          :tracking-number="order.tracking_number"
+          :tracking-url="order.tracking_url"
+        />
+
         <!-- Items -->
         <UCard>
           <template #header>
@@ -347,6 +380,43 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
                 class="w-full"
               />
             </UFormField>
+
+            <template v-if="showTracking">
+              <h3 class="font-medium text-sm border-t border-default pt-4">
+                {{ $t('admin.orders.detail.trackingSection') }}
+              </h3>
+
+              <UFormField :label="$t('admin.orders.detail.shippingCarrier')">
+                <UInput
+                  v-model="carrierModel"
+                  maxlength="100"
+                  :placeholder="$t('admin.orders.detail.carrierPlaceholder')"
+                  class="w-60"
+                  data-testid="tracking-carrier-input"
+                />
+              </UFormField>
+
+              <UFormField :label="$t('admin.orders.detail.trackingNumber')">
+                <UInput
+                  v-model="trackingNumberModel"
+                  maxlength="100"
+                  :placeholder="$t('admin.orders.detail.trackingNumberPlaceholder')"
+                  class="w-60"
+                  data-testid="tracking-number-input"
+                />
+              </UFormField>
+
+              <UFormField :label="$t('admin.orders.detail.trackingUrl')">
+                <UInput
+                  v-model="trackingUrlModel"
+                  type="url"
+                  maxlength="500"
+                  :placeholder="$t('admin.orders.detail.trackingUrlPlaceholder')"
+                  class="w-full"
+                  data-testid="tracking-url-input"
+                />
+              </UFormField>
+            </template>
           </div>
 
           <template #footer>

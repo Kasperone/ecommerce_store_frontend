@@ -124,6 +124,12 @@
       "notes": "Uwagi",
       "discount": "Rabat"
     },
+    "tracking": {
+      "title": "Przesyłka",
+      "carrier": "Przewoźnik",
+      "number": "Numer śledzenia",
+      "track": "Śledź przesyłkę"
+    },
     "status": {
       "pending": "Oczekujące",
       "paid": "Opłacone",
