@@ -55,7 +55,7 @@ const subtotal = computed(() => {
           <div class="divide-y divide-gray-100 lg:col-span-2 dark:divide-gray-800">
             <CartLineItem
               v-for="item in cart.items"
-              :key="item.productId"
+              :key="`${item.productId}:${item.variantId ?? ''}`"
               :item="item"
             />
           </div>

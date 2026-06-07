@@ -277,6 +277,13 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
                   {{ item.product_name }}
                 </div>
                 <div
+                  v-if="item.variant_title"
+                  class="text-xs text-muted"
+                  data-testid="order-item-variant"
+                >
+                  {{ item.variant_title }}
+                </div>
+                <div
                   v-if="item.product_sku"
                   class="text-xs text-muted font-mono"
                 >

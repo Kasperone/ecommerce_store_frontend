@@ -44,9 +44,9 @@ describe('CartLineItem', () => {
   it('increments and decrements quantity through the store', async () => {
     const wrapper = await mountSuspended(LineItem, { props: { item: item({ quantity: 2 }) } })
     await wrapper.find('button[aria-label="Increase quantity"]').trigger('click')
-    expect(setQuantity).toHaveBeenCalledWith(1, 3)
+    expect(setQuantity).toHaveBeenCalledWith(1, null, 3)
     await wrapper.find('button[aria-label="Decrease quantity"]').trigger('click')
-    expect(setQuantity).toHaveBeenCalledWith(1, 1)
+    expect(setQuantity).toHaveBeenCalledWith(1, null, 1)
   })
 
   it('caps the increase button at stock for a normal line', async () => {
@@ -68,7 +68,23 @@ describe('CartLineItem', () => {
   it('removes the line through the store', async () => {
     const wrapper = await mountSuspended(LineItem, { props: { item: item() } })
     await wrapper.find('button[aria-label="Remove"]').trigger('click')
-    expect(remove).toHaveBeenCalledWith(1)
+    expect(remove).toHaveBeenCalledWith(1, null)
+  })
+
+  it('shows the variant title under the name and routes mutations to the variant line', async () => {
+    const wrapper = await mountSuspended(LineItem, {
+      props: { item: item({ variantId: 11, variantTitle: 'Red / XL', quantity: 2 }) },
+    })
+    expect(wrapper.find('[data-testid="line-variant-title"]').text()).toBe('Red / XL')
+    await wrapper.find('button[aria-label="Increase quantity"]').trigger('click')
+    expect(setQuantity).toHaveBeenCalledWith(1, 11, 3)
+    await wrapper.find('button[aria-label="Remove"]').trigger('click')
+    expect(remove).toHaveBeenCalledWith(1, 11)
+  })
+
+  it('renders no variant row for a variantless line', async () => {
+    const wrapper = await mountSuspended(LineItem, { props: { item: item() } })
+    expect(wrapper.find('[data-testid="line-variant-title"]').exists()).toBe(false)
   })
 
   it('is axe-clean', async () => {

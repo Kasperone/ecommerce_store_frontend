@@ -65,6 +65,13 @@ describe('CartDrawer', () => {
     expect(document.body.textContent).toContain('Proceed to checkout')
   })
 
+  it('shows the variant title on variant lines (variants F2)', async () => {
+    state.items = [{ ...line(), variantId: 11, variantTitle: 'Red / XL', variantTitlePl: null }]
+    state.isEmpty = false
+    await mountSuspended(Drawer)
+    expect(document.body.textContent).toContain('Red / XL')
+  })
+
   it('is axe-clean when open with items', async () => {
     state.items = [line()]
     state.isEmpty = false

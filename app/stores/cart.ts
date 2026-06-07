@@ -1,6 +1,6 @@
 import { defineStore, skipHydrate } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import type { ProductResponse, ProductWithCategory } from '#shared/types/api'
+import type { ProductResponse, ProductVariantPublic, ProductWithCategory } from '#shared/types/api'
 
 /**
  * Client-side shopping cart (Phase 2).
@@ -10,6 +10,12 @@ import type { ProductResponse, ProductWithCategory } from '#shared/types/api'
  * any selected currency (see `useCurrencyPreference` + `shared/utils/money.ts`)
  * without re-fetching, and quantities can be clamped to available stock.
  *
+ * Line identity is the `(productId, variantId)` pair (variants F2): the same
+ * product in two variants is two lines, while a variantless product keeps
+ * `variantId: null`. Old persisted carts predate `variantId` — predicates
+ * compare with `?? null` so a missing key and an explicit null are the same
+ * line (no duplicate lines after upgrade).
+ *
  * State is persisted to `localStorage` on the client only; the cart is
  * client-only state, so its UI (header badge, drawer, /cart page) must render
  * client-side to avoid SSR hydration mismatches. Order creation happens at
@@ -18,6 +24,13 @@ import type { ProductResponse, ProductWithCategory } from '#shared/types/api'
 
 export interface CartItem {
   productId: number
+  // null for variantless products; also absent on pre-variants persisted carts
+  // (treated as null everywhere via `?? null`).
+  variantId?: number | null
+  // Denormalized variant title snapshots ("Red / XL") for locale-aware display
+  // in the drawer / cart page / checkout summary.
+  variantTitle?: string | null
+  variantTitlePl?: string | null
   slug: string
   name: string
   imageUrl: string | null
@@ -74,28 +87,44 @@ export const useCartStore = defineStore('cart', () => {
     return (images.find(image => image.is_primary) ?? images[0])?.url ?? null
   }
 
-  function remove(productId: number) {
-    items.value = items.value.filter(item => item.productId !== productId)
+  // Line identity is the (productId, variantId) pair. `?? null` on BOTH sides:
+  // old persisted carts have no `variantId` key, and a variantless add passes
+  // null/undefined — they must match the same line (risk 4 back-compat).
+  function lineMatches(item: CartItem, productId: number, variantId?: number | null): boolean {
+    return item.productId === productId && (item.variantId ?? null) === (variantId ?? null)
   }
 
-  function add(product: AddableProduct, quantity = 1) {
-    // Out of stock blocks adding only when backorder isn't allowed.
-    if (product.stock <= 0 && !product.allow_backorder) return
-    const existing = items.value.find(item => item.productId === product.id)
+  function remove(productId: number, variantId: number | null = null) {
+    items.value = items.value.filter(item => !lineMatches(item, productId, variantId))
+  }
+
+  function add(product: AddableProduct, quantity = 1, variant: ProductVariantPublic | null = null) {
+    // Per-line stock grain: the variant's stock when present, else the product's.
+    const stock = variant ? variant.stock : product.stock
+    // Out of stock blocks adding only when backorder isn't allowed (backorder
+    // stays product-level even for variant products).
+    if (stock <= 0 && !product.allow_backorder) return
+    const existing = items.value.find(item => lineMatches(item, product.id, variant?.id))
     if (existing) {
       const next = existing.quantity + quantity
-      existing.quantity = product.allow_backorder ? next : Math.min(next, product.stock)
+      existing.quantity = product.allow_backorder ? next : Math.min(next, stock)
       return
     }
     items.value.push({
       productId: product.id,
+      variantId: variant?.id ?? null,
+      variantTitle: variant?.title ?? null,
+      variantTitlePl: variant?.title_pl ?? null,
       slug: product.slug,
       name: product.name,
-      imageUrl: primaryImageUrl(product),
-      price_usd: product.price_usd,
-      price_pln: product.price_pln,
-      price_eur: product.price_eur,
-      stock: product.stock,
+      // A variant with its own gallery image shows that image on the line.
+      imageUrl: variant?.image_url ?? primaryImageUrl(product),
+      // Variant prices are the EFFECTIVE per-currency values (inheritance
+      // already resolved by the backend) — see ProductVariantPublic.
+      price_usd: variant ? variant.price_usd ?? null : product.price_usd,
+      price_pln: variant ? variant.price_pln ?? null : product.price_pln,
+      price_eur: variant ? variant.price_eur ?? null : product.price_eur,
+      stock,
       allowBackorder: product.allow_backorder,
       weightKg: product.weight_kg ?? null,
       lengthCm: product.length_cm ?? null,
@@ -103,15 +132,15 @@ export const useCartStore = defineStore('cart', () => {
       heightCm: product.height_cm ?? null,
       quantity: product.allow_backorder
         ? Math.max(quantity, 1)
-        : Math.min(Math.max(quantity, 1), product.stock),
+        : Math.min(Math.max(quantity, 1), stock),
     })
   }
 
-  function setQuantity(productId: number, quantity: number) {
-    const item = items.value.find(item => item.productId === productId)
+  function setQuantity(productId: number, variantId: number | null, quantity: number) {
+    const item = items.value.find(item => lineMatches(item, productId, variantId))
     if (!item) return
     if (quantity <= 0) {
-      remove(productId)
+      remove(productId, variantId)
       return
     }
     // Backorder lines aren't clamped to stock; everything else is.

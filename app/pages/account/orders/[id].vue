@@ -36,6 +36,7 @@ async function onReorder() {
   await reorder(
     order.value.items.map(item => ({
       product_id: item.product_id,
+      variant_id: item.variant_id ?? null,
       quantity: item.quantity,
       product_name: item.product_name,
     })),
@@ -177,6 +178,13 @@ useHead({
               <div>
                 <p class="font-medium">
                   {{ item.product_name }}
+                </p>
+                <p
+                  v-if="item.variant_title"
+                  class="text-xs text-muted"
+                  data-testid="order-item-variant"
+                >
+                  {{ item.variant_title }}
                 </p>
                 <p class="text-xs text-muted">
                   {{ item.quantity }} ×
