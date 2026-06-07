@@ -28,11 +28,21 @@ const uiLocale = computed(() => {
 const lang = computed(() => uiLocale.value?.code ?? locale.value)
 const dir = computed(() => uiLocale.value?.dir ?? 'ltr')
 
-useHead({
-  titleTemplate: title => (title ? `${title} | ${brandName.value}` : brandName.value),
+// i18n SEO head (manual wiring — v10 applies nothing automatically): emits the
+// self-referencing canonical, hreflang alternates (en-US / pl-PL / x-default →
+// the unprefixed EN page), and og:locale(:alternate) on every page. Canonicals
+// keep ONLY `?page` so paginated pages stay self-canonical while filter/sort/
+// tracking params are stripped (SEO blueprint D3). Absolute URLs come from
+// i18n.baseUrl in nuxt.config.ts.
+const i18nHead = useLocaleHead({ seo: { canonicalQueries: ['page'] } })
+
+useHead(() => ({
+  titleTemplate: (title?: string) => (title ? `${title} | ${brandName.value}` : brandName.value),
   htmlAttrs: {
-    lang,
-    dir,
+    lang: lang.value,
+    dir: dir.value,
   },
-})
+  link: [...(i18nHead.value.link ?? [])],
+  meta: [...(i18nHead.value.meta ?? [])],
+}))
 </script>

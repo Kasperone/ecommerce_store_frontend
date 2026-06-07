@@ -5,12 +5,15 @@ const { resolve } = createResolver(import.meta.url)
 
 export default defineNuxtConfig({
 
+  // ORDER MATTERS: @nuxtjs/i18n MUST come before @nuxtjs/seo — nuxt-site-config
+  // reads i18n's baseUrl/locales at module setup (nuxtseo.com/docs/site-config/guides/i18n).
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',
     '@nuxt/ui',
     '@pinia/nuxt',
     '@nuxtjs/i18n',
+    '@nuxtjs/seo',
   ],
 
   // Components configuration
@@ -48,6 +51,17 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/css/main.css'],
 
+  // nuxt-site-config (consumed by every Nuxt SEO module). `url` + `name` are
+  // REQUIRED (site-config v4 removed implicit inference) — without `url` no
+  // absolute canonical/hreflang/sitemap/og URLs can be generated. Both are
+  // env-overridable per environment (NUXT_PUBLIC_SITE_URL / NUXT_SITE_NAME);
+  // the production domain is TBD at deploy. NUXT_SITE_ENV != 'production'
+  // auto-serves a disallow-all robots.txt + global noindex (staging safety).
+  site: {
+    url: 'https://store.example.com',
+    name: 'E-commerce Store',
+  },
+
   // Runtime config for API base URL.
   // Empty default → useApi() calls relative URLs that traverse the proxy above.
   // The proxy still reads NUXT_PUBLIC_API_BASE at startup for the upstream target.
@@ -82,11 +96,14 @@ export default defineNuxtConfig({
     '/api/v1/**': {
       proxy: `${process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000'}/api/v1/**`,
     },
-    // CMS marketing-page caching (research §6.5). The homepage is SSR +
-    // SEO-critical but rarely changes, so it's served via ISR (incremental
-    // static regeneration) with a 1-hour revalidate window — the first request
-    // after expiry re-renders, the rest hit cache. Both the default-locale `/`
-    // and the Polish `/pl` homepage are covered.
+    // NO response caching on the homepage (or any cookie/auth-aware SSR route).
+    // The previous `isr: 3600` rules were removed (SEO blueprint D8): Nitro's
+    // cached handlers key on path+query only — request headers are dropped and
+    // the FIRST response's headers (incl. `Set-Cookie: i18n_redirected/currency`
+    // and any auth-aware header chrome in the HTML) would be cached and replayed
+    // to every user for an hour. Verified live: `/` emits two Set-Cookie headers.
+    // Same reasoning as the existing note below about not ISR-caching the CMS
+    // catch-all: revisit only once SSR output is cookie-independent.
     //
     // NOTE: the catch-all CMS route ([...slug].vue) lives at the URL ROOT, so we
     // deliberately do NOT add a blanket `'/**': { isr }` rule — that would also
@@ -94,13 +111,36 @@ export default defineNuxtConfig({
     // leak one user's rendered HTML to the next. CMS catch-all pages are served
     // SSR (fast + fully SEO-indexable); per-page ISR can be added once pages
     // carry a distinguishing prefix or a render-time cache tag (§6.5 purge).
-    '/': { isr: 3600 },
-    '/pl': { isr: 3600 },
     // Draft preview routes must always reflect the latest unpublished layout, so
     // they are NEVER cached (research §6.2/§6.5). Covers the documented preview
     // path shapes; the admin editor itself is auth-gated and uncached by default.
     '/preview/**': { isr: false, robots: false },
     '/pl/preview/**': { isr: false, robots: false },
+    // Noindex for authed/transactional/thin sections (SEO blueprint D5).
+    // `robots: false` emits an X-Robots-Tag header (SSR) + <meta name="robots">
+    // — index control on top of the crawl control in `robots.groups` below
+    // (robots.txt alone doesn't deindex). Localized /pl twins are separate paths.
+    '/admin/**': { robots: false },
+    '/account/**': { robots: false },
+    '/pl/account/**': { robots: false },
+    '/cart': { robots: false },
+    '/pl/cart': { robots: false },
+    '/checkout': { robots: false },
+    '/checkout/**': { robots: false },
+    '/pl/checkout': { robots: false },
+    '/pl/checkout/**': { robots: false },
+    '/search': { robots: false },
+    '/pl/search': { robots: false },
+    '/login': { robots: false },
+    '/pl/login': { robots: false },
+    '/sign-up': { robots: false },
+    '/pl/sign-up': { robots: false },
+    '/password-recovery': { robots: false },
+    '/pl/password-recovery': { robots: false },
+    '/password-reset/**': { robots: false },
+    '/pl/password-reset/**': { robots: false },
+    '/verify-email/**': { robots: false },
+    '/pl/verify-email/**': { robots: false },
   },
   compatibilityDate: '2025-07-15',
 
@@ -126,16 +166,20 @@ export default defineNuxtConfig({
 
   // i18n Configuration
   i18n: {
+    // REQUIRED for fully-qualified hreflang/canonical alternates emitted by
+    // useLocaleHead (i18n.nuxtjs.org/docs/guide/seo). Must match site.url;
+    // env-overridable via NUXT_PUBLIC_I18N_BASE_URL at deploy.
+    baseUrl: 'https://store.example.com',
     locales: [
       {
         code: 'en',
-        iso: 'en-US',
+        language: 'en-US',
         name: 'English',
         files: ['en/common.json', 'en/home.json', 'en/product.json', 'en/cart.json', 'en/legal.json', 'en/cookies.json', 'en/blocks.json'],
       },
       {
         code: 'pl',
-        iso: 'pl-PL',
+        language: 'pl-PL',
         name: 'Polski',
         files: ['pl/common.json', 'pl/home.json', 'pl/product.json', 'pl/cart.json', 'pl/legal.json', 'pl/cookies.json', 'pl/blocks.json'],
       },
@@ -168,5 +212,46 @@ export default defineNuxtConfig({
       xl: 1280,
       xxl: 1536,
     },
+  },
+
+  // nuxt-og-image — deferred (blueprint D9): og:image is the real R2 product
+  // photo / category hero via useSeoMeta, plus a static share image fallback;
+  // no generated-card runtime needed.
+  ogImage: { enabled: false },
+
+  // @nuxtjs/robots — replaces the deleted public/robots.txt (the module must own
+  // the route to inject the Sitemap: line). Crawl-control mirror of the
+  // routeRules noindex set above. AI policy (blueprint D5): allow every
+  // reputable bot — search-class bots (OAI-SearchBot, Claude-SearchBot,
+  // PerplexityBot, Bingbot, Googlebot) power AI answers, user-fetch agents are
+  // the last hop before a sale, training bots are acceptable brand-priming —
+  // and block only the abusive Bytespider. The sitemap module auto-appends the
+  // Sitemap: line once it ships.
+  robots: {
+    groups: [
+      {
+        userAgent: '*',
+        // The module is i18n-aware and auto-generates the /pl/ twins — listing
+        // them here would duplicate every line (verified against the output).
+        disallow: [
+          '/admin', '/account', '/cart', '/checkout', '/search',
+          '/login', '/sign-up', '/password-recovery', '/password-reset',
+          '/verify-email', '/api/',
+        ],
+        // Explicit machine-readable allow signals for AI use (voluntary-compliance):
+        // Cloudflare Content-Signal + IETF Content-Usage directives.
+        contentSignal: { 'search': 'yes', 'ai-input': 'yes', 'ai-train': 'yes' },
+        contentUsage: { 'bots': 'y', 'search': 'y', 'ai-output': 'y', 'train-ai': 'y' },
+      },
+      { userAgent: ['Bytespider'], disallow: ['/'] },
+    ],
+  },
+
+  // nuxt-seo-utils — canonical query whitelist. Overriding REPLACES the default
+  // list (page/sort/filter/search/q/category/tag): keep ONLY `?page` so faceted
+  // /filtered/sorted views canonicalize to the clean listing while paginated
+  // pages stay self-canonical (blueprint D3 — never canonicalize page N → 1).
+  seo: {
+    canonicalQueryWhitelist: ['page'],
   },
 })
