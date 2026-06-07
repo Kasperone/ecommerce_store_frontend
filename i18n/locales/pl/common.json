@@ -824,7 +824,8 @@
       "sections": {
         "basics": "Podstawowe",
         "pricing": "Ceny i stan",
-        "media": "Multimedia"
+        "media": "Multimedia",
+        "variants": "Warianty"
       },
       "tabs": {
         "en": "Angielski",
@@ -1002,6 +1003,54 @@
         "new": "Nowy",
         "refurbished": "Odnowiony",
         "used": "Używany"
+      },
+      "variants": {
+        "subtitle": "Zdefiniuj do 3 opcji (np. Kolor, Rozmiar). Każda kombinacja staje się wariantem z własnym SKU, cenami, stanem magazynowym i zdjęciem.",
+        "count": "{count} wariantów | {count} wariant | {count} warianty | {count} wariantów",
+        "save": "Zapisz warianty",
+        "saved": "Warianty zapisane.",
+        "stockResetWarningTitle": "Obecny stan magazynowy zostanie wyzerowany",
+        "stockResetWarning": "Dodanie pierwszej opcji przenosi stan magazynowy na warianty: stan produktu zostanie wyzerowany przy zapisie — ustaw stan dla każdego wariantu poniżej.",
+        "options": {
+          "name": "Nazwa opcji",
+          "namePlaceholder": "np. Color",
+          "namePl": "Nazwa opcji (PL)",
+          "namePlPlaceholder": "np. Kolor",
+          "values": "Wartości",
+          "value": "Wartość",
+          "valuePlaceholder": "np. Red",
+          "valuePl": "Wartość (PL)",
+          "valuePlPlaceholder": "np. Czerwony",
+          "add": "Dodaj opcję",
+          "addValue": "Dodaj wartość",
+          "remove": "Usuń opcję",
+          "removeValue": "Usuń wartość",
+          "moveUp": "Przesuń opcję w górę",
+          "moveDown": "Przesuń opcję w dół",
+          "maxReached": "Maksymalnie {max} opcje na produkt"
+        },
+        "matrix": {
+          "combination": "Wariant",
+          "image": "Zdjęcie",
+          "inherit": "Dziedziczona",
+          "initialStock": "Stan początkowy",
+          "stockViaInventory": "Stan magazynowy jest zarządzany per magazyn w module Magazyn (korekta, dostawa, transfer).",
+          "newBadge": "Nowy",
+          "empty": "Dodaj opcję z co najmniej jedną wartością, aby wygenerować wiersze wariantów.",
+          "removeRow": "Usuń wariant",
+          "pickImage": "Wybierz zdjęcie wariantu",
+          "clearImage": "Bez zdjęcia",
+          "noImages": "Brak zdjęć w galerii — najpierw dodaj zdjęcia produktu.",
+          "overCapTitle": "Za dużo wariantów",
+          "overCap": "{count} kombinacji przekracza limit {max} wariantów. Usuń opcje lub wartości przed zapisem."
+        },
+        "errors": {
+          "saveErrorTitle": "Nie udało się zapisać wariantów",
+          "fallback": "Nie udało się zapisać wariantów.",
+          "optionNameRequired": "Każda opcja musi mieć nazwę.",
+          "optionValuesRequired": "Opcja „{name}” musi mieć co najmniej jedną wartość.",
+          "tooManyVariants": "Produkt może mieć najwyżej {max} wariantów."
+        }
       }
     },
     "orders": {

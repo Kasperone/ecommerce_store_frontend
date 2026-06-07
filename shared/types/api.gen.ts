@@ -539,9 +539,12 @@ export interface paths {
          *     ``currency`` over the last 30 days.
          *
          *     Public + unauthenticated: the answer is what the storefront PDP needs to
-         *     legally show next to a reduced price. Returns ``lowest_price = null`` +
-         *     ``since = null`` when no history exists for that (product, currency) — the
-         *     storefront then renders no comparison line.
+         *     legally show next to a reduced price. ``variant_id`` scopes the lookup to
+         *     that variant's own per-offer trail (Omnibus is per-offer); omitted, the
+         *     product-grain trail answers — today's behavior. Returns
+         *     ``lowest_price = null`` + ``since = null`` when no history exists for that
+         *     (product[, variant], currency) — the storefront then renders no comparison
+         *     line.
          */
         get: operations["get_lowest_30d_api_v1_products__product_id__lowest_30d_get"];
         put?: never;
@@ -1765,9 +1768,11 @@ export interface paths {
          * List Product Levels
          * @description Per-warehouse stock breakdown for one product (admin).
          *
-         *     Always includes the default warehouse (synthesised from unallocated stock if
-         *     its level row hasn't been materialised yet), so the rows sum to the product's
-         *     total stock.
+         *     Variantless products: one row per warehouse, always including the default
+         *     (synthesised from unallocated stock if its level row hasn't been
+         *     materialised yet), so the rows sum to the product's total stock. Variant
+         *     products: one row per materialised (warehouse, variant) level —
+         *     ``variant_id`` + ``variant_title`` identify the grain.
          */
         get: operations["list_product_levels_api_v1_admin_inventory_products__product_id__levels_get"];
         put?: never;
@@ -1796,8 +1801,10 @@ export interface paths {
          * @description Set a product's stock in one warehouse to an absolute value (admin).
          *
          *     Computes ``delta = new_stock - <that warehouse's level>``; a no-op (delta 0)
-         *     is rejected so the ledger never gets empty rows. Records a
-         *     ``manual_adjustment`` movement + an audit row in one transaction.
+         *     is rejected so the ledger never gets empty rows. Variant products adjust at
+         *     variant grain (``variant_id`` required — 422 matrix in
+         *     ``_resolve_variant_grain``). Records a ``manual_adjustment`` movement + an
+         *     audit row in one transaction.
          */
         patch: operations["adjust_stock_api_v1_admin_inventory_products__product_id__stock_patch"];
         trace?: never;
@@ -1816,7 +1823,8 @@ export interface paths {
          * @description Add incoming stock to a warehouse (admin) — a supplier/purchase-order receipt.
          *
          *     Records a ``restock`` movement of ``+quantity`` and an audit row in one
-         *     transaction. 404 on unknown product/warehouse.
+         *     transaction. Variant products restock at variant grain (``variant_id``
+         *     required). 404 on unknown product/warehouse/variant.
          */
         post: operations["restock_product_api_v1_admin_inventory_products__product_id__restock_post"];
         delete?: never;
@@ -1839,8 +1847,9 @@ export interface paths {
          * @description Move stock between two warehouses (admin).
          *
          *     Writes a paired transfer_out (source) + transfer_in (destination) movement in
-         *     one transaction; the product total is unchanged. 404 on unknown
-         *     product/warehouse, 422 on same-warehouse or insufficient source stock.
+         *     one transaction; the product total is unchanged. Variant products transfer
+         *     at variant grain (``variant_id`` required). 404 on unknown
+         *     product/warehouse/variant, 422 on same-warehouse or insufficient source stock.
          */
         post: operations["transfer_stock_api_v1_admin_inventory_transfer_post"];
         delete?: never;
@@ -2930,6 +2939,85 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Product Variants
+         * @description Admin: all variants of a product, including inactive ones.
+         */
+        get: operations["list_product_variants_api_v1_products__product_id__variants_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Product Options Matrix
+         * @description Admin: reconcile the product's full option/variant matrix in one transaction.
+         *
+         *     Options/values are diffed by name (a rename is delete + create); variants
+         *     match existing rows by ``id`` (new rows by combination). A product gaining
+         *     its first variants has its product-grain stock zeroed out and each new
+         *     variant's ``initial_stock`` seeded — both through the inventory ledger.
+         *     Empty ``options`` + ``variants`` reverts the product to single-SKU.
+         */
+        put: operations["update_product_options_matrix_api_v1_products__product_id__options_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/variants/{variant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Product Variant
+         * @description Admin: delete one variant.
+         *
+         *     409 when it is the last active variant of a variant product — deleting the
+         *     whole variant dimension is an explicit act (the matrix PUT with empty
+         *     arrays), not a side effect of trimming rows. The variant's stock levels
+         *     are zeroed through the inventory ledger first so it reconciles.
+         */
+        delete: operations["delete_product_variant_api_v1_products__product_id__variants__variant_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Product Variant
+         * @description Admin: edit one variant (price/SKU/image/active/position).
+         *
+         *     Stock is owned by the inventory endpoints; combination changes go through
+         *     the matrix PUT. 400 on a taken SKU, 422 on an image outside the product's
+         *     gallery — both mirroring the product routes.
+         */
+        patch: operations["update_product_variant_api_v1_products__product_id__variants__variant_id__patch"];
         trace?: never;
     };
     "/api/v1/me/preferences": {
@@ -5650,6 +5738,8 @@ export interface components {
             warehouse_id?: number | null;
             /** Warehouse Name */
             warehouse_name?: string | null;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Delta */
             delta: number;
             /** Resulting Stock */
@@ -5816,6 +5906,8 @@ export interface components {
         OrderItemCreate: {
             /** Product Id */
             product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Quantity */
             quantity: number;
         };
@@ -5838,12 +5930,16 @@ export interface components {
             updated_at: string;
             /** Product Id */
             product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Quantity */
             quantity: number;
             /** Order Id */
             order_id: number;
             /** Product Name */
             product_name: string;
+            /** Variant Title */
+            variant_title?: string | null;
             /** Product Sku */
             product_sku: string | null;
             /** Unit Price */
@@ -6662,6 +6758,121 @@ export interface components {
             pages: number;
         };
         /**
+         * ProductOptionInput
+         * @description One desired option axis in the matrix body (max three per product).
+         */
+        ProductOptionInput: {
+            /** Name */
+            name: string;
+            /** Name Pl */
+            name_pl?: string | null;
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+            /** Values */
+            values: components["schemas"]["ProductOptionValueInput"][];
+        };
+        /**
+         * ProductOptionResponse
+         * @description One option axis of a product (e.g. "Color"), with its ordered values.
+         */
+        ProductOptionResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Product Id */
+            product_id: number;
+            /** Name */
+            name: string;
+            /** Name Pl */
+            name_pl?: string | null;
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+            /** Values */
+            values?: components["schemas"]["ProductOptionValueResponse"][];
+        };
+        /**
+         * ProductOptionValueInput
+         * @description One desired value of an option in the matrix body.
+         */
+        ProductOptionValueInput: {
+            /** Value */
+            value: string;
+            /** Value Pl */
+            value_pl?: string | null;
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+        };
+        /**
+         * ProductOptionValueResponse
+         * @description One selectable value of an option (e.g. "Red").
+         */
+        ProductOptionValueResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Option Id */
+            option_id: number;
+            /** Value */
+            value: string;
+            /** Value Pl */
+            value_pl?: string | null;
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+        };
+        /**
+         * ProductOptionsMatrixResponse
+         * @description The reconciled state returned by the matrix PUT.
+         */
+        ProductOptionsMatrixResponse: {
+            /** Options */
+            options?: components["schemas"]["ProductOptionResponse"][];
+            /** Variants */
+            variants?: components["schemas"]["ProductVariantResponse"][];
+        };
+        /**
+         * ProductOptionsMatrixUpdate
+         * @description The matrix PUT body — the product's full desired option/variant state.
+         *
+         *     Empty ``options`` + ``variants`` reverts the product to single-SKU (stock
+         *     restarts at 0; restock via the inventory endpoints).
+         */
+        ProductOptionsMatrixUpdate: {
+            /** Options */
+            options: components["schemas"]["ProductOptionInput"][];
+            /** Variants */
+            variants: components["schemas"]["ProductVariantInput"][];
+        };
+        /**
          * ProductResponse
          * @description Schema for product response
          */
@@ -6751,6 +6962,11 @@ export interface components {
             /** Images */
             images?: components["schemas"]["ProductImageResponse"][];
             /**
+             * Has Variants
+             * @default false
+             */
+            has_variants: boolean;
+            /**
              * In Stock
              * @description True when stock > 0.
              */
@@ -6829,8 +7045,159 @@ export interface components {
             category_id?: number | null;
         };
         /**
+         * ProductVariantInput
+         * @description One desired variant row in the matrix body.
+         *
+         *     ``option_values`` lists the chosen value (EN string) per option, in the
+         *     body's option order. ``initial_stock`` seeds stock for **new** variants
+         *     only (existing variants' stock is owned by the inventory endpoints,
+         *     mirroring the ProductUpdate "stock not updatable" rule).
+         */
+        ProductVariantInput: {
+            /** Id */
+            id?: number | null;
+            /** Option Values */
+            option_values: string[];
+            /** Sku */
+            sku?: string | null;
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+            /** Image Id */
+            image_id?: number | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+            /** Initial Stock */
+            initial_stock?: number | null;
+        };
+        /**
+         * ProductVariantPublic
+         * @description Public (PDP) view of one **active** variant.
+         *
+         *     Prices are the effective per-currency values (variant override, else the
+         *     product's price in that currency) — read from the model's
+         *     ``effective_price_*`` properties via validation aliases.
+         */
+        ProductVariantPublic: {
+            /** Id */
+            id: number;
+            /** Title */
+            title: string;
+            /** Title Pl */
+            title_pl?: string | null;
+            /** Sku */
+            sku?: string | null;
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+            /** Image Id */
+            image_id?: number | null;
+            /** Image Url */
+            image_url?: string | null;
+            /** Stock */
+            stock: number;
+            /** In Stock */
+            in_stock: boolean;
+            /** Option Value Ids */
+            option_value_ids?: number[];
+        };
+        /**
+         * ProductVariantResponse
+         * @description Admin view of one variant — raw price columns (NULL = inherit).
+         */
+        ProductVariantResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Product Id */
+            product_id: number;
+            /** Title */
+            title: string;
+            /** Title Pl */
+            title_pl?: string | null;
+            /** Sku */
+            sku?: string | null;
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+            /** Stock */
+            stock: number;
+            /** Image Id */
+            image_id?: number | null;
+            /**
+             * Position
+             * @default 0
+             */
+            position: number;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Option Value Ids */
+            option_value_ids?: number[];
+        };
+        /**
+         * ProductVariantUpdate
+         * @description Single-variant PATCH body.
+         *
+         *     ``stock`` is intentionally NOT updatable — it is the maintained sum of the
+         *     variant's per-warehouse levels, mutated only through the inventory
+         *     endpoints (adjust / restock / transfer). Combination changes go through
+         *     the matrix PUT. An explicit ``null`` price clears the override (the
+         *     variant reverts to inheriting the product's price in that currency).
+         */
+        ProductVariantUpdate: {
+            /** Sku */
+            sku?: string | null;
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+            /** Image Id */
+            image_id?: number | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Position */
+            position?: number | null;
+        };
+        /**
          * ProductWithCategory
-         * @description Product response with category details
+         * @description Product response with category details (the detail endpoints).
+         *
+         *     Carries the option/variant matrix for the PDP: ``options`` with their
+         *     values, and **active** variants only (``variants`` reads the model's
+         *     ``active_variants`` property via its validation alias). Both default to
+         *     empty lists — variantless products are byte-for-byte unchanged apart from
+         *     the additive keys.
          */
         ProductWithCategory: {
             /** Id */
@@ -6917,7 +7284,16 @@ export interface components {
             category_id?: number | null;
             /** Images */
             images?: components["schemas"]["ProductImageResponse"][];
+            /**
+             * Has Variants
+             * @default false
+             */
+            has_variants: boolean;
             category?: components["schemas"]["CategoryResponse"] | null;
+            /** Options */
+            options?: components["schemas"]["ProductOptionResponse"][];
+            /** Variants */
+            variants?: components["schemas"]["ProductVariantPublic"][];
             /**
              * In Stock
              * @description True when stock > 0.
@@ -7014,6 +7390,8 @@ export interface components {
             unit_price: number;
             /** Product Id */
             product_id?: number | null;
+            /** Variant Id */
+            variant_id?: number | null;
         };
         /**
          * QuoteItemResponse
@@ -7036,6 +7414,8 @@ export interface components {
             quote_id: number;
             /** Product Id */
             product_id: number | null;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Description */
             description: string;
             /** Quantity */
@@ -7124,10 +7504,14 @@ export interface components {
          *
          *     No price — the server prices the line from the live product in the requested
          *     currency (``unit_price`` is deliberately absent so a client cannot inject one).
+         *     ``variant_id`` follows the order-create rules: required when the product has
+         *     active variants, rejected when missing/inactive/another product's (422).
          */
         QuoteRequestItem: {
             /** Product Id */
             product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Quantity */
             quantity: number;
         };
@@ -7381,10 +7765,14 @@ export interface components {
          * @description Record incoming stock into a warehouse (a purchase-order / supplier receipt).
          *
          *     Adds ``quantity`` units to ``warehouse_id`` as a ``restock`` movement.
+         *     ``variant_id`` is required when the product has variants (and rejected when
+         *     it doesn't).
          */
         RestockRequest: {
             /** Warehouse Id */
             warehouse_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** Quantity */
             quantity: number;
             /** Note */
@@ -8250,12 +8638,16 @@ export interface components {
          *
          *     ``new_stock`` is the absolute target for ``warehouse_id``; the route computes
          *     ``delta = new_stock - <that warehouse's level>`` and rejects a no-op (delta 0).
-         *     ``note`` is a free-text explanation stored on the ledger row (the movement
+         *     ``variant_id`` is required when the product has variants (and rejected when
+         *     it doesn't) — variant products track stock at variant grain only. ``note``
+         *     is a free-text explanation stored on the ledger row (the movement
          *     ``reason`` is always ``manual_adjustment``).
          */
         StockAdjustRequest: {
             /** Warehouse Id */
             warehouse_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** New Stock */
             new_stock: number;
             /** Note */
@@ -8265,8 +8657,10 @@ export interface components {
          * StockLevelItem
          * @description One per-warehouse stock level for a product (the breakdown view).
          *
-         *     A product's default warehouse always appears (synthesised from unallocated
-         *     stock when no level row has been materialised yet).
+         *     For a variantless product, one row per warehouse (the default synthesised
+         *     from unallocated stock when no level row has been materialised yet). For a
+         *     variant product the breakdown is per (warehouse, variant) — ``variant_id``
+         *     + ``variant_title`` identify the grain (both null at product grain).
          */
         StockLevelItem: {
             /** Warehouse Id */
@@ -8275,6 +8669,10 @@ export interface components {
             warehouse_code: string;
             /** Warehouse Name */
             warehouse_name: string;
+            /** Variant Id */
+            variant_id?: number | null;
+            /** Variant Title */
+            variant_title?: string | null;
             /** Quantity */
             quantity: number;
             /** Is Default */
@@ -8645,11 +9043,14 @@ export interface components {
          *
          *     Writes a paired ``transfer_out`` / ``transfer_in`` movement; the product total
          *     is unchanged. The source must hold at least ``quantity`` (no backorder on a
-         *     transfer).
+         *     transfer). ``variant_id`` is required when the product has variants (and
+         *     rejected when it doesn't).
          */
         TransferRequest: {
             /** Product Id */
             product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
             /** From Warehouse Id */
             from_warehouse_id: number;
             /** To Warehouse Id */
@@ -9641,6 +10042,8 @@ export interface operations {
             query: {
                 /** @description Currency to scope the lookup to */
                 currency: "USD" | "PLN" | "EUR";
+                /** @description Scope the lookup to one variant's own price trail */
+                variant_id?: number | null;
             };
             header?: never;
             path: {
@@ -14383,6 +14786,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReviewVoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_product_variants_api_v1_products__product_id__variants_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductVariantResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_product_options_matrix_api_v1_products__product_id__options_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductOptionsMatrixUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOptionsMatrixResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_product_variant_api_v1_products__product_id__variants__variant_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+                variant_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_product_variant_api_v1_products__product_id__variants__variant_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+                variant_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductVariantUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductVariantResponse"];
                 };
             };
             /** @description Validation Error */
