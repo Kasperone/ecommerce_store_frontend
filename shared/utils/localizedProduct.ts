@@ -21,3 +21,37 @@ export function localizedProductDescription(
   if (locale === 'pl' && product.description_pl) return product.description_pl
   return product.description ?? null
 }
+
+/**
+ * SEO meta-title fallback chain (mirrors the category page):
+ * locale meta_title → EN meta_title → localized product name.
+ */
+export function localizedProductMetaTitle(
+  product: {
+    name: string
+    name_pl?: string | null
+    meta_title?: string | null
+    meta_title_pl?: string | null
+  },
+  locale: string,
+): string {
+  const localized = locale === 'pl' ? product.meta_title_pl : product.meta_title
+  return localized || product.meta_title || localizedProductName(product, locale)
+}
+
+/**
+ * SEO meta-description fallback chain (mirrors the category page):
+ * locale meta_description → EN meta_description → localized description.
+ */
+export function localizedProductMetaDescription(
+  product: {
+    description?: string | null
+    description_pl?: string | null
+    meta_description?: string | null
+    meta_description_pl?: string | null
+  },
+  locale: string,
+): string | null {
+  const localized = locale === 'pl' ? product.meta_description_pl : product.meta_description
+  return localized || product.meta_description || localizedProductDescription(product, locale)
+}
