@@ -30,13 +30,18 @@ const outOfStock = computed(() => props.product.stock <= 0)
       :aria-label="displayName"
     >
       <div class="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-        <img
+        <!-- NuxtImg → IPX resize/format negotiation for the R2 URL (nuxt4
+             audit P1). Grid thumbs stay lazy; sizes match the grid columns. -->
+        <NuxtImg
           v-if="primaryImage"
           :src="primaryImage.url"
           :alt="primaryImage.alt_text ?? displayName"
-          class="h-full w-full object-cover transition-transform group-hover:scale-105"
+          width="400"
+          height="400"
+          sizes="xs:50vw sm:33vw lg:25vw"
           loading="lazy"
-        >
+          class="h-full w-full object-cover transition-transform group-hover:scale-105"
+        />
         <div
           v-else
           class="flex h-full w-full items-center justify-center text-muted"

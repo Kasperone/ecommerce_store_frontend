@@ -42,7 +42,7 @@ const autoplay = computed(() =>
           :src="item.settings.image_url"
           :alt="item.settings?.heading ?? ''"
           class="absolute inset-0 -z-20 h-full w-full object-cover"
-          sizes="100vw lg:1280px"
+          sizes="xs:100vw lg:1280px"
           loading="lazy"
         />
         <CmsImagePlaceholder

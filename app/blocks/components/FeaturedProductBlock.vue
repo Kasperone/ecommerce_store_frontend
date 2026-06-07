@@ -70,7 +70,7 @@ const to = computed(() =>
           :src="primaryImage.url"
           :alt="primaryImage.alt_text ?? displayName"
           class="aspect-square w-full object-cover"
-          sizes="100vw md:50vw"
+          sizes="xs:100vw md:50vw"
           loading="lazy"
         />
         <CmsImagePlaceholder
