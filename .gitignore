@@ -47,6 +47,8 @@ logs
 # Claude Code
 CLAUDE.md
 CLAUDE.local.md
-.claude/
+.claude/*
+# Playwright test agents (planner/generator/healer) are shared, repo-scoped:
+!.claude/agents/
 DESIGN.md
 DESIGN.md.draft

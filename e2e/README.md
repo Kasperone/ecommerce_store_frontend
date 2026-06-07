@@ -56,6 +56,7 @@ E2E_DB_URL=... npm run e2e:ui
 
 ```
 e2e/
+├── seed.spec.ts          # agents' seed test: boot + auth conventions (also runs as a cheap smoke spec)
 ├── fixtures/
 │   ├── apiClient.ts      # Playwright request + pg wrapper (register, login, mark verified, trip lockout, product+image CRUD ...)
 │   ├── images/           # tiny PNG fixtures committed to the repo for admin/product-gallery.spec.ts
@@ -70,8 +71,14 @@ e2e/
 │   ├── register.spec.ts         # 3.2.a (PR2)
 │   ├── password-reset.spec.ts   # 3.2.c (PR2)
 │   └── refresh.spec.ts          # 3.2.d (PR2)
-└── admin/
-    └── product-gallery.spec.ts  # real-R2 gallery lifecycle (opt-in via E2E_R2_ENABLED)
+├── admin/
+│   ├── category-crud.spec.ts
+│   └── product-gallery.spec.ts  # real-R2 gallery lifecycle (opt-in via E2E_R2_ENABLED)
+└── search/
+    └── search.spec.ts
+
+specs/                    # human-readable test plans written by the planner agent
+.claude/agents/           # Playwright test agents: planner / generator / healer (committed)
 ```
 
 ### Nuxt UI input helpers
@@ -105,13 +112,20 @@ await clearUInputNumber(pln)
 
 `/auth/login` is rate-limited at 5/15min per IP **and** per email. Each
 `npm run e2e` does ~3 logins (login happy + lockout + refresh, on
-distinct emails). Running the suite 2× back-to-back can trip the per-IP
-limit; restart `uvicorn` to reset the in-memory limiter (`memory://`).
+distinct emails), so back-to-back runs used to trip the per-IP limit.
 
-A future improvement: a backend env flag to disable rate limiting in E2E
-(or a separate Redis store the suite can flush). For now, restart
-between iterations and don't be surprised by the `Rate limit exceeded:
-5 per 15 minute` message.
+**Fixed (backend PR #147):** run the backend with the double-gated
+kill-switch and the limiter becomes a true no-op:
+
+```bash
+ENVIRONMENT=development E2E_DISABLE_RATE_LIMIT=true ... uvicorn app.main:app
+```
+
+Both gates are required — the flag is ignored (with a startup warning)
+outside `development`, so production can never lose rate limiting. CI's
+backend containers set it (see `.github/workflows/test.yml`). If you run
+the backend *without* the flag, the old advice applies: restart `uvicorn`
+to reset the in-memory limiter (`memory://`).
 
 ### Real-R2 gallery spec
 
@@ -162,14 +176,50 @@ script is future work.
 bucket plus GitHub secrets, or a moto sidecar in the backend image.
 The env-flag skip is the contract until that decision lands.
 
+## The four layers (which tool for which job)
+
+| Layer | Invocation | Use for |
+|---|---|---|
+| **Playwright MCP** (browser server) | project-root `.mcp.json` (`@playwright/mcp`, pinned) | Exploration, first-look at a new flow, multi-step discovery, payment-sandbox walkthroughs, visual CMS canvas, EN/PL parity, mobile-overflow audits |
+| **Test agents** (`.claude/agents/`) | planner / generator / healer subagents (need a Claude Code session **in this repo**; they speak to `npx playwright run-test-mcp-server` via this repo's `.mcp.json`) | Turning a flow into a durable runner spec; debugging/repairing failing specs |
+| **Agent CLI** (`npx @playwright/cli`) | `playwright-cli open/goto/snapshot/click/…` — artifacts to disk, ~4× cheaper than MCP | Routine "does this still render / does this button do X" verify passes |
+| **Runner** (`npm run e2e`) | deterministic suite | CI, regression — **the source of truth** |
+
+When any other layer and `npm run e2e` disagree (timing, isolation,
+storage state), trust the runner.
+
+### Test agents (planner → generator → healer)
+
+Scaffolded via `npx playwright init-agents --loop=claude` (Playwright ≥1.55).
+The three agent definitions live in `.claude/agents/` (committed — they carry
+project conventions) and the **seed test** is `e2e/seed.spec.ts`: it encodes
+boot, API-login + refresh-cookie auth, fixtures, and locator/code style, and
+the generator copies it as the starting point of every generated spec.
+
+- **Planner**: explores the live app, writes a Markdown plan under `specs/`.
+- **Generator**: executes a plan step-by-step against the live app (so
+  locators are verified, not hallucinated) and emits a `*.spec.ts`.
+- **Healer**: runs failing specs, inspects the live UI, patches
+  locators/waits. Point it at the failing subset only.
+
+**Curate hard**: agents over-generate scenarios and can hallucinate
+assertions. Keep the happy path + truly distinct edge cases; verify every
+assertion encodes a real business rule before committing.
+
+### Promotion ritual (verify → spec)
+
+After MCP-verifying a **new money-path feature** (checkout, payments,
+coupons, orders, quotes…), the close-out step is to promote that proof into
+a runner spec: run the generator on the flow (or port the MCP transcript by
+hand), land it as a small PR, runner-green. Verification must not evaporate.
+
 ## Authoring with Playwright MCP
 
-Playwright MCP (`@playwright/mcp@latest`, v0.0.75) is wired into Claude
-Code at the project root (`.mcp.json`) for snapshot-driven spec
-authoring against the same dev stack used here. **MCP is for authoring +
-debugging; the runner stays the source of truth.** When MCP and
-`npm run e2e` disagree (timing, isolation, storage state), trust the
-runner.
+Playwright MCP (`@playwright/mcp`, pinned in the project-root `.mcp.json`)
+is wired into Claude Code for snapshot-driven exploration against the same
+dev stack used here. **MCP is for exploration + debugging; the runner stays
+the source of truth.** Ad-hoc verify screenshots belong under
+`playwright/.mcp-output/<YYYY-MM-DD>-<feature>/` — never in the project root.
 
 ### Bring-up
 
