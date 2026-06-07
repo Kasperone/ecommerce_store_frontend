@@ -43,6 +43,7 @@ const items = computed<NavigationMenuItem[]>(() => {
 <template>
   <UHeader
     class="c-header"
+    :to="localePath('/')"
     :toggle="{
       color: 'primary',
       variant: 'subtle',

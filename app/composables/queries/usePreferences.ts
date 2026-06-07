@@ -18,6 +18,7 @@
  */
 
 import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
+import type { Ref } from 'vue'
 import type { components } from '#shared/types/api.gen'
 
 export type Preferences = components['schemas']['PreferencesResponse']
@@ -26,13 +27,32 @@ export type PreferencesUpdate = components['schemas']['PreferencesUpdate']
 const PREFERENCES_NAMESPACE = ['me', 'preferences'] as const
 
 /**
+ * The slice of the Colada query consumers actually read. Kept narrow on purpose:
+ * during SSR the composable returns a plain stub (see below), so widening this
+ * (e.g. to expose `refetch`/`asyncStatus`) means also widening the stub.
+ */
+interface PreferencesQuery {
+  data: Ref<Preferences | undefined>
+}
+
+/**
  * `GET /api/v1/me/preferences` — the caller's preferences snapshot.
  *
  * Client-only AND auth-gated: guests never hold a session, so firing the query
  * for them would 401. Callers that already know they're authed can leave the
  * extra gate at its default (`true`).
  */
-export function usePreferencesQuery(enabled?: () => boolean) {
+export function usePreferencesQuery(enabled?: () => boolean): PreferencesQuery {
+  // SSR: don't register the (disabled) query in the Colada cache at all. The
+  // cache entry holds its options verbatim — `enabled`/`query` are functions —
+  // and nitro's prerender link-inspection pass serializes the payload without
+  // the runtime `skipHydrate` reducer, so devalue 500s any inspected SSR route
+  // ("Cannot stringify a function" on HEAD /pl at build time). The query is
+  // `enabled: false` on the server anyway and nothing reads more than `data`
+  // before the client query resolves post-hydration.
+  if (import.meta.server) {
+    return { data: ref<Preferences | undefined>(undefined) }
+  }
   const { apiFetch } = useApi()
   return useQuery({
     key: () => [...PREFERENCES_NAMESPACE],
