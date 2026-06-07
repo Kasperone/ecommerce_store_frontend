@@ -834,10 +834,14 @@ export interface paths {
         head?: never;
         /**
          * Update Order
-         * @description Update an order's status (forward workflow) and notes/payment fields (admin).
+         * @description Update an order's status (forward workflow) and notes/payment/tracking
+         *     fields (admin).
          *
-         *     Cancellation and refunds are not done here — use the cancel endpoint
-         *     (refunds are Phase B).
+         *     Shipment tracking (``shipping_carrier`` / ``tracking_number`` /
+         *     ``tracking_url``) is typically set together with ``status=shipped`` so the
+         *     shipped email carries the tracking link, and may be edited afterwards via a
+         *     tracking-only PATCH. Cancellation and refunds are not done here — use the
+         *     cancel endpoint (refunds are Phase B).
          */
         patch: operations["update_order_api_v1_orders__order_id__patch"];
         trace?: never;
@@ -5882,6 +5886,12 @@ export interface components {
             item_count: number;
             /** Customer Email */
             customer_email?: string | null;
+            /** Shipping Carrier */
+            shipping_carrier?: string | null;
+            /** Tracking Number */
+            tracking_number?: string | null;
+            /** Tracking Url */
+            tracking_url?: string | null;
         };
         /**
          * OrderListResponse
@@ -5956,6 +5966,12 @@ export interface components {
             shipping_method_id?: number | null;
             /** Shipping Method Name */
             shipping_method_name?: string | null;
+            /** Shipping Carrier */
+            shipping_carrier?: string | null;
+            /** Tracking Number */
+            tracking_number?: string | null;
+            /** Tracking Url */
+            tracking_url?: string | null;
             /** Items */
             items?: components["schemas"]["OrderItemResponse"][];
             /** Refunds */
@@ -5986,6 +6002,12 @@ export interface components {
             payment_intent_id?: string | null;
             /** Notes */
             notes?: string | null;
+            /** Shipping Carrier */
+            shipping_carrier?: string | null;
+            /** Tracking Number */
+            tracking_number?: string | null;
+            /** Tracking Url */
+            tracking_url?: string | null;
         };
         /**
          * OrderWithUser
@@ -6044,6 +6066,12 @@ export interface components {
             shipping_method_id?: number | null;
             /** Shipping Method Name */
             shipping_method_name?: string | null;
+            /** Shipping Carrier */
+            shipping_carrier?: string | null;
+            /** Tracking Number */
+            tracking_number?: string | null;
+            /** Tracking Url */
+            tracking_url?: string | null;
             /** Items */
             items?: components["schemas"]["OrderItemResponse"][];
             /** Refunds */
