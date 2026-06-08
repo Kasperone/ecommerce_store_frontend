@@ -2669,6 +2669,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/products/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Products
+         * @description Import products from a CSV (admin). The round-trip of the export schema.
+         *
+         *     ``dry_run=true`` (default) validates every row and **writes nothing**,
+         *     returning the per-row report so the admin can preview. ``dry_run=false``
+         *     applies the batch **all-or-nothing in one transaction**: any row error rolls
+         *     the whole batch back and returns the error report with nothing applied.
+         *
+         *     Upsert key per row: ``id`` → else ``slug`` → else ``sku``. A new product (no
+         *     id, new slug) is created (requires name + slug + ≥1 price). ``tags`` /
+         *     ``collection_slugs`` are split from their packed columns and REPLACE the
+         *     product's tags / collection membership. Stock changes go through the
+         *     inventory ledger (``apply_delta``); **variant products reject stock changes**
+         *     (variant stock lives at variant grain). Dry-run and apply share one
+         *     validator. On a successful apply the touched products are re-synced to Meili
+         *     (incremental). Audited (``resource_type="product"``, action ``import``).
+         */
+        post: operations["import_products_api_v1_admin_products_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Bulk Update Products
+         * @description Apply a narrow set of fields to many products at once (admin).
+         *
+         *     Body: ``{ product_ids: [int], set: { price_usd?, price_pln?, price_eur?,
+         *     is_active?, low_stock_threshold? } }``. The ``set`` is applied to **every**
+         *     listed product in ONE transaction (all-or-nothing).
+         *
+         *     **Stock is not a settable field** — it is the maintained sum of per-warehouse
+         *     levels and may only move through the inventory ledger (``apply_delta``); the
+         *     ``set`` schema is ``extra="forbid"`` so a ``stock`` key is rejected (422).
+         *
+         *     Unknown-id handling is all-or-nothing: if any ``product_ids`` entry does not
+         *     resolve to a product, the whole request fails with **404** (no partial writes)
+         *     and the response lists the missing ids. On a price change, an OMNIBUS
+         *     price-history row is recorded per changed product (reusing the shared helper).
+         *     After commit, the touched products are re-synced to Meili (incremental — no
+         *     settings change, no full reindex). Audited (``resource_type="product"``,
+         *     action ``bulk_update``).
+         */
+        patch: operations["bulk_update_products_api_v1_admin_products_bulk_patch"];
+        trace?: never;
+    };
     "/api/v1/admin/banners/": {
         parameters: {
             query?: never;
@@ -4574,6 +4644,14 @@ export interface components {
             ends_at?: string | null;
             /** Is Active */
             is_active?: boolean | null;
+        };
+        /** Body_import_products_api_v1_admin_products_import_post */
+        Body_import_products_api_v1_admin_products_import_post: {
+            /**
+             * File
+             * @description Product CSV (the export schema)
+             */
+            file: string;
         };
         /** Body_login_api_v1_auth_login_post */
         Body_login_api_v1_auth_login_post: {
@@ -7674,6 +7752,56 @@ export interface components {
              * Format: date-time
              */
             expires_at: string;
+        };
+        /**
+         * ProductBulkSet
+         * @description The narrow set of fields a bulk-edit may write across many products.
+         *
+         *     Deliberately a small subset of ``ProductUpdate``: only price (per currency),
+         *     ``is_active``, and ``low_stock_threshold``. **Stock is intentionally absent** —
+         *     stock is the maintained sum of per-warehouse levels and may only move through
+         *     the inventory ledger (``apply_delta``), never a direct column write. Adding a
+         *     ``stock`` key here is rejected by ``extra="forbid"``.
+         *
+         *     Every field is optional; the route requires at least one to be present.
+         *     Prices follow the catalog rule (``> 0``); ``low_stock_threshold`` is ``>= 0``
+         *     or ``None`` (None = clear the per-product threshold → never flagged low-stock).
+         */
+        ProductBulkSet: {
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Low Stock Threshold */
+            low_stock_threshold?: number | null;
+        };
+        /**
+         * ProductBulkUpdate
+         * @description Request body for ``PATCH /api/v1/admin/products/bulk``.
+         *
+         *     Applies ``set`` to every product in ``product_ids`` in one transaction. The id
+         *     list must be non-empty and is capped to keep the single-transaction batch
+         *     bounded. Any id that doesn't resolve to a product fails the whole request
+         *     (all-or-nothing — see the route).
+         */
+        ProductBulkUpdate: {
+            /** Product Ids */
+            product_ids: number[];
+            set: components["schemas"]["ProductBulkSet"];
+        };
+        /**
+         * ProductBulkUpdateResult
+         * @description Summary returned by a successful bulk-edit.
+         */
+        ProductBulkUpdateResult: {
+            /** Updated */
+            updated: number;
+            /** Product Ids */
+            product_ids: number[];
         };
         /** ProductCarouselSection */
         ProductCarouselSection: {
@@ -15416,6 +15544,75 @@ export interface operations {
                 content: {
                     "application/json": unknown;
                     "text/csv": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_products_api_v1_admin_products_import_post: {
+        parameters: {
+            query?: {
+                /** @description Validate only (no writes) when true */
+                dry_run?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_products_api_v1_admin_products_import_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_update_products_api_v1_admin_products_bulk_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductBulkUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductBulkUpdateResult"];
                 };
             };
             /** @description Validation Error */

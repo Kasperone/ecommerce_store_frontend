@@ -1208,6 +1208,76 @@
           "optionValuesRequired": "Option \"{name}\" needs at least one value.",
           "tooManyVariants": "A product can have at most {max} variants."
         }
+      },
+      "csv": {
+        "export": {
+          "button": "Export CSV",
+          "exporting": "Exporting…",
+          "error": "Export failed"
+        },
+        "import": {
+          "button": "Import CSV",
+          "title": "Import products from CSV",
+          "description": "Upload a CSV (the export format). We validate it first — nothing is written until you apply.",
+          "fileLabel": "CSV file",
+          "fileHelp": "Rows are matched by id, then slug, then SKU.",
+          "dryRunButton": "Validate",
+          "applyButton": "Apply {count} changes",
+          "close": "Close",
+          "error": "Import failed",
+          "applyFailed": "Apply failed — nothing was changed",
+          "applied": "{creates} created, {updates} updated",
+          "errorsTitle": "This file has errors",
+          "errorsHint": "Fix the rows below before applying — the import is all-or-nothing.",
+          "summary": {
+            "creates": "{count} to create",
+            "updates": "{count} to update",
+            "skips": "{count} skipped",
+            "errors": "{count} errors"
+          },
+          "cols": {
+            "row": "Row",
+            "action": "Action",
+            "productId": "Product",
+            "errors": "Errors"
+          },
+          "actions": {
+            "create": "Create",
+            "update": "Update",
+            "skip": "Skip",
+            "error": "Error"
+          }
+        }
+      },
+      "bulk": {
+        "selected": "{count} selected",
+        "selectAll": "Select all on page",
+        "selectRow": "Select row",
+        "clearSelection": "Clear selection",
+        "unchanged": "Unchanged",
+        "applyButton": "Apply to {count} products",
+        "applied": "{count} products updated",
+        "errorTitle": "Bulk edit failed",
+        "errors": {
+          "price": "Enter a non-negative number"
+        },
+        "fields": {
+          "priceUsd": "USD price",
+          "pricePln": "PLN price",
+          "priceEur": "EUR price",
+          "isActive": "Status",
+          "lowStockThreshold": "Low-stock threshold"
+        },
+        "isActive": {
+          "unset": "Leave unchanged",
+          "true": "Set active",
+          "false": "Set inactive"
+        },
+        "threshold": {
+          "unset": "Leave unchanged",
+          "set": "Set to…",
+          "clear": "Clear (never flag)"
+        }
       }
     },
     "orders": {
