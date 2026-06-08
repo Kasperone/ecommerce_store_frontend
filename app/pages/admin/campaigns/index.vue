@@ -19,7 +19,7 @@ useHead({ title: () => t('admin.campaigns.title') })
 
 const filterSchema = z.object({
   status: z.enum(['all', 'draft', 'scheduled', 'sent']).optional(),
-  audience: z.enum(['all', 'customers', 'b2b']).optional(),
+  audience: z.enum(['all', 'customers', 'b2b', 'segment']).optional(),
   search: z.string().optional(),
   page: z.coerce.number().min(1).optional(),
   pageSize: z.coerce.number().min(1).max(100).optional(),
@@ -70,6 +70,7 @@ const audienceOptions = computed(() => [
   { label: t('admin.campaigns.filters.all'), value: 'all' },
   { label: t('admin.campaigns.audience.customers'), value: 'customers' },
   { label: t('admin.campaigns.audience.b2b'), value: 'b2b' },
+  { label: t('admin.campaigns.audience.segment'), value: 'segment' },
 ])
 
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' })

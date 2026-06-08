@@ -93,7 +93,8 @@
         "reports": "Raporty",
         "auditLog": "Dziennik zdarzeń",
         "settings": "Ustawienia",
-        "staff": "Personel i role"
+        "staff": "Personel i role",
+        "segments": "Segmenty"
       }
     },
     "pages": {
@@ -1891,7 +1892,8 @@
       "audience": {
         "all": "Wszyscy",
         "customers": "Klienci",
-        "b2b": "Firmy (B2B)"
+        "b2b": "Firmy (B2B)",
+        "segment": "Segment"
       },
       "status": {
         "draft": "Szkic",
@@ -1917,12 +1919,18 @@
         "scheduledAtHint": "Wymagane, gdy status to Zaplanowana.",
         "sentAt": "Wysłano",
         "save": "Zapisz",
-        "cancel": "Anuluj"
+        "cancel": "Anuluj",
+        "segment": "Segment",
+        "segmentHint": "Wybierz zapisany segment klientów do wysyłki.",
+        "segmentPlaceholder": "Wybierz segment",
+        "segmentCountLoading": "Ustalanie odbiorców…",
+        "segmentCount": "brak odbiorców | {count} odbiorca | {count} odbiorców | {count} odbiorców"
       },
       "errors": {
         "nameRequired": "Nazwa jest wymagana.",
         "subjectRequired": "Temat jest wymagany.",
-        "scheduledAtRequired": "Data zaplanowania jest wymagana, gdy status to Zaplanowana."
+        "scheduledAtRequired": "Data zaplanowania jest wymagana, gdy status to Zaplanowana.",
+        "segmentRequired": "Segment jest wymagany dla odbiorców typu Segment."
       },
       "delete": {
         "title": "Usuń kampanię",
@@ -2137,6 +2145,89 @@
         "reject": "Zwrot odrzucony",
         "receive": "Zwrot oznaczony jako otrzymany",
         "refunded": "Zwrot środków wystawiony — zgłoszenie zamknięte"
+      }
+    },
+    "segments": {
+      "title": "Segmenty",
+      "subtitle": "Twórz segmenty klientów na podstawie tagów, wydatków, zamówień i innych",
+      "actions": {
+        "create": "Nowy segment",
+        "edit": "Edytuj",
+        "delete": "Usuń"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne",
+        "search": "Szukaj",
+        "searchPlaceholder": "Szukaj po nazwie"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "status": "Status"
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "tagMatch": {
+        "any": "Dowolny tag",
+        "all": "Wszystkie tagi"
+      },
+      "role": {
+        "any": "Dowolny",
+        "customer": "Klienci",
+        "b2b": "Firmy (B2B)"
+      },
+      "empty": {
+        "noSegments": "Brak segmentów.",
+        "noResults": "Żaden segment nie pasuje do filtrów."
+      },
+      "form": {
+        "createTitle": "Nowy segment",
+        "editTitle": "Edytuj segment",
+        "name": "Nazwa",
+        "nameHint": "Nazwa wewnętrzna, widoczna na tej liście.",
+        "description": "Opis",
+        "isActive": "Aktywny",
+        "filtersHeading": "Filtry członkostwa",
+        "tags": "Tagi",
+        "tagsPlaceholder": "Wybierz tagi",
+        "tagMatch": "Dopasowanie tagów",
+        "minOrderCount": "Min. zamówień",
+        "maxOrderCount": "Maks. zamówień",
+        "minTotalSpent": "Min. wydana kwota",
+        "minTotalSpentHint": "Wymaga waluty.",
+        "currency": "Waluta",
+        "currencyPlaceholder": "Wybierz walutę",
+        "lastOrderAfter": "Ostatnie zamówienie po",
+        "lastOrderBefore": "Ostatnie zamówienie przed",
+        "country": "Kraj",
+        "countryHint": "Dwuliterowy kod lub pełna nazwa kraju.",
+        "role": "Typ konta",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "preview": {
+        "matches": "Brak pasujących klientów | Pasuje {count} klient | Pasuje {count} klientów | Pasuje {count} klientów",
+        "loading": "Ustalanie…",
+        "error": "Nie udało się ustalić podglądu."
+      },
+      "errors": {
+        "nameRequired": "Nazwa jest wymagana.",
+        "currencyRequired": "Waluta jest wymagana, gdy ustawiono minimalną kwotę wydatków."
+      },
+      "delete": {
+        "title": "Usuń segment",
+        "confirm": "Usunąć segment „{name}”? Tej operacji nie można cofnąć.",
+        "delete": "Usuń",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "created": "Segment utworzony.",
+        "updated": "Segment zaktualizowany.",
+        "deleted": "Segment usunięty."
       }
     }
   },
