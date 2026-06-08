@@ -146,6 +146,11 @@ const primaryCurrency = computed<CurrencyCode>(
           />
         </div>
 
+        <!-- Threshold-aware low-stock summary, deep-linking into the inventory list -->
+        <ClientOnly>
+          <AdminDashboardLowStockBadge />
+        </ClientOnly>
+
         <!-- Sales trend -->
         <AdminDashboardSalesTrend
           :points="kpis.sales_trend"

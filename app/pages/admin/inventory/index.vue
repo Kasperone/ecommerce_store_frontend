@@ -101,6 +101,7 @@ function openTransfer(row: InventoryListItem) {
           </p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
+          <AdminInventoryLowStockReportButton />
           <AdminInventoryExportButton
             :status="statusFilter === 'all' ? undefined : statusFilter"
             :search="searchValue || undefined"
@@ -177,7 +178,9 @@ function openTransfer(row: InventoryListItem) {
         <template #status-cell="{ row }">
           <UBadge
             :color="STATUS_COLOR[row.original.status]"
-            variant="subtle"
+            :variant="row.original.status === 'low_stock' || row.original.status === 'out_of_stock'
+              ? 'solid'
+              : 'subtle'"
           >
             {{ $t(`admin.inventory.status.${row.original.status}`) }}
           </UBadge>

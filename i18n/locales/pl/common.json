@@ -246,6 +246,21 @@
           "note": "Notatka",
           "actor": "Przez"
         }
+      },
+      "lowStock": {
+        "report": {
+          "button": "Wyślij raport niskich stanów",
+          "successTitle": "Raport wysłany",
+          "success": "Raport dla {count} produktu wysłano do {recipients}. | Raport dla {count} produktów wysłano do {recipients}. | Raport dla {count} produktów wysłano do {recipients}. | Raport dla {count} produktów wysłano do {recipients}.",
+          "errorTitle": "Nie udało się wysłać raportu",
+          "error": "Nie udało się wysłać raportu niskich stanów."
+        },
+        "badge": {
+          "title": "Alerty magazynowe",
+          "lowStock": "Niski stan",
+          "outOfStock": "Brak na stanie",
+          "viewAll": "Przejrzyj produkty z niskim stanem"
+        }
       }
     },
     "warehouses": {
@@ -354,7 +369,8 @@
         "identifiers": "Dane rejestrowe",
         "social": "Media społecznościowe",
         "branding": "Marka",
-        "returns": "Zwroty"
+        "returns": "Zwroty",
+        "inventory": "Magazyn"
       },
       "fields": {
         "storeName": "Nazwa sklepu",
@@ -376,7 +392,9 @@
         "socialYoutube": "YouTube",
         "brandTagline": "Hasło",
         "logoUrl": "Adres URL logo",
-        "returnsWindowDays": "Okno zwrotów (dni)"
+        "returnsWindowDays": "Okno zwrotów (dni)",
+        "lowStockDefaultThreshold": "Domyślny próg niskiego stanu",
+        "lowStockDefaultThresholdPlaceholder": "Brak globalnego progu"
       },
       "hints": {
         "email": "Widoczny na fakturach i używany jako nadawca e-maili sklepu.",
@@ -390,7 +408,9 @@
         "brandTagline": "Krótkie hasło pokazywane pod logo w stopce.",
         "logoUrl": "Opcjonalny adres URL obrazu logo. Pozostaw puste, aby użyć domyślnego znaku słownego.",
         "returns": "Polityka zwrotów konsumenckich (RMA).",
-        "returnsWindowDays": "Liczba dni od dostarczenia, w których można zgłosić zwrot. 0 wyłącza zwroty w całym sklepie."
+        "returnsWindowDays": "Liczba dni od dostarczenia, w których można zgłosić zwrot. 0 wyłącza zwroty w całym sklepie.",
+        "inventory": "Domyślne ustawienia alertów magazynowych dla całego sklepu.",
+        "lowStockDefaultThreshold": "Stosowany do produktów bez własnego progu. Pozostaw puste, aby wyłączyć globalny próg."
       },
       "actions": {
         "save": "Zapisz zmiany"
@@ -399,7 +419,8 @@
         "required": "To pole jest wymagane.",
         "email": "Podaj prawidłowy adres e-mail.",
         "vatRange": "Stawka VAT musi mieścić się w zakresie 0–100.",
-        "returnsWindow": "Okno zwrotów musi być liczbą całkowitą dni (0 lub więcej)."
+        "returnsWindow": "Okno zwrotów musi być liczbą całkowitą dni (0 lub więcej).",
+        "lowStockThreshold": "Próg musi być liczbą całkowitą jednostek (0 lub więcej)."
       },
       "flashes": {
         "saved": "Ustawienia zapisane."
