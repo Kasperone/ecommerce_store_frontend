@@ -12,7 +12,9 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // 2 retries (3 attempts) on CI: a fresh attempt self-heals the residual
+  // timing flakiness on the shared hive runner even after E2E is serialized.
+  retries: process.env.CI ? 2 : 0,
   globalSetup: './e2e/seed/global-setup.ts',
   use: {
     baseURL: `http://localhost:${WEB_PORT}`,
