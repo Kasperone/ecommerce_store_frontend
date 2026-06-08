@@ -95,6 +95,38 @@ const deleting = ref<ProductWithCategory | null>(null)
 const modalError = ref<ProblemDetails | null>(null)
 const deleteMutation = useDeleteProduct()
 
+// CSV import modal.
+const importOpen = ref(false)
+
+// Bulk-edit row selection — a Set of product ids. Kept in a Set (not the
+// TanStack row model) so it survives pagination/filter changes deterministically.
+const selectedIds = ref<Set<number>>(new Set())
+const selectedList = computed(() => [...selectedIds.value])
+
+function toggleRow(id: number, checked: boolean) {
+  const next = new Set(selectedIds.value)
+  if (checked) next.add(id)
+  else next.delete(id)
+  selectedIds.value = next
+}
+
+const allOnPageSelected = computed(() =>
+  items.value.length > 0 && items.value.every(p => selectedIds.value.has(p.id)),
+)
+
+function toggleAllOnPage(checked: boolean) {
+  const next = new Set(selectedIds.value)
+  for (const p of items.value) {
+    if (checked) next.add(p.id)
+    else next.delete(p.id)
+  }
+  selectedIds.value = next
+}
+
+function clearSelection() {
+  selectedIds.value = new Set()
+}
+
 async function onDelete(id: number) {
   modalError.value = null
   try {
@@ -118,6 +150,7 @@ function primaryThumbnail(product: ProductWithCategory) {
 }
 
 const columns: TableColumn<ProductWithCategory>[] = [
+  { id: 'select', header: '' },
   { id: 'thumbnail', header: () => t('admin.products.fields.thumbnail') },
   { accessorKey: 'name', header: () => t('admin.products.fields.name') },
   { accessorKey: 'sku', header: () => t('admin.products.fields.sku') },
@@ -143,13 +176,28 @@ const columns: TableColumn<ProductWithCategory>[] = [
             {{ $t('admin.products.subtitle') }}
           </p>
         </div>
-        <UButton
-          color="primary"
-          icon="i-lucide-plus"
-          @click="navigateTo('/admin/products/new')"
-        >
-          {{ $t('admin.products.actions.create') }}
-        </UButton>
+        <div class="flex items-center gap-2 flex-wrap">
+          <AdminProductExportButton
+            :category-id="queryParams.categoryId"
+            :is-active="queryParams.isActive"
+            :search="queryParams.search"
+          />
+          <UButton
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-upload"
+            @click="importOpen = true"
+          >
+            {{ $t('admin.products.csv.import.button') }}
+          </UButton>
+          <UButton
+            color="primary"
+            icon="i-lucide-plus"
+            @click="navigateTo('/admin/products/new')"
+          >
+            {{ $t('admin.products.actions.create') }}
+          </UButton>
+        </div>
       </header>
 
       <AdminProductFilters
@@ -163,6 +211,14 @@ const columns: TableColumn<ProductWithCategory>[] = [
         v-if="listError"
         :problem="parseProblem(listError)"
       />
+
+      <ClientOnly>
+        <AdminProductBulkEditToolbar
+          v-if="selectedList.length > 0"
+          :product-ids="selectedList"
+          @applied="clearSelection"
+        />
+      </ClientOnly>
 
       <div
         v-if="items.length === 0"
@@ -182,6 +238,20 @@ const columns: TableColumn<ProductWithCategory>[] = [
         :columns="columns"
         :ui="{ td: 'align-middle' }"
       >
+        <template #select-header>
+          <UCheckbox
+            :model-value="allOnPageSelected"
+            :aria-label="$t('admin.products.bulk.selectAll')"
+            @update:model-value="(v) => toggleAllOnPage(v === true)"
+          />
+        </template>
+        <template #select-cell="{ row }">
+          <UCheckbox
+            :model-value="selectedIds.has(row.original.id)"
+            :aria-label="$t('admin.products.bulk.selectRow')"
+            @update:model-value="(v) => toggleRow(row.original.id, v === true)"
+          />
+        </template>
         <template #thumbnail-cell="{ row }">
           <div
             class="w-12 h-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-800
@@ -308,6 +378,8 @@ const columns: TableColumn<ProductWithCategory>[] = [
         @confirm="onDelete"
         @cancel="deleting = null"
       />
+
+      <AdminProductImportModal v-model:open="importOpen" />
     </div>
   </NuxtLayout>
 </template>

@@ -163,3 +163,60 @@ describe('useDeleteProduct', () => {
     expect(options.method).toBe('DELETE')
   })
 })
+
+describe('useImportProducts', () => {
+  function report(overrides = {}) {
+    return {
+      dry_run: true,
+      applied: false,
+      summary: { creates: 1, updates: 0, skips: 0, errors: 0 },
+      rows: [],
+      ...overrides,
+    }
+  }
+
+  it('POSTs a multipart file to /admin/products/import with dry_run=true', async () => {
+    apiFetch.mockResolvedValue(report())
+    const { useImportProducts } = await import('./useProductQueries')
+
+    const result = await runInComponent(() => useImportProducts()) as any
+    const file = new File(['id,name\r\n'], 'p.csv', { type: 'text/csv' })
+    await result.mutateAsync({ file, dryRun: true })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/products/import')
+    expect(options.method).toBe('POST')
+    expect(options.query).toMatchObject({ dry_run: true })
+    expect(options.body).toBeInstanceOf(FormData)
+    expect((options.body as FormData).get('file')).toBe(file)
+  })
+
+  it('passes dry_run=false when applying', async () => {
+    apiFetch.mockResolvedValue(report({ dry_run: false, applied: true }))
+    const { useImportProducts } = await import('./useProductQueries')
+
+    const result = await runInComponent(() => useImportProducts()) as any
+    const file = new File(['id,name\r\n'], 'p.csv', { type: 'text/csv' })
+    await result.mutateAsync({ file, dryRun: false })
+
+    expect(apiFetch.mock.calls[0]?.[1].query).toMatchObject({ dry_run: false })
+  })
+})
+
+describe('useBulkUpdateProducts', () => {
+  it('PATCHes /admin/products/bulk with product_ids + set', async () => {
+    apiFetch.mockResolvedValue({ updated: 2, product_ids: [1, 2] })
+    const { useBulkUpdateProducts } = await import('./useProductQueries')
+
+    const result = await runInComponent(() => useBulkUpdateProducts()) as any
+    await result.mutateAsync({ productIds: [1, 2], set: { price_usd: 9.99, is_active: false } })
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/products/bulk')
+    expect(options.method).toBe('PATCH')
+    expect(options.body).toEqual({
+      product_ids: [1, 2],
+      set: { price_usd: 9.99, is_active: false },
+    })
+  })
+})

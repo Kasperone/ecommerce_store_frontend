@@ -1212,6 +1212,76 @@
           "optionValuesRequired": "Opcja „{name}” musi mieć co najmniej jedną wartość.",
           "tooManyVariants": "Produkt może mieć najwyżej {max} wariantów."
         }
+      },
+      "csv": {
+        "export": {
+          "button": "Eksportuj CSV",
+          "exporting": "Eksportowanie…",
+          "error": "Eksport nie powiódł się"
+        },
+        "import": {
+          "button": "Importuj CSV",
+          "title": "Importuj produkty z pliku CSV",
+          "description": "Prześlij plik CSV (w formacie eksportu). Najpierw go zweryfikujemy — nic nie zostanie zapisane, dopóki nie zatwierdzisz.",
+          "fileLabel": "Plik CSV",
+          "fileHelp": "Wiersze są dopasowywane po id, następnie po slugu, a na końcu po SKU.",
+          "dryRunButton": "Sprawdź",
+          "applyButton": "Zastosuj {count} zmian",
+          "close": "Zamknij",
+          "error": "Import nie powiódł się",
+          "applyFailed": "Zastosowanie nie powiodło się — nic nie zmieniono",
+          "applied": "Utworzono: {creates}, zaktualizowano: {updates}",
+          "errorsTitle": "Ten plik zawiera błędy",
+          "errorsHint": "Popraw poniższe wiersze przed zastosowaniem — import działa na zasadzie wszystko albo nic.",
+          "summary": {
+            "creates": "{count} do utworzenia",
+            "updates": "{count} do aktualizacji",
+            "skips": "{count} pominiętych",
+            "errors": "{count} błędów"
+          },
+          "cols": {
+            "row": "Wiersz",
+            "action": "Akcja",
+            "productId": "Produkt",
+            "errors": "Błędy"
+          },
+          "actions": {
+            "create": "Utwórz",
+            "update": "Aktualizuj",
+            "skip": "Pomiń",
+            "error": "Błąd"
+          }
+        }
+      },
+      "bulk": {
+        "selected": "Zaznaczono: {count}",
+        "selectAll": "Zaznacz wszystkie na stronie",
+        "selectRow": "Zaznacz wiersz",
+        "clearSelection": "Wyczyść zaznaczenie",
+        "unchanged": "Bez zmian",
+        "applyButton": "Zastosuj do {count} produktów",
+        "applied": "Zaktualizowano produktów: {count}",
+        "errorTitle": "Edycja zbiorcza nie powiodła się",
+        "errors": {
+          "price": "Wprowadź liczbę nieujemną"
+        },
+        "fields": {
+          "priceUsd": "Cena USD",
+          "pricePln": "Cena PLN",
+          "priceEur": "Cena EUR",
+          "isActive": "Status",
+          "lowStockThreshold": "Próg niskiego stanu"
+        },
+        "isActive": {
+          "unset": "Pozostaw bez zmian",
+          "true": "Ustaw jako aktywny",
+          "false": "Ustaw jako nieaktywny"
+        },
+        "threshold": {
+          "unset": "Pozostaw bez zmian",
+          "set": "Ustaw na…",
+          "clear": "Wyczyść (nigdy nie oznaczaj)"
+        }
       }
     },
     "orders": {
