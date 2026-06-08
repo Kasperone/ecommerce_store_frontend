@@ -52,6 +52,7 @@ const state = reactive({
   per_user_limit: null as number | null,
   starts_at: '',
   ends_at: '',
+  is_automatic: false,
   is_active: true,
 })
 const error = ref<unknown>(null)
@@ -59,10 +60,12 @@ const error = ref<unknown>(null)
 const isEdit = computed(() => props.coupon !== null)
 const loading = computed(() => createCoupon.isLoading.value || updateCoupon.isLoading.value)
 const isPercent = computed(() => state.discount_type === 'percent')
+const isFreeShipping = computed(() => state.discount_type === 'free_shipping')
 
 const discountTypeOptions = computed(() => [
   { label: t('admin.coupons.discountType.percent'), value: 'percent' as const },
   { label: t('admin.coupons.discountType.fixed'), value: 'fixed' as const },
+  { label: t('admin.coupons.discountType.free_shipping'), value: 'free_shipping' as const },
 ])
 const currencyOptions = computed(() =>
   CURRENCIES.map(c => ({ label: c, value: c })),
@@ -92,7 +95,7 @@ const schema = computed(() =>
   z.object({
     code: z.string().trim().min(1, t('admin.coupons.errors.codeRequired')),
     description: z.string(),
-    discount_type: z.enum(['percent', 'fixed']),
+    discount_type: z.enum(['percent', 'fixed', 'free_shipping']),
     value: z.number().nullable(),
     currency: z.enum(CURRENCIES as [CouponCurrency, ...CouponCurrency[]]).nullable(),
     min_order_amount: z.number().nullable(),
@@ -100,14 +103,17 @@ const schema = computed(() =>
     per_user_limit: z.number().nullable(),
     starts_at: z.string(),
     ends_at: z.string(),
+    is_automatic: z.boolean(),
     is_active: z.boolean(),
   }).superRefine((val, ctx) => {
+    // free_shipping carries no value/currency — the payload forces value 0 +
+    // currency null (the backend 422s any other combination).
     if (val.discount_type === 'percent') {
       if (val.value === null || val.value < 1 || val.value > 100) {
         ctx.addIssue({ code: 'custom', message: t('admin.coupons.errors.valuePercentRange'), path: ['value'] })
       }
     }
-    else {
+    else if (val.discount_type === 'fixed') {
       if (val.value === null || val.value <= 0) {
         ctx.addIssue({ code: 'custom', message: t('admin.coupons.errors.valueFixedPositive'), path: ['value'] })
       }
@@ -139,16 +145,17 @@ watch(
     state.per_user_limit = c?.per_user_limit ?? null
     state.starts_at = toLocalInput(c?.starts_at)
     state.ends_at = toLocalInput(c?.ends_at)
+    state.is_automatic = c?.is_automatic ?? false
     state.is_active = c?.is_active ?? true
   },
   // immediate so an already-open mount (and re-opens) prefill from the coupon prop.
   { immediate: true },
 )
 
-// Percent coupons carry no currency — clear it when switching away from fixed so a
-// stale value never rides along on submit.
-watch(isPercent, (percent) => {
-  if (percent) state.currency = null
+// Only fixed coupons carry a currency — clear it when switching away (percent /
+// free_shipping) so a stale value never rides along on submit.
+watch(() => state.discount_type, (type) => {
+  if (type !== 'fixed') state.currency = null
 })
 
 const openModel = computed({
@@ -162,13 +169,17 @@ function buildCreateBody(): CouponCreate {
     code: state.code.trim().toUpperCase(),
     description: state.description.trim() || null,
     discount_type: state.discount_type,
-    value: state.value as number,
-    currency: isPercent.value ? null : state.currency,
+    // free_shipping: value 0 + currency null, ALWAYS sent together — flipping
+    // an existing fixed coupon to free_shipping 422s unless the same PATCH
+    // carries both (the edit payload is this whole body).
+    value: isFreeShipping.value ? 0 : (state.value as number),
+    currency: state.discount_type === 'fixed' ? state.currency : null,
     min_order_amount: state.min_order_amount,
     max_uses: state.max_uses,
     per_user_limit: state.per_user_limit,
     starts_at: toIso(state.starts_at),
     ends_at: toIso(state.ends_at),
+    is_automatic: state.is_automatic,
     is_active: state.is_active,
   }
 }
@@ -257,6 +268,7 @@ async function onSubmit() {
           </UFormField>
 
           <UFormField
+            v-if="!isFreeShipping"
             :label="t('admin.coupons.form.value')"
             :help="valueHint"
             name="value"
@@ -272,7 +284,7 @@ async function onSubmit() {
         </div>
 
         <UFormField
-          v-if="!isPercent"
+          v-if="!isPercent && !isFreeShipping"
           :label="t('admin.coupons.form.currency')"
           :help="t('admin.coupons.form.currencyHint')"
           name="currency"
@@ -351,6 +363,17 @@ async function onSubmit() {
             />
           </UFormField>
         </div>
+
+        <UFormField
+          :label="t('admin.coupons.form.isAutomatic')"
+          :help="t('admin.coupons.form.isAutomaticHint')"
+          name="is_automatic"
+        >
+          <USwitch
+            v-model="state.is_automatic"
+            data-testid="coupon-is-automatic"
+          />
+        </UFormField>
 
         <UFormField
           :label="t('admin.coupons.form.isActive')"

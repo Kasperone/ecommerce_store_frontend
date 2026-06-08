@@ -981,6 +981,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orders/{order_id}/returns/eligibility": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Return Eligibility
+         * @description Check whether (and how much of) an order can still be returned.
+         *
+         *     The single server-side source for the storefront return modal: eligible =
+         *     order delivered + returns enabled (``returns_window_days > 0``) + within
+         *     the window of the delivery timestamp (``delivered_at``, legacy fallback
+         *     ``updated_at``) + at least one returnable unit remaining. ``lines`` carries
+         *     the per-line returnable quantity (original minus prior non-rejected
+         *     returns minus unlinked refunds). A non-existent or not-owned order returns
+         *     404 (existence is not leaked).
+         */
+        get: operations["get_return_eligibility_api_v1_orders__order_id__returns_eligibility_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/{order_id}/returns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Order Returns
+         * @description List return requests for an order, scoped to the caller (customer / admin).
+         *
+         *     Customers see only their own orders' returns; admins see any. A
+         *     non-existent or not-owned order returns 404 (existence is not leaked). The
+         *     customer surface drops ``admin_note`` client-side — same convention as the
+         *     refund ``note``.
+         */
+        get: operations["list_order_returns_api_v1_orders__order_id__returns_get"];
+        put?: never;
+        /**
+         * Create Return Request
+         * @description Request a return for (some of) a delivered order's items.
+         *
+         *     Validates the eligibility window (delivered + within
+         *     ``returns_window_days`` of delivery) and the per-line returnable quantity
+         *     (400 on any violation). Creates the request with ``status=requested`` and
+         *     fires the "return requested" email (best-effort). Customer action — no
+         *     audit row (the audit log records admin mutations). A non-existent or
+         *     not-owned order returns 404.
+         */
+        post: operations["create_return_request_api_v1_orders__order_id__returns_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/coupons/validate": {
         parameters: {
             query?: never;
@@ -2050,6 +2114,146 @@ export interface paths {
         get: operations["export_sales_csv_api_v1_admin_reports_sales_csv_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/returns/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Returns
+         * @description List return requests (newest first), filterable by status.
+         */
+        get: operations["list_returns_api_v1_admin_returns__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/returns/{return_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Return
+         * @description Get one return request (lines + denormalised order summary fields).
+         */
+        get: operations["get_return_api_v1_admin_returns__return_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/returns/{return_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve Return
+         * @description Approve a requested return (``requested → approved``; 400 otherwise).
+         *
+         *     Fires the "return approved" email (best-effort).
+         */
+        post: operations["approve_return_api_v1_admin_returns__return_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/returns/{return_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reject Return
+         * @description Reject a requested return (``requested → rejected``; 400 otherwise).
+         *
+         *     Terminal — stamps ``resolved_at``. The optional ``admin_note`` records the
+         *     reason (internal). Fires the "return rejected" email (best-effort).
+         */
+        post: operations["reject_return_api_v1_admin_returns__return_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/returns/{return_id}/receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Receive Return
+         * @description Mark an approved return's goods as physically received
+         *     (``approved → received``; 400 otherwise).
+         *
+         *     No stock movement here — restock is decided (and written) at refund time
+         *     via ``POST /{id}/refund``, same as the existing refund semantics.
+         */
+        post: operations["receive_return_api_v1_admin_returns__return_id__receive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/returns/{return_id}/refund": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refund Return
+         * @description Issue the refund for a return and flip it to ``refunded`` (terminal).
+         *
+         *     Allowed from ``received`` (default flow) and ``approved``
+         *     (ship-back-not-required); 400 from any other status — including
+         *     ``refunded`` itself, which (with the UNIQUE ``refund_id``) enforces one
+         *     refund per return. ``amount`` defaults to ``Σ order_item.unit_price x
+         *     returned qty``; the items picker is the return's lines, so ``restock=True``
+         *     restocks exactly the returned units (variant-aware via the existing
+         *     ``apply_delta`` loop). Delegates to ``crud_refund.create_for_order`` —
+         *     running-total / per-line guards and the KOR come for free; its error types
+         *     map to 400 exactly like the direct refund endpoint. Fires the existing
+         *     order "refunded" email (KOR attached, best-effort).
+         */
+        post: operations["refund_return_api_v1_admin_returns__return_id__refund_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6223,6 +6427,8 @@ export interface components {
             tracking_number?: string | null;
             /** Tracking Url */
             tracking_url?: string | null;
+            /** Delivered At */
+            delivered_at?: string | null;
             /** Items */
             items?: components["schemas"]["OrderItemResponse"][];
             /** Refunds */
@@ -6327,6 +6533,8 @@ export interface components {
             tracking_number?: string | null;
             /** Tracking Url */
             tracking_url?: string | null;
+            /** Delivered At */
+            delivered_at?: string | null;
             /** Items */
             items?: components["schemas"]["OrderItemResponse"][];
             /** Refunds */
@@ -7938,6 +8146,229 @@ export interface components {
             note?: string | null;
         };
         /**
+         * ReturnActionRequest
+         * @description Optional body for the admin approve / reject / receive transitions.
+         */
+        ReturnActionRequest: {
+            /** Admin Note */
+            admin_note?: string | null;
+        };
+        /**
+         * ReturnEligibilityLine
+         * @description Per-line returnable quantity for the storefront return modal.
+         */
+        ReturnEligibilityLine: {
+            /** Order Item Id */
+            order_item_id: number;
+            /** Product Name */
+            product_name: string;
+            /** Variant Title */
+            variant_title?: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Returnable Qty */
+            returnable_qty: number;
+        };
+        /**
+         * ReturnEligibilityResponse
+         * @description ``GET /api/v1/orders/{order_id}/returns/eligibility``.
+         *
+         *     The single server-side source for the FE modal: ``eligible`` is the
+         *     create-endpoint's verdict (order delivered + returns enabled + window open
+         *     + at least one returnable unit); ``reason`` carries a machine-readable code
+         *     when not eligible (``not_delivered`` / ``returns_disabled`` /
+         *     ``window_closed`` / ``nothing_returnable``). ``window_ends_at`` is
+         *     ``delivered_at`` (legacy fallback: ``updated_at``) + the configured
+         *     ``returns_window_days`` — null when the order was never delivered or
+         *     returns are disabled.
+         */
+        ReturnEligibilityResponse: {
+            /** Eligible */
+            eligible: boolean;
+            /** Reason */
+            reason?: ("not_delivered" | "returns_disabled" | "window_closed" | "nothing_returnable") | null;
+            /** Window Ends At */
+            window_ends_at?: string | null;
+            /** Lines */
+            lines?: components["schemas"]["ReturnEligibilityLine"][];
+        };
+        /**
+         * ReturnItemCreate
+         * @description One picked line on a return request.
+         *
+         *     ``order_item_id`` must reference a line on the parent order (validated in
+         *     the CRUD layer). ``quantity`` is capped at the line's *returnable*
+         *     quantity: ``order_item.quantity - Σ prior non-rejected return qty -
+         *     Σ refund qty not linked from any return`` (CRUD raises
+         *     ``ReturnLineOverError`` otherwise).
+         */
+        ReturnItemCreate: {
+            /** Order Item Id */
+            order_item_id: number;
+            /** Quantity */
+            quantity: number;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "defective" | "wrong_item" | "not_as_described" | "no_longer_needed" | "other";
+        };
+        /**
+         * ReturnItemResponse
+         * @description A returned line on the response.
+         *
+         *     ``product_name``/``variant_title``/``unit_price``/``line_subtotal`` are
+         *     denormalised from the joined ``order_item`` row (model properties — mirrors
+         *     ``RefundItemResponse``) so the FE renders the breakdown without a second
+         *     round-trip per row.
+         */
+        ReturnItemResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Return Request Id */
+            return_request_id: number;
+            /** Order Item Id */
+            order_item_id: number;
+            /** Quantity */
+            quantity: number;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "defective" | "wrong_item" | "not_as_described" | "no_longer_needed" | "other";
+            /** Product Name */
+            product_name?: string | null;
+            /** Variant Title */
+            variant_title?: string | null;
+            /** Unit Price */
+            unit_price?: number | null;
+            /** Line Subtotal */
+            line_subtotal?: number | null;
+        };
+        /**
+         * ReturnRefundRequest
+         * @description Body for ``POST /api/v1/admin/returns/{id}/refund``.
+         *
+         *     Delegates to the existing refund choke point (``crud_refund
+         *     .create_for_order``) with the return's lines as the per-line picker.
+         *     ``amount`` defaults to ``Σ order_item.unit_price x returned qty`` when
+         *     omitted; ``reason`` is the *refund* reason vocabulary (default
+         *     ``customer_request``); ``restock`` writes the variant-aware
+         *     ``order_refunded`` movements at refund time (restock happens **here**, not
+         *     at receive).
+         */
+        ReturnRefundRequest: {
+            /**
+             * Amount
+             * @description Refund amount in the order's currency; defaults to the line total.
+             */
+            amount?: number | null;
+            /**
+             * Restock
+             * @description Restock the returned lines when True.
+             * @default false
+             */
+            restock: boolean;
+            /**
+             * Reason
+             * @default customer_request
+             * @enum {string}
+             */
+            reason: "defective" | "wrong_item" | "customer_request" | "lost_in_transit" | "damaged_in_transit" | "other";
+            /**
+             * Note
+             * @description Optional internal refund note (never shown).
+             */
+            note?: string | null;
+        };
+        /**
+         * ReturnRequestCreate
+         * @description Body for ``POST /api/v1/orders/{order_id}/returns`` (customer).
+         */
+        ReturnRequestCreate: {
+            /** Items */
+            items: components["schemas"]["ReturnItemCreate"][];
+            /**
+             * Comment
+             * @description Optional free-text message from the customer.
+             */
+            comment?: string | null;
+        };
+        /**
+         * ReturnRequestListResponse
+         * @description Paginated admin list (standard envelope).
+         */
+        ReturnRequestListResponse: {
+            /** Items */
+            items: components["schemas"]["ReturnRequestResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * ReturnRequestResponse
+         * @description A return request as the API returns it.
+         *
+         *     ``admin_note`` is included because the admin uses the same shape; the
+         *     customer surface drops it client-side (same convention as the refund
+         *     ``note``). ``order_number``/``currency``/``customer_email`` are
+         *     denormalised model properties (eager-loaded relationships — no N+1).
+         */
+        ReturnRequestResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Order Id */
+            order_id: number;
+            /** User Id */
+            user_id: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "requested" | "approved" | "rejected" | "received" | "refunded";
+            /** Comment */
+            comment: string | null;
+            /** Admin Note */
+            admin_note: string | null;
+            /** Refund Id */
+            refund_id: number | null;
+            /** Resolved At */
+            resolved_at: string | null;
+            /** Order Number */
+            order_number?: string | null;
+            /** Currency */
+            currency?: string | null;
+            /** Customer Email */
+            customer_email?: string | null;
+            /** Items */
+            items?: components["schemas"]["ReturnItemResponse"][];
+        };
+        /**
          * ReviewCreate
          * @description Customer POST body — create a review for a product.
          */
@@ -8937,6 +9368,8 @@ export interface components {
             social_youtube: string;
             /** Invoice Vat Rate */
             invoice_vat_rate: number;
+            /** Returns Window Days */
+            returns_window_days: number;
         };
         /**
          * StoreConfigUpdate
@@ -8984,6 +9417,8 @@ export interface components {
             social_youtube?: string | null;
             /** Invoice Vat Rate */
             invoice_vat_rate?: number | null;
+            /** Returns Window Days */
+            returns_window_days?: number | null;
         };
         /**
          * StripeCheckoutResponse
@@ -10966,6 +11401,103 @@ export interface operations {
             };
         };
     };
+    get_return_eligibility_api_v1_orders__order_id__returns_eligibility_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnEligibilityResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_order_returns_api_v1_orders__order_id__returns_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnRequestResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_return_request_api_v1_orders__order_id__returns_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnRequestCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     validate_coupon_api_v1_coupons_validate_post: {
         parameters: {
             query?: never;
@@ -12851,6 +13383,211 @@ export interface operations {
                 content: {
                     "application/json": unknown;
                     "text/csv": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_returns_api_v1_admin_returns__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by return status */
+                status?: ("requested" | "approved" | "rejected" | "received" | "refunded") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnRequestListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_return_api_v1_admin_returns__return_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                return_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_return_api_v1_admin_returns__return_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                return_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ReturnActionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_return_api_v1_admin_returns__return_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                return_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ReturnActionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receive_return_api_v1_admin_returns__return_id__receive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                return_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ReturnActionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refund_return_api_v1_admin_returns__return_id__refund_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                return_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnRefundRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnRequestResponse"];
                 };
             };
             /** @description Validation Error */
