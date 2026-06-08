@@ -116,5 +116,8 @@
   },
   "omnibus": {
     "lowest30d": "Najniższa cena z 30 dni: {price}"
+  },
+  "related": {
+    "title": "Może Ci się również spodobać"
   }
 }

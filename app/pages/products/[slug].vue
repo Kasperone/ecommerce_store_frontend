@@ -353,6 +353,12 @@ useSchemaOrg([
       </div>
 
       <ShopProductReviews :product-id="product.id" />
+
+      <!-- "You may also like" — client-only (Colada isn't SSR-serialized) and
+           self-hides when there's no related signal. -->
+      <ClientOnly>
+        <ShopRelatedProducts :slug="slug" />
+      </ClientOnly>
     </div>
   </NuxtLayout>
 </template>
