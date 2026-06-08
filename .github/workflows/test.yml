@@ -181,6 +181,15 @@ jobs:
     name: E2E (Playwright + backend image)
     # Self-hosted on hive (native — icc:false; browsers + libs provisioned with
     # passwordless sudo; Nuxt dev server on :3100 since hive's :3000 is taken).
+    # Serialize E2E across ALL refs (PRs + main) on the shared hive host so only
+    # one E2E job runs at a time. Concurrent E2E runs starved the cold Nuxt dev
+    # server (the root cause of the account-panel flake — failed ~every
+    # post-merge run during a busy merge train) and collided on the :5498
+    # Postgres host port. Fixed group (not ref-scoped) + cancel-in-progress:false
+    # → a second E2E waits (pending), it is not cancelled.
+    concurrency:
+      group: frontend-e2e-hive
+      cancel-in-progress: false
     runs-on: [self-hosted, hive]
 
     services:

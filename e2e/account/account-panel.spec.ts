@@ -21,7 +21,7 @@ test.describe('Account panel', () => {
     try {
       await api.register(user)
       await api.markVerified(user.email)
-      const { refreshCookie } = await api.loginViaApi(user.email, user.password)
+      const { accessToken, refreshCookie } = await api.loginViaApi(user.email, user.password)
       await page.context().addCookies([refreshCookie])
 
       // The client boot re-fetches GET /auth/me and the form's watcher
@@ -40,22 +40,31 @@ test.describe('Account panel', () => {
       await expect(firstName).toHaveValue(user.firstName, { timeout: 60_000 })
 
       // The form's watch(authStore.user) re-seeds the fields whenever a
-      // background user re-fetch lands (boot /auth/me, proactive token
-      // refresh at TTL−60s, 401-retry) — any fill can be clobbered before
-      // the save click. One atomic fill→save→verify loop converges: if the
-      // PUT carried stale values the store round-trips them back into the
-      // fields, the trailing check fails the iteration, and we re-fill and
-      // re-save until a clean save lands.
+      // background user re-fetch lands (boot /auth/me, post-save store update,
+      // 401-retry) — a fill can be clobbered just before the save click. The
+      // old loop asserted the *in-form* values held AFTER save, which raced
+      // that reseed and deadlocked under CI load. Instead, each iteration
+      // (a) re-fills, (b) guards the fill survived to the click, (c) saves, then
+      // (d) asserts SERVER truth via GET /auth/me — deterministic, immune to
+      // any in-page reseed timing (the access token is valid for the whole
+      // <90s test). Converges the moment one clean fill→save lands.
       await expect(async () => {
         await firstName.fill('Updated')
         await page.getByLabel('Last name').fill('Customer')
         await page.getByLabel('Phone', { exact: true }).fill('+1 555 010 0199')
+        // Guard: a reseed must not have clobbered the fill in the brief window
+        // before we click save (a clobbered fill → PUT carries stale values →
+        // the server assertion below fails the iteration and we retry).
+        await expect(firstName).toHaveValue('Updated', { timeout: 1_000 })
+        await expect(page.getByLabel('Last name')).toHaveValue('Customer', { timeout: 1_000 })
         await page.getByRole('button', { name: 'Save changes' }).click()
-        await expect(page.getByText('Profile updated.').first()).toBeVisible({ timeout: 5_000 })
-        // Post-save the watcher re-seeds from the SAVED user — these holding
-        // the new values proves the PUT carried them.
-        await expect(firstName).toHaveValue('Updated', { timeout: 2_000 })
-        await expect(page.getByLabel('Last name')).toHaveValue('Customer', { timeout: 2_000 })
+        await expect(page.getByText('Profile updated.').first()).toBeVisible({ timeout: 10_000 })
+        // The toast fires after PUT /auth/me resolves, so the server now holds
+        // whatever that save carried. Assert it directly — not the racy fields.
+        const me = await api.getMe(accessToken)
+        expect(me.first_name).toBe('Updated')
+        expect(me.last_name).toBe('Customer')
+        expect(me.phone).toBe('+1 555 010 0199')
       }).toPass({ timeout: 90_000 })
 
       // Server-side persistence: a fresh load re-fetches the user.
