@@ -5,13 +5,23 @@ import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import type { OrderResponse } from '#shared/types/api'
 
-definePageMeta({ middleware: 'user' })
+// No `user` middleware — guests land here after checkout too. The order state
+// below is the only data source; a hard reload clears it for everyone alike.
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 
 // Set by the checkout page before navigating here; null on a hard reload.
 const order = useState<OrderResponse | null>('checkout:lastOrder', () => null)
+
+// Guest orders (user_id = null) carry a tracking token: the "view order" CTA
+// targets the public track page — guests have no /account/orders.
+const viewOrderTo = computed(() => {
+  if (!order.value) return null
+  return order.value.guest_token
+    ? localePath(`/orders/track/${order.value.guest_token}`)
+    : localePath(`/account/orders/${order.value.id}`)
+})
 
 useHead({ title: () => t('checkout.success.title') })
 
@@ -66,15 +76,17 @@ const total = computed(() =>
             :amount-minor="Math.round(order.total * 100)"
             :currency="order.currency"
             :order-number="order.order_number"
+            :guest-token="order.guest_token"
           />
         </div>
 
         <div class="mt-8 flex flex-wrap justify-center gap-3">
           <UButton
-            v-if="order"
+            v-if="viewOrderTo"
             color="neutral"
             variant="soft"
-            :to="localePath(`/account/orders/${order.id}`)"
+            :to="viewOrderTo"
+            data-testid="view-order-cta"
           >
             {{ t('orders.viewOrder') }}
           </UButton>

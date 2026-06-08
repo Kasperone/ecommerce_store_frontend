@@ -104,7 +104,7 @@ describe('CheckoutWalletButton', () => {
     await settle()
 
     expect(submitMock).toHaveBeenCalled()
-    expect(createPiMutate).toHaveBeenCalledWith(7)
+    expect(createPiMutate).toHaveBeenCalledWith({ orderId: 7, guestToken: undefined })
     expect(confirmPaymentMock).toHaveBeenCalledTimes(1)
     const arg = confirmPaymentMock.mock.calls[0]![0] as {
       clientSecret: string
@@ -113,6 +113,24 @@ describe('CheckoutWalletButton', () => {
     expect(arg.clientSecret).toBe('pi_1_secret_abc')
     expect(arg.confirmParams.return_url).toContain('/checkout/payment/return')
     expect(arg.confirmParams.return_url).toContain('order=ORD-7')
+    // Authed order — no token rides the return_url.
+    expect(arg.confirmParams.return_url).not.toContain('token=')
+  })
+
+  it('threads the guest token into the PaymentIntent call and the return_url', async () => {
+    await mountSuspended(WalletButton, {
+      props: { ...PROPS, guestToken: 'tok-guest-abc' },
+    })
+    await settle()
+
+    await onHandlers.get('confirm')?.()
+    await settle()
+
+    expect(createPiMutate).toHaveBeenCalledWith({ orderId: 7, guestToken: 'tok-guest-abc' })
+    const arg = confirmPaymentMock.mock.calls[0]![0] as {
+      confirmParams: { return_url: string }
+    }
+    expect(arg.confirmParams.return_url).toContain('token=tok-guest-abc')
   })
 
   it('does not create a PaymentIntent when element validation fails', async () => {

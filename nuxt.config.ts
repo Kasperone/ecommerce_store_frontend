@@ -153,6 +153,9 @@ export default defineNuxtConfig({
     '/checkout/**': { robots: false },
     '/pl/checkout': { robots: false },
     '/pl/checkout/**': { robots: false },
+    // Guest order tracking — token-bearing URLs must never be indexed.
+    '/orders/track/**': { robots: false },
+    '/pl/orders/track/**': { robots: false },
     '/search': { robots: false },
     '/pl/search': { robots: false },
     '/login': { robots: false },
@@ -259,6 +262,7 @@ export default defineNuxtConfig({
         // them here would duplicate every line (verified against the output).
         disallow: [
           '/admin', '/account', '/cart', '/checkout', '/search',
+          '/orders/track',
           '/login', '/sign-up', '/password-recovery', '/password-reset',
           '/verify-email', '/api/',
         ],

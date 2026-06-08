@@ -9,16 +9,29 @@ import { useI18n } from 'vue-i18n'
  * webhook, which may arrive slightly before or after this page loads. So we
  * show a "confirming your payment" notice and point the buyer at their orders,
  * where the settled status appears once the webhook lands.
+ *
+ * No `user` middleware — guest orders return here too (PayU continueUrl /
+ * Stripe success_url / the wallet's client-built return_url). The wallet flow
+ * appends `&token=<guest_token>` so a guest gets a "track your order" CTA; the
+ * hosted redirect flows carry only `?order=` — those guests fall back to the
+ * tracking link in the order-confirmation email.
  */
-definePageMeta({ middleware: 'user' })
 
 const { t } = useI18n()
 const route = useRoute()
 const localePath = useLocalePath()
+const authStore = useAuthStore()
 
 const orderNumber = computed(() => {
   const o = route.query.order
   return typeof o === 'string' ? o : undefined
+})
+
+// Guest tracking token (wallet-flow return_url only). Token-shaped query noise
+// is harmless — the track page 404s on an unknown token.
+const guestToken = computed(() => {
+  const tok = route.query.token
+  return typeof tok === 'string' && tok.length > 0 ? tok : undefined
 })
 
 useHead({ title: () => t('payment.return.title') })
@@ -45,6 +58,15 @@ useHead({ title: () => t('payment.return.title') })
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <UButton
+          v-if="guestToken"
+          color="primary"
+          :to="localePath(`/orders/track/${guestToken}`)"
+          data-testid="track-order-cta"
+        >
+          {{ t('payment.return.trackOrder') }}
+        </UButton>
+        <UButton
+          v-else-if="authStore.isAuthenticated"
           color="primary"
           :to="localePath('/account/orders')"
         >

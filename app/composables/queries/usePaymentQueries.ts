@@ -8,6 +8,11 @@
  * provider settles it server-to-server via the signed webhook, and the
  * `/checkout/payment/return` page reflects the settled status afterwards.
  *
+ * Guest checkout: all three checkout-start endpoints accept an anonymous caller
+ * when a `?guest_token=` query param matches the order's token (404 on miss) —
+ * pass `guestToken` for orders created without a bearer. Authed callers omit it
+ * and stay scoped by ownership exactly as before.
+ *
  * Failure modes surfaced by the backend (rendered via `parseProblem`):
  * 503 provider not configured · 404 not the caller's order · 409 not pending ·
  * 502 provider upstream error.
@@ -21,12 +26,24 @@ import type {
   StripePaymentIntentResponse,
 } from '#shared/types/api'
 
+export interface StartCheckoutVars {
+  orderId: number
+  /** Guest orders only: the order's opaque tracking token (no bearer sent). */
+  guestToken?: string | null
+}
+
+/** `?guest_token=` only when present — authed calls keep a clean URL. */
+function guestQuery(guestToken?: string | null) {
+  return guestToken ? { guest_token: guestToken } : undefined
+}
+
 export function useStartPayuCheckout() {
   const { apiFetch } = useApi()
   return useMutation({
-    mutation: (orderId: number) =>
+    mutation: ({ orderId, guestToken }: StartCheckoutVars) =>
       apiFetch<PayUCheckoutResponse>(`/api/v1/payments/payu/orders/${orderId}`, {
         method: 'POST',
+        query: guestQuery(guestToken),
       }),
   })
 }
@@ -34,9 +51,10 @@ export function useStartPayuCheckout() {
 export function useStartStripeCheckout() {
   const { apiFetch } = useApi()
   return useMutation({
-    mutation: (orderId: number) =>
+    mutation: ({ orderId, guestToken }: StartCheckoutVars) =>
       apiFetch<StripeCheckoutResponse>(`/api/v1/payments/stripe/checkout/${orderId}`, {
         method: 'POST',
+        query: guestQuery(guestToken),
       }),
   })
 }
@@ -45,6 +63,7 @@ export function useStartStripeCheckout() {
  * Stripe browser config for the in-page Express Checkout Element (wallets).
  * Never errors on missing keys — the backend returns `configured: false` so the
  * `<CheckoutWalletButton>` hides the widget instead of rendering a dead button.
+ * Public endpoint (guest checkout pays in-page too).
  */
 export function useStripeConfig() {
   const { apiFetch } = useApi()
@@ -69,10 +88,10 @@ export function useStripeConfig() {
 export function useCreateStripePaymentIntent() {
   const { apiFetch } = useApi()
   return useMutation({
-    mutation: (orderId: number) =>
+    mutation: ({ orderId, guestToken }: StartCheckoutVars) =>
       apiFetch<StripePaymentIntentResponse>(
         `/api/v1/payments/stripe/payment-intent/${orderId}`,
-        { method: 'POST' },
+        { method: 'POST', query: guestQuery(guestToken) },
       ),
   })
 }

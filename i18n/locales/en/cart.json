@@ -87,7 +87,13 @@
       "countryRequired": "Country is required",
       "countryTooLong": "Country must be 100 characters or fewer",
       "countryInvalid": "Select a country",
-      "notesTooLong": "Notes must be 1000 characters or fewer"
+      "notesTooLong": "Notes must be 1000 characters or fewer",
+      "emailInvalid": "Enter a valid email address"
+    },
+    "guest": {
+      "hint": "You're checking out as a guest — we'll email your order confirmation and tracking link. Or",
+      "signIn": "sign in",
+      "email": "Email address"
     },
     "coupon": {
       "label": "Discount code",
@@ -129,6 +135,13 @@
       "carrier": "Carrier",
       "number": "Tracking number",
       "track": "Track shipment"
+    },
+    "track": {
+      "title": "Track your order",
+      "shipping": "Delivery",
+      "shipsTo": "Ships to {city}, {country}",
+      "method": "Shipping method",
+      "notFound": "We couldn't find that order"
     },
     "status": {
       "pending": "Pending",
@@ -194,7 +207,8 @@
       "title": "Confirming your payment",
       "message": "Thanks! We're confirming your payment. Your order status will update shortly — track it in your orders.",
       "orderRef": "Order {number}",
-      "viewOrders": "View my orders"
+      "viewOrders": "View my orders",
+      "trackOrder": "Track your order"
     }
   }
 }
