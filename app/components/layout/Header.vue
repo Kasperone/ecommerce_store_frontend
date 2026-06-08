@@ -50,9 +50,12 @@ const items = computed<NavigationMenuItem[]>(() => {
       class: 'rounded-full',
     }"
   >
+    <!-- UHeader's #title slot already links to home; render the mark as a
+         non-anchor to avoid nesting <a> inside <a> (hydration mismatch).
+         Keep this comment OUTSIDE #title: UHeader serializes the title slot's
+         vnodes (comment nodes included) into the home anchor's aria-label,
+         which leaks the comment text to screen readers (a11y finding F1). -->
     <template #title>
-      <!-- UHeader's #title slot already links to home; render the mark as a
-           non-anchor to avoid nesting <a> inside <a> (hydration mismatch). -->
       <LayoutLogo :link="false" />
     </template>
 
