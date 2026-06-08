@@ -555,6 +555,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/products/{slug}/related": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Related Products
+         * @description Related products for the PDP ("You may also like" / "Customers also bought").
+         *
+         *     Public + unauthenticated. Resolves ``slug`` like the product-detail route
+         *     (404 if the slug is unknown or the product is inactive). Returns a ranked
+         *     list of ``ProductResponse`` cards — the same shape the storefront product
+         *     listing renders — so the frontend reuses its existing product-card
+         *     component.
+         *
+         *     Ranking (computed at read time, no new table):
+         *
+         *     - **Primary — "customers also bought":** other products that co-appear in
+         *       the same non-cancelled orders, ranked by the number of distinct orders
+         *       they share with this product (desc), newest product id as a tiebreak.
+         *     - **Fallback fill:** if fewer than ``limit`` co-occurrence results, the rest
+         *       is filled with other active, in-stock products from the same category
+         *       (newest first), excluding the subject and any already chosen.
+         *
+         *     The subject is always excluded; inactive products are never returned;
+         *     results are de-duped and capped at ``limit``. Returns ``[]`` when a product
+         *     has neither co-occurrence nor same-category peers.
+         */
+        get: operations["get_related_products_api_v1_products__slug__related_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/categories/tree": {
         parameters: {
             query?: never;
@@ -10764,6 +10803,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LowestPriceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_related_products_api_v1_products__slug__related_get: {
+        parameters: {
+            query?: {
+                /** @description Maximum number of related products */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"][];
                 };
             };
             /** @description Validation Error */
