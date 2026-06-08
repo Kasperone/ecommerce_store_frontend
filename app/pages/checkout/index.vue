@@ -123,11 +123,20 @@ const cartVolumeCm3 = computed(() =>
 // having to own a second `useShippingQuote` call.
 const shippingAmount = ref(0)
 
-// Applied discount code (lifted from CouponField). The field validates against
-// the live subtotal/currency and re-validates on changes, so this discount is
+// Applied discount (lifted from CouponField) — a typed code or an automatic
+// discount previewed without typing. The field validates against the live
+// subtotal/shipping/currency and re-validates on changes, so this discount is
 // always consistent with what the backend will re-compute at order create.
+// A free_shipping winner zeroes the shipping instead of discounting goods
+// (mirrors the server: order.shipping = 0, order.discount = 0).
 const appliedCoupon = ref<AppliedCoupon | null>(null)
-const discountAmount = computed(() => appliedCoupon.value?.discountAmount ?? 0)
+const isFreeShipping = computed(() => appliedCoupon.value?.freeShipping ?? false)
+const discountAmount = computed(() =>
+  isFreeShipping.value ? 0 : (appliedCoupon.value?.discountAmount ?? 0),
+)
+const effectiveShippingAmount = computed(() =>
+  isFreeShipping.value ? 0 : shippingAmount.value,
+)
 
 const summaryLines = computed(() =>
   cart.items.map((item) => {
@@ -145,10 +154,11 @@ const summaryLines = computed(() =>
 
 const subtotal = computed(() => formatMoney(subtotalAmount.value, currency.value, locale.value))
 const shippingFormatted = computed(() => formatMoney(shippingAmount.value, currency.value, locale.value))
+const freeShippingFormatted = computed(() => formatMoney(0, currency.value, locale.value))
 const discountFormatted = computed(() => formatMoney(discountAmount.value, currency.value, locale.value))
 const total = computed(() =>
   formatMoney(
-    subtotalAmount.value - discountAmount.value + shippingAmount.value,
+    subtotalAmount.value - discountAmount.value + effectiveShippingAmount.value,
     currency.value,
     locale.value,
   ),
@@ -170,7 +180,12 @@ async function placeOrder(shipping: ShippingInput) {
       shipping_method_id: selectedMethodId.value,
       notes: shipping.notes?.trim() || undefined,
       currency: currency.value,
-      coupon_code: appliedCoupon.value?.code,
+      // Manual codes only: an automatic discount is re-picked server-side at
+      // order create — sending its code would turn it into a manual code (and
+      // 400 the checkout if it expired between preview and create).
+      coupon_code: appliedCoupon.value && !appliedCoupon.value.isAutomatic
+        ? appliedCoupon.value.code
+        : undefined,
       // Anonymous only: contact email + UI locale (order emails + invoice
       // language). An authed request must NOT send guest_email (backend 422s).
       ...(isGuest.value
@@ -289,6 +304,7 @@ async function placeOrder(shipping: ShippingInput) {
               <CheckoutCouponField
                 v-model="appliedCoupon"
                 :subtotal="subtotalAmount"
+                :shipping-amount="shippingAmount"
                 :currency="currency"
               />
             </div>
@@ -313,11 +329,19 @@ async function placeOrder(shipping: ShippingInput) {
               </div>
               <div class="flex items-center justify-between text-sm text-muted">
                 <span>{{ t('checkout.summary.shipping') }}</span>
-                <span>{{ shippingFormatted }}</span>
+                <!-- free_shipping coupon: original amount struck through to 0 -->
+                <span
+                  v-if="isFreeShipping"
+                  data-testid="summary-shipping-free"
+                >
+                  <span class="line-through">{{ shippingFormatted }}</span>
+                  <span class="ml-1 font-medium text-primary">{{ freeShippingFormatted }}</span>
+                </span>
+                <span v-else>{{ shippingFormatted }}</span>
               </div>
               <div class="flex items-center justify-between pt-1 font-semibold">
                 <span>{{ t('checkout.summary.total') }}</span>
-                <span>{{ total }}</span>
+                <span data-testid="summary-total">{{ total }}</span>
               </div>
             </div>
             <ULink
