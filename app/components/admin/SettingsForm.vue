@@ -39,6 +39,7 @@ interface FormState {
   social_youtube: string
   tax_id: string
   invoice_vat_rate: number | undefined
+  returns_window_days: number | undefined
 }
 
 const state = reactive<FormState>({
@@ -61,6 +62,7 @@ const state = reactive<FormState>({
   social_youtube: '',
   tax_id: '',
   invoice_vat_rate: undefined,
+  returns_window_days: undefined,
 })
 
 watch(
@@ -86,6 +88,7 @@ watch(
     state.social_youtube = config.social_youtube
     state.tax_id = config.tax_id
     state.invoice_vat_rate = config.invoice_vat_rate
+    state.returns_window_days = config.returns_window_days
   },
   // immediate so a config already resolved at mount prefills the fields.
   { immediate: true },
@@ -141,6 +144,11 @@ const schema = computed(() =>
       .number({ message: t('admin.settings.errors.vatRange') })
       .min(0, t('admin.settings.errors.vatRange'))
       .max(100, t('admin.settings.errors.vatRange')),
+    // Mirrors the backend CHECK (>= 0). 0 = returns disabled store-wide.
+    returns_window_days: z
+      .number({ message: t('admin.settings.errors.returnsWindow') })
+      .int(t('admin.settings.errors.returnsWindow'))
+      .min(0, t('admin.settings.errors.returnsWindow')),
   }),
 )
 
@@ -148,6 +156,7 @@ function validate(values: FormState): FormError[] {
   const result = schema.value.safeParse({
     ...values,
     invoice_vat_rate: values.invoice_vat_rate ?? null,
+    returns_window_days: values.returns_window_days ?? null,
   })
   if (result.success) return []
   return result.error.issues.map(issue => ({
@@ -177,6 +186,7 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
     social_youtube: state.social_youtube.trim(),
     tax_id: state.tax_id.trim(),
     invoice_vat_rate: state.invoice_vat_rate ?? undefined,
+    returns_window_days: state.returns_window_days ?? undefined,
   }
   emit('submit', patch)
 }
@@ -486,6 +496,34 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
           :step="0.5"
           :disabled="loading"
           class="w-full"
+        />
+      </UFormField>
+    </section>
+
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold">
+          {{ t('admin.settings.sections.returns') }}
+        </h2>
+        <p class="text-xs text-muted mt-1">
+          {{ t('admin.settings.hints.returns') }}
+        </p>
+      </div>
+
+      <UFormField
+        :label="t('admin.settings.fields.returnsWindowDays')"
+        :help="t('admin.settings.hints.returnsWindowDays')"
+        name="returns_window_days"
+        required
+        class="max-w-xs"
+      >
+        <UInputNumber
+          v-model="state.returns_window_days"
+          :min="0"
+          :step="1"
+          :disabled="loading"
+          class="w-full"
+          data-testid="settings-returns-window"
         />
       </UFormField>
     </section>

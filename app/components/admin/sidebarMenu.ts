@@ -35,6 +35,7 @@ const GROUPS: MenuGroupConfig[] = [
     key: 'sales',
     items: [
       { key: 'orders', to: '/admin/orders', icon: 'i-lucide-shopping-cart' },
+      { key: 'returns', to: '/admin/returns', icon: 'i-lucide-undo-2' },
       { key: 'customers', to: '/admin/customers', icon: 'i-lucide-users' },
       { key: 'companies', to: '/admin/companies', icon: 'i-lucide-building-2' },
       { key: 'quotes', to: '/admin/quotes', icon: 'i-lucide-file-text' },

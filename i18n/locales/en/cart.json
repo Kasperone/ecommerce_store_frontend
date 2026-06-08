@@ -195,6 +195,54 @@
         "damaged_in_transit": "Damaged in transit",
         "other": "Other"
       }
+    },
+    "returns": {
+      "requestButton": "Request return",
+      "title": "Returns",
+      "intro": "We'll email you as your return request moves through review.",
+      "requestedOn": "Requested on {date}",
+      "yourComment": "Your comment",
+      "status": {
+        "requested": "Requested",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "received": "Received",
+        "refunded": "Refunded"
+      },
+      "items": {
+        "line": "{name} x {qty}"
+      },
+      "reasonOptions": {
+        "defective": "Defective item",
+        "wrong_item": "Wrong item received",
+        "not_as_described": "Not as described",
+        "no_longer_needed": "No longer needed",
+        "other": "Other"
+      },
+      "flashes": {
+        "requested": "Return request submitted"
+      },
+      "modal": {
+        "title": "Request a return",
+        "description": "Pick the items you want to send back. We'll review your request and email you the next steps.",
+        "linePicker": {
+          "title": "Items to return",
+          "hint": "Choose how many units of each item you're returning and why.",
+          "availableColumn": "{remaining} of {total} returnable",
+          "qtyAriaLabel": "Quantity to return for {product}"
+        },
+        "reasonPlaceholder": "Select a reason",
+        "reasonAriaLabel": "Return reason for {product}",
+        "comment": "Comment (optional)",
+        "commentPlaceholder": "Anything else we should know?",
+        "policyLink": "Read our returns policy",
+        "submit": "Submit return request",
+        "cancel": "Cancel",
+        "errors": {
+          "noItems": "Pick at least one item to return.",
+          "reasonRequired": "Select a reason for every item you're returning."
+        }
+      }
     }
   },
   "payment": {

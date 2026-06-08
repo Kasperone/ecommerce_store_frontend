@@ -5,10 +5,12 @@ import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
+import type { ReturnRequestCreate } from '#shared/types/api'
 
 definePageMeta({ layout: 'account', middleware: 'user' })
 
 const { t, locale } = useI18n()
+const toast = useToast()
 const route = useRoute()
 const localePath = useLocalePath()
 
@@ -21,11 +23,39 @@ const { data: order, error } = useOrderQuery(id)
 const cancelMutation = useCancelOrder()
 const { reorder, isReordering } = useReorder()
 
+// Returns/RMA — the eligibility query is the single server-side source for
+// the "Request return" button + modal line picker; the returns list feeds the
+// status section. Both are client-only Colada queries (rule #87).
+const { data: returnEligibility } = useReturnEligibilityQuery(id)
+const { data: orderReturns } = useOrderReturnsQuery(id)
+const createReturnMutation = useCreateReturnRequest()
+
 const cancelOpen = ref(false)
 const cancelError = ref<ProblemDetails | null>(null)
+const returnOpen = ref(false)
+// Raw caught error — ReturnRequestModal drives the gold-standard flow internally.
+const returnError = ref<unknown>(null)
 
 const canCancel = computed(() => order.value?.status === 'pending')
 const canPay = computed(() => order.value?.status === 'pending')
+const canRequestReturn = computed(() => returnEligibility.value?.eligible === true)
+
+async function onReturnSubmit(payload: ReturnRequestCreate) {
+  if (!id.value) return
+  returnError.value = null
+  try {
+    await createReturnMutation.mutateAsync({ orderId: id.value, request: payload })
+    returnOpen.value = false
+    toast.add({
+      title: t('orders.returns.flashes.requested'),
+      color: 'success',
+      icon: 'i-lucide-check',
+    })
+  }
+  catch (err) {
+    returnError.value = err
+  }
+}
 
 function money(value: number) {
   return order.value ? formatMoney(value, order.value.currency as CurrencyCode, locale.value) : ''
@@ -121,6 +151,17 @@ useHead({
               {{ t('orders.reorder.button') }}
             </UButton>
             <UButton
+              v-if="canRequestReturn"
+              color="neutral"
+              variant="soft"
+              size="sm"
+              icon="i-lucide-undo-2"
+              data-testid="request-return-button"
+              @click="returnError = null; returnOpen = true"
+            >
+              {{ t('orders.returns.requestButton') }}
+            </UButton>
+            <UButton
               v-if="canCancel"
               color="error"
               variant="soft"
@@ -159,6 +200,8 @@ useHead({
           :status="order.status"
           :order-total="order.total"
         />
+
+        <OrdersReturnsSection :returns="orderReturns ?? []" />
 
         <section>
           <h2 class="mb-2 font-semibold">
@@ -284,5 +327,14 @@ useHead({
         />
       </template>
     </UModal>
+
+    <OrdersReturnRequestModal
+      :eligibility="returnEligibility"
+      :open="returnOpen"
+      :loading="createReturnMutation.isLoading.value"
+      :error="returnError"
+      @update:open="(v: boolean) => { returnOpen = v; if (!v) returnError = null }"
+      @submit="onReturnSubmit"
+    />
   </NuxtLayout>
 </template>
