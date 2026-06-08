@@ -2453,6 +2453,100 @@ export interface paths {
         patch: operations["moderate_review_api_v1_admin_reviews__review_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/segments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Segments
+         * @description List segments (newest first), filterable by active toggle and name substring.
+         */
+        get: operations["list_segments_api_v1_admin_segments__get"];
+        put?: never;
+        /**
+         * Create Segment
+         * @description Create a segment. ``filters`` is validated against ``SegmentFilters``
+         *     (``extra="forbid"``; ``min_total_spent`` requires a ``currency``).
+         */
+        post: operations["create_segment_api_v1_admin_segments__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/segments/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Unsaved Segment
+         * @description Resolve an **unsaved** filter body to a live membership count + sample —
+         *     powers the filter-builder's "Matches N customers" preview before saving.
+         */
+        post: operations["preview_unsaved_segment_api_v1_admin_segments_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/segments/{segment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Segment
+         * @description Get one segment by id.
+         */
+        get: operations["get_segment_api_v1_admin_segments__segment_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Segment
+         * @description Delete a segment.
+         */
+        delete: operations["delete_segment_api_v1_admin_segments__segment_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Segment
+         * @description Update a segment (partial). Only fields explicitly sent are touched.
+         */
+        patch: operations["update_segment_api_v1_admin_segments__segment_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/segments/{segment_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview Saved Segment
+         * @description Resolve a **saved** segment's stored filters to a live count + sample.
+         */
+        get: operations["preview_saved_segment_api_v1_admin_segments__segment_id__preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/tags/": {
         parameters: {
             query?: never;
@@ -2547,6 +2641,32 @@ export interface paths {
          * @description Rename / recolor a product tag (admin). 409 if a rename collides with another tag.
          */
         patch: operations["update_product_tag_api_v1_admin_product_tags__tag_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/products/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Products
+         * @description Download the product catalog as CSV (admin), inheriting the list filters.
+         *
+         *     One row per product; ``tags`` / ``collection_slugs`` packed into ``"; "``-joined
+         *     columns; variant products flagged with ``has_variants`` (not expanded — v1
+         *     export only). RFC 4180, UTF-8 with BOM. Generated on demand — no persistence,
+         *     no audit row (read-only GET). This is export-only; import + bulk-edit ship in
+         *     follow-up PRs (CSV-BE2 / CSV-BE3).
+         */
+        get: operations["export_products_api_v1_admin_products_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/banners/": {
@@ -2795,7 +2915,9 @@ export interface paths {
         /**
          * Create Campaign
          * @description Create a campaign. ``status`` defaults to ``draft``; a ``scheduled`` status
-         *     requires ``scheduled_at`` (422 otherwise, enforced by the schema).
+         *     requires ``scheduled_at`` (422 otherwise, enforced by the schema). An
+         *     ``audience='segment'`` campaign requires a ``segment_id`` that references an
+         *     existing segment (422 / 404 otherwise).
          */
         post: operations["create_campaign_api_v1_admin_campaigns__post"];
         delete?: never;
@@ -2848,8 +2970,8 @@ export interface paths {
          * @description Send a campaign to its resolved audience, then mark it ``sent``.
          *
          *     Only ``draft`` / ``scheduled`` campaigns may send (409 if already ``sent``).
-         *     The audience (``all`` / ``customers`` / ``b2b``) is resolved to recipient
-         *     emails, then each is mailed **best-effort** inside a per-recipient
+         *     The audience (``all`` / ``customers`` / ``b2b`` / ``segment``) is resolved to
+         *     recipient emails, then each is mailed **best-effort** inside a per-recipient
          *     try/except — one bad address never aborts the run (mirrors the order-email
          *     best-effort posture); failures are logged. On completion the campaign flips
          *     to ``sent`` with ``sent_at`` stamped, alongside an audit row, in one
@@ -4576,7 +4698,7 @@ export interface components {
              * Audience
              * @enum {string}
              */
-            audience: "all" | "customers" | "b2b";
+            audience: "all" | "customers" | "b2b" | "segment";
             /**
              * Status
              * @default draft
@@ -4587,6 +4709,8 @@ export interface components {
             body?: string | null;
             /** Scheduled At */
             scheduled_at?: string | null;
+            /** Segment Id */
+            segment_id?: number | null;
         };
         /**
          * CampaignListResponse
@@ -4629,7 +4753,7 @@ export interface components {
              * Audience
              * @enum {string}
              */
-            audience: "all" | "customers" | "b2b";
+            audience: "all" | "customers" | "b2b" | "segment";
             /**
              * Status
              * @default draft
@@ -4640,6 +4764,8 @@ export interface components {
             body?: string | null;
             /** Scheduled At */
             scheduled_at?: string | null;
+            /** Segment Id */
+            segment_id?: number | null;
             /** Sent At */
             sent_at?: string | null;
         };
@@ -4659,13 +4785,15 @@ export interface components {
             /** Subject */
             subject?: string | null;
             /** Audience */
-            audience?: ("all" | "customers" | "b2b") | null;
+            audience?: ("all" | "customers" | "b2b" | "segment") | null;
             /** Status */
             status?: ("draft" | "scheduled" | "sent") | null;
             /** Body */
             body?: string | null;
             /** Scheduled At */
             scheduled_at?: string | null;
+            /** Segment Id */
+            segment_id?: number | null;
         };
         /**
          * CategoryCreate
@@ -9366,6 +9494,123 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
+        };
+        /**
+         * SegmentCreate
+         * @description Request body for ``POST /api/v1/admin/segments``.
+         */
+        SegmentCreate: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            filters?: components["schemas"]["SegmentFilters"];
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /**
+         * SegmentFilters
+         * @description The closed, typed customer predicate that defines a segment.
+         *
+         *     Unknown keys are rejected (``extra="forbid"``). Every field is optional;
+         *     set fields are AND-combined by the resolver. An empty object matches all
+         *     customers.
+         */
+        SegmentFilters: {
+            /** Tag Ids */
+            tag_ids?: number[] | null;
+            /**
+             * Tag Match
+             * @default any
+             * @enum {string}
+             */
+            tag_match: "any" | "all";
+            /** Min Order Count */
+            min_order_count?: number | null;
+            /** Max Order Count */
+            max_order_count?: number | null;
+            /** Min Total Spent */
+            min_total_spent?: number | null;
+            /** Currency */
+            currency?: ("USD" | "PLN" | "EUR") | null;
+            /** Last Order Before */
+            last_order_before?: string | null;
+            /** Last Order After */
+            last_order_after?: string | null;
+            /** Country */
+            country?: string | null;
+            /** Role */
+            role?: ("customer" | "b2b") | null;
+        };
+        /**
+         * SegmentListResponse
+         * @description Paginated segment list.
+         */
+        SegmentListResponse: {
+            /** Items */
+            items: components["schemas"]["SegmentResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * SegmentPreview
+         * @description Resolved segment membership preview: total match count + a sample page.
+         */
+        SegmentPreview: {
+            /** Count */
+            count: number;
+            /** Sample */
+            sample: components["schemas"]["CustomerListItem"][];
+        };
+        /**
+         * SegmentResponse
+         * @description A segment row as the API returns it.
+         */
+        SegmentResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            filters?: components["schemas"]["SegmentFilters"];
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+        };
+        /**
+         * SegmentUpdate
+         * @description Request body for ``PATCH /api/v1/admin/segments/{id}`` (all fields optional).
+         */
+        SegmentUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            filters?: components["schemas"]["SegmentFilters"] | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /**
          * SessionResponse
@@ -14681,6 +14926,238 @@ export interface operations {
             };
         };
     };
+    list_segments_api_v1_admin_segments__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by active toggle */
+                is_active?: boolean | null;
+                /** @description Filter by name (contains, case-insensitive) */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_segment_api_v1_admin_segments__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SegmentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_unsaved_segment_api_v1_admin_segments_preview_post: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SegmentFilters"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_segment_api_v1_admin_segments__segment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                segment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_segment_api_v1_admin_segments__segment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                segment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_segment_api_v1_admin_segments__segment_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                segment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SegmentUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_saved_segment_api_v1_admin_segments__segment_id__preview_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                segment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SegmentPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_tags_api_v1_admin_tags__get: {
         parameters: {
             query?: never;
@@ -14902,6 +15379,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductTagResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_products_api_v1_admin_products_export_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by category ID */
+                category_id?: number | null;
+                /** @description Filter by active status (omit = all) */
+                is_active?: boolean | null;
+                /** @description Search in name/description */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Product CSV export */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
                 };
             };
             /** @description Validation Error */
@@ -15415,7 +15929,7 @@ export interface operations {
                 /** @description Filter by lifecycle status */
                 status?: ("draft" | "scheduled" | "sent") | null;
                 /** @description Filter by audience */
-                audience?: ("all" | "customers" | "b2b") | null;
+                audience?: ("all" | "customers" | "b2b" | "segment") | null;
                 /** @description Filter by name (contains, case-insensitive) */
                 search?: string | null;
             };

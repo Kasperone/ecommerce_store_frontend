@@ -93,7 +93,8 @@
         "reports": "Reports",
         "auditLog": "Audit Log",
         "settings": "Settings",
-        "staff": "Staff & Roles"
+        "staff": "Staff & Roles",
+        "segments": "Segments"
       }
     },
     "pages": {
@@ -1887,7 +1888,8 @@
       "audience": {
         "all": "Everyone",
         "customers": "Customers",
-        "b2b": "Business (B2B)"
+        "b2b": "Business (B2B)",
+        "segment": "Segment"
       },
       "status": {
         "draft": "Draft",
@@ -1913,12 +1915,18 @@
         "scheduledAtHint": "Required when the status is Scheduled.",
         "sentAt": "Sent at",
         "save": "Save",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "segment": "Segment",
+        "segmentHint": "Choose the saved customer segment to send to.",
+        "segmentPlaceholder": "Select a segment",
+        "segmentCountLoading": "Resolving recipients…",
+        "segmentCount": "no recipients | {count} recipient | {count} recipients"
       },
       "errors": {
         "nameRequired": "Name is required.",
         "subjectRequired": "Subject is required.",
-        "scheduledAtRequired": "A scheduled date is required when the status is Scheduled."
+        "scheduledAtRequired": "A scheduled date is required when the status is Scheduled.",
+        "segmentRequired": "A segment is required for the Segment audience."
       },
       "delete": {
         "title": "Delete campaign",
@@ -2133,6 +2141,89 @@
         "reject": "Return rejected",
         "receive": "Return marked as received",
         "refunded": "Refund issued — return closed"
+      }
+    },
+    "segments": {
+      "title": "Segments",
+      "subtitle": "Build reusable customer segments from tags, spend, orders, and more",
+      "actions": {
+        "create": "New segment",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive",
+        "search": "Search",
+        "searchPlaceholder": "Search by name"
+      },
+      "fields": {
+        "name": "Name",
+        "status": "Status"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "tagMatch": {
+        "any": "Any tag",
+        "all": "All tags"
+      },
+      "role": {
+        "any": "Any",
+        "customer": "Customers",
+        "b2b": "Business (B2B)"
+      },
+      "empty": {
+        "noSegments": "No segments yet.",
+        "noResults": "No segments match your filters."
+      },
+      "form": {
+        "createTitle": "New segment",
+        "editTitle": "Edit segment",
+        "name": "Name",
+        "nameHint": "Internal name, shown in this list.",
+        "description": "Description",
+        "isActive": "Active",
+        "filtersHeading": "Membership filters",
+        "tags": "Tags",
+        "tagsPlaceholder": "Select tags",
+        "tagMatch": "Tag match",
+        "minOrderCount": "Min orders",
+        "maxOrderCount": "Max orders",
+        "minTotalSpent": "Min total spent",
+        "minTotalSpentHint": "Requires a currency.",
+        "currency": "Currency",
+        "currencyPlaceholder": "Select currency",
+        "lastOrderAfter": "Last order after",
+        "lastOrderBefore": "Last order before",
+        "country": "Country",
+        "countryHint": "Two-letter or full country name.",
+        "role": "Account type",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "preview": {
+        "matches": "Matches no customers | Matches {count} customer | Matches {count} customers",
+        "loading": "Resolving…",
+        "error": "Could not resolve preview."
+      },
+      "errors": {
+        "nameRequired": "Name is required.",
+        "currencyRequired": "A currency is required when a minimum spend is set."
+      },
+      "delete": {
+        "title": "Delete segment",
+        "confirm": "Delete segment \"{name}\"? This cannot be undone.",
+        "delete": "Delete",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "created": "Segment created.",
+        "updated": "Segment updated.",
+        "deleted": "Segment deleted."
       }
     }
   },
