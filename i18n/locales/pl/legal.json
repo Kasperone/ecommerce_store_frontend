@@ -137,6 +137,13 @@
           "body": [
             "Korzystamy z plików cookie i podobnych technologii, jak opisano w naszej Polityce cookie. Plikami cookie innymi niż niezbędne możesz zarządzać za pomocą ustawień plików cookie."
           ]
+        },
+        "googleTags": {
+          "heading": "8. Google Analytics i Google Ads",
+          "body": [
+            "W zależności od Twoich wyborów dotyczących plików cookie korzystamy z Google Analytics 4 i Google Ads. Ich tagi ładują się dopiero po wyrażeniu zgody i działają w trybie Google Consent Mode v2 (domyślnie wyłączone), więc żadne pliki cookie analityczne ani reklamowe nie są ustawiane, dopóki nie zaakceptujesz odpowiedniej kategorii.",
+            "Jeśli zaakceptujesz pliki marketingowe, Konwersje rozszerzone Google Ads mogą haszować Twój adres e-mail (SHA-256) w przeglądarce przed transmisją, dzięki czemu nigdy nie udostępniamy go Google w postaci jawnej. Zgodę możesz wycofać w dowolnym momencie za pomocą ustawień plików cookie."
+          ]
         }
       }
     },
@@ -180,6 +187,13 @@
           "heading": "4. Jak długo działają pliki cookie",
           "body": [
             "Pliki cookie sesyjne są usuwane po zamknięciu przeglądarki. Pliki trwałe pozostają przez określony czas lub do momentu ich usunięcia. Konkretne okresy zależą od przeznaczenia danego pliku cookie."
+          ]
+        },
+        "googleTags": {
+          "heading": "5. Google Analytics i Google Ads",
+          "body": [
+            "Po zaakceptowaniu plików cookie analitycznych lub marketingowych ładujemy tagi Google Analytics 4 i Google Ads. Działają one w trybie Google Consent Mode v2, co oznacza, że domyślnie są wyłączone i aktywują odpowiednie magazyny danych dopiero po Twoim wyborze — pliki analityczne włączają Google Analytics, a marketingowe włączają pomiar konwersji i remarketing Google Ads.",
+            "Do pomiaru konwersji reklamowych możemy stosować Konwersje rozszerzone: Twój adres e-mail jest haszowany (SHA-256) w Twojej przeglądarce, zanim zostanie wysłany do Google, więc Google nigdy nie otrzymuje go w postaci jawnej. Dzieje się to wyłącznie po wyrażeniu zgody marketingowej."
           ]
         }
       }

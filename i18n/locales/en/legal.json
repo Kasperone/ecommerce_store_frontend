@@ -137,6 +137,13 @@
           "body": [
             "We use cookies and similar technologies as described in our Cookie Policy. You can manage non-essential cookies via the cookie settings control."
           ]
+        },
+        "googleTags": {
+          "heading": "8. Google Analytics & Google Ads",
+          "body": [
+            "Subject to your cookie choices, we use Google Analytics 4 and Google Ads. Their tags load only after you consent and run in Google Consent Mode v2 (denied by default), so no analytics or advertising cookies are set until you accept the relevant category.",
+            "Where you accept marketing cookies, Google Ads Enhanced Conversions may hash your email address (SHA-256) in your browser before transmission, so we never share it with Google in plain text. You can withdraw consent at any time via the cookie settings control."
+          ]
         }
       }
     },
@@ -180,6 +187,13 @@
           "heading": "4. How long cookies last",
           "body": [
             "Session cookies are deleted when you close the browser. Persistent cookies remain for a defined period or until you delete them. Specific durations depend on the cookie's purpose."
+          ]
+        },
+        "googleTags": {
+          "heading": "5. Google Analytics & Google Ads",
+          "body": [
+            "When you accept analytics or marketing cookies, we load Google Analytics 4 and Google Ads tags. These run in Google Consent Mode v2, which means they are denied by default and only activate the relevant storage after your choice — analytics cookies enable Google Analytics, marketing cookies enable Google Ads conversion measurement and remarketing.",
+            "For ad conversion measurement we may use Enhanced Conversions: your email address is hashed (SHA-256) in your browser before it is sent to Google, so Google never receives it in plain text. This only happens when you have granted marketing consent."
           ]
         }
       }

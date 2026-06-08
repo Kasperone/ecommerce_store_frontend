@@ -33,6 +33,11 @@ export interface CartItem {
   variantTitlePl?: string | null
   slug: string
   name: string
+  // Analytics product id source (Pillars C/D): the variant SKU when present,
+  // else the product SKU, else null → callers fall back to `prod_{productId}`
+  // via `analyticsItemId`. Snapshotted so cart/checkout events don't refetch.
+  // Older persisted carts lack it → treated as null (→ prod_{id}).
+  sku?: string | null
   imageUrl: string | null
   price_usd: number | null
   price_pln: number | null
@@ -67,6 +72,7 @@ type AddableProduct = Pick<
   | 'price_eur'
   | 'stock'
   | 'allow_backorder'
+  | 'sku'
   | 'weight_kg'
   | 'length_cm'
   | 'width_cm'
@@ -117,6 +123,8 @@ export const useCartStore = defineStore('cart', () => {
       variantTitlePl: variant?.title_pl ?? null,
       slug: product.slug,
       name: product.name,
+      // Analytics id source: prefer the variant SKU, else the product SKU.
+      sku: variant?.sku ?? product.sku ?? null,
       // A variant with its own gallery image shows that image on the line.
       imageUrl: variant?.image_url ?? primaryImageUrl(product),
       // Variant prices are the EFFECTIVE per-currency values (inheritance

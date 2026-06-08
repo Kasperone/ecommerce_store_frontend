@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatMoney, selectPrice } from '#shared/utils/money'
 
@@ -7,8 +7,14 @@ const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const cart = useCartStore()
 const { currency } = useCurrencyPreference()
+const { viewCart } = useEcommerceTracking()
 
 useHead({ title: () => t('cart.title') })
+
+// GA4 view_cart on the /cart page (client-only; the composable guards consent).
+onMounted(() => {
+  if (!cart.isEmpty) viewCart(cart.items)
+})
 
 const subtotal = computed(() => {
   const total = cart.items.reduce((sum, item) => {

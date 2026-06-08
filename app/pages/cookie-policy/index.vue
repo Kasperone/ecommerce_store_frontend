@@ -49,5 +49,9 @@ useSeoMeta({
       :heading="t('legal.cookies.sections.retention.heading')"
       body-key="legal.cookies.sections.retention.body"
     />
+    <LegalSection
+      :heading="t('legal.cookies.sections.googleTags.heading')"
+      body-key="legal.cookies.sections.googleTags.body"
+    />
   </LegalPageShell>
 </template>

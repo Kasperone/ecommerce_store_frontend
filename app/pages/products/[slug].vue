@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ProductVariantPublic } from '#shared/types/api'
 import { localizedCategoryName } from '#shared/utils/categoryTree'
@@ -49,6 +49,17 @@ const metaDescription = computed(() =>
   product.value ? localizedProductMetaDescription(product.value, locale.value) : null,
 )
 const firstImage = computed(() => product.value?.images?.[0] ?? null)
+
+// GA4 view_item (Pillar C). Client-only (the composable guards SSR + consent);
+// fired once the PDP product resolves. Re-emits if the route swaps to another
+// product slug within the same page component.
+const { viewItem } = useEcommerceTracking()
+onMounted(() => {
+  if (product.value) viewItem(product.value)
+})
+watch(() => product.value?.id, (id, prev) => {
+  if (id && id !== prev && product.value) viewItem(product.value)
+})
 
 useSeoMeta({
   // Admin-set meta fields win; fall back to the localized name/description.

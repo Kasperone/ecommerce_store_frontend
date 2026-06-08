@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { localizedCartVariantTitle } from '#shared/utils/localizedProduct'
 import { formatMoney, selectPrice } from '#shared/utils/money'
@@ -18,6 +18,7 @@ const cart = useCartStore()
 const authStore = useAuthStore()
 const { currency } = useCurrencyPreference()
 const createOrder = useCreateOrder()
+const { beginCheckout, addShippingInfo } = useEcommerceTracking()
 
 // Client-only render (see <ClientOnly> below), so this never flips mid-paint:
 // the auth plugin's session restore completes before the checkout UI mounts.
@@ -163,6 +164,21 @@ const total = computed(() =>
     locale.value,
   ),
 )
+
+// GA4 begin_checkout once on mount (the composable guards SSR/consent). The
+// coupon may not be applied yet — that's fine, GA4 stitches the funnel by
+// session; the value reflects the current cart.
+onMounted(() => {
+  if (!cart.isEmpty) beginCheckout(cart.items, appliedCoupon.value?.code)
+})
+
+// GA4 add_shipping_info when a shipping method is first resolved (the selector
+// emits the chosen id). `shipping_tier` is the human method name when known.
+watch(selectedMethodId, (id, prev) => {
+  if (id != null && id !== prev && !cart.isEmpty) {
+    addShippingInfo(cart.items, undefined, appliedCoupon.value?.code)
+  }
+})
 
 async function placeOrder(shipping: ShippingInput) {
   // Defense-in-depth: the form isn't rendered while impersonating, and the

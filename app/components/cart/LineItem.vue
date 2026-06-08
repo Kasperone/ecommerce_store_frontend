@@ -11,6 +11,7 @@ const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const cart = useCartStore()
 const { currency } = useCurrencyPreference()
+const { removeFromCart } = useEcommerceTracking()
 
 const to = computed(() => localePath(`/products/${props.item.slug}`))
 // Variant lines show their localized title ("Red / XL") under the name.
@@ -27,6 +28,19 @@ const lineTotal = computed(() => {
     ? formatMoney(picked.amount * props.item.quantity, picked.currency, locale.value)
     : null
 })
+
+// GA4 remove_from_cart. Decrement reports a single unit removed; the trash
+// button reports the whole line quantity. Fire the event THEN mutate the cart
+// so the line snapshot is still intact when we build the analytics item.
+function decrement() {
+  removeFromCart({ ...props.item, quantity: 1 })
+  cart.setQuantity(props.item.productId, variantId.value, props.item.quantity - 1)
+}
+
+function removeLine() {
+  removeFromCart({ ...props.item })
+  cart.remove(props.item.productId, variantId.value)
+}
 </script>
 
 <template>
@@ -83,7 +97,7 @@ const lineTotal = computed(() => {
             size="xs"
             icon="i-lucide-minus"
             :aria-label="t('cart.item.decrease')"
-            @click="cart.setQuantity(item.productId, variantId, item.quantity - 1)"
+            @click="decrement"
           />
           <span class="min-w-8 text-center text-sm">{{ item.quantity }}</span>
           <UButton
@@ -109,7 +123,7 @@ const lineTotal = computed(() => {
       size="xs"
       icon="i-lucide-trash-2"
       :aria-label="t('cart.actions.remove')"
-      @click="cart.remove(item.productId, variantId)"
+      @click="removeLine"
     />
   </div>
 </template>

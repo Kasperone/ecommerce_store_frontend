@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { z } from 'zod'
 import { useI18n } from 'vue-i18n'
 import { parseProblem } from '#shared/utils/problemDetails'
@@ -63,6 +63,13 @@ const items = computed(() => results.value?.items ?? [])
 const total = computed(() => results.value?.total ?? 0)
 const pageSize = computed(() => results.value?.page_size ?? 12)
 const currentPage = computed(() => results.value?.page ?? 1)
+
+// GA4 view_item_list for the search results (client-only + consent-guarded).
+// SearchResultItem carries id/name/sku/price columns → fits viewItemList.
+const { viewItemList } = useEcommerceTracking()
+watch(items, (list) => {
+  if (list.length) viewItemList(list, { id: 'search_results', name: 'Search results' })
+}, { immediate: true })
 const categoryFacets = computed(() => results.value?.facets?.category_id ?? [])
 const collectionFacets = computed(() => results.value?.facets?.collection_slugs ?? [])
 const tagFacets = computed(() => results.value?.facets?.tags ?? [])

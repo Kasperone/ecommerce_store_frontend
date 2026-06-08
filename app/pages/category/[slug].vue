@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { findCategoryNode, findCategoryPath, localizedCategoryName } from '#shared/utils/categoryTree'
 import { localizedProductName } from '#shared/utils/localizedProduct'
@@ -51,6 +51,14 @@ useSeoMeta({
 const params = computed(() => ({ categoryId: category.value?.id, sort: 'newest' as const }))
 const { data: listing } = useProductListing(params, `storefront-category-${slug}-products`)
 const items = computed(() => listing.value?.items ?? [])
+
+// GA4 view_item_list for the category listing (client-only + consent-guarded).
+const { viewItemList } = useEcommerceTracking()
+watch(items, (list) => {
+  if (list.length) {
+    viewItemList(list, { id: `category_${category.value?.id ?? slug}`, name: title.value || slug })
+  }
+}, { immediate: true })
 
 // Subcategories — products on a parent category live on its children, so surface
 // them as links rather than dead-ending on an empty grid.
