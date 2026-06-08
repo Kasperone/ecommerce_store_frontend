@@ -72,6 +72,20 @@ export class ApiClient {
     await this.pg.query(`UPDATE users SET role = 'ADMIN' WHERE email = $1`, [email])
   }
 
+  async getMe(accessToken: string): Promise<{
+    first_name: string
+    last_name: string
+    phone: string | null
+  }> {
+    const res = await this.http.get('/api/v1/auth/me', {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`getMe failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json() as { first_name: string, last_name: string, phone: string | null }
+  }
+
   async truncateAuthTables(): Promise<void> {
     await this.pg.query('TRUNCATE TABLE users, refresh_tokens, verification_tokens RESTART IDENTITY CASCADE')
   }
