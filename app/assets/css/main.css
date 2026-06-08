@@ -1,6 +1,17 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* F6 (a11y / WCAG-AA contrast). Nuxt UI's default `primary` (green) resolves
+ * `--ui-primary` to green-500 (oklch 72.3%) in light mode, giving only 2.21:1
+ * for white-on-primary buttons and primary-on-white links — AA needs 4.5:1.
+ * Pin the LIGHT-mode primary to green-800 (~5.8:1, passes AA both directions).
+ * Scoped to `:root:not(.dark)` and left unlayered so it wins over Nuxt UI's
+ * default; dark mode (`.dark`) keeps the lighter shade so the primary stays
+ * legible against the dark surface. */
+:root:not(.dark) {
+  --ui-primary: var(--ui-color-primary-800);
+}
+
 @layer base {
   /* Widen Nuxt UI's content container from the 7xl (1280px) default to
    * 120rem (1920px) so 2K/QHD monitors don't show oversized side gutters.
