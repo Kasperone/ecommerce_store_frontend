@@ -11,7 +11,11 @@ import type { FacetBucket } from '#shared/types/api'
  */
 const props = defineProps<{
   categoryFacets: FacetBucket[]
+  collectionFacets?: FacetBucket[]
+  tagFacets?: FacetBucket[]
   categoryId?: number
+  collection?: string
+  tag?: string
   minPrice?: number
   maxPrice?: number
   inStock?: boolean
@@ -21,6 +25,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   update: [patch: {
     categoryId?: number
+    collection?: string
+    tag?: string
     minPrice?: number
     maxPrice?: number
     inStock?: boolean
@@ -39,6 +45,15 @@ watch(() => props.maxPrice, v => (localMax.value = v))
 function toggleCategory(bucketValue: string) {
   const id = Number(bucketValue)
   emit('update', { categoryId: props.categoryId === id ? undefined : id })
+}
+
+// Collection/tag buckets carry the slug/name directly in `value` (not an id).
+function toggleCollection(bucketValue: string) {
+  emit('update', { collection: props.collection === bucketValue ? undefined : bucketValue })
+}
+
+function toggleTag(bucketValue: string) {
+  emit('update', { tag: props.tag === bucketValue ? undefined : bucketValue })
 }
 
 function applyPrice() {
@@ -95,6 +110,60 @@ function onInStock(value: boolean) {
             @click="toggleCategory(bucket.value)"
           >
             <span class="truncate">{{ bucket.label ?? `#${bucket.value}` }}</span>
+            <span class="ml-2 shrink-0 text-muted">{{ bucket.count }}</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Collection facet -->
+    <div v-if="collectionFacets?.length">
+      <h3 class="mb-2 text-sm font-medium">
+        {{ t('search.facets.collection') }}
+      </h3>
+      <ul class="space-y-1">
+        <li
+          v-for="bucket in collectionFacets"
+          :key="bucket.value"
+        >
+          <button
+            type="button"
+            :class="[
+              'flex w-full items-center justify-between rounded px-2 py-1 text-sm',
+              'hover:bg-elevated',
+              bucket.value === collection ? 'bg-elevated font-medium text-primary' : '',
+            ]"
+            :aria-pressed="bucket.value === collection"
+            @click="toggleCollection(bucket.value)"
+          >
+            <span class="truncate">{{ bucket.label ?? bucket.value }}</span>
+            <span class="ml-2 shrink-0 text-muted">{{ bucket.count }}</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tag facet -->
+    <div v-if="tagFacets?.length">
+      <h3 class="mb-2 text-sm font-medium">
+        {{ t('search.facets.tag') }}
+      </h3>
+      <ul class="space-y-1">
+        <li
+          v-for="bucket in tagFacets"
+          :key="bucket.value"
+        >
+          <button
+            type="button"
+            :class="[
+              'flex w-full items-center justify-between rounded px-2 py-1 text-sm',
+              'hover:bg-elevated',
+              bucket.value === tag ? 'bg-elevated font-medium text-primary' : '',
+            ]"
+            :aria-pressed="bucket.value === tag"
+            @click="toggleTag(bucket.value)"
+          >
+            <span class="truncate">{{ bucket.label ?? bucket.value }}</span>
             <span class="ml-2 shrink-0 text-muted">{{ bucket.count }}</span>
           </button>
         </li>

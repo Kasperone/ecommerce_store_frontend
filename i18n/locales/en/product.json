@@ -56,6 +56,19 @@
     "empty": "No products in this category yet.",
     "loadError": "We couldn't load this category."
   },
+  "collection": {
+    "empty": "No products in this collection yet.",
+    "loadError": "We couldn't load this collection.",
+    "productCount": "{count} product | {count} products",
+    "index": {
+      "title": "Collections",
+      "subtitle": "Curated picks across the store.",
+      "empty": "No collections yet."
+    }
+  },
+  "productTag": {
+    "label": "Tags"
+  },
   "reviews": {
     "heading": "Customer reviews",
     "basedOn": "No reviews yet | {count} review | {count} reviews",

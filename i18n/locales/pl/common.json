@@ -2592,6 +2592,8 @@
       "title": "Filtry",
       "clear": "Wyczyść",
       "category": "Kategoria",
+      "collection": "Kolekcja",
+      "tag": "Tag",
       "price": "Cena",
       "min": "Min",
       "max": "Maks",

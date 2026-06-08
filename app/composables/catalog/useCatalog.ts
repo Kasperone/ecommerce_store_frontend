@@ -10,10 +10,11 @@
 
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
-import { API_ENDPOINTS } from '#shared/constants/api'
+import { API_ENDPOINTS, buildApiUrl } from '#shared/constants/api'
 import type {
   CategoryTreeNode,
   CategoryWithProductCount,
+  CollectionWithProductCount,
   LowestPriceResponse,
   ProductResponse,
   ProductWithCategory,
@@ -27,6 +28,10 @@ export type CatalogSort = 'newest' | 'priceAsc' | 'priceDesc' | 'nameAsc'
 export interface StorefrontListParams {
   page?: number
   categoryId?: number
+  // Manual-collection membership filter (ordered by curation position server-side).
+  collectionId?: number
+  // Product-tag filter (by tag name) — drives the PDP chip → /products?tag= links.
+  tag?: string
   search?: string
   inStock?: boolean
   sort?: CatalogSort
@@ -56,6 +61,11 @@ export function buildListQuery(p: StorefrontListParams) {
     page: p.page ?? 1,
     page_size: STOREFRONT_PAGE_SIZE,
     category_id: p.categoryId,
+    // When set, the backend joins on `collection_products` and orders by the
+    // curated `position` — sort_by/order below are ignored for collection reads.
+    collection_id: p.collectionId,
+    // Free-form tag-name filter (join on product_tag_links → product_tags).
+    tag: p.tag || undefined,
     // Only narrow when the shopper opts in; never request out-of-stock-only.
     in_stock: p.inStock ? true : undefined,
     search: p.search,
@@ -169,6 +179,33 @@ export function useCategoryDetail(slug: string) {
   )
 }
 
+/**
+ * Active manual collections (storefront `/collections` landing).
+ *
+ * SSR-fetched like the rest of the public catalog so the grid is crawlable and
+ * payload-hydrated. The backend returns only active collections with member
+ * product counts.
+ */
+export function useCollectionsListPublic() {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    'storefront-collections',
+    () => apiFetch<CollectionWithProductCount[]>(API_ENDPOINTS.COLLECTIONS.PUBLIC_LIST),
+  )
+}
+
+/** Single collection by slug (EN or PL slug resolves server-side; 404 on miss/inactive). */
+export function useCollectionDetail(slug: string) {
+  const { apiFetch } = useApi()
+  return useAsyncData(
+    `storefront-collection-${slug}`,
+    () =>
+      apiFetch<CollectionWithProductCount>(
+        buildApiUrl.collectionBySlug(encodeURIComponent(slug)),
+      ),
+  )
+}
+
 /** Active category tree (for nav + the catalog category filter). */
 export function useStorefrontCategories() {
   const { apiFetch } = useApi()
@@ -189,6 +226,9 @@ export interface SearchParams {
   locale: string
   currency: CurrencyCode
   categoryId?: number
+  // Collection slug + tag name facet filters (P2).
+  collection?: string
+  tag?: string
   minPrice?: number
   maxPrice?: number
   inStock?: boolean
@@ -210,6 +250,8 @@ export function buildSearchQuery(p: SearchParams) {
     locale: p.locale,
     currency: p.currency,
     category_id: p.categoryId,
+    collection: p.collection || undefined,
+    tag: p.tag || undefined,
     min_price: p.minPrice,
     max_price: p.maxPrice,
     // Only narrow when the shopper opts in; never request out-of-stock-only.

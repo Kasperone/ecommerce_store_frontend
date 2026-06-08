@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildSearchQuery } from './useCatalog'
+import { buildListQuery, buildSearchQuery } from './useCatalog'
 import type { SearchParams } from './useCatalog'
 
 function params(overrides: Partial<SearchParams> = {}): SearchParams {
@@ -42,5 +42,39 @@ describe('buildSearchQuery', () => {
     expect(q.category_id).toBe(3)
     expect(q.min_price).toBe(10)
     expect(q.max_price).toBe(99)
+  })
+
+  it('forwards the collection + tag facet filters when set', () => {
+    const q = buildSearchQuery(params({ collection: 'summer', tag: 'new' }))
+    expect(q.collection).toBe('summer')
+    expect(q.tag).toBe('new')
+  })
+
+  it('omits empty collection/tag (default state)', () => {
+    const q = buildSearchQuery(params())
+    expect(q.collection).toBeUndefined()
+    expect(q.tag).toBeUndefined()
+    const empty = buildSearchQuery(params({ collection: '', tag: '' }))
+    expect(empty.collection).toBeUndefined()
+    expect(empty.tag).toBeUndefined()
+  })
+})
+
+describe('buildListQuery', () => {
+  it('forwards collection_id for collection-membership listings', () => {
+    expect(buildListQuery({ collectionId: 12 }).collection_id).toBe(12)
+    expect(buildListQuery({}).collection_id).toBeUndefined()
+  })
+
+  it('forwards a tag-name filter, omitting empty', () => {
+    expect(buildListQuery({ tag: 'sale' }).tag).toBe('sale')
+    expect(buildListQuery({ tag: '' }).tag).toBeUndefined()
+    expect(buildListQuery({}).tag).toBeUndefined()
+  })
+
+  it('always requests active products with a positive page size', () => {
+    const q = buildListQuery({ collectionId: 1 })
+    expect(q.is_active).toBe(true)
+    expect(q.page_size).toBeGreaterThan(0)
   })
 })
