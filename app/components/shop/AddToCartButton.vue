@@ -18,6 +18,7 @@ const props = defineProps<{
 const { t } = useI18n()
 const cart = useCartStore()
 const auth = useAuthStore()
+const { addToCart: trackAddToCart } = useEcommerceTracking()
 
 const needsSelection = computed(() => props.product.has_variants === true && !props.variant)
 // Stock grain follows the line: the variant's stock when one is resolved.
@@ -34,7 +35,14 @@ const disabled = computed(() => needsSelection.value || outOfStock.value || auth
 
 function addToCart() {
   if (auth.isImpersonating || needsSelection.value) return
-  cart.add(props.product, 1, props.variant ?? null)
+  const variant = props.variant ?? null
+  cart.add(props.product, 1, variant)
+  // GA4 add_to_cart — report a single-unit add of the resulting cart line so
+  // the analytics value matches the line's effective per-currency price.
+  const line = cart.items.find(
+    i => i.productId === props.product.id && (i.variantId ?? null) === (variant?.id ?? null),
+  )
+  if (line) trackAddToCart({ ...line, quantity: 1 })
   cart.openDrawer()
 }
 </script>

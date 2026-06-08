@@ -10,6 +10,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',
+    '@nuxt/scripts',
     '@nuxt/ui',
     '@pinia/nuxt',
     '@nuxtjs/i18n',
@@ -77,6 +78,15 @@ export default defineNuxtConfig({
     ssrSharedSecret: '',
     public: {
       apiBase: '',
+      // Google Analytics 4 + Google Ads tags (Pillars B–D). All PUBLIC by design
+      // — gtag/Ads/Merchant IDs ship to the client and are not secret. Empty
+      // defaults make every tag a no-op (mirrors `apiBase: ''`): with no `ga4Id`
+      // nothing loads, no events fire, and the app behaves exactly as before.
+      // Env override: NUXT_PUBLIC_GA4_ID / _ADS_ID / _ADS_PURCHASE_LABEL / _MERCHANT_ID.
+      ga4Id: '', // GA4 measurement id, e.g. 'G-XXXXXXXX'
+      adsId: '', // Google Ads conversion id, e.g. 'AW-XXXXXXXXX'
+      adsPurchaseLabel: '', // the Ads purchase conversion-action label
+      merchantId: '', // Merchant Center account id (cart-data on the conversion)
     },
   },
 

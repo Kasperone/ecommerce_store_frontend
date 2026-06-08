@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
@@ -13,6 +13,14 @@ const localePath = useLocalePath()
 
 // Set by the checkout page before navigating here; null on a hard reload.
 const order = useState<OrderResponse | null>('checkout:lastOrder', () => null)
+
+// GA4 + Ads purchase — fired exactly once per order_number across this page and
+// the hosted-redirect return page (dedup keyed in localStorage). On a hard
+// reload `order` is null → nothing fires (and the buyer already had it tracked).
+const { trackPurchaseOnce } = useEcommerceTracking()
+onMounted(() => {
+  trackPurchaseOnce(order.value)
+})
 
 // Guest orders (user_id = null) carry a tracking token: the "view order" CTA
 // targets the public track page — guests have no /account/orders.
