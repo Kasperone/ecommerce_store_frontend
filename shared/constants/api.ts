@@ -49,6 +49,33 @@ export const API_ENDPOINTS = {
     DELETE: '/api/v1/categories/{id}', // DELETE - Delete category (admin)
   },
 
+  // Product-tag vocabulary (admin-gated). Distinct from customer tags — see
+  // the customer-tag routes under /admin/tags. Trailing slash on the list
+  // route (FastAPI 307s the slashless form through the h3 proxy).
+  PRODUCT_TAGS: {
+    BASE: '/api/v1/admin/product-tags',
+    LIST: '/api/v1/admin/product-tags/', // GET - Vocabulary list with usage counts
+    CREATE: '/api/v1/admin/product-tags/', // POST - Create a vocabulary tag (admin)
+    UPDATE: '/api/v1/admin/product-tags/{id}', // PATCH - Rename/recolor (admin)
+    DELETE: '/api/v1/admin/product-tags/{id}', // DELETE - Cascade delete (admin)
+  },
+
+  // Manual collections (admin-gated CRUD + hero + ordered membership).
+  COLLECTIONS: {
+    BASE: '/api/v1/admin/collections',
+    LIST: '/api/v1/admin/collections/', // GET - List with product counts (admin)
+    BY_ID: '/api/v1/admin/collections/{id}', // GET - Get one by id (admin)
+    CREATE: '/api/v1/admin/collections/', // POST - Create collection (admin)
+    UPDATE: '/api/v1/admin/collections/{id}', // PUT - Update collection (admin)
+    DELETE: '/api/v1/admin/collections/{id}', // DELETE - Delete collection (admin)
+    SET_PRODUCTS: '/api/v1/admin/collections/{id}/products', // PUT - Replace membership (ordered)
+    PRODUCT: '/api/v1/admin/collections/{id}/products/{productId}', // POST/DELETE - Single add/remove
+    HERO: '/api/v1/admin/collections/{id}/hero', // POST/PATCH/DELETE - Hero image
+    // Public reads (storefront, PR-F2): list active + detail by slug.
+    PUBLIC_LIST: '/api/v1/collections/', // GET - Active collections with counts
+    PUBLIC_BY_SLUG: '/api/v1/collections/slug/{slug}', // GET - Detail by EN/PL slug
+  },
+
   // Search endpoints (backend-proxied Meilisearch; 503 when unconfigured)
   SEARCH: {
     QUERY: '/api/v1/search', // GET - Faceted product search
@@ -194,6 +221,51 @@ export const buildApiUrl = {
    */
   stripePaymentIntent: (orderId: number | string) =>
     API_ENDPOINTS.PAYMENTS.STRIPE_PAYMENT_INTENT.replace('{orderId}', String(orderId)),
+
+  /**
+   * Build a product-tag URL by ID (PATCH/DELETE)
+   * @param id Product-tag ID
+   */
+  productTagById: (id: number | string) =>
+    API_ENDPOINTS.PRODUCT_TAGS.UPDATE.replace('{id}', String(id)),
+
+  /**
+   * Build an admin collection URL by ID (GET/PUT/DELETE)
+   * @param id Collection ID
+   */
+  collectionById: (id: number | string) =>
+    API_ENDPOINTS.COLLECTIONS.BY_ID.replace('{id}', String(id)),
+
+  /**
+   * Build the collection membership-set URL (PUT { product_ids })
+   * @param id Collection ID
+   */
+  collectionProducts: (id: number | string) =>
+    API_ENDPOINTS.COLLECTIONS.SET_PRODUCTS.replace('{id}', String(id)),
+
+  /**
+   * Build a single collection-member URL (POST/DELETE)
+   * @param id Collection ID
+   * @param productId Product ID
+   */
+  collectionProduct: (id: number | string, productId: number | string) =>
+    API_ENDPOINTS.COLLECTIONS.PRODUCT
+      .replace('{id}', String(id))
+      .replace('{productId}', String(productId)),
+
+  /**
+   * Build the collection hero URL (POST/PATCH/DELETE)
+   * @param id Collection ID
+   */
+  collectionHero: (id: number | string) =>
+    API_ENDPOINTS.COLLECTIONS.HERO.replace('{id}', String(id)),
+
+  /**
+   * Build the public collection-by-slug URL (GET)
+   * @param slug Collection slug (EN or PL)
+   */
+  collectionBySlug: (slug: string) =>
+    API_ENDPOINTS.COLLECTIONS.PUBLIC_BY_SLUG.replace('{slug}', slug),
 } as const
 
 /**
@@ -202,3 +274,5 @@ export const buildApiUrl = {
 export const AUTH_ENDPOINTS = API_ENDPOINTS.AUTH
 export const PRODUCTS_ENDPOINTS = API_ENDPOINTS.PRODUCTS
 export const CATEGORIES_ENDPOINTS = API_ENDPOINTS.CATEGORIES
+export const PRODUCT_TAGS_ENDPOINTS = API_ENDPOINTS.PRODUCT_TAGS
+export const COLLECTIONS_ENDPOINTS = API_ENDPOINTS.COLLECTIONS
