@@ -42,12 +42,13 @@ describe('AccountNav — grouped IA', () => {
     expect(hrefs).toContain('/account/orders')
   })
 
-  it('renders all four account-management settings links', async () => {
+  it('renders all account-management settings links', async () => {
     const wrapper = await mountSuspended(Nav)
     const hrefs = hrefsOf(wrapper)
     expect(hrefs).toContain('/account/profile')
     expect(hrefs).toContain('/account/security')
     expect(hrefs).toContain('/account/addresses')
+    expect(hrefs).toContain('/account/wishlist')
     expect(hrefs).toContain('/account/preferences')
   })
 
@@ -56,10 +57,11 @@ describe('AccountNav — grouped IA', () => {
     expect(hrefsOf(wrapper)).toContain('/account/privacy')
   })
 
-  it('renders exactly seven links for a non-B2B account', async () => {
-    // Overview, Orders, Profile, Addresses, Security, Preferences, Privacy.
+  it('renders exactly eight links for a non-B2B account', async () => {
+    // Overview, Orders, Profile, Addresses, Wishlist, Security, Preferences,
+    // Privacy.
     const wrapper = await mountSuspended(Nav)
-    expect(wrapper.findAll('a').length).toBe(7)
+    expect(wrapper.findAll('a').length).toBe(8)
   })
 
   it('labels the core links with their localized section names', async () => {

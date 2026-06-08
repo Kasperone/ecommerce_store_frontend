@@ -2100,6 +2100,7 @@
         "profile": "Profile",
         "security": "Security",
         "addresses": "Addresses",
+        "wishlist": "Wishlist",
         "preferences": "Preferences",
         "privacy": "Privacy",
         "company": "Company",
@@ -2706,6 +2707,26 @@
       "heroLabel": "Featured promotions",
       "promoLabel": "Promotions"
     }
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "subtitle": "Products you've saved for later.",
+    "loading": "Loading your wishlist…",
+    "empty": "Your wishlist is empty.",
+    "emptyCta": "Browse products",
+    "save": "Save",
+    "saved": "Saved",
+    "remove": "Remove",
+    "addAria": "Add to wishlist",
+    "removeAria": "Remove from wishlist",
+    "added": "Saved to your wishlist.",
+    "removedToast": "Removed from your wishlist.",
+    "addError": "Could not save to your wishlist.",
+    "removeError": "Could not remove from your wishlist.",
+    "signInPrompt": "Sign in to save items to your wishlist.",
+    "unavailable": "Unavailable",
+    "outOfStock": "Out of stock",
+    "count": "No saved items | {count} item | {count} items"
   },
   "errorPage": {
     "404": {
