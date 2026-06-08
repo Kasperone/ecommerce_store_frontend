@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatMoney, selectPrice } from '#shared/utils/money'
 
@@ -7,10 +7,17 @@ const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const cart = useCartStore()
 const { currency } = useCurrencyPreference()
+const { viewCart } = useEcommerceTracking()
 
 const open = computed({
   get: () => cart.isOpen,
   set: value => (value ? cart.openDrawer() : cart.closeDrawer()),
+})
+
+// GA4 view_cart whenever the drawer opens with items (the composable guards
+// SSR + consent + the configured-id check).
+watch(() => cart.isOpen, (isOpen) => {
+  if (isOpen && !cart.isEmpty) viewCart(cart.items)
 })
 
 const subtotal = computed(() => {

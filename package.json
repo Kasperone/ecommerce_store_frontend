@@ -22,6 +22,7 @@
   "dependencies": {
     "@formkit/drag-and-drop": "^0.5.3",
     "@nuxt/image": "^2.0.0",
+    "@nuxt/scripts": "^1.2.1",
     "@nuxt/ui": "4.8.2",
     "@nuxtjs/i18n": "^10.4.0",
     "@nuxtjs/seo": "5.1.3",

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { z } from 'zod'
 import { useI18n } from 'vue-i18n'
 import { flattenCategoryTree } from '#shared/utils/categoryTree'
@@ -70,6 +70,13 @@ const items = computed(() => listing.value?.items ?? [])
 const total = computed(() => listing.value?.total ?? 0)
 const pageSize = computed(() => listing.value?.page_size ?? STOREFRONT_PAGE_SIZE)
 const currentPage = computed(() => listing.value?.page ?? 1)
+
+// GA4 view_item_list when the listing resolves / re-resolves (page or filter
+// change). Client-only + consent-guarded inside the composable.
+const { viewItemList } = useEcommerceTracking()
+watch(items, (list) => {
+  if (list.length) viewItemList(list, { id: 'catalog', name: 'Products' })
+}, { immediate: true })
 
 // Structured data (SEO blueprint SEO-1.3): ItemList over the visible listing
 // page. SSR-only — for a cookie-less crawler this is the deterministic

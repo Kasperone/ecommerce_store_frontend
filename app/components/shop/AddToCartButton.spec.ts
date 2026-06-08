@@ -4,12 +4,15 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import AddToCartButton from './AddToCartButton.vue'
 
-const { add, openDrawer, authState } = vi.hoisted(() => ({
+const { add, openDrawer, trackAddToCart, items, authState } = vi.hoisted(() => ({
   add: vi.fn(),
   openDrawer: vi.fn(),
+  trackAddToCart: vi.fn(),
+  items: [] as Array<Record<string, unknown>>,
   authState: { isImpersonating: false },
 }))
-mockNuxtImport('useCartStore', () => () => ({ add, openDrawer }))
+mockNuxtImport('useCartStore', () => () => ({ add, openDrawer, items }))
+mockNuxtImport('useEcommerceTracking', () => () => ({ addToCart: trackAddToCart }))
 mockNuxtImport('useAuthStore', () => () => ({
   get isImpersonating() {
     return authState.isImpersonating
@@ -44,6 +47,8 @@ function product(overrides: Record<string, unknown> = {}) {
 beforeEach(() => {
   add.mockReset()
   openDrawer.mockReset()
+  trackAddToCart.mockReset()
+  items.length = 0
   authState.isImpersonating = false
 })
 

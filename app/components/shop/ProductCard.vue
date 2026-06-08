@@ -6,12 +6,23 @@ import { localizedProductName } from '#shared/utils/localizedProduct'
 
 const props = defineProps<{
   product: ProductResponse | ProductWithCategory
+  /** Optional list context for GA4 select_item (e.g. category/search list). */
+  listId?: string
+  listName?: string
+  index?: number
 }>()
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
+const { selectItem } = useEcommerceTracking()
 
 const to = computed(() => localePath(`/products/${props.product.slug}`))
+
+// GA4 select_item on card click — links the click to the originating list so
+// GA4 attributes the PDP view to the right list.
+function onSelect() {
+  selectItem(props.product, { id: props.listId, name: props.listName }, props.index)
+}
 const displayName = computed(() => localizedProductName(props.product, locale.value))
 
 const primaryImage = computed(() => {
@@ -28,6 +39,7 @@ const outOfStock = computed(() => props.product.stock <= 0)
       :to="to"
       class="block"
       :aria-label="displayName"
+      @click="onSelect"
     >
       <div class="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
         <!-- NuxtImg → IPX resize/format negotiation for the R2 URL (nuxt4
@@ -66,6 +78,7 @@ const outOfStock = computed(() => props.product.stock <= 0)
       <NuxtLink
         :to="to"
         class="font-medium hover:text-primary line-clamp-2"
+        @click="onSelect"
       >
         {{ displayName }}
       </NuxtLink>

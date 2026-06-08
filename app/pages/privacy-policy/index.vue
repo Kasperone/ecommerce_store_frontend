@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const sections = ['controller', 'categories', 'purposes', 'recipients', 'retention', 'rights', 'cookies'] as const
+const sections = ['controller', 'categories', 'purposes', 'recipients', 'retention', 'rights', 'cookies', 'googleTags'] as const
 
 useSeoMeta({
   title: () => t('legal.privacy.meta.title'),
