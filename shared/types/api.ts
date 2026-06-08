@@ -62,6 +62,21 @@ export type RefundItemResponse = components['schemas']['RefundItemResponse']
 // six allowed values in lock-step here.
 export type RefundReason = RefundCreate['reason']
 export type CorrectiveInvoiceResponse = components['schemas']['CorrectiveInvoiceResponse']
+// Returns/RMA v1 — customer return requests + admin returns workflow.
+export type ReturnEligibilityLine = components['schemas']['ReturnEligibilityLine']
+export type ReturnEligibilityResponse = components['schemas']['ReturnEligibilityResponse']
+export type ReturnItemCreate = components['schemas']['ReturnItemCreate']
+export type ReturnItemResponse = components['schemas']['ReturnItemResponse']
+export type ReturnRequestCreate = components['schemas']['ReturnRequestCreate']
+export type ReturnRequestResponse = components['schemas']['ReturnRequestResponse']
+export type ReturnRequestListResponse = components['schemas']['ReturnRequestListResponse']
+export type ReturnActionRequest = components['schemas']['ReturnActionRequest']
+export type ReturnRefundRequest = components['schemas']['ReturnRefundRequest']
+// `reason`/`status` literals mirror the backend enums + DB CHECKs (cross-checked
+// at import time in `app/schemas/return_request.py`); deriving them from the
+// generated shapes keeps the allowed values in lock-step here.
+export type ReturnReason = ReturnItemCreate['reason']
+export type ReturnStatus = ReturnRequestResponse['status']
 export type CustomerListItem = components['schemas']['CustomerListItem']
 export type CustomerListResponse = components['schemas']['CustomerListResponse']
 export type CustomerDetail = components['schemas']['CustomerDetail']
