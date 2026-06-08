@@ -242,6 +242,21 @@
           "note": "Note",
           "actor": "By"
         }
+      },
+      "lowStock": {
+        "report": {
+          "button": "Email low-stock report",
+          "successTitle": "Report sent",
+          "success": "Report for {count} product sent to {recipients}. | Report for {count} products sent to {recipients}.",
+          "errorTitle": "Couldn't send report",
+          "error": "Failed to send the low-stock report."
+        },
+        "badge": {
+          "title": "Stock alerts",
+          "lowStock": "Low stock",
+          "outOfStock": "Out of stock",
+          "viewAll": "Review low-stock products"
+        }
       }
     },
     "warehouses": {
@@ -350,7 +365,8 @@
         "identifiers": "Business identifiers",
         "social": "Social media",
         "branding": "Branding",
-        "returns": "Returns"
+        "returns": "Returns",
+        "inventory": "Inventory"
       },
       "fields": {
         "storeName": "Store name",
@@ -372,7 +388,9 @@
         "socialYoutube": "YouTube",
         "brandTagline": "Tagline",
         "logoUrl": "Logo URL",
-        "returnsWindowDays": "Returns window (days)"
+        "returnsWindowDays": "Returns window (days)",
+        "lowStockDefaultThreshold": "Default low-stock threshold",
+        "lowStockDefaultThresholdPlaceholder": "No global default"
       },
       "hints": {
         "email": "Shown on invoices and used as the sender for store emails.",
@@ -386,7 +404,9 @@
         "brandTagline": "Short line shown under the logo in the footer.",
         "logoUrl": "Optional image URL for your logo. Leave blank to use the default wordmark.",
         "returns": "Customer return (RMA) policy.",
-        "returnsWindowDays": "Days after delivery during which a return can be requested. 0 disables returns store-wide."
+        "returnsWindowDays": "Days after delivery during which a return can be requested. 0 disables returns store-wide.",
+        "inventory": "Store-wide inventory alerting defaults.",
+        "lowStockDefaultThreshold": "Applied to products without their own threshold. Leave empty to disable the global default."
       },
       "actions": {
         "save": "Save changes"
@@ -395,7 +415,8 @@
         "required": "This field is required.",
         "email": "Enter a valid email address.",
         "vatRange": "VAT rate must be between 0 and 100.",
-        "returnsWindow": "Returns window must be a whole number of days (0 or more)."
+        "returnsWindow": "Returns window must be a whole number of days (0 or more).",
+        "lowStockThreshold": "Threshold must be a whole number of units (0 or more)."
       },
       "flashes": {
         "saved": "Settings saved."

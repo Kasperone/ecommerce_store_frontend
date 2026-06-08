@@ -40,6 +40,7 @@ interface FormState {
   tax_id: string
   invoice_vat_rate: number | undefined
   returns_window_days: number | undefined
+  low_stock_default_threshold: number | undefined
 }
 
 const state = reactive<FormState>({
@@ -63,6 +64,7 @@ const state = reactive<FormState>({
   tax_id: '',
   invoice_vat_rate: undefined,
   returns_window_days: undefined,
+  low_stock_default_threshold: undefined,
 })
 
 watch(
@@ -89,6 +91,7 @@ watch(
     state.tax_id = config.tax_id
     state.invoice_vat_rate = config.invoice_vat_rate
     state.returns_window_days = config.returns_window_days
+    state.low_stock_default_threshold = config.low_stock_default_threshold ?? undefined
   },
   // immediate so a config already resolved at mount prefills the fields.
   { immediate: true },
@@ -149,6 +152,13 @@ const schema = computed(() =>
       .number({ message: t('admin.settings.errors.returnsWindow') })
       .int(t('admin.settings.errors.returnsWindow'))
       .min(0, t('admin.settings.errors.returnsWindow')),
+    // Optional store-wide default low-stock threshold (>= 0). Empty → null
+    // (no global default; per-product thresholds still apply).
+    low_stock_default_threshold: z
+      .number({ message: t('admin.settings.errors.lowStockThreshold') })
+      .int(t('admin.settings.errors.lowStockThreshold'))
+      .min(0, t('admin.settings.errors.lowStockThreshold'))
+      .nullable(),
   }),
 )
 
@@ -157,6 +167,7 @@ function validate(values: FormState): FormError[] {
     ...values,
     invoice_vat_rate: values.invoice_vat_rate ?? null,
     returns_window_days: values.returns_window_days ?? null,
+    low_stock_default_threshold: values.low_stock_default_threshold ?? null,
   })
   if (result.success) return []
   return result.error.issues.map(issue => ({
@@ -187,6 +198,8 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
     tax_id: state.tax_id.trim(),
     invoice_vat_rate: state.invoice_vat_rate ?? undefined,
     returns_window_days: state.returns_window_days ?? undefined,
+    // Empty input clears the global default (null); a number sets it.
+    low_stock_default_threshold: state.low_stock_default_threshold ?? null,
   }
   emit('submit', patch)
 }
@@ -524,6 +537,34 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
           :disabled="loading"
           class="w-full"
           data-testid="settings-returns-window"
+        />
+      </UFormField>
+    </section>
+
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold">
+          {{ t('admin.settings.sections.inventory') }}
+        </h2>
+        <p class="text-xs text-muted mt-1">
+          {{ t('admin.settings.hints.inventory') }}
+        </p>
+      </div>
+
+      <UFormField
+        :label="t('admin.settings.fields.lowStockDefaultThreshold')"
+        :help="t('admin.settings.hints.lowStockDefaultThreshold')"
+        name="low_stock_default_threshold"
+        class="max-w-xs"
+      >
+        <UInputNumber
+          v-model="state.low_stock_default_threshold"
+          :min="0"
+          :step="1"
+          :placeholder="t('admin.settings.fields.lowStockDefaultThresholdPlaceholder')"
+          :disabled="loading"
+          class="w-full"
+          data-testid="settings-low-stock-threshold"
         />
       </UFormField>
     </section>

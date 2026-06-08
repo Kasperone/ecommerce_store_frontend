@@ -169,6 +169,34 @@ describe('useTransferStock', () => {
   })
 })
 
+describe('useLowStockSummary', () => {
+  it('GETs /api/v1/admin/inventory/low-stock-summary', async () => {
+    apiFetch.mockResolvedValue({ low_stock_count: 3, out_of_stock_count: 1, backorder_count: 0 })
+    const { useLowStockSummary } = await import('./useInventoryQueries')
+
+    await runInComponent(() => useLowStockSummary())
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(apiFetch.mock.calls[0]?.[0]).toBe('/api/v1/admin/inventory/low-stock-summary')
+  })
+})
+
+describe('useEmailLowStockReport', () => {
+  it('POSTs /api/v1/admin/inventory/low-stock-report/email and returns the result', async () => {
+    apiFetch.mockResolvedValue({ recipients: ['admin@store.test'], product_count: 4 })
+    const { useEmailLowStockReport } = await import('./useInventoryQueries')
+
+    const result = (await runInComponent(() => useEmailLowStockReport())) as any
+    const data = await result.mutateAsync()
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/inventory/low-stock-report/email')
+    expect(options.method).toBe('POST')
+    expect(data).toMatchObject({ recipients: ['admin@store.test'], product_count: 4 })
+  })
+})
+
 describe('useSetLowStockThreshold', () => {
   it('PUTs /api/v1/products/{id} with low_stock_threshold', async () => {
     apiFetch.mockResolvedValue({ id: 9, low_stock_threshold: 5 })

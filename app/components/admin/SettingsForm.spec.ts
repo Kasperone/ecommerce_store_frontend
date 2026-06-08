@@ -50,6 +50,7 @@ const config = {
   tax_id: 'PL1234567890',
   invoice_vat_rate: 23,
   returns_window_days: 30,
+  low_stock_default_threshold: 5,
   created_at: '2026-05-28T00:00:00Z',
   updated_at: '2026-05-28T00:00:00Z',
 }
@@ -105,6 +106,49 @@ describe('SettingsForm', () => {
     const submits = wrapper.emitted('submit')
     expect(submits).toBeTruthy()
     expect(submits![0]![0]).toMatchObject({ returns_window_days: 14 })
+  })
+
+  it('prefills + emits the edited low-stock default threshold', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    // Prefilled from the loaded config.
+    expect((wrapper.vm as any).state.low_stock_default_threshold).toBe(5)
+    // Third UInputNumber is low_stock_default_threshold (after VAT + returns).
+    const threshold = wrapper.findAllComponents({ name: 'UInputNumber' })[2]!
+    threshold.vm.$emit('update:modelValue', 8)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    const submits = wrapper.emitted('submit')
+    expect(submits).toBeTruthy()
+    expect(submits![0]![0]).toMatchObject({ low_stock_default_threshold: 8 })
+  })
+
+  it('emits null for the low-stock threshold when the field is cleared', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    const threshold = wrapper.findAllComponents({ name: 'UInputNumber' })[2]!
+    threshold.vm.$emit('update:modelValue', undefined)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    const submits = wrapper.emitted('submit')
+    expect(submits).toBeTruthy()
+    expect(submits![0]![0]!.low_stock_default_threshold).toBeNull()
+  })
+
+  it('blocks save and does not emit when the low-stock threshold is negative', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    const threshold = wrapper.findAllComponents({ name: 'UInputNumber' })[2]!
+    threshold.vm.$emit('update:modelValue', -3)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(wrapper.emitted('submit')).toBeFalsy()
   })
 
   it('blocks save and does not emit when the returns window is negative', async () => {
