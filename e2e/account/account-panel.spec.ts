@@ -40,22 +40,37 @@ test.describe('Account panel', () => {
       await expect(firstName).toHaveValue(user.firstName, { timeout: 60_000 })
 
       // The form's watch(authStore.user) re-seeds the fields whenever a
-      // background user re-fetch lands (boot /auth/me, proactive token
-      // refresh at TTL−60s, 401-retry) — any fill can be clobbered before
-      // the save click. One atomic fill→save→verify loop converges: if the
-      // PUT carried stale values the store round-trips them back into the
-      // fields, the trailing check fails the iteration, and we re-fill and
-      // re-save until a clean save lands.
+      // background user re-fetch lands (boot /auth/me, post-save store update,
+      // 401-retry) — a fill can be clobbered just before the save click. The
+      // old loop asserted the *in-form* values held AFTER save, which raced
+      // that reseed and deadlocked under CI load. Instead, each iteration
+      // (a) re-fills, (b) guards the fill survived to the click, then
+      // (c) asserts the PUT /auth/me RESPONSE body — the server's authoritative
+      // answer to THIS save, immune to any reseed timing. Converges the moment
+      // one clean fill→save lands.
       await expect(async () => {
         await firstName.fill('Updated')
         await page.getByLabel('Last name').fill('Customer')
         await page.getByLabel('Phone', { exact: true }).fill('+1 555 010 0199')
+        // Guard: a reseed must not have clobbered the fill in the brief window
+        // before we click save (a clobbered fill → PUT carries stale values →
+        // the response assertion below fails the iteration and we retry).
+        await expect(firstName).toHaveValue('Updated', { timeout: 1_000 })
+        await expect(page.getByLabel('Last name')).toHaveValue('Customer', { timeout: 1_000 })
+        const putResponse = page.waitForResponse(
+          r => r.url().includes('/auth/me') && r.request().method() === 'PUT',
+          { timeout: 15_000 },
+        )
         await page.getByRole('button', { name: 'Save changes' }).click()
         await expect(page.getByText('Profile updated.').first()).toBeVisible({ timeout: 5_000 })
-        // Post-save the watcher re-seeds from the SAVED user — these holding
-        // the new values proves the PUT carried them.
-        await expect(firstName).toHaveValue('Updated', { timeout: 2_000 })
-        await expect(page.getByLabel('Last name')).toHaveValue('Customer', { timeout: 2_000 })
+        const saved = await (await putResponse).json() as {
+          first_name: string
+          last_name: string
+          phone: string | null
+        }
+        expect(saved.first_name).toBe('Updated')
+        expect(saved.last_name).toBe('Customer')
+        expect(saved.phone).toBe('+1 555 010 0199')
       }).toPass({ timeout: 90_000 })
 
       // Server-side persistence: a fresh load re-fetches the user.
