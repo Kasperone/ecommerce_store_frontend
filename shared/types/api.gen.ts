@@ -3401,6 +3401,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/wishlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Wishlist
+         * @description Return the caller's wishlist items, newest first, as product cards.
+         *
+         *     Inactive products/variants are still returned (the row survives until the
+         *     product is deleted); availability is surfaced via ``is_active`` / ``in_stock``
+         *     so the storefront can grey out a retired tile rather than silently drop it.
+         */
+        get: operations["list_wishlist_api_v1_wishlist_get"];
+        put?: never;
+        /**
+         * Add To Wishlist
+         * @description Add a product (optionally a variant) to the caller's wishlist.
+         *
+         *     Unknown ``product_id`` → 404. A ``variant_id`` that doesn't exist or doesn't
+         *     belong to ``product_id`` → 404. An exact re-add returns the existing row with
+         *     **200**; a new row is **201**.
+         */
+        post: operations["add_to_wishlist_api_v1_wishlist_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wishlist/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove From Wishlist
+         * @description Remove one of the caller's wishlist items. Unknown/cross-user id → 404.
+         */
+        delete: operations["remove_from_wishlist_api_v1_wishlist__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/quotes/": {
         parameters: {
             query?: never;
@@ -9880,6 +9932,64 @@ export interface components {
             /** Is Default */
             is_default?: boolean | null;
         };
+        /**
+         * WishlistItemCreate
+         * @description Request body for ``POST /api/v1/wishlist``.
+         */
+        WishlistItemCreate: {
+            /** Product Id */
+            product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
+        };
+        /**
+         * WishlistItemRead
+         * @description A wishlist row plus the product-card data the storefront renders.
+         *
+         *     ``id`` / ``created_at`` / ``updated_at`` come from ``TimestampSchema``. The
+         *     ``product_*`` fields are the card; the ``variant_*`` fields are populated
+         *     only when the row pins a variant.
+         */
+        WishlistItemRead: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Product Id */
+            product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
+            /** Product Slug */
+            product_slug: string;
+            /** Product Name */
+            product_name: string;
+            /** Product Name Pl */
+            product_name_pl?: string | null;
+            /** Product Image Url */
+            product_image_url?: string | null;
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+            /** Is Active */
+            is_active: boolean;
+            /** In Stock */
+            in_stock: boolean;
+            /** Variant Sku */
+            variant_sku?: string | null;
+            /** Variant Title */
+            variant_title?: string | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -16061,6 +16171,88 @@ export interface operations {
             header?: never;
             path: {
                 address_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_wishlist_api_v1_wishlist_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WishlistItemRead"][];
+                };
+            };
+        };
+    };
+    add_to_wishlist_api_v1_wishlist_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WishlistItemCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WishlistItemRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_from_wishlist_api_v1_wishlist__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
             };
             cookie?: never;
         };
