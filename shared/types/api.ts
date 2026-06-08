@@ -26,6 +26,10 @@ export type ProductResponse = components['schemas']['ProductResponse']
 export type ProductWithCategory = components['schemas']['ProductWithCategory']
 export type ProductCreate = components['schemas']['ProductCreate']
 export type ProductUpdate = components['schemas']['ProductUpdate']
+// Product CSV bulk-edit (CSV-BE3) — admin bulk-edit toolbar.
+export type ProductBulkSet = components['schemas']['ProductBulkSet']
+export type ProductBulkUpdate = components['schemas']['ProductBulkUpdate']
+export type ProductBulkUpdateResult = components['schemas']['ProductBulkUpdateResult']
 // OMNIBUS (Directive 98/6 Art. 6a) — see useProductLowest30d + ShopOmnibusPrice.
 export type LowestPriceResponse = components['schemas']['LowestPriceResponse']
 // Product options/variants (variants F1) — admin matrix editor + public PDP reads.
