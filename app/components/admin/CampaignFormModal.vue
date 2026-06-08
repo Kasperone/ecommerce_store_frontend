@@ -42,7 +42,7 @@ const toast = useToast()
 const createCampaign = useCreateCampaign()
 const updateCampaign = useUpdateCampaign()
 
-const AUDIENCES: CampaignAudience[] = ['all', 'customers', 'b2b']
+const AUDIENCES: CampaignAudience[] = ['all', 'customers', 'b2b', 'segment']
 const STATUSES: CampaignStatus[] = ['draft', 'scheduled', 'sent']
 
 const state = reactive({
@@ -52,12 +52,45 @@ const state = reactive({
   status: 'draft' as CampaignStatus,
   body: '',
   scheduled_at: '',
+  segment_id: null as number | null,
 })
 const error = ref<unknown>(null)
 
 const isEdit = computed(() => props.campaign !== null)
 const loading = computed(() => createCampaign.isLoading.value || updateCampaign.isLoading.value)
 const isScheduled = computed(() => state.status === 'scheduled')
+const isSegment = computed(() => state.audience === 'segment')
+
+// Segment audience picker: load active segments + resolve the recipient count
+// of the picked segment.
+const { data: segmentsPage } = useSegmentsQuery({ isActive: true, pageSize: 100 })
+const { previewSaved } = useSegmentPreview()
+const segmentOptions = computed(() =>
+  (segmentsPage.value?.items ?? []).map(s => ({ label: s.name, value: s.id })),
+)
+const segmentCount = ref<number | null>(null)
+const segmentCountLoading = ref(false)
+
+watch(
+  () => [state.audience, state.segment_id] as const,
+  async ([audience, id]) => {
+    if (audience !== 'segment' || id == null) {
+      segmentCount.value = null
+      return
+    }
+    segmentCountLoading.value = true
+    try {
+      const preview = await previewSaved(id, 0)
+      segmentCount.value = preview.count
+    }
+    catch {
+      segmentCount.value = null
+    }
+    finally {
+      segmentCountLoading.value = false
+    }
+  },
+)
 
 const schema = computed(() =>
   z.object({
@@ -67,12 +100,21 @@ const schema = computed(() =>
     status: z.enum(STATUSES as [CampaignStatus, ...CampaignStatus[]]),
     body: z.string(),
     scheduled_at: z.string(),
+    segment_id: z.number().nullable(),
   }).superRefine((val, ctx) => {
     if (val.status === 'scheduled' && !toIso(val.scheduled_at)) {
       ctx.addIssue({
         code: 'custom',
         message: t('admin.campaigns.errors.scheduledAtRequired'),
         path: ['scheduled_at'],
+      })
+    }
+    // Mirror the backend: a `segment` audience requires a segment_id.
+    if (val.audience === 'segment' && val.segment_id == null) {
+      ctx.addIssue({
+        code: 'custom',
+        message: t('admin.campaigns.errors.segmentRequired'),
+        path: ['segment_id'],
       })
     }
   }),
@@ -119,6 +161,7 @@ watch(
     state.status = c?.status ?? 'draft'
     state.body = c?.body ?? ''
     state.scheduled_at = toLocalInput(c?.scheduled_at)
+    state.segment_id = c?.segment_id ?? null
   },
   // immediate so an already-open mount (and re-opens) prefill from the campaign prop.
   { immediate: true },
@@ -138,6 +181,9 @@ function buildCreateBody(): CampaignCreate {
     status: state.status,
     body: state.body.trim() || null,
     scheduled_at: toIso(state.scheduled_at),
+    // The backend 422s a segment_id on a non-segment audience — send it only
+    // when the audience is `segment`, else explicit null.
+    segment_id: state.audience === 'segment' ? state.segment_id : null,
   }
 }
 
@@ -237,6 +283,33 @@ async function onSubmit() {
             />
           </UFormField>
         </div>
+
+        <UFormField
+          v-if="isSegment"
+          :label="t('admin.campaigns.form.segment')"
+          :help="t('admin.campaigns.form.segmentHint')"
+          name="segment_id"
+          required
+        >
+          <USelect
+            v-model="state.segment_id"
+            :items="segmentOptions"
+            value-key="value"
+            :placeholder="t('admin.campaigns.form.segmentPlaceholder')"
+            class="w-full"
+          />
+          <p
+            v-if="state.segment_id != null"
+            class="text-xs text-muted mt-1"
+          >
+            <template v-if="segmentCountLoading">
+              {{ t('admin.campaigns.form.segmentCountLoading') }}
+            </template>
+            <template v-else-if="segmentCount != null">
+              {{ t('admin.campaigns.form.segmentCount', { count: segmentCount }, segmentCount) }}
+            </template>
+          </p>
+        </UFormField>
 
         <UFormField
           v-if="isScheduled"

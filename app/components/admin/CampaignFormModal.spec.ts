@@ -21,10 +21,12 @@ const AXE_OPTIONS = {
   },
 }
 
-const { createMutate, updateMutate, toastAdd } = vi.hoisted(() => ({
+const { createMutate, updateMutate, toastAdd, previewSaved, segmentsData } = vi.hoisted(() => ({
   createMutate: vi.fn(),
   updateMutate: vi.fn(),
   toastAdd: vi.fn(),
+  previewSaved: vi.fn(),
+  segmentsData: { value: { items: [], total: 0 } as unknown },
 }))
 
 mockNuxtImport('useCreateCampaign', () => () => ({
@@ -36,11 +38,21 @@ mockNuxtImport('useUpdateCampaign', () => () => ({
   isLoading: ref(false),
 }))
 mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
+mockNuxtImport('useSegmentsQuery', () => () => ({ data: ref(segmentsData.value) }))
+mockNuxtImport('useSegmentPreview', () => () => ({ previewSaved }))
 
 beforeEach(() => {
   createMutate.mockReset().mockResolvedValue({})
   updateMutate.mockReset().mockResolvedValue({})
   toastAdd.mockReset()
+  previewSaved.mockReset().mockResolvedValue({ count: 42, sample: [] })
+  segmentsData.value = {
+    items: [
+      { id: 11, name: 'VIP buyers', is_active: true },
+      { id: 12, name: 'Lapsed', is_active: true },
+    ],
+    total: 2,
+  }
   document.body.innerHTML = ''
 })
 
@@ -198,5 +210,59 @@ describe('CampaignFormModal', () => {
     expect(document.querySelector('[role="alert"]')).toBeTruthy()
     expect(document.body.textContent).toContain('scheduled_at is required')
     expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'error' }))
+  })
+
+  it('requires a segment when the audience is segment', async () => {
+    const wrapper = await mountSuspended(CampaignFormModal, {
+      props: { open: true, campaign: null },
+    })
+    wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'Segment blast')
+    wrapper.findAllComponents({ name: 'UInput' })[1]!.vm.$emit('update:modelValue', 'For VIPs')
+    // USelect[0] = audience -> segment, leaving segment_id unset.
+    wrapper.findAllComponents({ name: 'USelect' })[0]!.vm.$emit('update:modelValue', 'segment')
+    await tick()
+
+    clickSave()
+    await tick()
+
+    expect(createMutate).not.toHaveBeenCalled()
+    expect(document.body.textContent).toContain('A segment is required')
+  })
+
+  it('sends segment_id when a segment audience + segment are chosen', async () => {
+    const wrapper = await mountSuspended(CampaignFormModal, {
+      props: { open: true, campaign: null },
+    })
+    wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'Segment blast')
+    wrapper.findAllComponents({ name: 'UInput' })[1]!.vm.$emit('update:modelValue', 'For VIPs')
+    wrapper.findAllComponents({ name: 'USelect' })[0]!.vm.$emit('update:modelValue', 'segment')
+    await tick()
+    // Once segment audience is active the segment picker renders as USelect[2]
+    // (audience, status, then segment).
+    wrapper.findAllComponents({ name: 'USelect' })[2]!.vm.$emit('update:modelValue', 11)
+    await tick()
+
+    clickSave()
+    await tick()
+
+    expect(createMutate).toHaveBeenCalledTimes(1)
+    const body = createMutate.mock.calls[0]![0]
+    expect(body.audience).toBe('segment')
+    expect(body.segment_id).toBe(11)
+  })
+
+  it('does not send a segment_id for a non-segment audience', async () => {
+    const wrapper = await mountSuspended(CampaignFormModal, {
+      props: { open: true, campaign: null },
+    })
+    wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'Everyone blast')
+    wrapper.findAllComponents({ name: 'UInput' })[1]!.vm.$emit('update:modelValue', 'Hello all')
+    await tick()
+
+    clickSave()
+    await tick()
+
+    expect(createMutate).toHaveBeenCalledTimes(1)
+    expect(createMutate.mock.calls[0]![0].segment_id).toBeNull()
   })
 })
