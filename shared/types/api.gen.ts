@@ -796,6 +796,49 @@ export interface paths {
         patch: operations["update_category_hero_alt_api_v1_categories__category_id__hero_patch"];
         trace?: never;
     };
+    "/api/v1/collections/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Collections
+         * @description List active collections with member product counts.
+         */
+        get: operations["list_collections_api_v1_collections__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collections/slug/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Collection By Slug
+         * @description Get an active collection by slug (EN or PL), with its product count.
+         *
+         *     Searches both ``slug`` (EN) and ``slug_pl`` (PL); the EN row wins on a
+         *     cross-locale collision. 404 when missing or inactive.
+         */
+        get: operations["get_collection_by_slug_api_v1_collections_slug__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orders/": {
         parameters: {
             query?: never;
@@ -2399,6 +2442,54 @@ export interface paths {
         patch: operations["update_tag_api_v1_admin_tags__tag_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/product-tags/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Product Tags
+         * @description List the product-tag vocabulary with per-tag product usage counts (admin).
+         */
+        get: operations["list_product_tags_api_v1_admin_product_tags__get"];
+        put?: never;
+        /**
+         * Create Product Tag
+         * @description Create a product tag (admin). 409 if the name already exists (case-insensitive).
+         */
+        post: operations["create_product_tag_api_v1_admin_product_tags__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/product-tags/{tag_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Product Tag
+         * @description Delete a product tag (admin). Cascades to remove it from every product.
+         */
+        delete: operations["delete_product_tag_api_v1_admin_product_tags__tag_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Product Tag
+         * @description Rename / recolor a product tag (admin). 409 if a rename collides with another tag.
+         */
+        patch: operations["update_product_tag_api_v1_admin_product_tags__tag_id__patch"];
+        trace?: never;
+    };
     "/api/v1/admin/banners/": {
         parameters: {
             query?: never;
@@ -2822,6 +2913,144 @@ export interface paths {
          *     state (422 on conflict).
          */
         patch: operations["update_coupon_api_v1_admin_coupons__coupon_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/collections/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Collections
+         * @description List every collection (active or not) with member product counts (admin).
+         */
+        get: operations["list_collections_api_v1_admin_collections__get"];
+        put?: never;
+        /**
+         * Create Collection
+         * @description Create a collection (admin). 400 on slug / slug_pl collision.
+         */
+        post: operations["create_collection_api_v1_admin_collections__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collections/{collection_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Collection
+         * @description Get a collection by id with its product count (admin).
+         */
+        get: operations["get_collection_api_v1_admin_collections__collection_id__get"];
+        /**
+         * Update Collection
+         * @description Update a collection (admin). 400 on slug / slug_pl collision.
+         *
+         *     A rename re-syncs member products' Meili docs — their ``collection_slugs``
+         *     labels may have changed.
+         */
+        put: operations["update_collection_api_v1_admin_collections__collection_id__put"];
+        post?: never;
+        /**
+         * Delete Collection
+         * @description Delete a collection (admin). The membership join cascades.
+         *
+         *     Member products' docs are re-synced afterwards (they lost a collection_slug).
+         */
+        delete: operations["delete_collection_api_v1_admin_collections__collection_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collections/{collection_id}/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Collection Products
+         * @description Replace a collection's membership in display order (admin).
+         *
+         *     ``product_ids`` is the full ordered membership; the join is replaced in one
+         *     transaction, ``position`` written by array index. Unknown product ids are
+         *     rejected with a 422. Affected products (old + new) get their Meili docs
+         *     re-synced.
+         */
+        put: operations["set_collection_products_api_v1_admin_collections__collection_id__products_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collections/{collection_id}/products/{product_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Collection Product
+         * @description Add a single product to a collection (admin, idempotent, appended).
+         */
+        post: operations["add_collection_product_api_v1_admin_collections__collection_id__products__product_id__post"];
+        /**
+         * Remove Collection Product
+         * @description Remove a single product from a collection (admin).
+         */
+        delete: operations["remove_collection_product_api_v1_admin_collections__collection_id__products__product_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/collections/{collection_id}/hero": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Collection Hero
+         * @description Upload (or replace) the hero image for ``collection_id`` (admin).
+         *
+         *     Reuses the products upload pipeline (magic-byte sniff → size cap → Pillow
+         *     dimensions → R2 put) under a ``collections/{id}/`` key layout. The previous
+         *     R2 object is best-effort deleted.
+         */
+        post: operations["upload_collection_hero_api_v1_admin_collections__collection_id__hero_post"];
+        /**
+         * Delete Collection Hero
+         * @description Clear the hero columns and best-effort delete the R2 object (admin).
+         */
+        delete: operations["delete_collection_hero_api_v1_admin_collections__collection_id__hero_delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Collection Hero Alt
+         * @description Update only the alt text on the hero image (admin).
+         */
+        patch: operations["update_collection_hero_alt_api_v1_admin_collections__collection_id__hero_patch"];
         trace?: never;
     };
     "/api/v1/admin/quotes/": {
@@ -4194,6 +4423,11 @@ export interface components {
             /** File */
             file: string;
         };
+        /** Body_upload_collection_hero_api_v1_admin_collections__collection_id__hero_post */
+        Body_upload_collection_hero_api_v1_admin_collections__collection_id__hero_post: {
+            /** File */
+            file: string;
+        };
         /** Body_upload_media_api_v1_admin_media_post */
         Body_upload_media_api_v1_admin_media_post: {
             /** File */
@@ -4723,6 +4957,78 @@ export interface components {
              */
             product_count: number;
         };
+        /**
+         * CollectionCreate
+         * @description Schema for creating a collection.
+         */
+        CollectionCreate: {
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Type
+             * @default manual
+             * @enum {string}
+             */
+            type: "manual" | "smart";
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
+        };
+        /**
+         * CollectionHeroAltUpdate
+         * @description Body of ``PATCH /collections/{id}/hero`` (alt-text only).
+         *
+         *     Re-upload uses ``POST /hero``; ``PATCH`` is the cheap metadata path.
+         */
+        CollectionHeroAltUpdate: {
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+        };
+        /**
+         * CollectionHeroResponse
+         * @description Returned by the hero upload + alt-text PATCH endpoints.
+         */
+        CollectionHeroResponse: {
+            /** Hero Image Url */
+            hero_image_url?: string | null;
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+            /** Hero Width */
+            hero_width?: number | null;
+            /** Hero Height */
+            hero_height?: number | null;
+            /** Hero Bytes */
+            hero_bytes?: number | null;
+            /** Hero Mime */
+            hero_mime?: string | null;
+            /** Id */
+            id: number;
+        };
         /** CollectionListSection */
         "CollectionListSection-Input": {
             /** Id */
@@ -4759,6 +5065,84 @@ export interface components {
              */
             columns: number;
         };
+        /**
+         * CollectionProductsSet
+         * @description Body of ``PUT /admin/collections/{id}/products``.
+         *
+         *     ``product_ids`` is the full membership in display order — the backend
+         *     replaces the join in one transaction, writing ``position`` by array index.
+         *     Passing ``[]`` clears the collection.
+         */
+        CollectionProductsSet: {
+            /** Product Ids */
+            product_ids?: number[];
+        };
+        /**
+         * CollectionResponse
+         * @description Schema for collection response.
+         */
+        CollectionResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Hero Image Url */
+            hero_image_url?: string | null;
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+            /** Hero Width */
+            hero_width?: number | null;
+            /** Hero Height */
+            hero_height?: number | null;
+            /** Hero Bytes */
+            hero_bytes?: number | null;
+            /** Hero Mime */
+            hero_mime?: string | null;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Type
+             * @default manual
+             * @enum {string}
+             */
+            type: "manual" | "smart";
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
+        };
         /** CollectionTileBlock */
         CollectionTileBlock: {
             /**
@@ -4779,6 +5163,112 @@ export interface components {
             label?: string | null;
             /** Link Url */
             link_url?: string | null;
+        };
+        /**
+         * CollectionUpdate
+         * @description Schema for updating a collection.
+         *
+         *     Mirrors :class:`CollectionBase` but every field is optional so a PATCH can
+         *     touch a single locale without rewriting the whole row.
+         */
+        CollectionUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Slug */
+            slug?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Type */
+            type?: ("manual" | "smart") | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
+        };
+        /**
+         * CollectionWithProductCount
+         * @description Collection response with member product count.
+         */
+        CollectionWithProductCount: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Hero Image Url */
+            hero_image_url?: string | null;
+            /** Hero Image Alt */
+            hero_image_alt?: string | null;
+            /** Hero Width */
+            hero_width?: number | null;
+            /** Hero Height */
+            hero_height?: number | null;
+            /** Hero Bytes */
+            hero_bytes?: number | null;
+            /** Hero Mime */
+            hero_mime?: string | null;
+            /** Name */
+            name: string;
+            /** Slug */
+            slug: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /**
+             * Type
+             * @default manual
+             * @enum {string}
+             */
+            type: "manual" | "smart";
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Slug Pl */
+            slug_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
+            /** Meta Title */
+            meta_title?: string | null;
+            /** Meta Description */
+            meta_description?: string | null;
+            /** Meta Title Pl */
+            meta_title_pl?: string | null;
+            /** Meta Description Pl */
+            meta_description_pl?: string | null;
+            /**
+             * Product Count
+             * @default 0
+             */
+            product_count: number;
         };
         /**
          * CompanyCreate
@@ -7085,6 +7575,8 @@ export interface components {
             is_featured: boolean;
             /** Category Id */
             category_id?: number | null;
+            /** Tags */
+            tags?: string[] | null;
         };
         /** ProductGridSection */
         ProductGridSection: {
@@ -7419,6 +7911,8 @@ export interface components {
             category_id?: number | null;
             /** Images */
             images?: components["schemas"]["ProductImageResponse"][];
+            /** Tags */
+            tags?: components["schemas"]["ProductTagChip"][];
             /**
              * Has Variants
              * @default false
@@ -7443,6 +7937,65 @@ export interface components {
             breakdown: {
                 [key: string]: number;
             };
+        };
+        /**
+         * ProductTagChip
+         * @description Minimal tag shape for chips attached to a product (no count/timestamps).
+         */
+        ProductTagChip: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+        };
+        /**
+         * ProductTagCreate
+         * @description Create a product tag in the shared vocabulary.
+         */
+        ProductTagCreate: {
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+        };
+        /**
+         * ProductTagResponse
+         * @description A product tag in the vocabulary list, with its product usage count.
+         */
+        ProductTagResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color?: string | null;
+            /**
+             * Usage Count
+             * @default 0
+             */
+            usage_count: number;
+        };
+        /**
+         * ProductTagUpdate
+         * @description Rename / recolor a product tag. Both optional (partial PATCH).
+         */
+        ProductTagUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Color */
+            color?: string | null;
         };
         /**
          * ProductUpdate
@@ -7501,6 +8054,8 @@ export interface components {
             is_featured?: boolean | null;
             /** Category Id */
             category_id?: number | null;
+            /** Tags */
+            tags?: string[] | null;
         };
         /**
          * ProductVariantInput
@@ -7742,6 +8297,8 @@ export interface components {
             category_id?: number | null;
             /** Images */
             images?: components["schemas"]["ProductImageResponse"][];
+            /** Tags */
+            tags?: components["schemas"]["ProductTagChip"][];
             /**
              * Has Variants
              * @default false
@@ -10558,6 +11115,10 @@ export interface operations {
                 in_stock?: boolean | null;
                 /** @description Search in name and description */
                 search?: string | null;
+                /** @description Filter by tag name (case-insensitive) */
+                tag?: string | null;
+                /** @description Filter by collection membership (ordered by curation position) */
+                collection_id?: number | null;
                 /** @description Field to sort by */
                 sort_by?: "created_at" | "price_usd" | "name";
                 /** @description Sort direction */
@@ -11230,6 +11791,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CategoryHeroResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_collections_api_v1_collections__get: {
+        parameters: {
+            query?: {
+                /** @description Offset for pagination */
+                skip?: number;
+                /** @description Limit for pagination */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionWithProductCount"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_collection_by_slug_api_v1_collections_slug__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionWithProductCount"];
                 };
             };
             /** @description Validation Error */
@@ -12085,6 +12711,10 @@ export interface operations {
                 currency?: "USD" | "PLN" | "EUR";
                 /** @description Filter by category */
                 category_id?: number | null;
+                /** @description Filter by tag name */
+                tag?: string | null;
+                /** @description Filter by collection slug */
+                collection?: string | null;
                 /** @description Min price (selected currency) */
                 min_price?: number | null;
                 /** @description Max price (selected currency) */
@@ -14036,6 +14666,123 @@ export interface operations {
             };
         };
     };
+    list_product_tags_api_v1_admin_product_tags__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductTagResponse"][];
+                };
+            };
+        };
+    };
+    create_product_tag_api_v1_admin_product_tags__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductTagCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductTagResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_product_tag_api_v1_admin_product_tags__tag_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tag_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_product_tag_api_v1_admin_product_tags__tag_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tag_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductTagUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductTagResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_banners_api_v1_admin_banners__get: {
         parameters: {
             query?: {
@@ -15040,6 +15787,350 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CouponResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_collections_api_v1_admin_collections__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionWithProductCount"][];
+                };
+            };
+        };
+    };
+    create_collection_api_v1_admin_collections__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_collection_api_v1_admin_collections__collection_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionWithProductCount"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_collection_api_v1_admin_collections__collection_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_collection_api_v1_admin_collections__collection_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_collection_products_api_v1_admin_collections__collection_id__products_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionProductsSet"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionWithProductCount"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_collection_product_api_v1_admin_collections__collection_id__products__product_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionWithProductCount"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_collection_product_api_v1_admin_collections__collection_id__products__product_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_collection_hero_api_v1_admin_collections__collection_id__hero_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_collection_hero_api_v1_admin_collections__collection_id__hero_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionHeroResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_collection_hero_api_v1_admin_collections__collection_id__hero_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_collection_hero_alt_api_v1_admin_collections__collection_id__hero_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionHeroAltUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionHeroResponse"];
                 };
             };
             /** @description Validation Error */

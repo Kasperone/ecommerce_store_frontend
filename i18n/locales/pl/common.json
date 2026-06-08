@@ -76,6 +76,7 @@
         "dashboard": "Pulpit",
         "products": "Produkty",
         "categories": "Kategorie",
+        "collections": "Kolekcje",
         "inventory": "Magazyn",
         "warehouses": "Magazyny",
         "reviews": "Opinie",
@@ -817,6 +818,132 @@
         "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków",
         "metaTitleTooLong": "Tytuł meta nie może mieć więcej niż {max} znaków",
         "metaDescriptionTooLong": "Opis meta nie może mieć więcej niż {max} znaków"
+      }
+    },
+    "collections": {
+      "title": "Kolekcje",
+      "subtitle": "Twórz ręczne kolekcje produktów dla sklepu",
+      "status": {
+        "active": "Aktywna",
+        "inactive": "Nieaktywna"
+      },
+      "productCount": "{count} produkt | {count} produkt | {count} produkty | {count} produktów",
+      "actions": {
+        "create": "Nowa kolekcja",
+        "edit": "Edytuj kolekcję",
+        "save": "Zapisz",
+        "cancel": "Anuluj",
+        "delete": "Usuń",
+        "activate": "Aktywuj",
+        "deactivate": "Dezaktywuj"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "slug": "Slug",
+        "slugHint": "Małe litery, cyfry i myślniki",
+        "description": "Opis",
+        "isActive": "Aktywna",
+        "sortOrder": "Kolejność"
+      },
+      "placeholders": {
+        "name": "Wyprzedaż letnia",
+        "slug": "wyprzedaz-letnia",
+        "description": "Opcjonalne podsumowanie",
+        "namePl": "Wyprzedaż letnia",
+        "slugPl": "wyprzedaz-letnia",
+        "descriptionPl": "Opcjonalny opis"
+      },
+      "tabs": {
+        "en": "Angielski",
+        "pl": "Polski"
+      },
+      "seo": {
+        "section": "Meta SEO",
+        "hint": "Opcjonalne. Używane jako tytuł strony i meta opis dla strony kolekcji w sklepie.",
+        "metaTitle": "Meta tytuł",
+        "metaDescription": "Meta opis"
+      },
+      "hero": {
+        "section": "Obraz główny",
+        "dropZone": "Upuść obraz lub kliknij, aby przesłać",
+        "allowedTypes": "JPEG, PNG, WebP — do 5 MiB",
+        "existingLabel": "Bieżący obraz główny",
+        "replace": "Zamień",
+        "clearStaged": "Wyczyść",
+        "removeExisting": "Usuń",
+        "altLabel": "Tekst alternatywny",
+        "altHint": "Opisz obraz dla czytników ekranu i SEO.",
+        "altPlaceholder": "np. Baner kolekcji letniej",
+        "errors": {
+          "sizeTooLarge": "Obraz jest większy niż 5 MiB.",
+          "unsupportedType": "Nieobsługiwany format obrazu. Dozwolone: JPEG, PNG, WebP."
+        }
+      },
+      "membership": {
+        "section": "Produkty",
+        "hint": "Wyszukaj, aby dodać produkty. Kolejność to kolejność wyświetlania w sklepie.",
+        "searchPlaceholder": "Wyszukaj produkty do dodania…",
+        "searching": "Wyszukiwanie…",
+        "noResults": "Brak pasujących produktów.",
+        "selected": "Brak produktów | wybrano {count} produkt | wybrano {count} produkty | wybrano {count} produktów",
+        "empty": "Brak produktów w tej kolekcji.",
+        "moveUp": "Przenieś w górę",
+        "moveDown": "Przenieś w dół",
+        "remove": "Usuń produkt"
+      },
+      "confirm": {
+        "deleteTitle": "Usuń kolekcję",
+        "deleteBody": "Ta kolekcja zostanie trwale usunięta. Same produkty nie zostaną usunięte.",
+        "memberNote": "{count} produkt jest obecnie w tej kolekcji. | {count} produkt jest obecnie w tej kolekcji. | {count} produkty są obecnie w tej kolekcji. | {count} produktów jest obecnie w tej kolekcji."
+      },
+      "empty": {
+        "noCollections": "Brak kolekcji. Utwórz pierwszą."
+      },
+      "errors": {
+        "nameRequired": "Nazwa jest wymagana",
+        "nameTooLong": "Nazwa musi mieć maksymalnie 100 znaków",
+        "slugRequired": "Slug jest wymagany",
+        "slugTooLong": "Slug musi mieć maksymalnie 100 znaków",
+        "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
+        "descriptionTooLong": "Opis musi mieć maksymalnie 500 znaków",
+        "metaTitleTooLong": "Meta tytuł musi mieć maksymalnie {max} znaków",
+        "metaDescriptionTooLong": "Meta opis musi mieć maksymalnie {max} znaków",
+        "sortOrderInvalid": "Kolejność musi być liczbą całkowitą"
+      }
+    },
+    "productTags": {
+      "section": "Tagi",
+      "sectionHint": "Swobodne etykiety merchandisingowe. Wpisz, aby dodać; istniejące tagi podpowiadają się automatycznie.",
+      "empty": "Brak tagów.",
+      "addExisting": "Dodaj istniejący",
+      "newPlaceholder": "Dodaj tag",
+      "add": "Dodaj",
+      "removeAria": "Usuń {name}",
+      "flashes": {
+        "created": "Tag utworzony.",
+        "updated": "Tag zaktualizowany.",
+        "deleted": "Tag usunięty."
+      },
+      "errors": {
+        "saveFallback": "Nie udało się zapisać tagu. Spróbuj ponownie."
+      },
+      "manage": {
+        "open": "Zarządzaj tagami",
+        "title": "Zarządzaj tagami produktów",
+        "description": "Twórz, zmieniaj nazwy, kolory lub usuwaj tagi produktów.",
+        "namePlaceholder": "Nazwa tagu",
+        "create": "Utwórz",
+        "color": "Kolor",
+        "noColor": "Bez koloru",
+        "loading": "Ładowanie tagów…",
+        "empty": "Brak tagów.",
+        "usage": "Używany przez {count} produkt | Używany przez {count} produkt | Używany przez {count} produkty | Używany przez {count} produktów",
+        "edit": "Edytuj tag",
+        "delete": "Usuń tag",
+        "deleteConfirm": "Usunąć ten tag? Zostanie usunięty z każdego produktu, który go używa.",
+        "save": "Zapisz",
+        "cancel": "Anuluj",
+        "close": "Zamknij"
       }
     },
     "products": {
