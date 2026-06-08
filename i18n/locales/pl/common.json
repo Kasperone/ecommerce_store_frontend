@@ -2104,6 +2104,7 @@
         "profile": "Profil",
         "security": "Bezpieczeństwo",
         "addresses": "Adresy",
+        "wishlist": "Lista życzeń",
         "preferences": "Preferencje",
         "privacy": "Prywatność",
         "company": "Firma",
@@ -2710,6 +2711,26 @@
       "heroLabel": "Wyróżnione promocje",
       "promoLabel": "Promocje"
     }
+  },
+  "wishlist": {
+    "title": "Lista życzeń",
+    "subtitle": "Produkty zapisane na później.",
+    "loading": "Wczytywanie listy życzeń…",
+    "empty": "Twoja lista życzeń jest pusta.",
+    "emptyCta": "Przeglądaj produkty",
+    "save": "Zapisz",
+    "saved": "Zapisano",
+    "remove": "Usuń",
+    "addAria": "Dodaj do listy życzeń",
+    "removeAria": "Usuń z listy życzeń",
+    "added": "Zapisano na liście życzeń.",
+    "removedToast": "Usunięto z listy życzeń.",
+    "addError": "Nie udało się zapisać na liście życzeń.",
+    "removeError": "Nie udało się usunąć z listy życzeń.",
+    "signInPrompt": "Zaloguj się, aby zapisywać produkty na liście życzeń.",
+    "unavailable": "Niedostępny",
+    "outOfStock": "Brak w magazynie",
+    "count": "Brak zapisanych produktów | {count} produkt | {count} produkty | {count} produktów"
   },
   "errorPage": {
     "404": {

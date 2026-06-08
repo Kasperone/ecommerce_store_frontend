@@ -324,11 +324,17 @@ useSchemaOrg([
             >{{ t('details.sku') }}: {{ displaySku }}</span>
           </div>
 
-          <div class="max-w-md">
+          <div class="flex max-w-md items-stretch gap-2">
             <ShopAddToCartButton
               :product="product"
               :variant="selectedVariant"
               block
+              class="flex-1"
+            />
+            <ShopWishlistButton
+              :product="product"
+              :variant="selectedVariant"
+              icon-only
             />
           </div>
 

@@ -50,6 +50,7 @@ const quotesItem = computed<NavItem>(() => (
 const accountItems = computed<NavItem[]>(() => [
   { key: 'profile', to: localePath('/account/profile'), icon: 'i-lucide-user', match: 'exact' },
   { key: 'addresses', to: localePath('/account/addresses'), icon: 'i-lucide-map-pin', match: 'exact' },
+  { key: 'wishlist', to: localePath('/account/wishlist'), icon: 'i-lucide-heart', match: 'exact' },
   { key: 'security', to: localePath('/account/security'), icon: 'i-lucide-lock', match: 'exact' },
   { key: 'preferences', to: localePath('/account/preferences'), icon: 'i-lucide-settings-2', match: 'exact' },
 ])
