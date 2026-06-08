@@ -60,6 +60,8 @@ function formatDate(iso: string | null | undefined) {
 
 function formatDiscount(coupon: CouponResponse) {
   if (coupon.discount_type === 'percent') return `${coupon.value}%`
+  // free_shipping carries no value — the type badge says it all.
+  if (coupon.discount_type === 'free_shipping') return '—'
   return `${coupon.value} ${coupon.currency ?? ''}`.trim()
 }
 
@@ -189,6 +191,15 @@ async function confirmDelete(id: number) {
       >
         <template #code-cell="{ row }">
           <span class="font-mono font-medium">{{ row.original.code }}</span>
+          <UBadge
+            v-if="row.original.is_automatic"
+            class="ml-2"
+            color="info"
+            variant="subtle"
+            data-testid="coupon-auto-badge"
+          >
+            {{ $t('admin.coupons.badges.auto') }}
+          </UBadge>
           <p
             v-if="row.original.description"
             class="text-muted text-xs mt-0.5 max-w-xs truncate"

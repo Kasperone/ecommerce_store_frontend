@@ -420,7 +420,8 @@
       },
       "discountType": {
         "percent": "Percentage",
-        "fixed": "Fixed amount"
+        "fixed": "Fixed amount",
+        "free_shipping": "Free shipping"
       },
       "status": {
         "active": "Active",
@@ -453,7 +454,9 @@
         "scheduleHint": "Optional. End must be after start.",
         "isActive": "Active",
         "save": "Save",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "isAutomatic": "Automatic discount",
+        "isAutomaticHint": "Applied automatically at checkout — no code entry."
       },
       "errors": {
         "codeRequired": "Code is required.",
@@ -472,6 +475,9 @@
         "created": "Coupon created.",
         "updated": "Coupon updated.",
         "deleted": "Coupon deleted."
+      },
+      "badges": {
+        "auto": "Auto"
       }
     },
     "companies": {

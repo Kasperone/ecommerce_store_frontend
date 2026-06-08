@@ -113,7 +113,13 @@ const PassThroughStub = defineComponent({
 
 // Stub the non-address checkout collaborators so the page mounts in isolation.
 const StubSelector = defineComponent({ setup: () => () => h('div', 'method-selector') })
-const StubCoupon = defineComponent({ setup: () => () => h('div', 'coupon') })
+// Props declared so the discounts tests can assert what the page threads in
+// (`shippingAmount`) and emit applied coupons back up (`update:modelValue`).
+const StubCoupon = defineComponent({
+  props: ['subtotal', 'shippingAmount', 'currency', 'modelValue'],
+  emits: ['update:modelValue'],
+  setup: () => () => h('div', 'coupon'),
+})
 
 const tick = () => new Promise(r => setTimeout(r, 0))
 
@@ -233,6 +239,112 @@ describe('checkout — order payload (variants F2)', () => {
       { product_id: 10, variant_id: 7, quantity: 1 },
       { product_id: 11, variant_id: undefined, quantity: 2 },
     ])
+  })
+})
+
+describe('checkout — discounts (automatic + free shipping)', () => {
+  // USD subtotal of the stubbed cart: 10×1 + 5×2 = $20.
+  async function mountWithShipping(amount = 10) {
+    const wrapper = await mountPage()
+    await tick()
+    const selector = wrapper.findComponent(StubSelector)
+    selector.vm.$emit('update:modelValue', 5)
+    selector.vm.$emit('update:methodAmount', amount)
+    await tick()
+    return wrapper
+  }
+
+  it('threads the resolved shipping amount into the coupon field', async () => {
+    const wrapper = await mountWithShipping(12.5)
+    expect(wrapper.findComponent(StubCoupon).props('shippingAmount')).toBe(12.5)
+  })
+
+  it('free_shipping: strikes shipping through to 0, no goods-discount line, total excludes shipping', async () => {
+    const wrapper = await mountWithShipping(10)
+    wrapper.findComponent(StubCoupon).vm.$emit('update:modelValue', {
+      code: 'FREESHIP',
+      discountAmount: 10,
+      freeShipping: true,
+      isAutomatic: true,
+    })
+    await tick()
+
+    const shippingFree = wrapper.find('[data-testid="summary-shipping-free"]')
+    expect(shippingFree.exists()).toBe(true)
+    expect(shippingFree.text()).toContain('$10.00')
+    expect(shippingFree.text()).toContain('$0.00')
+    // No goods-discount line — the saving shows as the zeroed shipping.
+    expect(wrapper.find('[data-testid="summary-discount"]').exists()).toBe(false)
+    // Total = 20 − 0 + 0.
+    expect(wrapper.find('[data-testid="summary-total"]').text()).toBe('$20.00')
+  })
+
+  it('automatic goods discount: shows the discount line and total math', async () => {
+    const wrapper = await mountWithShipping(10)
+    wrapper.findComponent(StubCoupon).vm.$emit('update:modelValue', {
+      code: 'AUTO15',
+      discountAmount: 3,
+      freeShipping: false,
+      isAutomatic: true,
+    })
+    await tick()
+
+    const discount = wrapper.find('[data-testid="summary-discount"]')
+    expect(discount.exists()).toBe(true)
+    expect(discount.text()).toContain('AUTO15')
+    expect(wrapper.find('[data-testid="summary-shipping-free"]').exists()).toBe(false)
+    // Total = 20 − 3 + 10.
+    expect(wrapper.find('[data-testid="summary-total"]').text()).toBe('$27.00')
+  })
+
+  it('omits coupon_code from the order payload for an automatic discount', async () => {
+    mutateAsync.mockResolvedValue({
+      id: 3, order_number: 'ORD-3', status: 'pending', currency: 'USD', total: 17, items: [],
+    })
+    const wrapper = await mountWithShipping(10)
+    wrapper.findComponent(StubCoupon).vm.$emit('update:modelValue', {
+      code: 'AUTO15',
+      discountAmount: 3,
+      freeShipping: false,
+      isAutomatic: true,
+    })
+    await tick()
+
+    const form = wrapper.findComponent({ name: 'CheckoutShippingForm' })
+    form.vm.$emit('submit', {
+      address: '1 Main St', city: 'Warsaw', postalCode: '00-001', country: 'PL',
+    })
+    await tick()
+
+    expect(mutateAsync).toHaveBeenCalledTimes(1)
+    expect(mutateAsync.mock.calls[0]![0].coupon_code).toBeUndefined()
+  })
+
+  it('sends coupon_code on the order payload for a manually-entered code', async () => {
+    mutateAsync.mockResolvedValue({
+      id: 4, order_number: 'ORD-4', status: 'pending', currency: 'USD', total: 25, items: [],
+    })
+    const wrapper = await mountWithShipping(10)
+    wrapper.findComponent(StubCoupon).vm.$emit('update:modelValue', {
+      code: 'SAVE5',
+      discountAmount: 5,
+      freeShipping: false,
+      isAutomatic: false,
+    })
+    await tick()
+
+    // Manual discount renders on the summary + flows into the total.
+    expect(wrapper.find('[data-testid="summary-discount"]').text()).toContain('SAVE5')
+    expect(wrapper.find('[data-testid="summary-total"]').text()).toBe('$25.00')
+
+    const form = wrapper.findComponent({ name: 'CheckoutShippingForm' })
+    form.vm.$emit('submit', {
+      address: '1 Main St', city: 'Warsaw', postalCode: '00-001', country: 'PL',
+    })
+    await tick()
+
+    expect(mutateAsync).toHaveBeenCalledTimes(1)
+    expect(mutateAsync.mock.calls[0]![0].coupon_code).toBe('SAVE5')
   })
 })
 

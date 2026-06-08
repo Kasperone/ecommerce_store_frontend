@@ -68,6 +68,7 @@ const existing = {
   used_count: 3,
   starts_at: null,
   ends_at: null,
+  is_automatic: false,
   is_active: true,
   created_at: '2026-05-28T00:00:00Z',
   updated_at: '2026-05-28T00:00:00Z',
@@ -186,6 +187,88 @@ describe('CouponFormModal', () => {
     const { id, patch } = updateMutate.mock.calls[0]![0]
     expect(id).toBe(7)
     expect(patch).toMatchObject({ code: 'WINTER', discount_type: 'fixed', value: 30, currency: 'EUR' })
+  })
+
+  it('creates a free_shipping coupon with value 0 + currency null and hides both inputs', async () => {
+    const wrapper = await mountSuspended(CouponFormModal, {
+      props: { open: true, coupon: null },
+    })
+    wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'freeship')
+    wrapper.findAllComponents({ name: 'USelect' })[0]!.vm.$emit('update:modelValue', 'free_shipping')
+    await tick()
+
+    // Value + currency inputs are hidden for free_shipping: the first
+    // UInputNumber is now min_order_amount and no currency select renders.
+    expect(document.body.textContent).not.toContain('Value')
+    expect(wrapper.findAllComponents({ name: 'USelect' }).length).toBe(1)
+
+    clickSave()
+    await tick()
+
+    expect(createMutate).toHaveBeenCalledTimes(1)
+    expect(createMutate.mock.calls[0]![0]).toMatchObject({
+      code: 'FREESHIP',
+      discount_type: 'free_shipping',
+      value: 0,
+      currency: null,
+    })
+  })
+
+  it('submits is_automatic when the toggle is flipped on', async () => {
+    const wrapper = await mountSuspended(CouponFormModal, {
+      props: { open: true, coupon: null },
+    })
+    wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'AUTO10')
+    wrapper.findAllComponents({ name: 'UInputNumber' })[0]!.vm.$emit('update:modelValue', 10)
+    // [0] = is_automatic, [1] = is_active.
+    wrapper.findAllComponents({ name: 'USwitch' })[0]!.vm.$emit('update:modelValue', true)
+    await tick()
+
+    clickSave()
+    await tick()
+
+    expect(createMutate).toHaveBeenCalledTimes(1)
+    expect(createMutate.mock.calls[0]![0]).toMatchObject({
+      code: 'AUTO10',
+      is_automatic: true,
+      is_active: true,
+    })
+  })
+
+  it('defaults is_automatic to false on create', async () => {
+    const wrapper = await mountSuspended(CouponFormModal, {
+      props: { open: true, coupon: null },
+    })
+    wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'PLAIN')
+    wrapper.findAllComponents({ name: 'UInputNumber' })[0]!.vm.$emit('update:modelValue', 10)
+    await tick()
+
+    clickSave()
+    await tick()
+
+    expect(createMutate.mock.calls[0]![0]).toMatchObject({ is_automatic: false })
+  })
+
+  it('flips an existing fixed coupon to free_shipping with value 0 + currency null in the same PATCH', async () => {
+    const wrapper = await mountSuspended(CouponFormModal, {
+      props: { open: true, coupon: existing },
+    })
+    wrapper.findAllComponents({ name: 'USelect' })[0]!.vm.$emit('update:modelValue', 'free_shipping')
+    await tick()
+
+    clickSave()
+    await tick()
+
+    // The backend 422s a discount_type flip unless value 0 + currency null ride
+    // along in the SAME patch — pin all three together.
+    expect(updateMutate).toHaveBeenCalledTimes(1)
+    const { id, patch } = updateMutate.mock.calls[0]![0]
+    expect(id).toBe(7)
+    expect(patch).toMatchObject({
+      discount_type: 'free_shipping',
+      value: 0,
+      currency: null,
+    })
   })
 
   it('shows the inline error alert + an error toast when the mutation fails (e.g. duplicate code)', async () => {

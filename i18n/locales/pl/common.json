@@ -424,7 +424,8 @@
       },
       "discountType": {
         "percent": "Procentowy",
-        "fixed": "Kwotowy"
+        "fixed": "Kwotowy",
+        "free_shipping": "Darmowa dostawa"
       },
       "status": {
         "active": "Aktywny",
@@ -457,7 +458,9 @@
         "scheduleHint": "Opcjonalne. Koniec musi być po początku.",
         "isActive": "Aktywny",
         "save": "Zapisz",
-        "cancel": "Anuluj"
+        "cancel": "Anuluj",
+        "isAutomatic": "Rabat automatyczny",
+        "isAutomaticHint": "Stosowany automatycznie przy składaniu zamówienia — bez wpisywania kodu."
       },
       "errors": {
         "codeRequired": "Kod jest wymagany.",
@@ -476,6 +479,9 @@
         "created": "Kupon utworzony.",
         "updated": "Kupon zaktualizowany.",
         "deleted": "Kupon usunięty."
+      },
+      "badges": {
+        "auto": "Auto"
       }
     },
     "companies": {

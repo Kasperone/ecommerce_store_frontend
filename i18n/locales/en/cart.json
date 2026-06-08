@@ -100,7 +100,9 @@
       "placeholder": "Discount code",
       "apply": "Apply",
       "remove": "Remove discount",
-      "invalid": "This coupon code is not valid."
+      "invalid": "This coupon code is not valid.",
+      "automatic": "Automatic discount",
+      "freeShipping": "Free shipping"
     }
   },
   "orders": {

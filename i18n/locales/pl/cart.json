@@ -100,7 +100,9 @@
       "placeholder": "Kod rabatowy",
       "apply": "Zastosuj",
       "remove": "Usuń rabat",
-      "invalid": "Ten kod rabatowy jest nieprawidłowy."
+      "invalid": "Ten kod rabatowy jest nieprawidłowy.",
+      "automatic": "Rabat automatyczny",
+      "freeShipping": "Darmowa dostawa"
     }
   },
   "orders": {
