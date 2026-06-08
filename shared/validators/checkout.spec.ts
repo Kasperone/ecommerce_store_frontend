@@ -41,3 +41,18 @@ describe('createShippingSchema', () => {
     expect(schema.safeParse({ ...valid, city: 'x'.repeat(101) }).success).toBe(false)
   })
 })
+
+describe('createShippingSchema — guest checkout', () => {
+  const guestSchema = createShippingSchema(tStub, { guest: true })
+
+  it('requires a valid contact email when guest', () => {
+    expect(guestSchema.safeParse(valid).success).toBe(false)
+    expect(guestSchema.safeParse({ ...valid, email: '' }).success).toBe(false)
+    expect(guestSchema.safeParse({ ...valid, email: 'not-an-email' }).success).toBe(false)
+    expect(guestSchema.safeParse({ ...valid, email: 'guest@example.com' }).success).toBe(true)
+  })
+
+  it('passes the empty email default through when not guest', () => {
+    expect(schema.safeParse({ ...valid, email: '' }).success).toBe(true)
+  })
+})

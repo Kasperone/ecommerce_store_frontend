@@ -992,11 +992,20 @@ export interface paths {
         put?: never;
         /**
          * Validate Coupon
-         * @description Preview a coupon's discount against the posted subtotal + currency.
+         * @description Preview the discount checkout would apply (typed code or automatic).
          *
-         *     200 with the computed discount when eligible; 400 with the failure reason
-         *     (expired / inactive / min-order-not-met / currency-mismatch / usage-exhausted
-         *     / per-user-exhausted / not-found) otherwise. No state is mutated —
+         *     With a ``code``: 200 with the winning discount when the code is eligible
+         *     (an eligible automatic with a larger saving may win instead — best single
+         *     discount, exactly as checkout decides); 400 with the failure reason
+         *     (expired / inactive / min-order-not-met / currency-mismatch /
+         *     usage-exhausted / per-user-exhausted / not-found) when the code itself is
+         *     invalid — a bad code never silently falls back to an automatic.
+         *
+         *     Without a ``code``: 200 with the best applicable automatic discount, or a
+         *     200 with NULL applied-fields when nothing applies.
+         *
+         *     ``shipping_amount`` is what a free_shipping coupon saves (send the
+         *     already-resolved amount, post free-above-threshold). No state is mutated —
          *     ``used_count`` is bumped only at order create. An authenticated user is
          *     passed through so the preview reflects the per-user cap; an anonymous
          *     (guest-checkout) preview skips that one check.
@@ -4958,8 +4967,11 @@ export interface components {
              * Discount Type
              * @enum {string}
              */
-            discount_type: "percent" | "fixed";
-            /** Value */
+            discount_type: "percent" | "fixed" | "free_shipping";
+            /**
+             * Value
+             * @default 0
+             */
             value: number;
             /** Currency */
             currency?: ("USD" | "PLN" | "EUR") | null;
@@ -4978,6 +4990,11 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /**
+             * Is Automatic
+             * @default false
+             */
+            is_automatic: boolean;
         };
         /**
          * CouponListResponse
@@ -5020,8 +5037,11 @@ export interface components {
              * Discount Type
              * @enum {string}
              */
-            discount_type: "percent" | "fixed";
-            /** Value */
+            discount_type: "percent" | "fixed" | "free_shipping";
+            /**
+             * Value
+             * @default 0
+             */
             value: number;
             /** Currency */
             currency?: ("USD" | "PLN" | "EUR") | null;
@@ -5040,6 +5060,11 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /**
+             * Is Automatic
+             * @default false
+             */
+            is_automatic: boolean;
             /** Used Count */
             used_count: number;
         };
@@ -5059,7 +5084,7 @@ export interface components {
             /** Description */
             description?: string | null;
             /** Discount Type */
-            discount_type?: ("percent" | "fixed") | null;
+            discount_type?: ("percent" | "fixed" | "free_shipping") | null;
             /** Value */
             value?: number | null;
             /** Currency */
@@ -5076,21 +5101,32 @@ export interface components {
             ends_at?: string | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Is Automatic */
+            is_automatic?: boolean | null;
         };
         /**
          * CouponValidateRequest
          * @description Request body for ``POST /api/v1/coupons/validate`` (checkout preview).
          *
-         *     ``subtotal`` is the storefront's current goods total in ``currency``; the
-         *     discount is always computed against the subtotal (never shipping). The code is
-         *     uppercased so the lookup matches the canonical stored value regardless of how
-         *     the customer typed it.
+         *     ``code`` is optional: with a code the endpoint validates it (400 on failure);
+         *     without one it still previews any applicable **automatic** discount.
+         *     ``subtotal`` is the storefront's current goods total in ``currency``;
+         *     ``shipping_amount`` is the shipping the cart would otherwise pay — it's what
+         *     a ``free_shipping`` coupon saves (post free-above-threshold, so send the
+         *     already-resolved amount). The code is uppercased so the lookup matches the
+         *     canonical stored value regardless of how the customer typed it; a blank code
+         *     is treated as absent.
          */
         CouponValidateRequest: {
             /** Code */
-            code: string;
+            code?: string | null;
             /** Subtotal */
             subtotal: number;
+            /**
+             * Shipping Amount
+             * @default 0
+             */
+            shipping_amount: number;
             /**
              * Currency
              * @enum {string}
@@ -5099,21 +5135,30 @@ export interface components {
         };
         /**
          * CouponValidateResponse
-         * @description Preview of a valid coupon's effect on the posted subtotal.
+         * @description Preview of the discount checkout would apply (typed code or automatic).
          *
          *     Advisory only — the order-create path re-validates and re-computes against the
          *     server-side subtotal, so a stale preview can never let an invalid code through.
+         *     Routed through the same picker as checkout (``pick_best``), so the preview
+         *     can never diverge from what the order actually gets.
+         *
+         *     The applied-fields (``code`` / ``discount_type`` / ``discount_amount``) are
+         *     NULL on the "nothing applies" 200 (no code typed and no automatic matched).
+         *     ``discount_amount`` is the goods discount for percent/fixed and the shipping
+         *     saved for free_shipping; ``free_shipping=True`` means the storefront should
+         *     show shipping struck through to 0 instead of a goods-discount line.
          */
         CouponValidateResponse: {
             /** Code */
-            code: string;
-            /**
-             * Discount Type
-             * @enum {string}
-             */
-            discount_type: "percent" | "fixed";
+            code: string | null;
+            /** Discount Type */
+            discount_type: ("percent" | "fixed" | "free_shipping") | null;
             /** Discount Amount */
-            discount_amount: number;
+            discount_amount: number | null;
+            /** Is Automatic */
+            is_automatic: boolean;
+            /** Free Shipping */
+            free_shipping: boolean;
             /**
              * Currency
              * @enum {string}

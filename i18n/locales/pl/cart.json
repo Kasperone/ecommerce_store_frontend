@@ -87,7 +87,13 @@
       "countryRequired": "Kraj jest wymagany",
       "countryTooLong": "Kraj może mieć maksymalnie 100 znaków",
       "countryInvalid": "Wybierz kraj",
-      "notesTooLong": "Uwagi mogą mieć maksymalnie 1000 znaków"
+      "notesTooLong": "Uwagi mogą mieć maksymalnie 1000 znaków",
+      "emailInvalid": "Podaj prawidłowy adres e-mail"
+    },
+    "guest": {
+      "hint": "Kupujesz jako gość — potwierdzenie zamówienia i link do śledzenia wyślemy na Twój e-mail. Możesz też",
+      "signIn": "zalogować się",
+      "email": "Adres e-mail"
     },
     "coupon": {
       "label": "Kod rabatowy",
@@ -129,6 +135,13 @@
       "carrier": "Przewoźnik",
       "number": "Numer śledzenia",
       "track": "Śledź przesyłkę"
+    },
+    "track": {
+      "title": "Śledź swoje zamówienie",
+      "shipping": "Dostawa",
+      "shipsTo": "Wysyłka do: {city}, {country}",
+      "method": "Metoda dostawy",
+      "notFound": "Nie znaleźliśmy takiego zamówienia"
     },
     "status": {
       "pending": "Oczekujące",
@@ -194,7 +207,8 @@
       "title": "Potwierdzamy Twoją płatność",
       "message": "Dziękujemy! Potwierdzamy Twoją płatność. Status zamówienia zaktualizuje się wkrótce — śledź go w swoich zamówieniach.",
       "orderRef": "Zamówienie {number}",
-      "viewOrders": "Zobacz moje zamówienia"
+      "viewOrders": "Zobacz moje zamówienia",
+      "trackOrder": "Śledź swoje zamówienie"
     }
   }
 }
