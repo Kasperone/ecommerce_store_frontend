@@ -1916,6 +1916,11 @@ export interface paths {
         /**
          * List Inventory
          * @description List products with stock, threshold, and computed status (admin).
+         *
+         *     The computed status + the ``low_stock``/``in_stock`` filters honour the
+         *     store-wide ``low_stock_default_threshold`` (read once, threaded into the
+         *     set-based query + the per-row status). A NULL global default reproduces the
+         *     pre-global-default behaviour exactly.
          */
         get: operations["list_inventory_api_v1_admin_inventory__get"];
         put?: never;
@@ -1945,6 +1950,60 @@ export interface paths {
         get: operations["export_inventory_api_v1_admin_inventory_export_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/inventory/low-stock-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Low Stock Summary
+         * @description Grouped stock-status counts for the dashboard low-stock badge (admin).
+         *
+         *     Three cheap set-based COUNTs (``low_stock`` / ``out_of_stock`` /
+         *     ``backorder``); the low/out-of-stock counts honour the store-wide
+         *     ``low_stock_default_threshold`` so the badge agrees with the filtered list.
+         *     Read-only — no audit row.
+         */
+        get: operations["low_stock_summary_api_v1_admin_inventory_low_stock_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/inventory/low-stock-report/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Email Low Stock Report
+         * @description Trigger the manual low-stock report email to the store admin (admin).
+         *
+         *     Resolves the current low-stock product set + the store-admin recipient,
+         *     queues the email **best-effort** off a ``BackgroundTask`` (so a Resend hiccup
+         *     never fails the request), and returns the resolved recipients + product count.
+         *     Audited (``resource_type="inventory"``, ``action="low_stock_report"``).
+         *
+         *     **There is no scheduler** in this app — this is an on-demand digest. An
+         *     external/OS cron can hit this endpoint with an admin token for periodic
+         *     delivery.
+         */
+        post: operations["email_low_stock_report_api_v1_admin_inventory_low_stock_report_email_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6723,6 +6782,35 @@ export interface components {
             status: "in_stock" | "low_stock" | "out_of_stock" | "backorder";
         };
         /**
+         * LowStockReportResult
+         * @description Result of triggering the manual low-stock report email.
+         *
+         *     ``recipients`` is the resolved store-admin address(es) the report was queued
+         *     to; ``product_count`` is how many products were at/below threshold at trigger
+         *     time. The send itself is best-effort and runs off a ``BackgroundTask``.
+         */
+        LowStockReportResult: {
+            /** Recipients */
+            recipients: string[];
+            /** Product Count */
+            product_count: number;
+        };
+        /**
+         * LowStockSummary
+         * @description Grouped stock-status counts for the admin dashboard low-stock badge.
+         *
+         *     ``low_stock_count`` + ``out_of_stock_count`` honour the store-wide
+         *     ``low_stock_default_threshold``; ``backorder_count`` is independent of it.
+         */
+        LowStockSummary: {
+            /** Low Stock Count */
+            low_stock_count: number;
+            /** Out Of Stock Count */
+            out_of_stock_count: number;
+            /** Backorder Count */
+            backorder_count: number;
+        };
+        /**
          * LowestPriceResponse
          * @description ``GET /products/{id}/lowest-30d?currency=PLN`` response.
          *
@@ -10018,6 +10106,8 @@ export interface components {
             invoice_vat_rate: number;
             /** Returns Window Days */
             returns_window_days: number;
+            /** Low Stock Default Threshold */
+            low_stock_default_threshold?: number | null;
         };
         /**
          * StoreConfigUpdate
@@ -10067,6 +10157,8 @@ export interface components {
             invoice_vat_rate?: number | null;
             /** Returns Window Days */
             returns_window_days?: number | null;
+            /** Low Stock Default Threshold */
+            low_stock_default_threshold?: number | null;
         };
         /**
          * StripeCheckoutResponse
@@ -13820,6 +13912,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    low_stock_summary_api_v1_admin_inventory_low_stock_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LowStockSummary"];
+                };
+            };
+        };
+    };
+    email_low_stock_report_api_v1_admin_inventory_low_stock_report_email_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LowStockReportResult"];
                 };
             };
         };

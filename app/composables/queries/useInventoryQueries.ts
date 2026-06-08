@@ -26,6 +26,10 @@ import type {
   StockLevelItem,
   TransferResponse,
 } from '#shared/types/api'
+import type { components } from '#shared/types/api.gen'
+
+export type LowStockSummary = components['schemas']['LowStockSummary']
+export type LowStockReportResult = components['schemas']['LowStockReportResult']
 
 export type InventoryStatus = 'in_stock' | 'low_stock' | 'out_of_stock' | 'backorder'
 
@@ -101,6 +105,36 @@ export function useProductLevels(productId: MaybeRefOrGetter<number | null>) {
       ),
     // Client-only + only once a product is selected (the dialog passes null when closed).
     enabled: () => import.meta.client && toValue(productId) !== null,
+  })
+}
+
+/**
+ * `GET /api/v1/admin/inventory/low-stock-summary` — grouped stock-status counts
+ * for the dashboard low-stock badge (low / out-of-stock / backorder), honouring
+ * the store-wide default threshold. Client-only per the SSR-hydration rule.
+ */
+export function useLowStockSummary() {
+  const { apiFetch } = useApi()
+  return useQuery({
+    key: () => [...INVENTORY_NAMESPACE, 'low-stock-summary'],
+    query: () => apiFetch<LowStockSummary>('/api/v1/admin/inventory/low-stock-summary'),
+    // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
+    enabled: () => import.meta.client,
+  })
+}
+
+/**
+ * `POST /api/v1/admin/inventory/low-stock-report/email` — manually trigger the
+ * best-effort low-stock digest email to the store admin. Returns the resolved
+ * recipients + the product count included in the report.
+ */
+export function useEmailLowStockReport() {
+  const { apiFetch } = useApi()
+  return useMutation({
+    mutation: () =>
+      apiFetch<LowStockReportResult>('/api/v1/admin/inventory/low-stock-report/email', {
+        method: 'POST',
+      }),
   })
 }
 
