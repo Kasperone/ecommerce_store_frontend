@@ -56,6 +56,19 @@
     "empty": "Brak produktów w tej kategorii.",
     "loadError": "Nie udało się załadować kategorii."
   },
+  "collection": {
+    "empty": "Brak produktów w tej kolekcji.",
+    "loadError": "Nie udało się załadować kolekcji.",
+    "productCount": "{count} produktów | {count} produkt | {count} produkty | {count} produktów",
+    "index": {
+      "title": "Kolekcje",
+      "subtitle": "Wyselekcjonowane propozycje z całego sklepu.",
+      "empty": "Brak kolekcji."
+    }
+  },
+  "productTag": {
+    "label": "Tagi"
+  },
   "reviews": {
     "heading": "Opinie klientów",
     "basedOn": "Brak opinii | {count} opinia | {count} opinie | {count} opinii",

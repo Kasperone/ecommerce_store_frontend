@@ -2588,6 +2588,8 @@
       "title": "Filters",
       "clear": "Clear",
       "category": "Category",
+      "collection": "Collection",
+      "tag": "Tag",
       "price": "Price",
       "min": "Min",
       "max": "Max",

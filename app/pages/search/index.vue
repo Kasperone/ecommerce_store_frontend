@@ -11,6 +11,8 @@ const { currency } = useCurrencyPreference()
 const filterSchema = z.object({
   q: z.string().optional(),
   categoryId: z.coerce.number().int().positive().optional(),
+  collection: z.string().optional(),
+  tag: z.string().optional(),
   minPrice: z.coerce.number().min(0).optional(),
   maxPrice: z.coerce.number().min(0).optional(),
   inStock: z.boolean().optional(),
@@ -21,6 +23,8 @@ const filterSchema = z.object({
 const defaults = {
   q: undefined as string | undefined,
   categoryId: undefined as number | undefined,
+  collection: undefined as string | undefined,
+  tag: undefined as string | undefined,
   minPrice: undefined as number | undefined,
   maxPrice: undefined as number | undefined,
   inStock: false,
@@ -37,6 +41,8 @@ const searchParams = computed<SearchParams>(() => ({
   locale: locale.value,
   currency: currency.value,
   categoryId: filters.value.categoryId,
+  collection: filters.value.collection,
+  tag: filters.value.tag,
   minPrice: filters.value.minPrice,
   maxPrice: filters.value.maxPrice,
   inStock: filters.value.inStock,
@@ -58,9 +64,13 @@ const total = computed(() => results.value?.total ?? 0)
 const pageSize = computed(() => results.value?.page_size ?? 12)
 const currentPage = computed(() => results.value?.page ?? 1)
 const categoryFacets = computed(() => results.value?.facets?.category_id ?? [])
+const collectionFacets = computed(() => results.value?.facets?.collection_slugs ?? [])
+const tagFacets = computed(() => results.value?.facets?.tags ?? [])
 
 const hasActiveFilters = computed(() =>
   filters.value.categoryId != null
+  || filters.value.collection != null
+  || filters.value.tag != null
   || filters.value.minPrice != null
   || filters.value.maxPrice != null
   || !!filters.value.inStock,
@@ -84,7 +94,15 @@ function onFacetUpdate(patch: Partial<SearchParams>) {
 
 function clearFacets() {
   // Keep the query; clear only the facets.
-  set({ categoryId: undefined, minPrice: undefined, maxPrice: undefined, inStock: false, page: 1 })
+  set({
+    categoryId: undefined,
+    collection: undefined,
+    tag: undefined,
+    minPrice: undefined,
+    maxPrice: undefined,
+    inStock: false,
+    page: 1,
+  })
 }
 </script>
 
@@ -114,7 +132,11 @@ function clearFacets() {
       >
         <ShopSearchFacets
           :category-facets="categoryFacets"
+          :collection-facets="collectionFacets"
+          :tag-facets="tagFacets"
           :category-id="filters.categoryId"
+          :collection="filters.collection"
+          :tag="filters.tag"
           :min-price="filters.minPrice"
           :max-price="filters.maxPrice"
           :in-stock="filters.inStock"

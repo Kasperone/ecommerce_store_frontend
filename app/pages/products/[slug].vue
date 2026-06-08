@@ -97,6 +97,8 @@ const lowStock = computed(() => {
 const displaySku = computed(() => selectedVariant.value?.sku ?? product.value?.sku ?? null)
 
 const category = computed(() => product.value?.category ?? null)
+// Merchandising tag chips → faceted search by tag name (P2). Hidden when empty.
+const tags = computed(() => product.value?.tags ?? [])
 const categoryTo = computed(() =>
   category.value ? localePath(`/category/${category.value.slug}`) : null,
 )
@@ -348,6 +350,27 @@ useSchemaOrg([
             <p class="whitespace-pre-line text-muted">
               {{ displayDescription }}
             </p>
+          </div>
+
+          <!-- Merchandising tags → faceted search by tag name. Self-hides when none. -->
+          <div
+            v-if="tags.length"
+            class="mt-2 flex flex-wrap items-center gap-2"
+          >
+            <span class="text-sm text-muted">{{ t('productTag.label') }}</span>
+            <ULink
+              v-for="tag in tags"
+              :key="tag.id"
+              :to="localePath({ path: '/search', query: { tag: tag.name } })"
+              class="inline-flex items-center gap-1.5 rounded-md border border-default bg-elevated px-2 py-0.5 text-xs hover:border-primary hover:text-primary"
+            >
+              <UIcon
+                name="i-lucide-tag"
+                class="size-3 shrink-0"
+                :style="{ color: tag.color || '#9ca3af' }"
+              />
+              <span>{{ tag.name }}</span>
+            </ULink>
           </div>
         </div>
       </div>

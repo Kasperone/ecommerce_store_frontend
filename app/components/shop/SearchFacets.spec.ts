@@ -56,6 +56,39 @@ describe('ShopSearchFacets', () => {
     expect(wrapper.findAll('input').length).toBeGreaterThanOrEqual(2)
   })
 
+  it('renders collection buckets and emits the slug on select', async () => {
+    const wrapper = await mountFacets({
+      collectionFacets: [
+        { value: 'summer', label: 'Summer Picks', count: 4 },
+        { value: 'sale', label: 'On Sale', count: 1 },
+      ],
+    })
+    expect(wrapper.text()).toContain('Summer Picks')
+    const button = wrapper.findAll('button').find(b => b.text().includes('Summer Picks'))
+    await button!.trigger('click')
+    expect(wrapper.emitted('update')?.[0]?.[0]).toEqual({ collection: 'summer' })
+  })
+
+  it('clears the active collection when clicked again', async () => {
+    const wrapper = await mountFacets({
+      collection: 'summer',
+      collectionFacets: [{ value: 'summer', label: 'Summer Picks', count: 4 }],
+    })
+    const button = wrapper.findAll('button').find(b => b.text().includes('Summer Picks'))
+    await button!.trigger('click')
+    expect(wrapper.emitted('update')?.[0]?.[0]).toEqual({ collection: undefined })
+  })
+
+  it('renders tag buckets and emits the tag name on select', async () => {
+    const wrapper = await mountFacets({
+      tagFacets: [{ value: 'eco', label: 'eco', count: 3 }],
+    })
+    expect(wrapper.text()).toContain('eco')
+    const button = wrapper.findAll('button').find(b => b.text().includes('eco'))
+    await button!.trigger('click')
+    expect(wrapper.emitted('update')?.[0]?.[0]).toEqual({ tag: 'eco' })
+  })
+
   it('is axe-clean', async () => {
     const wrapper = await mountFacets({ hasActiveFilters: true })
     expect(await axe(wrapper.element, AXE_OPTIONS)).toHaveNoViolations()
