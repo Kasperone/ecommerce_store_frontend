@@ -49,6 +49,7 @@ const config = {
   social_youtube: '',
   tax_id: 'PL1234567890',
   invoice_vat_rate: 23,
+  returns_window_days: 30,
   created_at: '2026-05-28T00:00:00Z',
   updated_at: '2026-05-28T00:00:00Z',
 }
@@ -85,7 +86,37 @@ describe('SettingsForm', () => {
       email: 'shop@acme.test',
       tax_id: 'PL1234567890',
       invoice_vat_rate: 23,
+      returns_window_days: 30,
     })
+  })
+
+  it('prefills + emits the edited returns window (Returns/RMA v1)', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    // Prefilled from the loaded config.
+    expect((wrapper.vm as any).state.returns_window_days).toBe(30)
+    // Second UInputNumber is returns_window_days (after invoice_vat_rate).
+    const returnsWindow = wrapper.findAllComponents({ name: 'UInputNumber' })[1]!
+    returnsWindow.vm.$emit('update:modelValue', 14)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    const submits = wrapper.emitted('submit')
+    expect(submits).toBeTruthy()
+    expect(submits![0]![0]).toMatchObject({ returns_window_days: 14 })
+  })
+
+  it('blocks save and does not emit when the returns window is negative', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    const returnsWindow = wrapper.findAllComponents({ name: 'UInputNumber' })[1]!
+    returnsWindow.vm.$emit('update:modelValue', -1)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(wrapper.emitted('submit')).toBeFalsy()
   })
 
   it('blocks save and does not emit when the VAT rate is out of range', async () => {

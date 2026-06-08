@@ -195,6 +195,54 @@
         "damaged_in_transit": "Uszkodzony w transporcie",
         "other": "Inny"
       }
+    },
+    "returns": {
+      "requestButton": "Zgłoś zwrot",
+      "title": "Zwroty towaru",
+      "intro": "Będziemy informować Cię e-mailem o statusie zgłoszenia zwrotu.",
+      "requestedOn": "Zgłoszono {date}",
+      "yourComment": "Twój komentarz",
+      "status": {
+        "requested": "Zgłoszony",
+        "approved": "Zaakceptowany",
+        "rejected": "Odrzucony",
+        "received": "Otrzymany",
+        "refunded": "Zwrócono środki"
+      },
+      "items": {
+        "line": "{name} x {qty}"
+      },
+      "reasonOptions": {
+        "defective": "Wadliwy produkt",
+        "wrong_item": "Otrzymano niewłaściwy produkt",
+        "not_as_described": "Niezgodny z opisem",
+        "no_longer_needed": "Już niepotrzebny",
+        "other": "Inny"
+      },
+      "flashes": {
+        "requested": "Zgłoszenie zwrotu wysłane"
+      },
+      "modal": {
+        "title": "Zgłoś zwrot",
+        "description": "Wybierz produkty, które chcesz odesłać. Rozpatrzymy zgłoszenie i wyślemy dalsze instrukcje e-mailem.",
+        "linePicker": {
+          "title": "Produkty do zwrotu",
+          "hint": "Wybierz, ile sztuk każdego produktu zwracasz i dlaczego.",
+          "availableColumn": "Można zwrócić {remaining} z {total}",
+          "qtyAriaLabel": "Liczba sztuk do zwrotu dla {product}"
+        },
+        "reasonPlaceholder": "Wybierz powód",
+        "reasonAriaLabel": "Powód zwrotu dla {product}",
+        "comment": "Komentarz (opcjonalnie)",
+        "commentPlaceholder": "Czy chcesz dodać coś jeszcze?",
+        "policyLink": "Przeczytaj naszą politykę zwrotów",
+        "submit": "Wyślij zgłoszenie zwrotu",
+        "cancel": "Anuluj",
+        "errors": {
+          "noItems": "Wybierz przynajmniej jeden produkt do zwrotu.",
+          "reasonRequired": "Wybierz powód dla każdego zwracanego produktu."
+        }
+      }
     }
   },
   "payment": {

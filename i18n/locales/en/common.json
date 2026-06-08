@@ -80,6 +80,7 @@
         "warehouses": "Warehouses",
         "reviews": "Reviews",
         "orders": "Orders",
+        "returns": "Returns",
         "customers": "Customers",
         "companies": "Companies (B2B)",
         "quotes": "Quotes (B2B)",
@@ -347,7 +348,8 @@
         "address": "Address",
         "identifiers": "Business identifiers",
         "social": "Social media",
-        "branding": "Branding"
+        "branding": "Branding",
+        "returns": "Returns"
       },
       "fields": {
         "storeName": "Store name",
@@ -368,7 +370,8 @@
         "socialTiktok": "TikTok",
         "socialYoutube": "YouTube",
         "brandTagline": "Tagline",
-        "logoUrl": "Logo URL"
+        "logoUrl": "Logo URL",
+        "returnsWindowDays": "Returns window (days)"
       },
       "hints": {
         "email": "Shown on invoices and used as the sender for store emails.",
@@ -380,7 +383,9 @@
         "social": "Full profile URL or handle — rendered as footer icons. Leave blank to hide.",
         "branding": "The wordmark + tagline shown in the header and footer. The store name above is used as the brand name.",
         "brandTagline": "Short line shown under the logo in the footer.",
-        "logoUrl": "Optional image URL for your logo. Leave blank to use the default wordmark."
+        "logoUrl": "Optional image URL for your logo. Leave blank to use the default wordmark.",
+        "returns": "Customer return (RMA) policy.",
+        "returnsWindowDays": "Days after delivery during which a return can be requested. 0 disables returns store-wide."
       },
       "actions": {
         "save": "Save changes"
@@ -388,7 +393,8 @@
       "errors": {
         "required": "This field is required.",
         "email": "Enter a valid email address.",
-        "vatRange": "VAT rate must be between 0 and 100."
+        "vatRange": "VAT rate must be between 0 and 100.",
+        "returnsWindow": "Returns window must be a whole number of days (0 or more)."
       },
       "flashes": {
         "saved": "Settings saved."
@@ -1884,6 +1890,101 @@
         "confirm": "Convert",
         "dismiss": "Cancel",
         "flash": "Quote converted to order {number}."
+      }
+    },
+    "returns": {
+      "title": "Returns",
+      "subtitle": "Customer return requests (RMA) — review, receive, and refund",
+      "fields": {
+        "id": "ID",
+        "order": "Order",
+        "customer": "Customer",
+        "status": "Status",
+        "items": "Units",
+        "requested": "Requested"
+      },
+      "status": {
+        "requested": "Requested",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "received": "Received",
+        "refunded": "Refunded"
+      },
+      "reasonOptions": {
+        "defective": "Defective item",
+        "wrong_item": "Wrong item received",
+        "not_as_described": "Not as described",
+        "no_longer_needed": "No longer needed",
+        "other": "Other"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses"
+      },
+      "empty": {
+        "noReturns": "No return requests yet.",
+        "noResults": "No returns match the current filter."
+      },
+      "actions": {
+        "view": "View return",
+        "back": "Back to returns",
+        "approve": "Approve",
+        "reject": "Reject",
+        "receive": "Mark received",
+        "refund": "Issue refund"
+      },
+      "detail": {
+        "title": "Return #{id}",
+        "heading": "Return #{id}",
+        "loading": "Loading return…",
+        "request": "Request",
+        "timeline": "Timeline",
+        "items": "Returned items",
+        "lineTotal": "Returned-line total",
+        "customerComment": "Customer comment",
+        "adminNote": "Internal note",
+        "refundId": "Refund",
+        "restockAtRefundHint": "Goods are marked received — stock is restored only when you issue the refund with restock enabled."
+      },
+      "actionModal": {
+        "adminNote": "Internal note (optional)",
+        "adminNotePlaceholder": "e.g. photos reviewed, approved for return shipping",
+        "adminNoteHint": "Visible to admins only — never sent to the customer.",
+        "dismiss": "Cancel",
+        "approve": {
+          "title": "Approve this return?",
+          "body": "The customer will be emailed that their return was accepted.",
+          "confirm": "Approve return"
+        },
+        "reject": {
+          "title": "Reject this return?",
+          "body": "This is final — the customer will be emailed the decision.",
+          "confirm": "Reject return"
+        },
+        "receive": {
+          "title": "Mark goods as received?",
+          "body": "Confirms the returned items physically arrived. Stock is restored at refund time, not now.",
+          "confirm": "Mark received"
+        }
+      },
+      "refundModal": {
+        "title": "Issue refund for this return",
+        "description": "Refunds the returned lines and closes the return. Optionally restocks the returned units.",
+        "amount": "Refund amount",
+        "amountHint": "Defaults to the returned-line total ({total}). Adjust for a partial credit.",
+        "reason": "Reason",
+        "note": "Internal note (optional)",
+        "notePlaceholder": "e.g. refunded after inspection",
+        "restock": "Restore returned units to inventory",
+        "restockHint": "Writes one order_refunded movement per returned line (variant-aware).",
+        "submit": "Issue refund",
+        "cancel": "Cancel"
+      },
+      "flashes": {
+        "approve": "Return approved",
+        "reject": "Return rejected",
+        "receive": "Return marked as received",
+        "refunded": "Refund issued — return closed"
       }
     }
   },

@@ -80,6 +80,7 @@
         "warehouses": "Magazyny",
         "reviews": "Opinie",
         "orders": "Zamówienia",
+        "returns": "Zwroty",
         "customers": "Klienci",
         "companies": "Firmy (B2B)",
         "quotes": "Oferty (B2B)",
@@ -351,7 +352,8 @@
         "address": "Adres",
         "identifiers": "Dane rejestrowe",
         "social": "Media społecznościowe",
-        "branding": "Marka"
+        "branding": "Marka",
+        "returns": "Zwroty"
       },
       "fields": {
         "storeName": "Nazwa sklepu",
@@ -372,7 +374,8 @@
         "socialTiktok": "TikTok",
         "socialYoutube": "YouTube",
         "brandTagline": "Hasło",
-        "logoUrl": "Adres URL logo"
+        "logoUrl": "Adres URL logo",
+        "returnsWindowDays": "Okno zwrotów (dni)"
       },
       "hints": {
         "email": "Widoczny na fakturach i używany jako nadawca e-maili sklepu.",
@@ -384,7 +387,9 @@
         "social": "Pełny adres URL profilu lub nazwa — wyświetlane jako ikony w stopce. Pozostaw puste, aby ukryć.",
         "branding": "Logo i hasło widoczne w nagłówku i stopce. Jako nazwa marki używana jest powyższa nazwa sklepu.",
         "brandTagline": "Krótkie hasło pokazywane pod logo w stopce.",
-        "logoUrl": "Opcjonalny adres URL obrazu logo. Pozostaw puste, aby użyć domyślnego znaku słownego."
+        "logoUrl": "Opcjonalny adres URL obrazu logo. Pozostaw puste, aby użyć domyślnego znaku słownego.",
+        "returns": "Polityka zwrotów konsumenckich (RMA).",
+        "returnsWindowDays": "Liczba dni od dostarczenia, w których można zgłosić zwrot. 0 wyłącza zwroty w całym sklepie."
       },
       "actions": {
         "save": "Zapisz zmiany"
@@ -392,7 +397,8 @@
       "errors": {
         "required": "To pole jest wymagane.",
         "email": "Podaj prawidłowy adres e-mail.",
-        "vatRange": "Stawka VAT musi mieścić się w zakresie 0–100."
+        "vatRange": "Stawka VAT musi mieścić się w zakresie 0–100.",
+        "returnsWindow": "Okno zwrotów musi być liczbą całkowitą dni (0 lub więcej)."
       },
       "flashes": {
         "saved": "Ustawienia zapisane."
@@ -1888,6 +1894,101 @@
         "confirm": "Konwertuj",
         "dismiss": "Anuluj",
         "flash": "Ofertę skonwertowano na zamówienie {number}."
+      }
+    },
+    "returns": {
+      "title": "Zwroty",
+      "subtitle": "Zgłoszenia zwrotów (RMA) — weryfikacja, przyjęcie i zwrot środków",
+      "fields": {
+        "id": "ID",
+        "order": "Zamówienie",
+        "customer": "Klient",
+        "status": "Status",
+        "items": "Sztuki",
+        "requested": "Zgłoszono"
+      },
+      "status": {
+        "requested": "Zgłoszony",
+        "approved": "Zaakceptowany",
+        "rejected": "Odrzucony",
+        "received": "Otrzymany",
+        "refunded": "Zwrócono środki"
+      },
+      "reasonOptions": {
+        "defective": "Wadliwy produkt",
+        "wrong_item": "Otrzymano niewłaściwy produkt",
+        "not_as_described": "Niezgodny z opisem",
+        "no_longer_needed": "Już niepotrzebny",
+        "other": "Inny"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy"
+      },
+      "empty": {
+        "noReturns": "Brak zgłoszeń zwrotów.",
+        "noResults": "Żaden zwrot nie pasuje do bieżącego filtra."
+      },
+      "actions": {
+        "view": "Zobacz zwrot",
+        "back": "Wróć do zwrotów",
+        "approve": "Zaakceptuj",
+        "reject": "Odrzuć",
+        "receive": "Oznacz jako otrzymany",
+        "refund": "Wystaw zwrot środków"
+      },
+      "detail": {
+        "title": "Zwrot #{id}",
+        "heading": "Zwrot #{id}",
+        "loading": "Wczytywanie zwrotu…",
+        "request": "Zgłoszenie",
+        "timeline": "Oś czasu",
+        "items": "Zwracane produkty",
+        "lineTotal": "Suma zwracanych pozycji",
+        "customerComment": "Komentarz klienta",
+        "adminNote": "Notatka wewnętrzna",
+        "refundId": "Zwrot środków",
+        "restockAtRefundHint": "Towar oznaczono jako otrzymany — stan magazynowy zostanie przywrócony dopiero przy zwrocie środków z włączonym przywróceniem stanu."
+      },
+      "actionModal": {
+        "adminNote": "Notatka wewnętrzna (opcjonalnie)",
+        "adminNotePlaceholder": "np. zdjęcia zweryfikowane, zwrot zaakceptowany",
+        "adminNoteHint": "Widoczna tylko dla administratorów — nigdy nie trafia do klienta.",
+        "dismiss": "Anuluj",
+        "approve": {
+          "title": "Zaakceptować ten zwrot?",
+          "body": "Klient otrzyma e-mail z informacją o akceptacji zwrotu.",
+          "confirm": "Zaakceptuj zwrot"
+        },
+        "reject": {
+          "title": "Odrzucić ten zwrot?",
+          "body": "Decyzja jest ostateczna — klient otrzyma e-mail z informacją.",
+          "confirm": "Odrzuć zwrot"
+        },
+        "receive": {
+          "title": "Oznaczyć towar jako otrzymany?",
+          "body": "Potwierdza fizyczne dotarcie zwracanych produktów. Stan magazynowy zostanie przywrócony przy zwrocie środków, nie teraz.",
+          "confirm": "Oznacz jako otrzymany"
+        }
+      },
+      "refundModal": {
+        "title": "Wystaw zwrot środków za ten zwrot",
+        "description": "Zwraca środki za zwracane pozycje i zamyka zgłoszenie. Opcjonalnie przywraca stan magazynowy.",
+        "amount": "Kwota zwrotu",
+        "amountHint": "Domyślnie suma zwracanych pozycji ({total}). Zmień dla zwrotu częściowego.",
+        "reason": "Powód",
+        "note": "Notatka wewnętrzna (opcjonalnie)",
+        "notePlaceholder": "np. zwrot po weryfikacji towaru",
+        "restock": "Przywróć zwrócone sztuki do magazynu",
+        "restockHint": "Zapisuje jeden ruch order_refunded na każdą zwracaną pozycję (z uwzględnieniem wariantów).",
+        "submit": "Wystaw zwrot środków",
+        "cancel": "Anuluj"
+      },
+      "flashes": {
+        "approve": "Zwrot zaakceptowany",
+        "reject": "Zwrot odrzucony",
+        "receive": "Zwrot oznaczony jako otrzymany",
+        "refunded": "Zwrot środków wystawiony — zgłoszenie zamknięte"
       }
     }
   },
