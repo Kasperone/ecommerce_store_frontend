@@ -33,6 +33,10 @@ useSeoMeta({
 
 <template>
   <NuxtLayout>
+    <!-- Active home_hero banners (admin Marketing → Banners) render above the
+         CMS page. Empty → nothing (F8: previously orphaned — no consumer). -->
+    <HomeBanners />
+
     <PageRenderer
       v-if="hasCmsPage"
       :sections="sections"
