@@ -39,6 +39,18 @@ export type ProductOptionValueInput = components['schemas']['ProductOptionValueI
 export type ProductVariantInput = components['schemas']['ProductVariantInput']
 export type ProductOptionsMatrixUpdate = components['schemas']['ProductOptionsMatrixUpdate']
 export type ProductOptionsMatrixResponse = components['schemas']['ProductOptionsMatrixResponse']
+// Product tags (P2) — vocabulary chips on products + the storefront tag facet.
+export type ProductTagChip = components['schemas']['ProductTagChip']
+export type ProductTagResponse = components['schemas']['ProductTagResponse']
+export type ProductTagCreate = components['schemas']['ProductTagCreate']
+export type ProductTagUpdate = components['schemas']['ProductTagUpdate']
+// Manual collections (P2) — admin CRUD/hero/membership + public storefront reads.
+export type CollectionResponse = components['schemas']['CollectionResponse']
+export type CollectionWithProductCount = components['schemas']['CollectionWithProductCount']
+export type CollectionCreate = components['schemas']['CollectionCreate']
+export type CollectionUpdate = components['schemas']['CollectionUpdate']
+export type CollectionHeroResponse = components['schemas']['CollectionHeroResponse']
+export type CollectionHeroAltUpdate = components['schemas']['CollectionHeroAltUpdate']
 export type OrderStatus = components['schemas']['OrderStatus']
 export type OrderListItem = components['schemas']['OrderListItem']
 export type OrderListResponse = components['schemas']['OrderListResponse']
