@@ -14,6 +14,7 @@
  */
 
 import { z } from 'zod'
+import { createEmailValidation } from './auth'
 import type { TranslateFunction } from './auth'
 
 const _required = (t: TranslateFunction, key: string, def: string) =>
@@ -21,8 +22,16 @@ const _required = (t: TranslateFunction, key: string, def: string) =>
     error: issue => issue.input === undefined ? t(key, { default: def }) : 'Invalid input',
   }).min(1, { error: t(key, { default: def }) })
 
-export const createShippingSchema = (t: TranslateFunction) =>
+export const createShippingSchema = (t: TranslateFunction, opts: { guest?: boolean } = {}) =>
   z.object({
+    // Guest checkout: the anonymous buyer's contact email (backend `guest_email`,
+    // required without a bearer — 422 otherwise). Authed checkout never renders
+    // the field, so the non-guest schema just passes the empty default through.
+    email: opts.guest
+      ? createEmailValidation(
+          t('checkout.errors.emailInvalid', { default: 'Enter a valid email address' }),
+        )
+      : z.string().optional(),
     address: _required(t, 'checkout.errors.addressRequired', 'Address is required')
       .max(255, { error: t('checkout.errors.addressTooLong', { default: 'Address must be 255 characters or fewer' }) }),
     city: _required(t, 'checkout.errors.cityRequired', 'City is required')

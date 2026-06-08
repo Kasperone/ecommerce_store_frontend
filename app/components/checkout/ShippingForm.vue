@@ -14,6 +14,12 @@ const props = defineProps<{
   error?: unknown
   /** Disabled when the page-level submit guard hasn't yet got a method id. */
   submitDisabled?: boolean
+  /**
+   * Guest checkout (no bearer): renders a required contact-email field above
+   * the address block + a "sign in instead" hint. The email rides on the
+   * submit payload as `email` → the page maps it to `guest_email`.
+   */
+  guest?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -28,13 +34,15 @@ const emit = defineEmits<{
 
 const { t, locale } = useI18n()
 const toast = useToast()
-const schema = computed(() => createShippingSchema(t))
+const localePath = useLocalePath()
+const schema = computed(() => createShippingSchema(t, { guest: props.guest }))
 
 // USelect option list — localized by the current UI locale; sorted with PL
 // first per the project's PL-market default.
 const countryItems = computed(() => countryOptions(locale.value as SupportedLocale))
 
 const state = reactive<ShippingInput>({
+  email: '',
   address: props.initial?.address ?? '',
   city: props.initial?.city ?? '',
   postalCode: props.initial?.postalCode ?? '',
@@ -98,6 +106,34 @@ function onSubmit(event: { data: ShippingInput }) {
       :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
       @close="errorMessage = ''"
     />
+
+    <template v-if="guest">
+      <p
+        class="text-sm text-muted"
+        data-testid="guest-hint"
+      >
+        {{ t('checkout.guest.hint') }}
+        <ULink
+          :to="localePath('/login?redirect=/checkout')"
+          class="text-primary hover:underline"
+        >
+          {{ t('checkout.guest.signIn') }}
+        </ULink>
+      </p>
+      <UFormField
+        :label="t('checkout.guest.email')"
+        name="email"
+        required
+      >
+        <UInput
+          v-model="state.email"
+          type="email"
+          autocomplete="email"
+          class="w-full"
+          data-testid="guest-email"
+        />
+      </UFormField>
+    </template>
 
     <UFormField
       :label="t('checkout.shipping.address')"

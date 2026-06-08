@@ -54,6 +54,22 @@ export const API_ENDPOINTS = {
     QUERY: '/api/v1/search', // GET - Faceted product search
     SUGGEST: '/api/v1/search/suggest', // GET - Mixed autocomplete (products + categories)
   },
+
+  // Orders endpoints (customer-facing subset; admin flows live in the queries layer)
+  ORDERS: {
+    BASE: '/api/v1/orders',
+    CREATE: '/api/v1/orders/', // POST - Authed or guest (guest_email + locale required when anonymous)
+    TRACK: '/api/v1/orders/track/{token}', // GET - Public account-less order tracking (rate-limited, 404 on unknown token)
+  },
+
+  // Payments endpoints. The three checkout-start POSTs accept an optional
+  // `?guest_token=` query param so a guest order (no bearer) can start payment.
+  PAYMENTS: {
+    PAYU_CHECKOUT: '/api/v1/payments/payu/orders/{orderId}', // POST - Start PayU hosted checkout
+    STRIPE_CHECKOUT: '/api/v1/payments/stripe/checkout/{orderId}', // POST - Start Stripe hosted checkout
+    STRIPE_PAYMENT_INTENT: '/api/v1/payments/stripe/payment-intent/{orderId}', // POST - Create wallet PaymentIntent
+    STRIPE_CONFIG: '/api/v1/payments/stripe/config', // GET - Public browser config (publishable key)
+  },
 } as const
 
 export const HTTP_STATUS = {
@@ -150,6 +166,34 @@ export const buildApiUrl = {
    */
   deleteCategory: (id: number | string) =>
     API_ENDPOINTS.CATEGORIES.DELETE.replace('{id}', String(id)),
+
+  /**
+   * Build the public guest order-tracking URL (GET)
+   * @param token Opaque guest tracking token (43-char urlsafe)
+   */
+  orderTrack: (token: string) =>
+    API_ENDPOINTS.ORDERS.TRACK.replace('{token}', encodeURIComponent(token)),
+
+  /**
+   * Build the PayU checkout-start URL (POST; add `?guest_token=` for guest orders)
+   * @param orderId Order ID
+   */
+  payuCheckout: (orderId: number | string) =>
+    API_ENDPOINTS.PAYMENTS.PAYU_CHECKOUT.replace('{orderId}', String(orderId)),
+
+  /**
+   * Build the Stripe hosted-checkout-start URL (POST; add `?guest_token=` for guest orders)
+   * @param orderId Order ID
+   */
+  stripeCheckout: (orderId: number | string) =>
+    API_ENDPOINTS.PAYMENTS.STRIPE_CHECKOUT.replace('{orderId}', String(orderId)),
+
+  /**
+   * Build the Stripe PaymentIntent URL (POST; add `?guest_token=` for guest orders)
+   * @param orderId Order ID
+   */
+  stripePaymentIntent: (orderId: number | string) =>
+    API_ENDPOINTS.PAYMENTS.STRIPE_PAYMENT_INTENT.replace('{orderId}', String(orderId)),
 } as const
 
 /**

@@ -19,6 +19,8 @@
  */
 
 import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
+import { toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 import type { components } from '#shared/types/api.gen'
 
 export type Address = components['schemas']['AddressResponse']
@@ -31,13 +33,16 @@ const ADDRESSES_NAMESPACE = ['addresses'] as const
  * `GET /api/v1/addresses` — the caller's addresses (default-shipping first).
  *
  * Client-only: authed read, Colada isn't SSR-serialized (rule #87).
+ *
+ * `enabled` lets mixed-audience surfaces (guest checkout) skip the authed read
+ * entirely for anonymous visitors instead of firing a guaranteed 401.
  */
-export function useAddressesQuery() {
+export function useAddressesQuery(enabled: MaybeRefOrGetter<boolean> = true) {
   const { apiFetch } = useApi()
   return useQuery({
     key: () => [...ADDRESSES_NAMESPACE, 'list'],
     query: () => apiFetch<Address[]>('/api/v1/addresses'),
-    enabled: () => import.meta.client,
+    enabled: () => import.meta.client && toValue(enabled),
   })
 }
 

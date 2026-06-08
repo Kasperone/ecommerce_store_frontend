@@ -25,6 +25,12 @@ const props = defineProps<{
   amountMinor: number
   currency: string
   orderNumber: string
+  /**
+   * Guest orders only (user_id = null): the order's tracking token, threaded
+   * into the checkout-start calls as `?guest_token=` so the anonymous buyer
+   * can pay without a bearer. Omit/null for authed orders.
+   */
+  guestToken?: string | null
 }>()
 
 const { t } = useI18n()
@@ -35,7 +41,10 @@ const error = ref<ProblemDetails | null>(null)
 async function payWithStripe() {
   error.value = null
   try {
-    const { checkout_url } = await stripe.mutateAsync(props.orderId)
+    const { checkout_url } = await stripe.mutateAsync({
+      orderId: props.orderId,
+      guestToken: props.guestToken,
+    })
     await navigateTo(checkout_url, { external: true })
   }
   catch (err) {
@@ -46,7 +55,10 @@ async function payWithStripe() {
 async function payWithPayu() {
   error.value = null
   try {
-    const { redirect_uri } = await payu.mutateAsync(props.orderId)
+    const { redirect_uri } = await payu.mutateAsync({
+      orderId: props.orderId,
+      guestToken: props.guestToken,
+    })
     await navigateTo(redirect_uri, { external: true })
   }
   catch (err) {
@@ -67,6 +79,7 @@ async function payWithPayu() {
         :amount-minor="amountMinor"
         :currency="currency"
         :order-number="orderNumber"
+        :guest-token="guestToken"
       />
     </ClientOnly>
     <div class="flex flex-col gap-2">

@@ -47,6 +47,9 @@ export type OrderWithUser = components['schemas']['OrderWithUser']
 export type OrderItemResponse = components['schemas']['OrderItemResponse']
 export type OrderCreate = components['schemas']['OrderCreate']
 export type OrderUpdate = components['schemas']['OrderUpdate']
+// Guest checkout — public account-less tracking view (`GET /orders/track/{token}`).
+export type GuestOrderResponse = components['schemas']['GuestOrderResponse']
+export type GuestOrderItem = components['schemas']['GuestOrderItem']
 export type RefundCreate = components['schemas']['RefundCreate']
 export type RefundResponse = components['schemas']['RefundResponse']
 // v2 per-line picker — RefundItemCreate (request) carries an `order_item_id` +

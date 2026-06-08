@@ -59,7 +59,7 @@ describe('CheckoutPaymentMethods', () => {
     await wrapper.findAll('button')[0]!.trigger('click')
     await flush(wrapper)
 
-    expect(stripeMutate).toHaveBeenCalledWith(7)
+    expect(stripeMutate).toHaveBeenCalledWith({ orderId: 7, guestToken: undefined })
     expect(payuMutate).not.toHaveBeenCalled()
     expect(mockNavigate).toHaveBeenCalledWith(
       'https://checkout.stripe.com/c/pay/cs_1',
@@ -74,11 +74,33 @@ describe('CheckoutPaymentMethods', () => {
     await wrapper.findAll('button')[1]!.trigger('click')
     await flush(wrapper)
 
-    expect(payuMutate).toHaveBeenCalledWith(7)
+    expect(payuMutate).toHaveBeenCalledWith({ orderId: 7, guestToken: undefined })
     expect(mockNavigate).toHaveBeenCalledWith(
       'https://secure.snd.payu.com/pay/abc',
       { external: true },
     )
+  })
+
+  it('threads the guest token into both checkout-start calls (guest checkout)', async () => {
+    stripeMutate.mockResolvedValue({ checkout_url: 'https://checkout.stripe.com/c/pay/cs_2' })
+    payuMutate.mockResolvedValue({ redirect_uri: 'https://secure.snd.payu.com/pay/def' })
+    const wrapper = await mountSuspended(PaymentMethods, {
+      props: {
+        orderId: 9,
+        amountMinor: 5000,
+        currency: 'PLN',
+        orderNumber: 'ORD-9',
+        guestToken: 'tok-guest-abc',
+      },
+    })
+
+    await wrapper.findAll('button')[0]!.trigger('click')
+    await flush(wrapper)
+    expect(stripeMutate).toHaveBeenCalledWith({ orderId: 9, guestToken: 'tok-guest-abc' })
+
+    await wrapper.findAll('button')[1]!.trigger('click')
+    await flush(wrapper)
+    expect(payuMutate).toHaveBeenCalledWith({ orderId: 9, guestToken: 'tok-guest-abc' })
   })
 
   it('shows an inline error and does not redirect when a provider fails', async () => {

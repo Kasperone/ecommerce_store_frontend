@@ -8,7 +8,9 @@ import type { OrderResponse } from '#shared/types/api'
 import type { AppliedCoupon } from '~/components/checkout/CouponField.vue'
 import { useAddressesQuery } from '~/composables/queries/useAddresses'
 
-definePageMeta({ middleware: 'user' })
+// No `user` middleware — guest checkout is allowed. Anonymous buyers supply a
+// contact email (backend `guest_email`, 422 without it); authed buyers keep the
+// saved-address picker and never see the guest field.
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
@@ -17,11 +19,16 @@ const authStore = useAuthStore()
 const { currency } = useCurrencyPreference()
 const createOrder = useCreateOrder()
 
+// Client-only render (see <ClientOnly> below), so this never flips mid-paint:
+// the auth plugin's session restore completes before the checkout UI mounts.
+const isGuest = computed(() => !authStore.isAuthenticated)
+
 // Saved address book (client-gated authed read). A returning customer can pick a
 // saved address to prefill the shipping form; the default-shipping address is
 // pre-selected. `null` means "enter a new address" (falls back to the profile
-// fields). Guests / first-time buyers see an empty list → the picker hides.
-const { data: savedAddresses } = useAddressesQuery()
+// fields). First-time buyers see an empty list → the picker hides; anonymous
+// guests skip the authed read entirely (no pointless 401).
+const { data: savedAddresses } = useAddressesQuery(() => authStore.isAuthenticated)
 const selectedAddressId = ref<number | null>(null)
 
 // Once the address book resolves, default the picker to the default-shipping
@@ -164,6 +171,11 @@ async function placeOrder(shipping: ShippingInput) {
       notes: shipping.notes?.trim() || undefined,
       currency: currency.value,
       coupon_code: appliedCoupon.value?.code,
+      // Anonymous only: contact email + UI locale (order emails + invoice
+      // language). An authed request must NOT send guest_email (backend 422s).
+      ...(isGuest.value
+        ? { guest_email: shipping.email, locale: locale.value as 'en' | 'pl' }
+        : {}),
       items: cart.items.map(item => ({
         product_id: item.productId,
         variant_id: item.variantId ?? undefined,
@@ -237,6 +249,7 @@ async function placeOrder(shipping: ShippingInput) {
               :loading="createOrder.isLoading.value"
               :error="error"
               :submit-disabled="selectedMethodId === null"
+              :guest="isGuest"
               @submit="placeOrder"
               @update:country="selectedCountry = $event"
             />

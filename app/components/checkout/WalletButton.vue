@@ -27,6 +27,8 @@ const props = defineProps<{
   amountMinor: number
   currency: string
   orderNumber: string
+  /** Guest orders only: threaded into the PaymentIntent call + return_url. */
+  guestToken?: string | null
 }>()
 
 const { t } = useI18n()
@@ -74,9 +76,15 @@ async function onConfirm() {
   }
 
   try {
-    const { client_secret } = await createPaymentIntent.mutateAsync(props.orderId)
+    const { client_secret } = await createPaymentIntent.mutateAsync({
+      orderId: props.orderId,
+      guestToken: props.guestToken,
+    })
     const returnUrl = new URL('/checkout/payment/return', window.location.origin)
     returnUrl.searchParams.set('order', props.orderNumber)
+    // Lets the return page offer the guest a "track your order" CTA — useState
+    // doesn't survive the redirect round-trip, so the token rides the URL.
+    if (props.guestToken) returnUrl.searchParams.set('token', props.guestToken)
 
     const { error: confirmError } = await stripe.confirmPayment({
       elements,

@@ -1,16 +1,20 @@
 // @vitest-environment nuxt
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import type { Address } from '~/composables/queries/useAddresses'
 
 /**
- * Checkout shipping-address prefill from the saved address book.
+ * Checkout shipping-address prefill from the saved address book + guest
+ * checkout (anonymous buyers get a required contact-email field and the order
+ * payload gains `guest_email` + `locale`).
  *
- * Scope of THIS spec: only the saved-address picker + shipping-form prefill
- * wiring added by the address-book feature. The cart store, currency preference,
- * create-order mutation and the shipping-method selector are stubbed/mocked at
- * their boundaries; the rest of checkout (coupon/payment/summary) is covered
+ * Scope of THIS spec: the saved-address picker + shipping-form prefill wiring
+ * and the guest de-gating. The cart store, currency preference, create-order
+ * mutation and the shipping-method selector are stubbed/mocked at their
+ * boundaries; the rest of checkout (coupon/payment/summary) is covered
  * elsewhere + by E2E.
  */
 
@@ -51,9 +55,12 @@ const ADDRESSES: Address[] = [
 
 const addressesData = ref<Address[]>(ADDRESSES)
 
-const { mutateAsync, mockNavigate } = vi.hoisted(() => ({
+const { mutateAsync, mockNavigate, authState } = vi.hoisted(() => ({
   mutateAsync: vi.fn(),
   mockNavigate: vi.fn(),
+  // Mutable auth stand-in: set `isAuthenticated` per test BEFORE mounting (the
+  // page reads it at render — auth state is settled pre-mount in the real app).
+  authState: { isAuthenticated: true },
 }))
 
 vi.mock('~/composables/queries/useAddresses', () => ({
@@ -93,6 +100,9 @@ mockNuxtImport('useCurrencyPreference', () => () => ({
 mockNuxtImport('useAuthStore', () => () => ({
   user: null,
   isImpersonating: false,
+  get isAuthenticated() {
+    return authState.isAuthenticated
+  },
 }))
 
 const PassThroughStub = defineComponent({
@@ -127,6 +137,7 @@ async function mountPage() {
 
 beforeEach(() => {
   addressesData.value = ADDRESSES
+  authState.isAuthenticated = true
   mutateAsync.mockReset()
   mockNavigate.mockReset()
 })
@@ -222,5 +233,95 @@ describe('checkout — order payload (variants F2)', () => {
       { product_id: 10, variant_id: 7, quantity: 1 },
       { product_id: 11, variant_id: undefined, quantity: 2 },
     ])
+  })
+})
+
+describe('checkout — guest checkout', () => {
+  it('is not gated behind the user middleware anymore', () => {
+    // `import.meta.url` is not a file: URL in the Nuxt test env — resolve from
+    // the project root (vitest cwd) instead.
+    const src = readFileSync(resolve(process.cwd(), 'app/pages/checkout/index.vue'), 'utf8')
+    expect(src).not.toMatch(/middleware:\s*['"]user['"]/)
+  })
+
+  it('shows the guest email field + sign-in hint when unauthenticated', async () => {
+    authState.isAuthenticated = false
+    addressesData.value = []
+    const wrapper = await mountPage()
+    await tick()
+    expect(wrapper.find('[data-testid="guest-email"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="guest-hint"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="guest-hint"]').text()).toContain('sign in')
+  })
+
+  it('hides the guest email field for authenticated customers', async () => {
+    const wrapper = await mountPage()
+    await tick()
+    expect(wrapper.find('[data-testid="guest-email"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="guest-hint"]').exists()).toBe(false)
+  })
+
+  it('sends guest_email + locale on the create-order payload when anonymous', async () => {
+    authState.isAuthenticated = false
+    addressesData.value = []
+    mutateAsync.mockResolvedValue({
+      id: 2,
+      order_number: 'ORD-2',
+      status: 'pending',
+      currency: 'USD',
+      total: 20,
+      guest_token: 'tok-abc',
+      items: [],
+    })
+    const wrapper = await mountPage()
+    await tick()
+
+    const selector = wrapper.findComponent(StubSelector)
+    selector.vm.$emit('update:modelValue', 5)
+    await tick()
+    const form = wrapper.findComponent({ name: 'CheckoutShippingForm' })
+    form.vm.$emit('submit', {
+      email: 'guest@example.com',
+      address: '1 Main St',
+      city: 'Warsaw',
+      postalCode: '00-001',
+      country: 'PL',
+    })
+    await tick()
+
+    expect(mutateAsync).toHaveBeenCalledTimes(1)
+    const payload = mutateAsync.mock.calls[0]![0]
+    expect(payload.guest_email).toBe('guest@example.com')
+    expect(payload.locale).toBe('en')
+  })
+
+  it('never sends guest_email when authenticated (backend 422s on it)', async () => {
+    mutateAsync.mockResolvedValue({
+      id: 1,
+      order_number: 'ORD-1',
+      status: 'pending',
+      currency: 'USD',
+      total: 20,
+      items: [],
+    })
+    const wrapper = await mountPage()
+    await tick()
+
+    const selector = wrapper.findComponent(StubSelector)
+    selector.vm.$emit('update:modelValue', 5)
+    await tick()
+    const form = wrapper.findComponent({ name: 'CheckoutShippingForm' })
+    form.vm.$emit('submit', {
+      address: '1 Main St',
+      city: 'Warsaw',
+      postalCode: '00-001',
+      country: 'PL',
+    })
+    await tick()
+
+    expect(mutateAsync).toHaveBeenCalledTimes(1)
+    const payload = mutateAsync.mock.calls[0]![0]
+    expect('guest_email' in payload).toBe(false)
+    expect('locale' in payload).toBe(false)
   })
 })
