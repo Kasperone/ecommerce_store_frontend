@@ -26,6 +26,7 @@ const GROUPS: MenuGroupConfig[] = [
     items: [
       { key: 'products', to: '/admin/products', icon: 'i-lucide-package' },
       { key: 'categories', to: '/admin/categories', icon: 'i-lucide-tags' },
+      { key: 'collections', to: '/admin/collections', icon: 'i-lucide-layers' },
       { key: 'inventory', to: '/admin/inventory', icon: 'i-lucide-boxes' },
       { key: 'warehouses', to: '/admin/warehouses', icon: 'i-lucide-warehouse' },
       { key: 'reviews', to: '/admin/reviews', icon: 'i-lucide-message-square' },

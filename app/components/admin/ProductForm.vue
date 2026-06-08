@@ -46,6 +46,9 @@ export interface ProductFormPayload {
   is_active: boolean
   is_featured: boolean
   category_id: number | null
+  // Free-form product tags (names). The backend get-or-creates each name and
+  // reconciles the join; `[]` clears, names are case-insensitively deduped.
+  tags: string[]
 }
 
 const props = defineProps<{
@@ -125,6 +128,10 @@ const state = reactive<FormState>({
   category_id: undefined,
 })
 
+// Product tags are NOT a UForm/Zod field (free-form chips, no validation) — a
+// plain string[] ref seeded from the product, emitted in the submit payload.
+const tags = ref<string[]>([])
+
 const formRef = useTemplateRef<ValidatedFormInstance>('formRef')
 const { errorMessage, applyApiError } = useValidatedForm(formRef, {
   state: () => state,
@@ -183,6 +190,7 @@ watch(
       state.is_active = product.is_active
       state.is_featured = product.is_featured
       state.category_id = product.category_id ?? undefined
+      tags.value = (product.tags ?? []).map(tag => tag.name)
       slugManuallyEdited.value = true
     }
     else {
@@ -212,6 +220,7 @@ watch(
       state.is_active = true
       state.is_featured = false
       state.category_id = undefined
+      tags.value = []
       slugManuallyEdited.value = false
     }
   },
@@ -297,6 +306,7 @@ function buildPayload(): ProductFormPayload {
     is_active: state.is_active,
     is_featured: state.is_featured,
     category_id: state.category_id ?? null,
+    tags: [...tags.value],
   }
 }
 
@@ -757,6 +767,21 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
           :disabled="loading"
         />
       </UFormField>
+    </section>
+
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold">
+          {{ t('admin.productTags.section') }}
+        </h2>
+        <p class="text-xs text-muted mt-1">
+          {{ t('admin.productTags.sectionHint') }}
+        </p>
+      </div>
+      <AdminProductTagEditor
+        v-model="tags"
+        :disabled="loading"
+      />
     </section>
 
     <slot name="extra-sections" />
