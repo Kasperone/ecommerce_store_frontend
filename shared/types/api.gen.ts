@@ -1511,6 +1511,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/feeds/google/{country}.xml": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Google Shopping Feed
+         * @description Google Shopping RSS 2.0 feed (``g:`` namespace) for one market.
+         *
+         *     Public, no auth. Emits one ``<item>`` per variantless product and one per
+         *     active variant (sharing ``g:item_group_id``), skipping anything without a
+         *     price in ``currency``.
+         */
+        get: operations["google_shopping_feed_api_v1_feeds_google__country__xml_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/shipping/quote": {
         parameters: {
             query?: never;
@@ -13289,6 +13313,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SitemapCategoryEntry"][];
+                };
+            };
+        };
+    };
+    google_shopping_feed_api_v1_feeds_google__country__xml_get: {
+        parameters: {
+            query?: {
+                /** @description Feed content language. */
+                lang?: "en" | "pl";
+                /** @description Feed currency; must match the target country. */
+                currency?: "USD" | "PLN" | "EUR";
+            };
+            header?: never;
+            path: {
+                /** @description ISO-3166 alpha-2 target country (e.g. PL, DE, US). */
+                country: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/xml": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
