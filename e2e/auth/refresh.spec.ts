@@ -27,7 +27,7 @@ test('silent refresh → session survives access-token expiry', async ({ page })
   await page.waitForLoadState('networkidle')
   await page.getByLabel('Email', { exact: true }).fill(REFRESH_USER.email)
   await page.getByLabel(/^password$/i).fill(REFRESH_USER.password)
-  await page.getByRole('button', { name: /continue/i }).click()
+  await page.getByRole('button', { name: 'Login', exact: true }).click()
   await expect(page).toHaveURL('/account')
 
   await page.waitForTimeout(130_000)

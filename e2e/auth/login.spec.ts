@@ -10,7 +10,7 @@ test('login happy path → redirects to /account and shows welcome toast', async
 
   await page.getByLabel('Email', { exact: true }).fill(KNOWN_USER.email)
   await page.getByLabel(/^password$/i).fill(KNOWN_USER.password)
-  await page.getByRole('button', { name: /continue/i }).click()
+  await page.getByRole('button', { name: 'Login', exact: true }).click()
 
   await expect(page).toHaveURL('/account')
   // Scope to the toast: "Welcome back!" is also the LoginForm's own <h1>, so an
@@ -41,7 +41,7 @@ test('login while account is locked → stays on /login with error', async ({ pa
 
   await page.getByLabel('Email', { exact: true }).fill(LOCKOUT_USER.email)
   await page.getByLabel(/^password$/i).fill(LOCKOUT_USER.password)
-  await page.getByRole('button', { name: /continue/i }).click()
+  await page.getByRole('button', { name: 'Login', exact: true }).click()
 
   await expect(page).toHaveURL(/\/login/)
   await expect(page.getByText('Error signing in').first()).toBeVisible()
