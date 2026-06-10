@@ -27,6 +27,7 @@ const _merchantSeoFields = (t: TranslateFunction) => ({
   condition: z.enum(['new', 'refurbished', 'used'], {
     error: t('admin.products.errors.conditionInvalid', { default: 'Condition must be new, refurbished, or used' }),
   }).optional(),
+  google_product_category: z.string().max(20, { error: t('admin.products.errors.googleProductCategoryTooLong', { default: 'Google Product Category must be 20 characters or fewer' }) }).optional().nullable(),
   meta_title: z.string().max(70, { error: t('admin.products.errors.metaTitleTooLong', { default: 'Meta title must be 70 characters or fewer' }) }).optional().nullable(),
   meta_description: z.string().max(160, { error: t('admin.products.errors.metaDescriptionTooLong', { default: 'Meta description must be 160 characters or fewer' }) }).optional().nullable(),
   meta_title_pl: z.string().max(70, { error: t('admin.products.errors.metaTitleTooLong', { default: 'Meta title must be 70 characters or fewer' }) }).optional().nullable(),

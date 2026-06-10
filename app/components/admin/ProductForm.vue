@@ -26,6 +26,7 @@ export interface ProductFormPayload {
   gtin: string | null
   mpn: string | null
   condition: ProductCondition
+  google_product_category: string | null
   meta_title: string | null
   meta_description: string | null
   meta_title_pl: string | null
@@ -81,6 +82,7 @@ interface FormState {
   gtin: string
   mpn: string
   condition: ProductCondition
+  google_product_category: string
   meta_title: string
   meta_description: string
   meta_title_pl: string
@@ -110,6 +112,7 @@ const state = reactive<FormState>({
   gtin: '',
   mpn: '',
   condition: 'new',
+  google_product_category: '',
   meta_title: '',
   meta_description: '',
   meta_title_pl: '',
@@ -174,6 +177,7 @@ watch(
       state.gtin = product.gtin ?? ''
       state.mpn = product.mpn ?? ''
       state.condition = (product.condition ?? 'new') as ProductCondition
+      state.google_product_category = product.google_product_category ?? ''
       state.meta_title = product.meta_title ?? ''
       state.meta_description = product.meta_description ?? ''
       state.meta_title_pl = product.meta_title_pl ?? ''
@@ -204,6 +208,7 @@ watch(
       state.gtin = ''
       state.mpn = ''
       state.condition = 'new'
+      state.google_product_category = ''
       state.meta_title = ''
       state.meta_description = ''
       state.meta_title_pl = ''
@@ -257,6 +262,7 @@ async function validate(values: FormState): Promise<FormError[]> {
     brand: values.brand.trim() || null,
     gtin: values.gtin.trim() || null,
     mpn: values.mpn.trim() || null,
+    google_product_category: values.google_product_category.trim() || null,
     meta_title: values.meta_title.trim() || null,
     meta_description: values.meta_description.trim() || null,
     meta_title_pl: values.meta_title_pl.trim() || null,
@@ -290,6 +296,7 @@ function buildPayload(): ProductFormPayload {
     gtin: state.gtin.trim() || null,
     mpn: state.mpn.trim() || null,
     condition: state.condition,
+    google_product_category: state.google_product_category.trim() || null,
     meta_title: state.meta_title.trim() || null,
     meta_description: state.meta_description.trim() || null,
     meta_title_pl: state.meta_title_pl.trim() || null,
@@ -571,6 +578,20 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
           />
         </UFormField>
       </div>
+
+      <UFormField
+        :label="t('admin.products.fields.googleProductCategory')"
+        name="google_product_category"
+        :hint="t('admin.products.hints.googleProductCategory')"
+      >
+        <UInput
+          v-model="state.google_product_category"
+          :placeholder="t('admin.products.placeholders.googleProductCategory')"
+          :disabled="loading"
+          maxlength="20"
+          class="w-full"
+        />
+      </UFormField>
 
       <UFormField
         :label="t('admin.products.fields.category')"

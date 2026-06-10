@@ -35,6 +35,7 @@ export interface CategoryFormSubmit {
   meta_description: string | null
   meta_title_pl: string | null
   meta_description_pl: string | null
+  google_product_category: string | null
   /** Local file the page should POST to /hero after the row lands. */
   heroFile: File | null
   /** Alt text for the hero (existing or staged); empty string means "none". */
@@ -78,6 +79,7 @@ const state = reactive({
   meta_description: '' as string,
   meta_title_pl: '' as string,
   meta_description_pl: '' as string,
+  google_product_category: '' as string,
 })
 
 const slugEnManuallyEdited = ref(false)
@@ -135,6 +137,7 @@ watch(
       state.meta_description = c.meta_description ?? ''
       state.meta_title_pl = c.meta_title_pl ?? ''
       state.meta_description_pl = c.meta_description_pl ?? ''
+      state.google_product_category = c.google_product_category ?? ''
       // Existing slugs are user intent; do not silently overwrite.
       slugEnManuallyEdited.value = true
       slugPlManuallyEdited.value = state.slug_pl.length > 0
@@ -151,6 +154,7 @@ watch(
       state.meta_description = ''
       state.meta_title_pl = ''
       state.meta_description_pl = ''
+      state.google_product_category = ''
       slugEnManuallyEdited.value = false
       slugPlManuallyEdited.value = false
     }
@@ -220,6 +224,7 @@ function onSubmit(_event: FormSubmitEvent<typeof state>) {
     meta_description: nullable(state.meta_description),
     meta_title_pl: nullable(state.meta_title_pl),
     meta_description_pl: nullable(state.meta_description_pl),
+    google_product_category: nullable(state.google_product_category),
     heroFile: heroFile.value,
     heroAlt: heroAlt.value.trim(),
     removeExistingHero: removeExistingHero.value,
@@ -391,6 +396,20 @@ const title = computed(() =>
             v-model="state.is_active"
             :label="t('admin.categories.fields.isActive', { default: 'Active' })"
             :disabled="loading"
+          />
+        </UFormField>
+
+        <UFormField
+          :label="t('admin.categories.fields.googleProductCategory', { default: 'Google Product Category' })"
+          name="google_product_category"
+          :hint="t('admin.categories.hints.googleProductCategory', { default: 'Numeric taxonomy ID from Google\'s product taxonomy (e.g. 5613 for Apparel). Acts as default for all products in this category.' })"
+        >
+          <UInput
+            v-model="state.google_product_category"
+            :placeholder="t('admin.categories.placeholders.googleProductCategory', { default: 'e.g. 5613' })"
+            :disabled="loading"
+            maxlength="20"
+            class="w-full"
           />
         </UFormField>
 

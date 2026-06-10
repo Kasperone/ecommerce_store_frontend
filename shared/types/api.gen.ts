@@ -4936,6 +4936,11 @@ export interface components {
             meta_title_pl?: string | null;
             /** Meta Description Pl */
             meta_description_pl?: string | null;
+            /**
+             * Google Product Category
+             * @description Google product taxonomy numeric ID, e.g. '5613'
+             */
+            google_product_category?: string | null;
         };
         /**
          * CategoryDeletePreview
@@ -5041,6 +5046,11 @@ export interface components {
             meta_title_pl?: string | null;
             /** Meta Description Pl */
             meta_description_pl?: string | null;
+            /**
+             * Google Product Category
+             * @description Google product taxonomy numeric ID, e.g. '5613'
+             */
+            google_product_category?: string | null;
         };
         /**
          * CategoryRevenueReport
@@ -5139,6 +5149,11 @@ export interface components {
             /** Meta Description Pl */
             meta_description_pl?: string | null;
             /**
+             * Google Product Category
+             * @description Google product taxonomy numeric ID, e.g. '5613'
+             */
+            google_product_category?: string | null;
+            /**
              * Product Count
              * @default 0
              */
@@ -5180,6 +5195,8 @@ export interface components {
             meta_title_pl?: string | null;
             /** Meta Description Pl */
             meta_description_pl?: string | null;
+            /** Google Product Category */
+            google_product_category?: string | null;
         };
         /**
          * CategoryWithProductCount
@@ -5242,6 +5259,11 @@ export interface components {
             meta_title_pl?: string | null;
             /** Meta Description Pl */
             meta_description_pl?: string | null;
+            /**
+             * Google Product Category
+             * @description Google product taxonomy numeric ID, e.g. '5613'
+             */
+            google_product_category?: string | null;
             /**
              * Product Count
              * @default 0
@@ -7899,6 +7921,11 @@ export interface components {
              * @enum {string}
              */
             condition: "new" | "refurbished" | "used";
+            /**
+             * Google Product Category
+             * @description Google product taxonomy numeric ID, e.g. '5613'
+             */
+            google_product_category?: string | null;
             /** Meta Title */
             meta_title?: string | null;
             /** Meta Description */
@@ -8233,6 +8260,11 @@ export interface components {
              * @enum {string}
              */
             condition: "new" | "refurbished" | "used";
+            /**
+             * Google Product Category
+             * @description Google product taxonomy numeric ID, e.g. '5613'
+             */
+            google_product_category?: string | null;
             /** Meta Title */
             meta_title?: string | null;
             /** Meta Description */
@@ -8392,6 +8424,8 @@ export interface components {
             mpn?: string | null;
             /** Condition */
             condition?: ("new" | "refurbished" | "used") | null;
+            /** Google Product Category */
+            google_product_category?: string | null;
             /** Meta Title */
             meta_title?: string | null;
             /** Meta Description */
@@ -8619,6 +8653,11 @@ export interface components {
              * @enum {string}
              */
             condition: "new" | "refurbished" | "used";
+            /**
+             * Google Product Category
+             * @description Google product taxonomy numeric ID, e.g. '5613'
+             */
+            google_product_category?: string | null;
             /** Meta Title */
             meta_title?: string | null;
             /** Meta Description */
