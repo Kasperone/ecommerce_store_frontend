@@ -4018,9 +4018,10 @@ export interface paths {
          *
          *     The server prices each line from the current product price in
          *     ``payload.currency`` (a client-sent price is ignored). 403 ``not_b2b`` if the
-         *     caller is no company's primary contact; 422 if a line references a
-         *     missing/inactive product (or ``items`` is empty — enforced by the schema).
-         *     status starts ``requested``; ``requested_by_user_id`` = caller.
+         *     caller is not a member of any company; 403 if the member is a ``VIEWER``
+         *     (read-only); 422 if a line references a missing/inactive product (or ``items``
+         *     is empty — enforced by the schema). status starts ``requested``;
+         *     ``requested_by_user_id`` = caller.
          */
         post: operations["request_quote_api_v1_quotes__post"];
         delete?: never;
@@ -4063,8 +4064,8 @@ export interface paths {
          * @description Accept a ``sent`` quote (→ ``accepted``).
          *
          *     Only a ``sent`` quote may be accepted (409 otherwise). Cross-company/unknown →
-         *     404. Accepting does not create an order — convert separately via
-         *     ``POST /quotes/{id}/convert``.
+         *     404. A ``VIEWER`` is read-only (403). Accepting does not create an order —
+         *     convert separately via ``POST /quotes/{id}/convert``.
          */
         post: operations["accept_my_quote_api_v1_quotes__quote_id__accept_post"];
         delete?: never;
@@ -4087,14 +4088,15 @@ export interface paths {
          * @description Convert one of the caller's company's **accepted** quotes into a pending order.
          *
          *     Self-service counterpart to the admin convert. The order is owned by the company's
-         *     primary contact — the caller — so order history, emails and invoices attribute
-         *     correctly. Line items honour the **quoted** unit price + quantity (no re-pricing);
-         *     stock is decremented from the default warehouse like a normal order;
-         *     ``shipping``/``discount``/``tax`` are 0 and no shipping method is set (set at
-         *     fulfilment).
+         *     primary contact (``primary_user_id``) — independent of which member converts — so
+         *     order history, emails and invoices attribute correctly. Line items honour the
+         *     **quoted** unit price + quantity (no re-pricing); stock is decremented from the
+         *     default warehouse like a normal order; ``shipping``/``discount``/``tax`` are 0 and
+         *     no shipping method is set (set at fulfilment).
          *
-         *     Cross-company / unknown quote → 404. ``status != 'accepted'`` → 422; already
-         *     converted → 409; no items / any free-text line / insufficient stock → 422.
+         *     Cross-company / unknown quote → 404. A ``VIEWER`` is read-only (403).
+         *     ``status != 'accepted'`` → 422; already converted → 409; no items / any free-text
+         *     line / insufficient stock → 422.
          */
         post: operations["convert_my_quote_api_v1_quotes__quote_id__convert_post"];
         delete?: never;
