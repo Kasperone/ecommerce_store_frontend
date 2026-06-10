@@ -251,6 +251,44 @@ export class ApiClient {
     return { zoneId, methodId }
   }
 
+  /**
+   * Admin: reconcile the product's option/variant matrix in one call.
+   * Returns the created options (with value IDs) and variant IDs so the
+   * caller can look them up by title.
+   */
+  async createProductVariants(
+    accessToken: string,
+    productId: number,
+    matrix: {
+      options: Array<{
+        name: string
+        position?: number
+        values: Array<{ value: string, position?: number }>
+      }>
+      variants: Array<{
+        option_values: string[]
+        sku?: string
+        price_usd?: number | null
+        price_pln?: number | null
+        price_eur?: number | null
+        initial_stock?: number
+        is_active?: boolean
+      }>
+    },
+  ): Promise<{
+    options: Array<{ id: number, name: string, values: Array<{ id: number, value: string }> }>
+    variants: Array<{ id: number, title: string, sku: string | null, stock: number }>
+  }> {
+    const res = await this.http.put(`/api/v1/products/${productId}/options`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: matrix,
+    })
+    if (!res.ok()) {
+      throw new Error(`createProductVariants failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
   /** Admin-creates a discount code for coupon-redemption specs. */
   async createCoupon(
     accessToken: string,
@@ -261,6 +299,7 @@ export class ApiClient {
       currency?: 'USD' | 'PLN' | 'EUR' | null
       min_order_amount?: number | null
       is_active?: boolean
+      is_automatic?: boolean
     },
   ): Promise<{ id: number, code: string }> {
     const res = await this.http.post('/api/v1/admin/coupons/', {
@@ -487,7 +526,13 @@ export class ApiClient {
     shipping_city: string
     shipping_postal_code: string
     shipping_country: string
-    items: Array<{ product_id: number, quantity: number, unit_price: number }>
+    items: Array<{
+      product_id: number
+      variant_id: number | null
+      variant_title: string | null
+      quantity: number
+      unit_price: number
+    }>
   }> {
     const res = await this.http.get(`/api/v1/orders/${orderId}`, {
       headers: { authorization: `Bearer ${accessToken}` },
