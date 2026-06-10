@@ -86,6 +86,16 @@ function metaDescriptionField(t: TranslateFunction) {
     .nullable()
 }
 
+const googleProductCategoryField = (t: TranslateFunction) =>
+  z.string()
+    .max(20, {
+      error: t('admin.categories.errors.googleProductCategoryTooLong', {
+        default: 'Google Product Category must be 20 characters or fewer',
+      }),
+    })
+    .optional()
+    .nullable()
+
 export const createCategoryCreateSchema = (t: TranslateFunction) =>
   z.object({
     name: nameField(t, true),
@@ -99,6 +109,7 @@ export const createCategoryCreateSchema = (t: TranslateFunction) =>
     meta_description: metaDescriptionField(t),
     meta_title_pl: metaTitleField(t),
     meta_description_pl: metaDescriptionField(t),
+    google_product_category: googleProductCategoryField(t),
   })
 
 export const createCategoryUpdateSchema = (t: TranslateFunction) =>
@@ -114,6 +125,7 @@ export const createCategoryUpdateSchema = (t: TranslateFunction) =>
     meta_description: metaDescriptionField(t),
     meta_title_pl: metaTitleField(t),
     meta_description_pl: metaDescriptionField(t),
+    google_product_category: googleProductCategoryField(t),
   })
 
 export type CategoryCreateInput = z.infer<ReturnType<typeof createCategoryCreateSchema>>

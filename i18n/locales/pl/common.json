@@ -750,7 +750,11 @@
         "slugHint": "Małe litery, cyfry i myślniki",
         "description": "Opis",
         "isActive": "Aktywna",
-        "productCount": "Produkty"
+        "productCount": "Produkty",
+        "googleProductCategory": "Kategoria produktu Google"
+      },
+      "hints": {
+        "googleProductCategory": "Numeryczny identyfikator taksonomii produktów Google (np. 5613 dla Odzieży). Domyślna wartość dla wszystkich produktów w tej kategorii."
       },
       "placeholders": {
         "search": "Szukaj kategorii",
@@ -759,7 +763,11 @@
         "description": "Opcjonalny opis",
         "namePl": "Książki",
         "slugPl": "ksiazki",
-        "descriptionPl": "Opcjonalny opis"
+        "descriptionPl": "Opcjonalny opis",
+        "googleProductCategory": "np. 5613"
+      },
+      "errors": {
+        "googleProductCategoryTooLong": "Kategoria produktu Google może mieć najwyżej 20 znaków"
       },
       "tabs": {
         "en": "Angielski",
@@ -1009,6 +1017,7 @@
         "brand": "Widoczna w wynikach z rozszerzeniami; domyślnie marka sklepu",
         "gtin": "Kod kreskowy EAN/UPC (8–14 cyfr)",
         "mpn": "Opcjonalne",
+        "googleProductCategory": "Numeryczny identyfikator taksonomii produktów Google (np. 5613 dla Odzieży). Nadpisuje domyślną wartość z kategorii.",
         "metaTitle": "Maks. 70 znaków",
         "metaDescription": "Maks. 160 znaków"
       },
@@ -1022,6 +1031,7 @@
         "brand": "np. Acme",
         "gtin": "np. 00012345600012",
         "mpn": "Numer katalogowy producenta",
+        "googleProductCategory": "np. 5613",
         "metaTitle": "Tytuł w wynikach wyszukiwania (domyślnie nazwa produktu)",
         "metaDescription": "Opis w wynikach wyszukiwania (domyślnie opis produktu)",
         "metaTitlePl": "Tytuł w wynikach wyszukiwania",
@@ -1091,6 +1101,7 @@
         "gtin": "GTIN",
         "mpn": "MPN",
         "condition": "Stan",
+        "googleProductCategory": "Kategoria produktu Google",
         "metaTitle": "Meta tytuł (SEO)",
         "metaDescription": "Meta opis (SEO)"
       },
@@ -1157,6 +1168,7 @@
         "gtinTooLong": "GTIN może mieć najwyżej 14 znaków",
         "mpnTooLong": "MPN może mieć najwyżej 70 znaków",
         "conditionInvalid": "Stan musi być: nowy, odnowiony lub używany",
+        "googleProductCategoryTooLong": "Kategoria produktu Google może mieć najwyżej 20 znaków",
         "metaTitleTooLong": "Meta tytuł może mieć najwyżej 70 znaków",
         "metaDescriptionTooLong": "Meta opis może mieć najwyżej 160 znaków"
       },
