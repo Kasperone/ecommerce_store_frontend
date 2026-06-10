@@ -17,6 +17,7 @@ const route = useRoute()
 
 const isLoading = ref(false)
 const errorMessage = ref('')
+const rememberMe = ref(false)
 const authFormRef = useTemplateRef<AuthFormPublicInstance>('authFormRef')
 
 const fields = computed<AuthFormField[]>(() => {
@@ -31,10 +32,6 @@ const fields = computed<AuthFormField[]>(() => {
     type: 'password',
     label: t('auth.password'),
     placeholder: t('auth.enterYourPassword'),
-  }, {
-    name: 'remember',
-    type: 'checkbox',
-    label: t('auth.rememberMe'),
   }]
 })
 
@@ -147,6 +144,32 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
             class="text-primary font-medium"
             tabindex="-1"
           >{{ t('auth.forgotPassword') }}</ULink>
+        </template>
+
+        <template #submit="{ loading }">
+          <!-- Plain <input>+<label> avoids Reka UI's nested-interactive/no-label
+               pattern that UCheckbox generates via its hidden form-submission input. -->
+          <div class="flex items-center gap-2">
+            <input
+              id="login-remember-me"
+              v-model="rememberMe"
+              type="checkbox"
+              name="remember"
+              class="size-4 cursor-pointer rounded border accent-primary"
+            >
+            <label
+              for="login-remember-me"
+              class="cursor-pointer select-none text-sm text-muted"
+            >
+              {{ t('auth.rememberMe') }}
+            </label>
+          </div>
+          <UButton
+            type="submit"
+            block
+            :loading="loading"
+            :label="t('auth.login')"
+          />
         </template>
 
         <template #footer>
