@@ -10,6 +10,19 @@
   }
 }
 
+/* WCAG AA fix (F6): Nuxt UI default green-500 (#00c950) is 2.2:1 on white —
+ * fails WCAG AA (needs 4.5:1). Shift --ui-primary to green-700 = ~5.7:1.
+ * Must be unlayered so it wins over @layer theme where Nuxt UI sets this var. */
+:root,
+:host,
+.light {
+  --ui-primary: var(--ui-color-primary-700);
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-400);
+}
+
 /* Global cursor: clickable elements (buttons, links, checkboxes, radios,
  * select triggers, summary, role=button) get a pointer hover so users can
  * see what is interactive. Disabled elements keep `not-allowed`. */
