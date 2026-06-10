@@ -166,6 +166,7 @@ interface CategoryFormSubmit {
   meta_description: string | null
   meta_title_pl: string | null
   meta_description_pl: string | null
+  google_product_category: string | null
   heroFile: File | null
   heroAlt: string
   removeExistingHero: boolean
@@ -186,6 +187,7 @@ function buildPatchPayload(payload: CategoryFormSubmit) {
     meta_description: payload.meta_description,
     meta_title_pl: payload.meta_title_pl,
     meta_description_pl: payload.meta_description_pl,
+    google_product_category: payload.google_product_category,
   }
 }
 
