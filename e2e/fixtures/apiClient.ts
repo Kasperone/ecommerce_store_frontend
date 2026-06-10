@@ -543,6 +543,78 @@ export class ApiClient {
     return await res.json()
   }
 
+  /** Public (no-auth) guest order tracking — mirrors GET /orders/track/{token}. */
+  async trackGuestOrder(token: string): Promise<{
+    order_number: string
+    status: string
+    items: Array<{
+      product_name: string
+      variant_title: string | null
+      quantity: number
+      unit_price: number
+      total_price: number
+    }>
+    subtotal: number
+    discount: number
+    shipping: number
+    total: number
+    currency: string
+    shipping_city: string
+    shipping_country: string
+  }> {
+    const res = await this.http.get(`/api/v1/orders/track/${token}`)
+    if (!res.ok()) {
+      throw new Error(`trackGuestOrder failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
+  /** Admin: advance an order's status (forward-only workflow). */
+  async advanceOrderStatus(adminToken: string, orderId: number, newStatus: string): Promise<void> {
+    const res = await this.http.patch(`/api/v1/orders/${orderId}`, {
+      headers: { authorization: `Bearer ${adminToken}` },
+      data: { status: newStatus },
+    })
+    if (!res.ok()) {
+      throw new Error(`advanceOrderStatus(${newStatus}) failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** Customer: list return requests for an owned order. */
+  async listOrderReturns(accessToken: string, orderId: number): Promise<Array<{
+    id: number
+    status: string
+    items: Array<{ order_item_id: number, quantity: number, reason: string }>
+  }>> {
+    const res = await this.http.get(`/api/v1/orders/${orderId}/returns`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`listOrderReturns failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
+  /** DB: order item IDs for a given order (used to build testids in the return modal). */
+  async getOrderItemIds(orderId: number): Promise<number[]> {
+    const res = await this.pg.query<{ id: number }>(
+      'SELECT id FROM order_items WHERE order_id = $1 ORDER BY id',
+      [orderId],
+    )
+    return res.rows.map(r => r.id)
+  }
+
+  /** Admin: patch store config (partial update). */
+  async updateStoreConfig(adminToken: string, patch: Record<string, unknown>): Promise<void> {
+    const res = await this.http.patch('/api/v1/admin/settings/', {
+      headers: { authorization: `Bearer ${adminToken}` },
+      data: patch,
+    })
+    if (!res.ok()) {
+      throw new Error(`updateStoreConfig failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
   async deleteProduct(accessToken: string, productId: number): Promise<void> {
     const res = await this.http.delete(`/api/v1/products/${productId}`, {
       headers: { authorization: `Bearer ${accessToken}` },
