@@ -7,13 +7,12 @@
   }
 }
 
-@layer base {
-  /* Widen Nuxt UI's content container from the 7xl (1280px) default to
-   * 120rem (1920px) so 2K/QHD monitors don't show oversized side gutters.
-   * Acts as a max-width — smaller viewports still fill the screen. */
-  :root {
-    --ui-container: 120rem;
-  }
+/* Nuxt UI sets --ui-container in @layer theme. Unlayered CSS wins over ALL
+ * layered CSS regardless of injection order, so this survives client-side
+ * hydration (same pattern as --ui-primary below). 160rem = 2560px. */
+:root,
+:host {
+  --ui-container: 160rem;
 }
 
 /* WCAG AA fix (F6): Nuxt UI default green-500 (#00c950) is 2.2:1 on white —
