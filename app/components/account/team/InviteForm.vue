@@ -3,7 +3,8 @@ import { computed, reactive, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 import { COMPANY_ROLES } from '~/composables/queries/useTeam'
-import type { CompanyMemberInvite, CompanyRole } from '~/composables/queries/useTeam'
+import type { CompanyMemberInvite } from '~/composables/queries/useTeam'
+import type { CompanyRole } from '~/composables/queries/useCompany'
 import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 /**
