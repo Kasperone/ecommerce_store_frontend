@@ -19,7 +19,7 @@ const dividerStyle = computed(() =>
 
 <template>
   <div
-    class="c-spacer-block mx-auto flex w-full max-w-7xl items-center px-4"
+    class="c-spacer-block mx-auto flex w-full max-w-[2560px] items-center px-4"
     :style="{ height: `${height}px` }"
     aria-hidden="true"
   >

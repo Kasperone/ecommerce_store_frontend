@@ -247,7 +247,7 @@ useSchemaOrg([
   <NuxtLayout>
     <div
       v-if="product"
-      class="mx-auto w-full max-w-7xl px-4 py-8"
+      class="mx-auto w-full max-w-[2560px] px-4 py-8"
     >
       <nav class="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted">
         <NuxtLink

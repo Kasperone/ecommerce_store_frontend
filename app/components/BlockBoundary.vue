@@ -24,7 +24,7 @@ const isDev = !import.meta.env.PROD
     <template #error="{ error, clearError }">
       <aside
         v-if="isDev"
-        class="mx-auto my-2 w-full max-w-7xl rounded-md border border-dashed border-error bg-error/5 px-4 py-3 text-sm text-error"
+        class="mx-auto my-2 w-full max-w-[2560px] rounded-md border border-dashed border-error bg-error/5 px-4 py-3 text-sm text-error"
         role="alert"
       >
         <p class="font-medium">
