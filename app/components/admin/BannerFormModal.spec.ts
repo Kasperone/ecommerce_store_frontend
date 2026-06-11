@@ -80,9 +80,12 @@ describe('BannerFormModal', () => {
   it('prefills and shows the edit title when a banner is passed', async () => {
     await mountSuspended(BannerFormModal, { props: { open: true, banner: existing } })
     expect(document.body.textContent).toContain('Edit banner')
-    const values = [...document.querySelectorAll('input')].map(i => i.value)
-    expect(values).toContain('Winter sale')
-    expect(values).toContain('https://cdn/winter.jpg')
+    const titleInput = [...document.querySelectorAll('input')].find(i => i.value === 'Winter sale') as HTMLInputElement
+    const imageInput = document.querySelector('#setting-banner-image') as HTMLInputElement
+    expect(titleInput).toBeTruthy()
+    expect(titleInput?.value).toBe('Winter sale')
+    expect(imageInput).toBeTruthy()
+    expect(imageInput?.value).toBe('https://cdn/winter.jpg')
   })
 
   it('is axe-clean when open', async () => {
@@ -97,10 +100,13 @@ describe('BannerFormModal', () => {
       props: { open: true, banner: null },
     })
     const inputs = wrapper.findAllComponents({ name: 'UInput' })
-    // [0] = title, [1] = image_url, [2] = link_url, [3] = starts_at, [4] = ends_at
-    // (subtitle is a UTextarea).
-    inputs[0]!.vm.$emit('update:modelValue', 'Spring hero')
-    inputs[1]!.vm.$emit('update:modelValue', 'https://cdn/spring.jpg')
+    const titleInput = inputs[0]!
+    const imageInput = document.querySelector('#setting-banner-image') as HTMLInputElement
+    // [0] = title, then subtitle (textarea), then image_url (ImagePicker fallback),
+    // link_url, starts_at, ends_at.
+    titleInput.vm.$emit('update:modelValue', 'Spring hero')
+    imageInput.value = 'https://cdn/spring.jpg'
+    imageInput.dispatchEvent(new Event('input', { bubbles: true }))
     await tick()
 
     clickSave()
@@ -142,6 +148,7 @@ describe('BannerFormModal', () => {
     // Only set the title; leave image URL blank.
     wrapper.findAllComponents({ name: 'UInput' })[0]!.vm.$emit('update:modelValue', 'Headless')
     await tick()
+    // Don't set the image URL (ImagePicker fallback input stays empty).
 
     clickSave()
     await tick()
@@ -156,9 +163,15 @@ describe('BannerFormModal', () => {
     })
     const inputs = wrapper.findAllComponents({ name: 'UInput' })
     inputs[0]!.vm.$emit('update:modelValue', 'Window')
-    inputs[1]!.vm.$emit('update:modelValue', 'https://cdn/x.jpg')
-    inputs[3]!.vm.$emit('update:modelValue', '2026-06-10T10:00') // starts_at
-    inputs[4]!.vm.$emit('update:modelValue', '2026-06-01T10:00') // ends_at (before)
+    const imageInput = document.querySelector('#setting-banner-image') as HTMLInputElement
+    imageInput.value = 'https://cdn/x.jpg'
+    imageInput.dispatchEvent(new Event('input', { bubbles: true }))
+
+    const dtInputs = [...document.querySelectorAll('input[type="datetime-local"]')]
+    ;(dtInputs[0] as HTMLInputElement).value = '2026-06-10T10:00'
+    ;(dtInputs[0] as HTMLInputElement).dispatchEvent(new Event('input', { bubbles: true }))
+    ;(dtInputs[1] as HTMLInputElement).value = '2026-06-01T10:00'
+    ;(dtInputs[1] as HTMLInputElement).dispatchEvent(new Event('input', { bubbles: true }))
     await tick()
 
     clickSave()
@@ -196,7 +209,9 @@ describe('BannerFormModal', () => {
     })
     const inputs = wrapper.findAllComponents({ name: 'UInput' })
     inputs[0]!.vm.$emit('update:modelValue', 'Boom')
-    inputs[1]!.vm.$emit('update:modelValue', 'https://cdn/x.jpg')
+    const imageInput = document.querySelector('#setting-banner-image') as HTMLInputElement
+    imageInput.value = 'https://cdn/x.jpg'
+    imageInput.dispatchEvent(new Event('input', { bubbles: true }))
     await tick()
 
     clickSave()
