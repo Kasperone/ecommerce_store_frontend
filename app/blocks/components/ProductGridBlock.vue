@@ -43,7 +43,7 @@ const columnClass = computed(() => {
 <template>
   <section
     v-if="items.length"
-    class="c-product-grid-block mx-auto w-full max-w-7xl px-4 py-12"
+    class="c-product-grid-block mx-auto w-full max-w-[2560px] px-4 py-12"
   >
     <h2
       v-if="settings?.heading"

@@ -88,7 +88,7 @@ useSchemaOrg([
   <NuxtLayout>
     <div
       v-if="collection"
-      class="mx-auto w-full max-w-7xl space-y-6 px-4 py-8"
+      class="mx-auto w-full max-w-[2560px] space-y-6 px-4 py-8"
     >
       <!-- Breadcrumb: Collections → current. -->
       <nav class="flex flex-wrap items-center gap-2 text-sm text-muted">
