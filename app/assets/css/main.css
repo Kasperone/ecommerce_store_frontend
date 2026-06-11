@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+@layer utilities {
+  .max-w-2560px {
+    max-width: 2560px;
+  }
+}
+
 @layer base {
   /* Widen Nuxt UI's content container from the 7xl (1280px) default to
    * 120rem (1920px) so 2K/QHD monitors don't show oversized side gutters.

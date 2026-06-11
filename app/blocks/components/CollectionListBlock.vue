@@ -33,7 +33,7 @@ const columnClass = computed(() => {
 <template>
   <section
     v-if="tiles.length"
-    class="c-collection-list-block mx-auto w-full max-w-[2560px] px-4 py-12"
+    class="c-collection-list-block mx-auto w-full max-w-2560px px-4 py-12"
   >
     <h2
       v-if="settings?.heading"

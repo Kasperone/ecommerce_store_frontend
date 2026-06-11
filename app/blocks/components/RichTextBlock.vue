@@ -17,7 +17,7 @@ const body = computed(() => props.settings?.body ?? '')
 const widthClass = computed(() => ({
   narrow: 'max-w-2xl',
   normal: 'max-w-4xl',
-  wide: 'max-w-[2560px]',
+  wide: 'max-w-2560px',
 }[props.settings?.width ?? 'normal']))
 
 const alignClass = computed(() => ({

@@ -19,7 +19,7 @@ const isDev = !import.meta.env.PROD
 <template>
   <aside
     v-if="isDev"
-    class="mx-auto my-2 w-full max-w-[2560px] rounded-md border border-dashed border-warning bg-warning/5 px-4 py-3 text-sm text-warning"
+    class="mx-auto my-2 w-full max-w-2560px rounded-md border border-dashed border-warning bg-warning/5 px-4 py-3 text-sm text-warning"
     role="note"
   >
     Unknown block type<span v-if="type">: <code class="font-mono">{{ type }}</code></span>

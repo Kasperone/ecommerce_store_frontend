@@ -30,7 +30,7 @@ useSchemaOrg([defineWebPage({ '@type': 'CollectionPage' })])
 
 <template>
   <NuxtLayout>
-    <div class="mx-auto w-full max-w-[2560px] space-y-6 px-4 py-8">
+    <div class="mx-auto w-full max-w-2560px space-y-6 px-4 py-8">
       <header class="space-y-1">
         <h1 class="text-2xl font-bold">
           {{ t('collection.index.title') }}

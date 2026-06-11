@@ -21,7 +21,7 @@ const html = computed(() => props.settings?.html ?? '')
 <template>
   <section
     v-if="html"
-    class="c-custom-html-block mx-auto w-full max-w-[2560px] px-4 py-6"
+    class="c-custom-html-block mx-auto w-full max-w-2560px px-4 py-6"
   >
     <!-- eslint-disable-next-line vue/no-v-html -- html is server-sanitised on save (allowlist); admin-gated -->
     <div v-html="html" />

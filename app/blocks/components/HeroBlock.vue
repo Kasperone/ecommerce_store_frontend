@@ -34,7 +34,7 @@ const overlayStyle = computed(() => ({
 <template>
   <section
     v-if="heading || s?.image_url"
-    class="c-hero-block relative isolate mx-auto w-full max-w-[2560px] overflow-hidden rounded-lg px-4"
+    class="c-hero-block relative isolate mx-auto w-full max-w-2560px overflow-hidden rounded-lg px-4"
   >
     <NuxtImg
       v-if="s?.image_url"
