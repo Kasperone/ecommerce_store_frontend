@@ -209,13 +209,13 @@ async function onSubmit() {
 
         <UFormField
           :label="t('admin.banners.form.imageUrl')"
-          :help="t('admin.banners.form.imageUrlHint')"
           name="image_url"
           required
         >
-          <UInput
-            v-model="state.image_url"
-            class="w-full"
+          <AdminCmsImagePicker
+            field-id="banner-image"
+            :model-value="state.image_url"
+            @update:model-value="(v) => (state.image_url = v)"
           />
         </UFormField>
 
