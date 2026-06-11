@@ -55,7 +55,7 @@ const to = computed(() =>
 <template>
   <section
     v-if="product"
-    class="c-featured-product-block mx-auto w-full max-w-[2560px] px-4 py-12"
+    class="c-featured-product-block mx-auto w-full max-w-2560px px-4 py-12"
   >
     <div
       class="grid items-center gap-8 md:grid-cols-2"
