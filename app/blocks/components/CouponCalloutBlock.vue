@@ -34,7 +34,7 @@ async function copy() {
 <template>
   <section
     v-if="code || settings?.heading"
-    class="c-coupon-callout-block mx-auto w-full max-w-7xl px-4 py-12"
+    class="c-coupon-callout-block mx-auto w-full max-w-[2560px] px-4 py-12"
   >
     <div class="flex flex-col items-center gap-4 rounded-lg bg-primary/10 px-6 py-10 text-center ring-1 ring-primary/30">
       <h2
