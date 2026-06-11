@@ -24,7 +24,7 @@ const autoplay = computed(() =>
 <template>
   <section
     v-if="slides.length"
-    class="c-slideshow-block mx-auto w-full max-w-[2560px] px-4"
+    class="c-slideshow-block mx-auto w-full max-w-2560px px-4"
   >
     <UCarousel
       v-slot="{ item }: { item: SlideBlock }"

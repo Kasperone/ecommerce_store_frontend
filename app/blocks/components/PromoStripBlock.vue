@@ -31,7 +31,7 @@ const dismissed = ref(false)
     :class="!settings?.bg_color && 'bg-primary text-inverted'"
     :style="bgStyle"
   >
-    <div class="mx-auto flex w-full max-w-[2560px] items-center justify-center gap-4 px-4 py-2 text-sm">
+    <div class="mx-auto flex w-full max-w-2560px items-center justify-center gap-4 px-4 py-2 text-sm">
       <ULink
         v-if="settings?.link_url"
         :to="settings.link_url"

@@ -1,5 +1,5 @@
 <template>
-  <div class="l-account w-full max-w-[2560px] min-h-screen flex flex-col">
+  <div class="l-account w-full max-w-2560px min-h-screen flex flex-col">
     <LayoutHeader />
     <CartDrawer />
 

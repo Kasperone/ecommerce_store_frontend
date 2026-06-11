@@ -18,7 +18,7 @@ const imageLeft = computed(() => (props.settings?.image_position ?? 'left') === 
 <template>
   <section
     v-if="settings?.image_url || settings?.heading || body"
-    class="c-image-with-text-block mx-auto w-full max-w-[2560px] px-4 py-12"
+    class="c-image-with-text-block mx-auto w-full max-w-2560px px-4 py-12"
   >
     <div
       class="grid items-center gap-8 md:grid-cols-2"
