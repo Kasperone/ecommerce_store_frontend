@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { companyRoleColor } from '~/composables/queries/useTeam'
-import type { CompanyRole } from '~/composables/queries/useTeam'
+import type { CompanyRole } from '~/composables/queries/useCompany'
 
 // Auto-imports as <AccountTeamRoleBadge> (pathPrefix) — the bare name renders
 // nothing. Labels live under `account.settings.team.roles.*`.

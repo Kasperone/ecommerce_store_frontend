@@ -17,6 +17,7 @@ import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { components } from '#shared/types/api.gen'
+import type { CompanyListResponse } from './useCompanyQueries'
 
 export type QuoteResponse = components['schemas']['QuoteResponse']
 export type QuoteListItem = components['schemas']['QuoteListItem']
@@ -152,9 +153,6 @@ export function useDeleteQuote() {
  * need the list (approved companies first) for a dropdown, so we keep a minimal
  * read-only query rather than depending on its composable. Client-only (authed).
  */
-export type CompanyResponse = components['schemas']['CompanyResponse']
-export type CompanyListResponse = components['schemas']['CompanyListResponse']
-
 export function useQuoteCompaniesQuery(params: MaybeRefOrGetter<{ search?: string }> = {}) {
   const { apiFetch } = useApi()
   return useQuery({

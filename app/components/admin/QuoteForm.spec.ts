@@ -2,7 +2,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import QuoteForm from './QuoteForm.vue'
-import type { CompanyResponse, QuoteCreate } from '~/composables/queries/useQuoteQueries'
+import type { QuoteCreate } from '~/composables/queries/useQuoteQueries'
+import type { CompanyResponse } from '~/composables/queries/useCompanyQueries'
 
 /**
  * The quote create form: company picker + currency + valid-until/notes + the

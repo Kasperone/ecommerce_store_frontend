@@ -2,7 +2,8 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { COMPANY_ROLES } from '~/composables/queries/useTeam'
-import type { CompanyMemberResponse, CompanyRole } from '~/composables/queries/useTeam'
+import type { CompanyMemberResponse } from '~/composables/queries/useTeam'
+import type { CompanyRole } from '~/composables/queries/useCompany'
 
 /**
  * Company team roster table. Stateless + parent-driven: the team page owns the
