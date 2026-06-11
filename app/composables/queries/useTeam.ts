@@ -27,11 +27,11 @@
 
 import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 import type { components } from '#shared/types/api.gen'
+import type { CompanyRole } from './useCompany'
 
 export type CompanyMemberResponse = components['schemas']['CompanyMemberResponse']
 export type CompanyMemberInvite = components['schemas']['CompanyMemberInvite']
 export type CompanyMemberUpdate = components['schemas']['CompanyMemberUpdate']
-export type CompanyRole = CompanyMemberResponse['role']
 export type CompanyMemberStatus = CompanyMemberResponse['status']
 
 /** The B2B roles a member may hold — single-sourced off the generated schema. */

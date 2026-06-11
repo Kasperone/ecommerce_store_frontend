@@ -20,15 +20,7 @@
  * default of 0 (weight branch skipped cleanly).
  */
 
-export interface ShippingRateTier {
-  min_subtotal: number
-  amount: number
-}
-
-export interface ShippingRateWeightTier {
-  max_weight_kg: number
-  amount: number
-}
+import type { ShippingRateTier, ShippingRateWeightTier } from '#shared/types/api'
 
 export interface ShippingRateLike {
   amount: number
