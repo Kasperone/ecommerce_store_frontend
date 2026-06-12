@@ -386,13 +386,22 @@ useSchemaOrg([
         </div>
       </div>
 
-      <ShopProductReviews :product-id="product.id" />
+      <!-- SSR markup stays (the same shared fetch feeds the JSON-LD review
+           nodes above); only client hydration waits for the section to
+           scroll into view. -->
+      <LazyShopProductReviews
+        hydrate-on-visible
+        :product-id="product.id"
+      />
 
-      <!-- "You may also like" — client-only (Colada isn't SSR-serialized) and
-           self-hides when there's no related signal. -->
-      <ClientOnly>
-        <ShopRelatedProducts :slug="slug" />
-      </ClientOnly>
+      <!-- "You may also like" — the query is client-gated (Colada isn't
+           SSR-serialized) so SSR renders nothing; hydrate-on-idle (not
+           -visible: an empty v-if root leaves no element to observe) keeps
+           the rail's JS + fetch off the critical path. -->
+      <LazyShopRelatedProducts
+        hydrate-on-idle
+        :slug="slug"
+      />
     </div>
   </NuxtLayout>
 </template>

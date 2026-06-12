@@ -8,7 +8,9 @@
         <slot />
       </main>
 
-      <LayoutFooter />
+      <!-- Below the fold on every page: SSR markup stays (links crawlable),
+           client hydration waits until the footer scrolls into view. -->
+      <LazyLayoutFooter hydrate-on-visible />
     </div>
 
     <!-- Client-only: the banner's `<Teleport to="body">` SSR-renders inline, and

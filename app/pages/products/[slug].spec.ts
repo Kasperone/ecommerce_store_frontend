@@ -57,8 +57,8 @@ async function mountPage() {
         ShopVariantSelector: true,
         ShopAddToCartButton: true,
         ShopWishlistButton: true,
-        ShopProductReviews: true,
-        ShopRelatedProducts: true,
+        LazyShopProductReviews: true,
+        LazyShopRelatedProducts: true,
       },
     },
   })
