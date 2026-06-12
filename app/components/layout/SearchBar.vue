@@ -76,13 +76,15 @@ function onSelect() {
           class="flex items-center gap-3 px-3 py-2 hover:bg-elevated"
           @click="onSelect"
         >
-          <img
+          <NuxtImg
             v-if="product.image_url"
             :src="product.image_url"
             :alt="product.name"
-            class="size-10 shrink-0 rounded object-cover"
+            width="40"
+            height="40"
             loading="lazy"
-          >
+            class="size-10 shrink-0 rounded object-cover"
+          />
           <span
             v-else
             class="flex size-10 shrink-0 items-center justify-center rounded bg-elevated text-muted"

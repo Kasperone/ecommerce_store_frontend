@@ -55,12 +55,18 @@ useSchemaOrg([defineWebPage({ '@type': 'CollectionPage' })])
             ]"
           >
             <div class="aspect-[16/9] w-full overflow-hidden bg-muted">
-              <img
+              <!-- NuxtImg → IPX resize/format negotiation (nuxt4 audit P1). Grid
+                   cards stay lazy; sizes match the 1/2/3-column grid. -->
+              <NuxtImg
                 v-if="c.hero_image_url"
                 :src="c.hero_image_url"
                 :alt="c.hero_image_alt ?? localizedName(c)"
+                width="800"
+                height="450"
+                sizes="xs:100vw sm:50vw lg:33vw"
+                loading="lazy"
                 class="h-full w-full object-cover transition group-hover:scale-105"
-              >
+              />
               <div
                 v-else
                 class="flex h-full w-full items-center justify-center text-muted"
