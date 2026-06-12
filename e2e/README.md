@@ -220,6 +220,10 @@ is wired into Claude Code for snapshot-driven exploration against the same
 dev stack used here. **MCP is for exploration + debugging; the runner stays
 the source of truth.** Ad-hoc verify screenshots belong under
 `playwright/.mcp-output/<YYYY-MM-DD>-<feature>/` — never in the project root.
+Save with the full path: bare filenames resolve against cwd and leak outside
+the output dir (only the MCP server's `--output-dir` is pinned; the agent CLI
+writes to cwd). The auto-dropped `page-*.yml` / `console-*.log` files in
+`.mcp-output/` are throwaway — delete them at session close-out.
 
 ### Bring-up
 
