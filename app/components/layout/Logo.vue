@@ -47,14 +47,17 @@ const logoUrl = computed(() => storeConfig.value?.logo_url?.trim() || '')
     :class="link ? 'hover:text-primary' : ''"
   >
     <!-- An uploaded logo replaces the wordmark lockup entirely (it carries the
-         brand on its own); otherwise fall back to the SVG mark + store name. -->
-    <img
+         brand on its own); otherwise fall back to the SVG mark + store name.
+         Height-only NuxtImg → IPX scales to `size` (1x/2x densities) keeping
+         aspect; a manually-pasted foreign URL passes through unoptimized. -->
+    <NuxtImg
       v-if="logoUrl"
       :src="logoUrl"
       :alt="brandName"
+      :height="size"
       :style="{ height: `${size}px` }"
       class="w-auto shrink-0 object-contain"
-    >
+    />
     <template v-else>
       <svg
         :width="size"
