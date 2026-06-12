@@ -37,6 +37,8 @@ export function useCompanyProfileQuery(enabled?: () => boolean) {
     query: () => apiFetch<CompanyMe | null>('/api/v1/companies/me'),
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client && (enabled ? enabled() : true),
+    // The B2B probe is near-static for a session; cache hard so it does not re-fire per page.
+    staleTime: 1000 * 60 * 5,
     // Not-a-B2B-member is a 200 + null body (an expected outcome), not a
     // transient error — nothing to retry.
     retry: false,

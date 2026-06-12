@@ -66,6 +66,8 @@ export function usePagesQuery(params: MaybeRefOrGetter<PageListParams> = {}) {
       })
     },
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -77,6 +79,8 @@ export function usePageQuery(id: MaybeRefOrGetter<number | null | undefined>) {
     query: () => apiFetch<PageResponse>(`/api/v1/admin/pages/${toValue(id)}`),
     // Client-only AND skip until we have a real id.
     enabled: () => import.meta.client && !!toValue(id),
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -87,6 +91,8 @@ export function usePageVersionsQuery(id: MaybeRefOrGetter<number | null | undefi
     key: () => [...PAGES_NAMESPACE, 'versions', toValue(id) ?? 0],
     query: () => apiFetch<PageVersionListResponse>(`/api/v1/admin/pages/${toValue(id)}/versions`),
     enabled: () => import.meta.client && !!toValue(id),
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -97,6 +103,8 @@ export function useBlockSchemasQuery() {
     key: () => [...PAGES_NAMESPACE, 'block-schemas'],
     query: () => apiFetch<BlockSchemaRegistry>('/api/v1/blocks/schema'),
     enabled: () => import.meta.client,
+    // The block registry only changes on a backend deploy.
+    staleTime: 1000 * 60 * 5,
   })
 }
 

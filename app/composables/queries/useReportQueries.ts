@@ -69,6 +69,8 @@ export function useSalesReport(params: MaybeRefOrGetter<SalesReportParams> = {})
       const p = toValue(params)
       return import.meta.client && !!p.start && !!p.end
     },
+    // Heavy read-only aggregates; identical filter re-runs within 5min reuse the cache.
+    staleTime: 1000 * 60 * 5,
   })
 }
 
@@ -84,6 +86,8 @@ export function useTopProductsReport(params: MaybeRefOrGetter<TopProductsParams>
       })
     },
     enabled: () => import.meta.client,
+    // Heavy read-only aggregates; identical filter re-runs within 5min reuse the cache.
+    staleTime: 1000 * 60 * 5,
   })
 }
 
@@ -99,6 +103,8 @@ export function useCategoryRevenueReport(params: MaybeRefOrGetter<RangeParams> =
       })
     },
     enabled: () => import.meta.client,
+    // Heavy read-only aggregates; identical filter re-runs within 5min reuse the cache.
+    staleTime: 1000 * 60 * 5,
   })
 }
 
@@ -114,5 +120,7 @@ export function useRefundSummaryReport(params: MaybeRefOrGetter<RangeParams> = {
       })
     },
     enabled: () => import.meta.client,
+    // Heavy read-only aggregates; identical filter re-runs within 5min reuse the cache.
+    staleTime: 1000 * 60 * 5,
   })
 }

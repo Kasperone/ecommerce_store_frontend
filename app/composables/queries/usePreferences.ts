@@ -59,6 +59,8 @@ export function usePreferencesQuery(enabled?: () => boolean): PreferencesQuery {
     query: () => apiFetch<Preferences>('/api/v1/me/preferences'),
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client && (enabled ? enabled() : true),
+    // Only the user's own PATCH changes this (and it invalidates); cache for the session.
+    staleTime: 1000 * 60 * 5,
   })
 }
 

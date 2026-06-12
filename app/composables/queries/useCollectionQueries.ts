@@ -35,6 +35,8 @@ export function useCollectionsQuery() {
     query: () => apiFetch<CollectionWithProductCount[]>('/api/v1/admin/collections/'),
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -50,6 +52,8 @@ export function useCollectionQuery(id: MaybeRefOrGetter<number | undefined>) {
       return apiFetch<CollectionWithProductCount>(`/api/v1/admin/collections/${value}`)
     },
     enabled: () => import.meta.client && toValue(id) !== undefined,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -71,6 +75,8 @@ export function useCollectionProductsQuery(id: MaybeRefOrGetter<number | undefin
       })
     },
     enabled: () => import.meta.client && toValue(id) !== undefined,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 

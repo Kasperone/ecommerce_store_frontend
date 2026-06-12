@@ -75,6 +75,8 @@ export function useStripeConfig() {
     // hydration mismatch. (Today its only caller is <ClientOnly>-wrapped, but
     // the gate is the real guarantee — enforced by the colada-ssr-gate guard.)
     enabled: () => import.meta.client,
+    // Publishable-key/wallet config is static per environment.
+    staleTime: 1000 * 60 * 5,
   })
 }
 

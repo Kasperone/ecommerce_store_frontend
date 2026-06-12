@@ -66,6 +66,8 @@ export function useInventoryQuery(params: MaybeRefOrGetter<InventoryListParams> 
     },
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -88,6 +90,8 @@ export function useInventoryMovementsQuery(
     },
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -105,6 +109,8 @@ export function useProductLevels(productId: MaybeRefOrGetter<number | null>) {
       ),
     // Client-only + only once a product is selected (the dialog passes null when closed).
     enabled: () => import.meta.client && toValue(productId) !== null,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -120,6 +126,8 @@ export function useLowStockSummary() {
     query: () => apiFetch<LowStockSummary>('/api/v1/admin/inventory/low-stock-summary'),
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 

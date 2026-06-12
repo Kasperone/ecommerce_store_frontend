@@ -43,6 +43,8 @@ export function useAddressesQuery(enabled: MaybeRefOrGetter<boolean> = true) {
     key: () => [...ADDRESSES_NAMESPACE, 'list'],
     query: () => apiFetch<Address[]>('/api/v1/addresses'),
     enabled: () => import.meta.client && toValue(enabled),
+    // Own mutations invalidate the namespace; 60s absorbs quick back-nav refetches.
+    staleTime: 1000 * 60,
   })
 }
 
