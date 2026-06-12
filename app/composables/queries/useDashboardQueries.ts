@@ -27,5 +27,7 @@ export function useDashboardKpis(params: MaybeRefOrGetter<DashboardKpisParams> =
       })
     },
     enabled: () => import.meta.client,
+    // KPI aggregates; 60s keeps back-nav snappy while staying fresh on real revisits.
+    staleTime: 1000 * 60,
   })
 }

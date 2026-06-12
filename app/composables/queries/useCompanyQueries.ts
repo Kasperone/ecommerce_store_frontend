@@ -50,6 +50,8 @@ export function useCompaniesQuery(params: MaybeRefOrGetter<CompanyListParams> = 
     },
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 

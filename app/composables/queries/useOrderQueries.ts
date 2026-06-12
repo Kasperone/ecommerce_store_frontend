@@ -61,6 +61,8 @@ export function useOrdersQuery(params: MaybeRefOrGetter<OrderListParams> = {}) {
       })
     },
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 

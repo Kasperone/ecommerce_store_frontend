@@ -74,6 +74,8 @@ export function useOrderReturnsQuery(orderId: MaybeRefOrGetter<number | undefine
       return apiFetch<ReturnRequestResponse[]>(`/api/v1/orders/${value}/returns`)
     },
     enabled: () => import.meta.client && toValue(orderId) !== undefined,
+    // Own mutations invalidate the namespace; 60s absorbs quick back-nav refetches.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -110,6 +112,8 @@ export function useAdminReturnsQuery(params: MaybeRefOrGetter<AdminReturnListPar
       })
     },
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -126,6 +130,8 @@ export function useAdminReturnQuery(id: MaybeRefOrGetter<number | undefined>) {
       return apiFetch<ReturnRequestResponse>(`/api/v1/admin/returns/${value}`)
     },
     enabled: () => import.meta.client && toValue(id) !== undefined,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 

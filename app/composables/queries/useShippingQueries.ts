@@ -63,6 +63,8 @@ export function useShippingZonesQuery(params: MaybeRefOrGetter<ShippingZoneListP
       })
     },
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -72,6 +74,8 @@ export function useShippingZoneQuery(id: MaybeRefOrGetter<number | null>) {
     key: () => [...ZONES_NAMESPACE, 'detail', toValue(id)],
     query: () => apiFetch<ShippingZoneDetail>(`/api/v1/admin/shipping/zones/${toValue(id)}`),
     enabled: () => import.meta.client && toValue(id) !== null,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -134,6 +138,8 @@ export function useShippingMethodsQuery(params: MaybeRefOrGetter<ShippingMethodL
       })
     },
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -203,6 +209,8 @@ export function useShippingRatesQuery(params: MaybeRefOrGetter<ShippingRateListP
       })
     },
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 

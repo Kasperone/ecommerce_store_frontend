@@ -38,6 +38,8 @@ export function useWishlistQuery(enabled: MaybeRefOrGetter<boolean> = true) {
     key: () => [...WISHLIST_NAMESPACE, 'list'],
     query: () => apiFetch<WishlistItem[]>('/api/v1/wishlist'),
     enabled: () => import.meta.client && toValue(enabled),
+    // Own mutations invalidate the namespace; 60s absorbs quick back-nav refetches.
+    staleTime: 1000 * 60,
   })
 }
 

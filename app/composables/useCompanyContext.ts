@@ -44,6 +44,8 @@ export function useCompanyContext() {
     key: () => [...COMPANY_NAMESPACE],
     query: () => apiFetch<CompanyMe | null>('/api/v1/companies/me'),
     enabled: () => import.meta.client,
+    // The B2B probe is near-static for a session; cache hard so it does not re-fire per page.
+    staleTime: 1000 * 60 * 5,
     // Not-a-B2B-account is a 200 + null body (an expected outcome), so there's
     // nothing to retry; keep retry off for a genuine transient error too.
     retry: false,
