@@ -145,11 +145,18 @@ useSchemaOrg([
         v-if="category.hero_image_url"
         class="relative overflow-hidden rounded-xl"
       >
-        <img
+        <!-- The hero is this PLP's LCP element: preload + fetchpriority=high,
+             NEVER lazy (nuxt4 audit P1; mirrors the PDP hero in ProductGallery). -->
+        <NuxtImg
           :src="category.hero_image_url"
           :alt="category.hero_image_alt ?? title"
+          width="1920"
+          height="640"
+          sizes="100vw"
+          preload
+          fetchpriority="high"
           class="h-48 w-full object-cover sm:h-64"
-        >
+        />
         <div
           :class="[
             'absolute inset-0 flex items-end p-6',
