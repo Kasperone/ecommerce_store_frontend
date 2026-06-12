@@ -170,6 +170,8 @@ export function useProductVariantsQuery(productId: MaybeRefOrGetter<number | und
     },
     // Client-only (+ id present) — see useOrderQueries.ts for the SSR rationale.
     enabled: () => import.meta.client && toValue(productId) !== undefined,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 

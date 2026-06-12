@@ -76,6 +76,8 @@ export function useTeamQuery() {
     query: () => apiFetch<CompanyMemberResponse[]>('/api/v1/companies/me/users'),
     // Client-only: authed read, Colada isn't SSR-serialized (rule #87).
     enabled: () => import.meta.client,
+    // Own mutations invalidate the namespace; 60s absorbs quick back-nav refetches.
+    staleTime: 1000 * 60,
   })
 }
 

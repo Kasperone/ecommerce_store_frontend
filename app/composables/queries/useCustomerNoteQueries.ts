@@ -33,6 +33,8 @@ export function useCustomerNotesQuery(customerId: MaybeRefOrGetter<number | unde
     },
     // Client-only (+ id present) — Colada isn't SSR-serialized; see useCustomerQueries.ts.
     enabled: () => import.meta.client && toValue(customerId) !== undefined,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 

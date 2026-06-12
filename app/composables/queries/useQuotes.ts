@@ -42,6 +42,8 @@ export function useMyQuotesQuery() {
     key: () => [...MY_QUOTES_NAMESPACE, 'list'],
     query: () => apiFetch<Quote[]>('/api/v1/quotes/'),
     enabled: () => import.meta.client,
+    // Own mutations invalidate the namespace; 60s absorbs quick back-nav refetches.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -58,6 +60,8 @@ export function useMyQuoteQuery(id: MaybeRefOrGetter<number | undefined>) {
       return apiFetch<Quote>(`/api/v1/quotes/${value}`)
     },
     enabled: () => import.meta.client && toValue(id) !== undefined,
+    // Own mutations invalidate the namespace; 60s absorbs quick back-nav refetches.
+    staleTime: 1000 * 60,
   })
 }
 

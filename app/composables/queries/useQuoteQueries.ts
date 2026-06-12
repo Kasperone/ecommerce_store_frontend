@@ -62,6 +62,8 @@ export function useQuotesQuery(params: MaybeRefOrGetter<QuoteListParams> = {}) {
       })
     },
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -78,6 +80,8 @@ export function useQuoteQuery(id: MaybeRefOrGetter<number | undefined>) {
       return apiFetch<QuoteResponse>(`/api/v1/admin/quotes/${value}`)
     },
     enabled: () => import.meta.client && toValue(id) !== undefined,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -169,5 +173,7 @@ export function useQuoteCompaniesQuery(params: MaybeRefOrGetter<{ search?: strin
       })
     },
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }

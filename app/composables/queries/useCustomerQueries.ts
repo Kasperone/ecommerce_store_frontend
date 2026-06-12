@@ -52,6 +52,8 @@ export function useCustomersQuery(params: MaybeRefOrGetter<CustomerListParams> =
     },
     // Client-only: avoids an SSR hydration mismatch (Colada isn't SSR-serialized).
     enabled: () => import.meta.client,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
@@ -68,6 +70,8 @@ export function useCustomerQuery(id: MaybeRefOrGetter<number | undefined>) {
     },
     // Client-only (+ id present) — see useOrderQueries.ts for the SSR rationale.
     enabled: () => import.meta.client && toValue(id) !== undefined,
+    // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
+    staleTime: 1000 * 60,
   })
 }
 
