@@ -601,7 +601,8 @@
         "currencyLabel": "Waluta wykresu",
         "barLabel": "{bucket}: przychód {amount}, zamówienia: {count}",
         "weekOf": "Tydzień od {date}",
-        "noRevenue": "Brak przychodu w tym zakresie dat."
+        "noRevenue": "Brak przychodu w tym zakresie dat.",
+        "revenueSeries": "Przychód"
       },
       "topProducts": {
         "title": "Najlepsze produkty",
@@ -767,7 +768,17 @@
         "googleProductCategory": "np. 5613"
       },
       "errors": {
-        "googleProductCategoryTooLong": "Kategoria produktu Google może mieć najwyżej 20 znaków"
+        "fallback": "Nie udało się zapisać kategorii.",
+        "duplicateSlug": "Kategoria z tym slugiem już istnieje.",
+        "hasProducts": "Nie można usunąć kategorii z przypisanymi produktami.",
+        "nameRequired": "Nazwa jest wymagana",
+        "nameTooLong": "Nazwa nie może mieć więcej niż 100 znaków",
+        "slugRequired": "Slug jest wymagany",
+        "slugTooLong": "Slug nie może mieć więcej niż 100 znaków",
+        "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
+        "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków",
+        "metaTitleTooLong": "Tytuł meta nie może mieć więcej niż {max} znaków",
+        "metaDescriptionTooLong": "Opis meta nie może mieć więcej niż {max} znaków"
       },
       "tabs": {
         "en": "Angielski",
@@ -835,19 +846,6 @@
       "empty": {
         "noResults": "Brak kategorii spełniających warunki filtra.",
         "noCategories": "Brak kategorii. Utwórz pierwszą."
-      },
-      "errors": {
-        "fallback": "Nie udało się zapisać kategorii.",
-        "duplicateSlug": "Kategoria z tym slugiem już istnieje.",
-        "hasProducts": "Nie można usunąć kategorii z przypisanymi produktami.",
-        "nameRequired": "Nazwa jest wymagana",
-        "nameTooLong": "Nazwa nie może mieć więcej niż 100 znaków",
-        "slugRequired": "Slug jest wymagany",
-        "slugTooLong": "Slug nie może mieć więcej niż 100 znaków",
-        "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
-        "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków",
-        "metaTitleTooLong": "Tytuł meta nie może mieć więcej niż {max} znaków",
-        "metaDescriptionTooLong": "Opis meta nie może mieć więcej niż {max} znaków"
       }
     },
     "collections": {

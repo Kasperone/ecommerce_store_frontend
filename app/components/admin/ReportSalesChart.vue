@@ -1,17 +1,20 @@
 <script setup lang="ts">
 /**
- * Sales-over-time bar chart for the reports page (hand-rolled — no charting dep,
- * mirrors `DashboardSalesTrend`). Auto-imports as `<AdminReportSalesChart>`.
+ * Sales-over-time bar chart for the reports page. Rendered with `vue-chrts`
+ * (`<BarChart>`, built on Unovis — the same engine Nuxt UI lazy-loads for its
+ * charts). Auto-imports as `<AdminReportSalesChart>`.
  *
  * Bars are per-bucket revenue in the selected currency. Revenue is NEVER summed
  * across currencies, so when more than one currency has revenue a small picker
  * switches the series (default = the store's primary currency). Order volume is
- * surfaced per-bar via the title/aria-label. A zero-revenue range renders an
+ * surfaced per-bar via the custom tooltip slot. A zero-revenue range renders an
  * empty note. Bucket labels adapt to granularity (day → "Jan 5", month → "Jan
- * 2026", week → "Week of Jan 5").
+ * 2026", week → "Week of Jan 5") and only the first/last tick is shown to keep
+ * the axis uncluttered (`minMaxTicksOnly`).
  */
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { BarChart } from 'vue-chrts'
 import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import type { SalesBucket } from '~/composables/queries/useReportQueries'
@@ -21,6 +24,13 @@ interface Props {
   currencies: CurrencyCode[]
   defaultCurrency: CurrencyCode
   granularity: 'day' | 'week' | 'month'
+}
+
+interface ChartRow {
+  bucket: string
+  label: string
+  revenue: number
+  orders: number
 }
 
 const props = defineProps<Props>()
@@ -53,12 +63,6 @@ const rangeTotal = computed(() =>
   props.buckets.reduce((sum, b) => sum + revenueFor(b), 0),
 )
 
-function heightPct(bucket: SalesBucket): number {
-  if (maxRevenue.value <= 0) return 0
-  const v = revenueFor(bucket)
-  return v > 0 ? Math.max(3, (v / maxRevenue.value) * 100) : 0
-}
-
 function fmtBucket(iso: string): string {
   // `iso` is YYYY-MM-DD; parse as UTC-noon to avoid a TZ date-shift.
   const d = new Date(`${iso}T12:00:00`)
@@ -76,18 +80,45 @@ function fmtMoney(amount: number): string {
   return formatMoney(amount, activeCurrency.value, locale.value)
 }
 
-function barLabel(bucket: SalesBucket): string {
-  return t('admin.reports.chart.barLabel', {
-    bucket: fmtBucket(bucket.bucket),
-    amount: fmtMoney(revenueFor(bucket)),
-    count: bucket.orders,
-  })
+// Compact axis money (e.g. "$1.2K") — full values live in the tooltip.
+function fmtAxisMoney(amount: number): string {
+  return new Intl.NumberFormat(locale.value, {
+    style: 'currency',
+    currency: activeCurrency.value,
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(amount)
 }
 
-const firstBucket = computed(() => (props.buckets[0] ? fmtBucket(props.buckets[0].bucket) : ''))
-const lastBucket = computed(() =>
-  props.buckets.length ? fmtBucket(props.buckets[props.buckets.length - 1]!.bucket) : '',
+const chartData = computed<ChartRow[]>(() =>
+  props.buckets.map(b => ({
+    bucket: b.bucket,
+    label: fmtBucket(b.bucket),
+    revenue: revenueFor(b),
+    orders: b.orders,
+  })),
 )
+
+// Single series; the legend would just be noise, so it's hidden.
+const categories = computed(() => ({
+  revenue: {
+    name: t('admin.reports.chart.revenueSeries'),
+    color: 'var(--ui-primary)',
+  },
+}))
+
+// Bar charts position by index, so the axis tick value IS the row index.
+function xFormatter(tick: number): string {
+  return chartData.value[Math.round(tick)]?.label ?? ''
+}
+
+function barLabel(row: ChartRow): string {
+  return t('admin.reports.chart.barLabel', {
+    bucket: row.label,
+    amount: fmtMoney(row.revenue),
+    count: row.orders,
+  })
+}
 
 const chartSummary = computed(() =>
   t('admin.reports.chart.summary', { total: fmtMoney(rangeTotal.value) }),
@@ -121,29 +152,34 @@ const chartSummary = computed(() =>
     <div
       v-if="hasRevenue"
       class="c-report-chart"
+      role="img"
+      :aria-label="chartSummary"
     >
-      <div
-        class="flex items-end gap-px h-48"
-        role="img"
-        :aria-label="chartSummary"
+      <BarChart
+        :data="chartData"
+        :height="192"
+        :categories="categories"
+        :y-axis="['revenue']"
+        :x-formatter="xFormatter"
+        :y-formatter="(tick: number) => fmtAxisMoney(tick)"
+        :min-max-ticks-only="true"
+        :radius="2"
+        hide-legend
       >
-        <div
-          v-for="bucket in buckets"
-          :key="bucket.bucket"
-          class="flex-1 h-full flex items-end"
-        >
+        <template #tooltip="{ values }">
           <div
-            data-testid="report-bar"
-            class="w-full rounded-t bg-primary/70 hover:bg-primary transition-colors"
-            :style="{ height: `${heightPct(bucket)}%` }"
-            :title="barLabel(bucket)"
-          />
-        </div>
-      </div>
-      <div class="flex justify-between text-xs text-muted mt-2">
-        <span>{{ firstBucket }}</span>
-        <span>{{ lastBucket }}</span>
-      </div>
+            v-if="values"
+            class="rounded-md bg-default ring ring-default px-2.5 py-1.5 text-xs shadow-lg"
+          >
+            <p class="font-medium">
+              {{ values.label }}
+            </p>
+            <p class="text-muted">
+              {{ barLabel(values as ChartRow) }}
+            </p>
+          </div>
+        </template>
+      </BarChart>
     </div>
 
     <p
