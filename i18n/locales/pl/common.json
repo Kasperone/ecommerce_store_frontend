@@ -43,7 +43,8 @@
         "summary": "{total} w ciągu ostatnich {days} dni",
         "currencyLabel": "Waluta trendu",
         "barLabel": "{date}: {amount} przychodu, {count} zamówień | {date}: {amount} przychodu, {count} zamówienie | {date}: {amount} przychodu, {count} zamówienia | {date}: {amount} przychodu, {count} zamówień",
-        "noRevenue": "Brak przychodu w ciągu ostatnich {days} dni"
+        "noRevenue": "Brak przychodu w ciągu ostatnich {days} dni",
+        "revenueSeries": "Przychód"
       },
       "top": {
         "title": "Najlepsze produkty",

@@ -43,7 +43,8 @@
         "summary": "{total} over the last {days} days",
         "currencyLabel": "Trend currency",
         "barLabel": "{date}: {amount} revenue, {count} order | {date}: {amount} revenue, {count} orders",
-        "noRevenue": "No revenue in the last {days} days"
+        "noRevenue": "No revenue in the last {days} days",
+        "revenueSeries": "Revenue"
       },
       "top": {
         "title": "Top products",
