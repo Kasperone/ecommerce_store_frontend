@@ -43,7 +43,8 @@
         "summary": "{total} over the last {days} days",
         "currencyLabel": "Trend currency",
         "barLabel": "{date}: {amount} revenue, {count} order | {date}: {amount} revenue, {count} orders",
-        "noRevenue": "No revenue in the last {days} days"
+        "noRevenue": "No revenue in the last {days} days",
+        "revenueSeries": "Revenue"
       },
       "top": {
         "title": "Top products",
@@ -597,7 +598,8 @@
         "currencyLabel": "Chart currency",
         "barLabel": "{bucket}: {amount} revenue, {count} order | {bucket}: {amount} revenue, {count} orders",
         "weekOf": "Week of {date}",
-        "noRevenue": "No revenue in this date range."
+        "noRevenue": "No revenue in this date range.",
+        "revenueSeries": "Revenue"
       },
       "topProducts": {
         "title": "Top products",
@@ -763,7 +765,17 @@
         "googleProductCategory": "e.g. 5613"
       },
       "errors": {
-        "googleProductCategoryTooLong": "Google Product Category must be 20 characters or fewer"
+        "fallback": "Could not save the category.",
+        "duplicateSlug": "A category with this slug already exists.",
+        "hasProducts": "Cannot delete a category with products assigned.",
+        "nameRequired": "Name is required",
+        "nameTooLong": "Name must be 100 characters or fewer",
+        "slugRequired": "Slug is required",
+        "slugTooLong": "Slug must be 100 characters or fewer",
+        "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
+        "descriptionTooLong": "Description must be 500 characters or fewer",
+        "metaTitleTooLong": "Meta title must be {max} characters or fewer",
+        "metaDescriptionTooLong": "Meta description must be {max} characters or fewer"
       },
       "tabs": {
         "en": "English",
@@ -831,19 +843,6 @@
       "empty": {
         "noResults": "No categories match the current filter.",
         "noCategories": "No categories yet. Create the first one."
-      },
-      "errors": {
-        "fallback": "Could not save the category.",
-        "duplicateSlug": "A category with this slug already exists.",
-        "hasProducts": "Cannot delete a category with products assigned.",
-        "nameRequired": "Name is required",
-        "nameTooLong": "Name must be 100 characters or fewer",
-        "slugRequired": "Slug is required",
-        "slugTooLong": "Slug must be 100 characters or fewer",
-        "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
-        "descriptionTooLong": "Description must be 500 characters or fewer",
-        "metaTitleTooLong": "Meta title must be {max} characters or fewer",
-        "metaDescriptionTooLong": "Meta description must be {max} characters or fewer"
       }
     },
     "collections": {

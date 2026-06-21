@@ -1,15 +1,19 @@
 <script setup lang="ts">
 /**
- * Sales-trend bar chart (hand-rolled — no charting dependency).
+ * Sales-trend bar chart for the admin dashboard. Rendered with `vue-chrts`
+ * (`<BarChart>`, built on Unovis — the same engine Nuxt UI lazy-loads for its
+ * charts), mirroring `ReportSalesChart`.
  *
  * Bars are daily revenue in the selected currency. Revenue is never summed
  * across currencies, so when more than one currency has revenue a small picker
  * switches the series (default = the store's primary currency). Order volume is
- * surfaced per-bar via the title/aria-label. Zero-revenue windows render an
- * empty note rather than a flat row of nothing.
+ * surfaced per-bar via the custom tooltip slot. Zero-revenue windows render an
+ * empty note rather than a flat row of nothing. Only the first/last tick is
+ * shown to keep the axis uncluttered (`minMaxTicksOnly`).
  */
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { BarChart } from 'vue-chrts'
 import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import type { SalesTrendPoint } from '#shared/types/api'
@@ -19,6 +23,13 @@ interface Props {
   currencies: CurrencyCode[]
   defaultCurrency: CurrencyCode
   windowDays: number
+}
+
+interface ChartRow {
+  date: string
+  label: string
+  revenue: number
+  orders: number
 }
 
 const props = defineProps<Props>()
@@ -51,12 +62,6 @@ const windowTotal = computed(() =>
   props.points.reduce((sum, p) => sum + revenueFor(p), 0),
 )
 
-function heightPct(point: SalesTrendPoint): number {
-  if (maxRevenue.value <= 0) return 0
-  const v = revenueFor(point)
-  return v > 0 ? Math.max(3, (v / maxRevenue.value) * 100) : 0
-}
-
 function fmtDate(iso: string): string {
   // `iso` is YYYY-MM-DD; parse as UTC-noon to avoid TZ date-shift.
   const d = new Date(`${iso}T12:00:00`)
@@ -67,18 +72,45 @@ function fmtMoney(amount: number): string {
   return formatMoney(amount, activeCurrency.value, locale.value)
 }
 
-function barLabel(point: SalesTrendPoint): string {
-  return t('admin.dashboardKpis.trend.barLabel', {
-    date: fmtDate(point.date),
-    amount: fmtMoney(revenueFor(point)),
-    count: point.order_count,
-  })
+// Compact axis money (e.g. "$1.2K") — full values live in the tooltip.
+function fmtAxisMoney(amount: number): string {
+  return new Intl.NumberFormat(locale.value, {
+    style: 'currency',
+    currency: activeCurrency.value,
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(amount)
 }
 
-const firstDate = computed(() => (props.points[0] ? fmtDate(props.points[0].date) : ''))
-const lastDate = computed(() =>
-  props.points.length ? fmtDate(props.points[props.points.length - 1]!.date) : '',
+const chartData = computed<ChartRow[]>(() =>
+  props.points.map(p => ({
+    date: p.date,
+    label: fmtDate(p.date),
+    revenue: revenueFor(p),
+    orders: p.order_count,
+  })),
 )
+
+// Single series; the legend would just be noise, so it's hidden.
+const categories = computed(() => ({
+  revenue: {
+    name: t('admin.dashboardKpis.trend.revenueSeries'),
+    color: 'var(--ui-primary)',
+  },
+}))
+
+// Bar charts position by index, so the axis tick value IS the row index.
+function xFormatter(tick: number): string {
+  return chartData.value[Math.round(tick)]?.label ?? ''
+}
+
+function barLabel(row: ChartRow): string {
+  return t('admin.dashboardKpis.trend.barLabel', {
+    date: row.label,
+    amount: fmtMoney(row.revenue),
+    count: row.orders,
+  })
+}
 
 const chartSummary = computed(() =>
   t('admin.dashboardKpis.trend.summary', {
@@ -115,29 +147,34 @@ const chartSummary = computed(() =>
     <div
       v-if="hasRevenue"
       class="c-trend"
+      role="img"
+      :aria-label="chartSummary"
     >
-      <div
-        class="flex items-end gap-px h-48"
-        role="img"
-        :aria-label="chartSummary"
+      <BarChart
+        :data="chartData"
+        :height="192"
+        :categories="categories"
+        :y-axis="['revenue']"
+        :x-formatter="xFormatter"
+        :y-formatter="(tick: number) => fmtAxisMoney(tick)"
+        :min-max-ticks-only="true"
+        :radius="2"
+        hide-legend
       >
-        <div
-          v-for="point in points"
-          :key="point.date"
-          class="flex-1 h-full flex items-end"
-        >
+        <template #tooltip="{ values }">
           <div
-            data-testid="trend-bar"
-            class="w-full rounded-t bg-primary/70 hover:bg-primary transition-colors"
-            :style="{ height: `${heightPct(point)}%` }"
-            :title="barLabel(point)"
-          />
-        </div>
-      </div>
-      <div class="flex justify-between text-xs text-muted mt-2">
-        <span>{{ firstDate }}</span>
-        <span>{{ lastDate }}</span>
-      </div>
+            v-if="values"
+            class="rounded-md bg-default ring ring-default px-2.5 py-1.5 text-xs shadow-lg"
+          >
+            <p class="font-medium">
+              {{ values.label }}
+            </p>
+            <p class="text-muted">
+              {{ barLabel(values as ChartRow) }}
+            </p>
+          </div>
+        </template>
+      </BarChart>
     </div>
 
     <p
