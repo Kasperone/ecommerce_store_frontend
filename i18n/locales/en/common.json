@@ -41,8 +41,12 @@
       "trend": {
         "title": "Sales trend",
         "summary": "{total} over the last {days} days",
+        "summaryAll": "All currencies · last {days} days",
         "currencyLabel": "Trend currency",
-        "barLabel": "{date}: {amount} revenue, {count} order | {date}: {amount} revenue, {count} orders",
+        "allCurrencies": "All currencies",
+        "barChart": "Bar chart",
+        "lineChart": "Line chart",
+        "ordersLine": "{count} order | {count} orders",
         "noRevenue": "No revenue in the last {days} days",
         "revenueSeries": "Revenue"
       },
