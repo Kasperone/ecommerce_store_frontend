@@ -31,9 +31,12 @@
         "preset7": "7d",
         "preset30": "30d",
         "preset90": "90d",
-        "customStart": "Custom start date",
-        "customLabel": "{from} – today",
-        "customHint": "Showing {days} days up to today"
+        "presetCustom": "Custom",
+        "customRange": "Custom range",
+        "customRangeLabel": "{from} – {to}",
+        "customRangeHint": "Showing {days} days",
+        "customPickStart": "Pick a start date",
+        "customPickEnd": "Pick an end date"
       },
       "cards": {
         "revenue": "Revenue",

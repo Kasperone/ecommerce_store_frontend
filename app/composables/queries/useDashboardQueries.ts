@@ -14,6 +14,10 @@ import type { DashboardKpis } from '#shared/types/api'
 
 export interface DashboardKpisParams {
   windowDays?: number
+  /** Custom range start, `YYYY-MM-DD`. Sent (with `endDate`) instead of `windowDays`. */
+  startDate?: string
+  /** Custom range end, `YYYY-MM-DD`. */
+  endDate?: string
 }
 
 export function useDashboardKpis(params: MaybeRefOrGetter<DashboardKpisParams> = {}) {
@@ -22,9 +26,12 @@ export function useDashboardKpis(params: MaybeRefOrGetter<DashboardKpisParams> =
     key: () => ['dashboard', 'kpis', toValue(params)],
     query: () => {
       const p = toValue(params)
-      return apiFetch<DashboardKpis>('/api/v1/admin/dashboard/kpis', {
-        query: { window_days: p.windowDays ?? 30 },
-      })
+      // A complete custom range overrides the trailing-window param.
+      const query: Record<string, string | number>
+        = p.startDate && p.endDate
+          ? { start_date: p.startDate, end_date: p.endDate }
+          : { window_days: p.windowDays ?? 30 }
+      return apiFetch<DashboardKpis>('/api/v1/admin/dashboard/kpis', { query })
     },
     enabled: () => import.meta.client,
     // KPI aggregates; 60s keeps back-nav snappy while staying fresh on real revisits.

@@ -31,9 +31,12 @@
         "preset7": "7 dni",
         "preset30": "30 dni",
         "preset90": "90 dni",
-        "customStart": "Własna data początkowa",
-        "customLabel": "{from} – dziś",
-        "customHint": "Pokazuje {days} dni do dziś"
+        "presetCustom": "Własny",
+        "customRange": "Własny zakres",
+        "customRangeLabel": "{from} – {to}",
+        "customRangeHint": "Pokazuje {days} dni",
+        "customPickStart": "Wybierz datę początkową",
+        "customPickEnd": "Wybierz datę końcową"
       },
       "cards": {
         "revenue": "Przychód",
