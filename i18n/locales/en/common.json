@@ -27,7 +27,13 @@
         "label": "Period",
         "last7": "Last 7 days",
         "last30": "Last 30 days",
-        "last90": "Last 90 days"
+        "last90": "Last 90 days",
+        "preset7": "7d",
+        "preset30": "30d",
+        "preset90": "90d",
+        "customStart": "Custom start date",
+        "customLabel": "{from} – today",
+        "customHint": "Showing {days} days up to today"
       },
       "cards": {
         "revenue": "Revenue",
@@ -41,9 +47,9 @@
       "trend": {
         "title": "Sales trend",
         "summary": "{total} over the last {days} days",
-        "summaryAll": "All currencies · last {days} days",
-        "currencyLabel": "Trend currency",
-        "allCurrencies": "All currencies",
+        "summaryAll": "{currencies} · last {days} days",
+        "currenciesLabel": "Chart currencies",
+        "currenciesPlaceholder": "Select currencies",
         "barChart": "Bar chart",
         "lineChart": "Line chart",
         "ordersLine": "{count} order | {count} orders",

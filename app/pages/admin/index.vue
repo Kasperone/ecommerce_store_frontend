@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { type CalendarDate, getLocalTimeZone, today } from '@internationalized/date'
+import dayjs from 'dayjs'
 import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
@@ -16,12 +18,55 @@ useHead({
   titleTemplate: '%s | Admin',
 })
 
+// The dashboard is a *trailing-window* view (period always ends today) — arbitrary
+// historical from/to ranges belong to /admin/reports. So a "custom period" is just a
+// custom *start* date: the admin picks how far back to look, the end stays pinned to
+// today, and the span maps cleanly onto the backend's `window_days` (1–365) contract.
+const MIN_DAYS = 1
+const MAX_DAYS = 365 // mirrors the backend's `window_days` upper bound
+const tz = getLocalTimeZone()
+const todayValue = today(tz)
+const minValue = todayValue.subtract({ days: MAX_DAYS - 1 })
+
 const windowDays = ref(30)
-const windowOptions = computed(() => [
-  { label: t('admin.dashboardKpis.window.last7'), value: 7 },
-  { label: t('admin.dashboardKpis.window.last30'), value: 30 },
-  { label: t('admin.dashboardKpis.window.last90'), value: 90 },
+
+const presets = computed(() => [
+  { value: 7, label: t('admin.dashboardKpis.window.preset7') },
+  { value: 30, label: t('admin.dashboardKpis.window.preset30') },
+  { value: 90, label: t('admin.dashboardKpis.window.preset90') },
 ])
+
+function fmtCalDate(d: CalendarDate): string {
+  return d.toDate(tz).toLocaleDateString(locale.value, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+// Two-way bridge between the calendar's start date and `windowDays`. Reading derives
+// the start from the window length; writing converts a picked start date back into an
+// inclusive day count, clamped to the backend's accepted range.
+const calendarValue = computed<CalendarDate>({
+  get: () => todayValue.subtract({ days: windowDays.value - 1 }),
+  set: (d) => {
+    if (!d) return
+    const start = dayjs(d.toDate(tz)).startOf('day')
+    const days = dayjs().startOf('day').diff(start, 'day') + 1
+    windowDays.value = Math.min(MAX_DAYS, Math.max(MIN_DAYS, days))
+  },
+})
+
+const periodLabel = computed(() => {
+  switch (windowDays.value) {
+    case 7: return t('admin.dashboardKpis.window.last7')
+    case 30: return t('admin.dashboardKpis.window.last30')
+    case 90: return t('admin.dashboardKpis.window.last90')
+    default: return t('admin.dashboardKpis.window.customLabel', {
+      from: fmtCalDate(calendarValue.value),
+    })
+  }
+})
 
 const params = computed(() => ({ windowDays: windowDays.value }))
 const { data: kpis, error } = useDashboardKpis(params)
@@ -73,12 +118,43 @@ const primaryCurrency = computed<CurrencyCode>(
           </p>
         </div>
         <UFormField :label="t('admin.dashboardKpis.window.label')">
-          <USelect
-            v-model="windowDays"
-            :items="windowOptions"
-            value-key="value"
-            class="w-40"
-          />
+          <UPopover :content="{ align: 'end' }">
+            <UButton
+              color="neutral"
+              variant="outline"
+              icon="i-lucide-calendar"
+              trailing-icon="i-lucide-chevron-down"
+              :aria-label="t('admin.dashboardKpis.window.label')"
+            >
+              {{ periodLabel }}
+            </UButton>
+
+            <template #content>
+              <div class="p-3 space-y-3">
+                <div class="flex items-center gap-1.5">
+                  <UButton
+                    v-for="p in presets"
+                    :key="p.value"
+                    size="xs"
+                    :color="windowDays === p.value ? 'primary' : 'neutral'"
+                    :variant="windowDays === p.value ? 'solid' : 'soft'"
+                    @click="windowDays = p.value"
+                  >
+                    {{ p.label }}
+                  </UButton>
+                </div>
+                <USeparator :label="t('admin.dashboardKpis.window.customStart')" />
+                <UCalendar
+                  v-model="calendarValue"
+                  :max-value="todayValue"
+                  :min-value="minValue"
+                />
+                <p class="text-xs text-muted text-center">
+                  {{ t('admin.dashboardKpis.window.customHint', { days: windowDays }) }}
+                </p>
+              </div>
+            </template>
+          </UPopover>
         </UFormField>
       </header>
 
