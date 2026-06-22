@@ -1124,6 +1124,7 @@
         "categoryAll": "Any category",
         "minPrice": "Min price (USD)",
         "maxPrice": "Max price (USD)",
+        "apply": "Apply",
         "searchPlaceholder": "Search products",
         "reset": "Reset filters"
       },
@@ -1266,7 +1267,7 @@
         "selectRow": "Select row",
         "clearSelection": "Clear selection",
         "unchanged": "Unchanged",
-        "applyButton": "Apply to {count} products",
+        "applyButton": "Apply to {count} product | Apply to {count} products",
         "applied": "{count} products updated",
         "errorTitle": "Bulk edit failed",
         "errors": {

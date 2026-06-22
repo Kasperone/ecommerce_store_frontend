@@ -115,12 +115,13 @@ async function onApply() {
 </script>
 
 <template>
-  <div
-    class="rounded-lg border border-primary-200 dark:border-primary-800 bg-primary-50/60
-    dark:bg-primary-950/40 p-4 space-y-3"
-  >
+  <div class="rounded-lg ring ring-default bg-elevated/50 p-4 space-y-3">
     <div class="flex items-center justify-between gap-2 flex-wrap">
-      <p class="font-medium text-sm">
+      <p class="flex items-center gap-2 text-primary text-sm font-medium">
+        <UIcon
+          name="i-lucide-list-checks"
+          class="size-4 shrink-0"
+        />
         {{ t('admin.products.bulk.selected', { count: productIds.length }) }}
       </p>
       <UButton
