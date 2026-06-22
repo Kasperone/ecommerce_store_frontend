@@ -34,6 +34,11 @@ export function useDashboardKpis(params: MaybeRefOrGetter<DashboardKpisParams> =
       return apiFetch<DashboardKpis>('/api/v1/admin/dashboard/kpis', { query })
     },
     enabled: () => import.meta.client,
+    // Keep the previous window's figures on screen while a new range/preset loads.
+    // Without this the key change drops `data` to `undefined`, which flashes the
+    // loading skeleton on every quick refetch; with it the page only ever shows the
+    // skeleton on the genuine first load and just dims during background refetches.
+    placeholderData: prev => prev,
     // KPI aggregates; 60s keeps back-nav snappy while staying fresh on real revisits.
     staleTime: 1000 * 60,
   })

@@ -99,8 +99,15 @@ const params = computed<DashboardKpisParams>(() => {
   }
   return { windowDays: windowDays.value }
 })
-const { data: kpis, error } = useDashboardKpis(params)
-const loading = computed(() => !kpis.value && !error.value)
+const { data: kpis, error, status, asyncStatus } = useDashboardKpis(params)
+// Skeleton only on the genuine first load (no data has ever arrived). Once we have
+// data, `placeholderData` keeps the previous window's figures on screen across a
+// range/preset change, so we never flash the skeleton again — a background refetch
+// just dims the live content via `refreshing`.
+const initialLoading = computed(() => status.value === 'pending' && !error.value)
+const refreshing = computed(
+  () => asyncStatus.value === 'loading' && status.value !== 'pending',
+)
 
 /** Per-currency money map → formatted entries, primary currency first. */
 function moneyEntries(map: Record<string, number> | undefined) {
@@ -215,8 +222,8 @@ const primaryCurrency = computed<CurrencyCode>(
         :problem="parseProblem(error)"
       />
 
-      <!-- Loading skeleton -->
-      <template v-else-if="loading">
+      <!-- Loading skeleton — first load only -->
+      <template v-else-if="initialLoading">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <USkeleton
             v-for="n in 5"
@@ -231,7 +238,17 @@ const primaryCurrency = computed<CurrencyCode>(
         </div>
       </template>
 
-      <template v-else-if="kpis">
+      <!--
+        Live figures. During a background refetch (range/preset change) the previous
+        window's data stays mounted and is gently dimmed, so the eye sees a smooth
+        fade rather than a skeleton flash on a quick load.
+      -->
+      <div
+        v-else-if="kpis"
+        class="space-y-6 transition-opacity duration-300 motion-reduce:transition-none"
+        :class="refreshing ? 'opacity-50' : 'opacity-100'"
+        :aria-busy="refreshing"
+      >
         <!-- KPI cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <AdminDashboardKpiCard
@@ -295,7 +312,7 @@ const primaryCurrency = computed<CurrencyCode>(
             :count="kpis.low_stock_count"
           />
         </div>
-      </template>
+      </div>
     </div>
   </NuxtLayout>
 </template>
