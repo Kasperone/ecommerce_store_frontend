@@ -27,7 +27,16 @@
         "label": "Okres",
         "last7": "Ostatnie 7 dni",
         "last30": "Ostatnie 30 dni",
-        "last90": "Ostatnie 90 dni"
+        "last90": "Ostatnie 90 dni",
+        "preset7": "7 dni",
+        "preset30": "30 dni",
+        "preset90": "90 dni",
+        "presetCustom": "Własny",
+        "customRange": "Własny zakres",
+        "customRangeLabel": "{from} – {to}",
+        "customRangeHint": "Pokazuje {days} dni",
+        "customPickStart": "Wybierz datę początkową",
+        "customPickEnd": "Wybierz datę końcową"
       },
       "cards": {
         "revenue": "Przychód",
@@ -41,9 +50,9 @@
       "trend": {
         "title": "Trend sprzedaży",
         "summary": "{total} w ciągu ostatnich {days} dni",
-        "summaryAll": "Wszystkie waluty · ostatnie {days} dni",
-        "currencyLabel": "Waluta trendu",
-        "allCurrencies": "Wszystkie waluty",
+        "summaryAll": "{currencies} · ostatnie {days} dni",
+        "currenciesLabel": "Waluty wykresu",
+        "currenciesPlaceholder": "Wybierz waluty",
         "barChart": "Wykres słupkowy",
         "lineChart": "Wykres liniowy",
         "ordersLine": "{count} zamówień | {count} zamówienie | {count} zamówienia | {count} zamówień",

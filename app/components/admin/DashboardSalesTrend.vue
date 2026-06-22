@@ -10,12 +10,12 @@
  * - **Line** — a continuous linear series; zero days stay `0` so the line dips
  *   to the baseline instead of breaking.
  *
- * Revenue is never summed across currencies. A picker switches the active
- * currency, and — when more than one currency has revenue — an "All currencies"
- * option overlays one series per currency (each its own colour, with a legend)
- * so they can be compared side by side. Per-day order volume + every currency's
- * revenue surface in the custom tooltip. Only the first/last x tick shows to
- * keep the axis uncluttered (`minMaxTicksOnly`).
+ * Revenue is never summed across currencies. A multiselect picks which
+ * currencies to plot — selecting more than one overlays a series per currency
+ * (each its own colour, with a legend) so they can be compared side by side.
+ * Per-day order volume + every selected currency's revenue surface in the
+ * custom tooltip. Only the first/last x tick shows to keep the axis uncluttered
+ * (`minMaxTicksOnly`).
  */
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -30,8 +30,6 @@ interface Props {
   defaultCurrency: CurrencyCode
   windowDays: number
 }
-
-type CurrencySelection = CurrencyCode | 'ALL'
 
 interface ChartRow {
   date: string
@@ -54,34 +52,35 @@ const CURRENCY_COLORS: Record<string, string> = {
 }
 
 const chartType = ref<'bar' | 'line'>('line')
-const selected = ref<CurrencySelection>(props.defaultCurrency)
 
-const multiCurrency = computed(() => props.currencies.length > 1)
-const isAll = computed(() => selected.value === 'ALL' && multiCurrency.value)
-
-// The resolved single currency, guarded against a window switch that drops the
-// chosen one (falls back to the store default, then the first available).
-const singleCurrency = computed<CurrencyCode>(() => {
-  const sel = selected.value
-  if (sel !== 'ALL' && props.currencies.includes(sel)) return sel
-  if (props.currencies.includes(props.defaultCurrency)) return props.defaultCurrency
-  return props.currencies[0] ?? props.defaultCurrency
-})
-
-const activeCurrencies = computed<CurrencyCode[]>(() =>
-  isAll.value ? props.currencies : [singleCurrency.value],
+// The store default if it carries revenue, otherwise the first currency that does.
+const resolvedDefault = computed<CurrencyCode>(() =>
+  props.currencies.includes(props.defaultCurrency)
+    ? props.defaultCurrency
+    : props.currencies[0] ?? props.defaultCurrency,
 )
 
-const currencyItems = computed(() => {
-  const items: { label: string, value: CurrencySelection }[] = props.currencies.map(code => ({
-    label: code,
-    value: code,
-  }))
-  if (multiCurrency.value) {
-    items.push({ label: t('admin.dashboardKpis.trend.allCurrencies'), value: 'ALL' })
-  }
-  return items
+const multiCurrency = computed(() => props.currencies.length > 1)
+
+// User's currency selection (multiselect). Seeded with the resolved default.
+const selectedCurrencies = ref<CurrencyCode[]>([resolvedDefault.value])
+
+// What actually gets plotted: the selection filtered to currencies present in the
+// current window (a window switch can drop one), falling back to the default so the
+// chart never goes empty when something is selectable.
+const activeCurrencies = computed<CurrencyCode[]>(() => {
+  const valid = selectedCurrencies.value.filter(code => props.currencies.includes(code))
+  return valid.length ? valid : [resolvedDefault.value]
 })
+
+const isMulti = computed(() => activeCurrencies.value.length > 1)
+const singleCurrency = computed<CurrencyCode>(
+  () => activeCurrencies.value[0] ?? resolvedDefault.value,
+)
+
+const currencyItems = computed(() =>
+  props.currencies.map(code => ({ label: code, value: code })),
+)
 
 const chartTypeItems = computed(() => [
   { value: 'bar' as const, icon: 'i-lucide-chart-column', label: t('admin.dashboardKpis.trend.barChart') },
@@ -117,7 +116,7 @@ function fmtMoney(amount: number, currency: CurrencyCode): string {
 // Compact axis labels — a currency symbol when a single currency owns the axis,
 // a plain compact number when several currencies share it.
 function yFormatter(tick: number): string {
-  if (isAll.value) {
+  if (isMulti.value) {
     return new Intl.NumberFormat(locale.value, {
       notation: 'compact',
       maximumFractionDigits: 1,
@@ -145,7 +144,7 @@ const chartData = computed<ChartRow[]>(() =>
 )
 
 const categories = computed<Record<string, { name: string, color: string }>>(() => {
-  if (!isAll.value) {
+  if (!isMulti.value) {
     return {
       [singleCurrency.value]: {
         name: t('admin.dashboardKpis.trend.revenueSeries'),
@@ -182,8 +181,11 @@ const chartTypeProps = computed(() =>
 )
 
 const chartSummary = computed(() =>
-  isAll.value
-    ? t('admin.dashboardKpis.trend.summaryAll', { days: props.windowDays })
+  isMulti.value
+    ? t('admin.dashboardKpis.trend.summaryAll', {
+        currencies: activeCurrencies.value.join(', '),
+        days: props.windowDays,
+      })
     : t('admin.dashboardKpis.trend.summary', {
         total: fmtMoney(windowTotal.value, singleCurrency.value),
         days: props.windowDays,
@@ -203,27 +205,30 @@ const chartSummary = computed(() =>
             {{ chartSummary }}
           </p>
         </div>
-        <div class="flex items-center gap-2">
-          <UButtonGroup size="sm">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
             <UButton
               v-for="opt in chartTypeItems"
               :key="opt.value"
               :icon="opt.icon"
+              size="sm"
               :color="chartType === opt.value ? 'primary' : 'neutral'"
               :variant="chartType === opt.value ? 'solid' : 'outline'"
               :aria-label="opt.label"
               :aria-pressed="chartType === opt.value"
               @click="chartType = opt.value"
             />
-          </UButtonGroup>
-          <USelect
+          </div>
+          <USelectMenu
             v-if="multiCurrency"
-            v-model="selected"
+            v-model="selectedCurrencies"
             :items="currencyItems"
             value-key="value"
+            multiple
             size="sm"
-            class="w-36"
-            :aria-label="t('admin.dashboardKpis.trend.currencyLabel')"
+            class="w-40"
+            :placeholder="t('admin.dashboardKpis.trend.currenciesPlaceholder')"
+            :aria-label="t('admin.dashboardKpis.trend.currenciesLabel')"
           />
         </div>
       </div>
@@ -243,7 +248,7 @@ const chartSummary = computed(() =>
         :x-formatter="xFormatter"
         :y-formatter="yFormatter"
         :min-max-ticks-only="true"
-        :hide-legend="!isAll"
+        :hide-legend="!isMulti"
         v-bind="chartTypeProps"
       >
         <template #tooltip="{ values }">
@@ -268,7 +273,7 @@ const chartSummary = computed(() =>
                   {{ fmtMoney(Number((values as ChartRow)[code] ?? 0), code) }}
                 </span>
                 <span
-                  v-if="isAll"
+                  v-if="isMulti"
                   class="text-muted"
                 >{{ code }}</span>
               </p>
