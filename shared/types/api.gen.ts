@@ -424,7 +424,8 @@ export interface paths {
          *     - **page**: Page number (starts from 1)
          *     - **page_size**: Number of items per page (1-100)
          *     - **category_id**: Filter by category
-         *     - **is_active**: Show only active products (default: true)
+         *     - **is_active**: Admin-only filter. Non-admins always get active products;
+         *       an admin may pass ``false`` (inactive only) or omit it for all
          *     - **is_featured**: Filter featured products
          *     - **min_price/max_price**: Price range filter (USD)
          *     - **in_stock**: Filter by stock availability
@@ -11633,7 +11634,7 @@ export interface operations {
                 page_size?: number;
                 /** @description Filter by category ID */
                 category_id?: number | null;
-                /** @description Filter by active status */
+                /** @description Filter by active status. Admin-only — non-admin callers always receive active products regardless of this value (omit = all, for admins). */
                 is_active?: boolean | null;
                 /** @description Filter by featured status */
                 is_featured?: boolean | null;
@@ -11654,7 +11655,9 @@ export interface operations {
                 /** @description Sort direction */
                 order?: "asc" | "desc";
             };
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
