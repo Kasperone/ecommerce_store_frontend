@@ -45,10 +45,10 @@ const outOfStockLink = computed(() => ({
       </div>
     </template>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-6">
       <NuxtLink
         :to="lowStockLink"
-        class="rounded-lg p-3 -m-3 hover:bg-elevated/50 transition-colors"
+        class="rounded-lg p-3 -ml-3 -my-3 hover:bg-elevated/50 transition-colors"
       >
         <p class="text-2xl font-bold tabular-nums text-warning">
           {{ lowCount }}
@@ -59,7 +59,7 @@ const outOfStockLink = computed(() => ({
       </NuxtLink>
       <NuxtLink
         :to="outOfStockLink"
-        class="rounded-lg p-3 -m-3 hover:bg-elevated/50 transition-colors"
+        class="rounded-lg p-3 -mr-3 -my-3 hover:bg-elevated/50 transition-colors"
       >
         <p class="text-2xl font-bold tabular-nums text-error">
           {{ outCount }}

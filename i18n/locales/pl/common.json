@@ -41,8 +41,12 @@
       "trend": {
         "title": "Trend sprzedaży",
         "summary": "{total} w ciągu ostatnich {days} dni",
+        "summaryAll": "Wszystkie waluty · ostatnie {days} dni",
         "currencyLabel": "Waluta trendu",
-        "barLabel": "{date}: {amount} przychodu, {count} zamówień | {date}: {amount} przychodu, {count} zamówienie | {date}: {amount} przychodu, {count} zamówienia | {date}: {amount} przychodu, {count} zamówień",
+        "allCurrencies": "Wszystkie waluty",
+        "barChart": "Wykres słupkowy",
+        "lineChart": "Wykres liniowy",
+        "ordersLine": "{count} zamówień | {count} zamówienie | {count} zamówienia | {count} zamówień",
         "noRevenue": "Brak przychodu w ciągu ostatnich {days} dni",
         "revenueSeries": "Przychód"
       },
