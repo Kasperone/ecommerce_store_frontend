@@ -87,4 +87,16 @@ describe('ProductFilters', () => {
     const searchInput = wrapper.find('input[placeholder*="Search"]').element as HTMLInputElement
     expect(searchInput.value).toBe('externally-set')
   })
+
+  it('gates the price filter behind an explicit Apply (disabled until dirty)', async () => {
+    const wrapper = await mountSuspended(ProductFilters, {
+      props: { values: baseValues, categories: categoriesFixture },
+    })
+
+    const applyBtn = wrapper.findAll('button').find(b => b.text().includes('Apply'))
+    expect(applyBtn).toBeTruthy()
+    // No pending change yet → the button is disabled, and price is NOT live-emitted
+    // on render (unlike search). It commits only on an explicit Apply / Enter.
+    expect(applyBtn!.attributes('disabled')).toBeDefined()
+  })
 })

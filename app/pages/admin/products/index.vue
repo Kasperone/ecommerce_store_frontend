@@ -20,9 +20,12 @@ const filterSchema = z.object({
   active: triState,
   featured: triState,
   inStock: triState,
-  categoryId: z.number().int().positive().optional(),
-  minPrice: z.number().min(0).optional(),
-  maxPrice: z.number().min(0).optional(),
+  // `useUrlFilters` only coerces query strings → number when the *default* is a
+  // number; these default to `undefined`, so they arrive as strings and need
+  // `coerce` or the whole filter parse fails (resetting category + price).
+  categoryId: z.coerce.number().int().positive().optional(),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional(),
   search: z.string().optional(),
   page: z.number().min(1).optional(),
   pageSize: z.number().min(1).max(100).optional(),

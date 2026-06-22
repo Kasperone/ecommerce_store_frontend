@@ -26,7 +26,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// Search is debounced; everything else updates immediately.
+// Search is debounced; selects update immediately.
 const searchInput = ref(props.values.search ?? '')
 watch(
   () => props.values.search,
@@ -73,108 +73,135 @@ function onCategoryChange(v: number) {
   emit('update:filters', { categoryId: v === ANY_CATEGORY ? undefined : v })
 }
 
-function onPriceChange(field: 'minPrice' | 'maxPrice', v: number | null | undefined) {
-  emit('update:filters', { [field]: typeof v === 'number' ? v : undefined })
+// Price applies on an explicit "Apply" (button or Enter), not per keystroke —
+// live-filtering a number range as you type is jittery. The inputs are held in
+// local state and committed together; everything else stays live.
+function normPrice(v: number | null | undefined): number | undefined {
+  return typeof v === 'number' ? v : undefined
+}
+const localMin = ref<number | null | undefined>(props.values.minPrice)
+const localMax = ref<number | null | undefined>(props.values.maxPrice)
+watch(
+  () => [props.values.minPrice, props.values.maxPrice] as const,
+  ([min, max]) => {
+    localMin.value = min
+    localMax.value = max
+  },
+)
+const priceDirty = computed(() =>
+  normPrice(localMin.value) !== props.values.minPrice
+  || normPrice(localMax.value) !== props.values.maxPrice,
+)
+function applyPrice() {
+  if (!priceDirty.value) return
+  emit('update:filters', {
+    minPrice: normPrice(localMin.value),
+    maxPrice: normPrice(localMax.value),
+  })
 }
 </script>
 
 <template>
-  <div class="flex flex-wrap items-end gap-3">
-    <UFormField
-      :label="t('admin.products.filters.statusLabel')"
-      class="w-44"
-    >
-      <USelectMenu
-        :model-value="values.active"
-        :items="statusItems"
-        value-key="value"
-        class="w-full"
-        @update:model-value="(v) => emit('update:filters', { active: v as TriState })"
-      />
-    </UFormField>
+  <div class="space-y-3">
+    <!-- Dropdown filters — even grid so nothing wraps raggedly. -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <UFormField :label="t('admin.products.filters.statusLabel')">
+        <USelectMenu
+          :model-value="values.active"
+          :items="statusItems"
+          value-key="value"
+          class="w-full"
+          @update:model-value="(v) => emit('update:filters', { active: v as TriState })"
+        />
+      </UFormField>
 
-    <UFormField
-      :label="t('admin.products.filters.featuredLabel')"
-      class="w-44"
-    >
-      <USelectMenu
-        :model-value="values.featured"
-        :items="featuredItems"
-        value-key="value"
-        class="w-full"
-        @update:model-value="(v) => emit('update:filters', { featured: v as TriState })"
-      />
-    </UFormField>
+      <UFormField :label="t('admin.products.filters.featuredLabel')">
+        <USelectMenu
+          :model-value="values.featured"
+          :items="featuredItems"
+          value-key="value"
+          class="w-full"
+          @update:model-value="(v) => emit('update:filters', { featured: v as TriState })"
+        />
+      </UFormField>
 
-    <UFormField
-      :label="t('admin.products.filters.stockLabel')"
-      class="w-44"
-    >
-      <USelectMenu
-        :model-value="values.inStock"
-        :items="stockItems"
-        value-key="value"
-        class="w-full"
-        @update:model-value="(v) => emit('update:filters', { inStock: v as TriState })"
-      />
-    </UFormField>
+      <UFormField :label="t('admin.products.filters.stockLabel')">
+        <USelectMenu
+          :model-value="values.inStock"
+          :items="stockItems"
+          value-key="value"
+          class="w-full"
+          @update:model-value="(v) => emit('update:filters', { inStock: v as TriState })"
+        />
+      </UFormField>
 
-    <UFormField
-      :label="t('admin.products.filters.categoryLabel')"
-      class="w-56"
-    >
-      <USelectMenu
-        :model-value="categoryValue"
-        :items="categoryItems"
-        value-key="value"
-        searchable
-        class="w-full"
-        @update:model-value="(v) => onCategoryChange(v as number)"
-      />
-    </UFormField>
+      <UFormField :label="t('admin.products.filters.categoryLabel')">
+        <USelectMenu
+          :model-value="categoryValue"
+          :items="categoryItems"
+          value-key="value"
+          searchable
+          class="w-full"
+          @update:model-value="(v) => onCategoryChange(v as number)"
+        />
+      </UFormField>
+    </div>
 
-    <UFormField
-      :label="t('admin.products.filters.minPrice')"
-      class="w-36"
-    >
-      <UInputNumber
-        :model-value="values.minPrice"
-        :min="0"
-        :step="0.01"
-        class="w-full"
-        @update:model-value="(v) => onPriceChange('minPrice', v)"
-      />
-    </UFormField>
+    <!-- Price range (explicit Apply) + search + reset. -->
+    <div class="flex flex-wrap items-end gap-3">
+      <div class="flex items-end gap-2">
+        <UFormField
+          :label="t('admin.products.filters.minPrice')"
+          class="w-32"
+        >
+          <UInputNumber
+            v-model="localMin"
+            :min="0"
+            :step="0.01"
+            class="w-full"
+            @keydown.enter="applyPrice"
+          />
+        </UFormField>
+        <UFormField
+          :label="t('admin.products.filters.maxPrice')"
+          class="w-32"
+        >
+          <UInputNumber
+            v-model="localMax"
+            :min="0"
+            :step="0.01"
+            class="w-full"
+            @keydown.enter="applyPrice"
+          />
+        </UFormField>
+        <UButton
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-filter"
+          :disabled="!priceDirty"
+          @click="applyPrice"
+        >
+          {{ t('admin.products.filters.apply') }}
+        </UButton>
+      </div>
 
-    <UFormField
-      :label="t('admin.products.filters.maxPrice')"
-      class="w-36"
-    >
-      <UInputNumber
-        :model-value="values.maxPrice"
-        :min="0"
-        :step="0.01"
-        class="w-full"
-        @update:model-value="(v) => onPriceChange('maxPrice', v)"
-      />
-    </UFormField>
+      <UFormField class="flex-1 min-w-56">
+        <UInput
+          v-model="searchInput"
+          icon="i-lucide-search"
+          :placeholder="t('admin.products.filters.searchPlaceholder')"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField class="flex-1 min-w-64">
-      <UInput
-        v-model="searchInput"
-        icon="i-lucide-search"
-        :placeholder="t('admin.products.filters.searchPlaceholder')"
-        class="w-full"
-      />
-    </UFormField>
-
-    <UButton
-      color="neutral"
-      variant="ghost"
-      icon="i-lucide-x"
-      @click="emit('reset')"
-    >
-      {{ t('admin.products.filters.reset') }}
-    </UButton>
+      <UButton
+        color="neutral"
+        variant="ghost"
+        icon="i-lucide-x"
+        @click="emit('reset')"
+      >
+        {{ t('admin.products.filters.reset') }}
+      </UButton>
+    </div>
   </div>
 </template>
