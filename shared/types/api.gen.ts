@@ -1921,6 +1921,9 @@ export interface paths {
         /**
          * Get Dashboard Kpis
          * @description Dashboard KPIs: revenue/orders/customers, sales trend, top products, low stock.
+         *
+         *     Windowed figures cover a trailing `window_days` window by default, or an explicit
+         *     `[start_date, end_date]` range when `start_date` is supplied.
          */
         get: operations["get_dashboard_kpis_api_v1_admin_dashboard_kpis_get"];
         put?: never;
@@ -14296,8 +14299,12 @@ export interface operations {
     get_dashboard_kpis_api_v1_admin_dashboard_kpis_get: {
         parameters: {
             query?: {
-                /** @description Window for the trend + windowed KPIs (days) */
+                /** @description Trailing window for the trend + windowed KPIs (days) */
                 window_days?: number;
+                /** @description Custom range start (inclusive). When given, overrides `window_days`; the window becomes [start_date, end_date]. */
+                start_date?: string | null;
+                /** @description Custom range end (inclusive). Defaults to today. */
+                end_date?: string | null;
             };
             header?: never;
             path?: never;
