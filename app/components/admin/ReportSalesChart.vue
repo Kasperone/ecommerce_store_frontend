@@ -190,3 +190,15 @@ const chartSummary = computed(() =>
     </p>
   </UCard>
 </template>
+
+<style scoped>
+/* Flatten Unovis's own tooltip container so only our themed box renders — kills
+   the double border, and the default light background that otherwise showed
+   through in dark mode. The emotion class is hashed, hence the suffix match. */
+.c-report-chart :deep([class*='-tooltip']) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+</style>
