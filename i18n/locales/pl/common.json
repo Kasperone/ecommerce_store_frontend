@@ -1132,6 +1132,7 @@
         "categoryAll": "Dowolna kategoria",
         "minPrice": "Cena od (USD)",
         "maxPrice": "Cena do (USD)",
+        "apply": "Zastosuj",
         "searchPlaceholder": "Szukaj produktów",
         "reset": "Wyczyść filtry"
       },
@@ -1274,7 +1275,7 @@
         "selectRow": "Zaznacz wiersz",
         "clearSelection": "Wyczyść zaznaczenie",
         "unchanged": "Bez zmian",
-        "applyButton": "Zastosuj do {count} produktów",
+        "applyButton": "Zastosuj do {count} produktów | Zastosuj do {count} produktu | Zastosuj do {count} produktów | Zastosuj do {count} produktów",
         "applied": "Zaktualizowano produktów: {count}",
         "errorTitle": "Edycja zbiorcza nie powiodła się",
         "errors": {
