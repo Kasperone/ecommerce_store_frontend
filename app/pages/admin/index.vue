@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { type DateValue, getLocalTimeZone, today } from '@internationalized/date'
+import dayjs from 'dayjs'
 import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
@@ -16,14 +18,87 @@ useHead({
   titleTemplate: '%s | Admin',
 })
 
+// The dashboard's windowed figures default to a *trailing window* ending today
+// (a preset: 7/30/90 days, mapped onto the backend's `window_days` contract). The
+// admin can instead pick a "Custom" from→to range; the calendar only appears once
+// Custom is selected, and the picked `[start, end]` is sent as `start_date`/`end_date`
+// (the backend then reports the effective span back as `window_days`).
+const MAX_RANGE_DAYS = 365 // keeps the request within the backend's 366-day cap
+const tz = getLocalTimeZone()
+const todayValue = today(tz)
+const minValue = todayValue.subtract({ days: MAX_RANGE_DAYS - 1 })
+
+type CalRange = { start: DateValue | null, end: DateValue | null }
+
+const mode = ref<'preset' | 'custom'>('preset')
 const windowDays = ref(30)
-const windowOptions = computed(() => [
-  { label: t('admin.dashboardKpis.window.last7'), value: 7 },
-  { label: t('admin.dashboardKpis.window.last30'), value: 30 },
-  { label: t('admin.dashboardKpis.window.last90'), value: 90 },
+// Seeded so the calendar opens on a sensible range; reseeded from the active preset
+// each time Custom is (re)entered.
+const customRange = ref<CalRange>({ start: todayValue.subtract({ days: 29 }), end: todayValue })
+
+const presets = computed(() => [
+  { value: 7, label: t('admin.dashboardKpis.window.preset7') },
+  { value: 30, label: t('admin.dashboardKpis.window.preset30') },
+  { value: 90, label: t('admin.dashboardKpis.window.preset90') },
 ])
 
-const params = computed(() => ({ windowDays: windowDays.value }))
+const rangeComplete = computed(() => !!(customRange.value.start && customRange.value.end))
+
+// Inclusive day span of the picked range (0 until both ends are chosen).
+const customDays = computed(() => {
+  const { start, end } = customRange.value
+  if (!start || !end) return 0
+  return dayjs(end.toDate(tz)).startOf('day').diff(dayjs(start.toDate(tz)).startOf('day'), 'day') + 1
+})
+
+function fmtCalDate(d: DateValue): string {
+  return d.toDate(tz).toLocaleDateString(locale.value, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+function selectPreset(value: number) {
+  mode.value = 'preset'
+  windowDays.value = value
+}
+
+function selectCustom() {
+  // Reseed the range from the current trailing window so it opens where the admin left off.
+  if (mode.value !== 'custom') {
+    customRange.value = { start: todayValue.subtract({ days: windowDays.value - 1 }), end: todayValue }
+  }
+  mode.value = 'custom'
+}
+
+const periodLabel = computed(() => {
+  if (mode.value === 'custom') {
+    const { start, end } = customRange.value
+    return start && end
+      ? t('admin.dashboardKpis.window.customRangeLabel', {
+          from: fmtCalDate(start),
+          to: fmtCalDate(end),
+        })
+      : t('admin.dashboardKpis.window.presetCustom')
+  }
+  switch (windowDays.value) {
+    case 7: return t('admin.dashboardKpis.window.last7')
+    case 90: return t('admin.dashboardKpis.window.last90')
+    default: return t('admin.dashboardKpis.window.last30')
+  }
+})
+
+// A complete custom range sends start_date/end_date; otherwise the trailing window.
+const params = computed<DashboardKpisParams>(() => {
+  if (mode.value === 'custom' && customRange.value.start && customRange.value.end) {
+    return {
+      startDate: customRange.value.start.toString(),
+      endDate: customRange.value.end.toString(),
+    }
+  }
+  return { windowDays: windowDays.value }
+})
 const { data: kpis, error } = useDashboardKpis(params)
 const loading = computed(() => !kpis.value && !error.value)
 
@@ -73,12 +148,65 @@ const primaryCurrency = computed<CurrencyCode>(
           </p>
         </div>
         <UFormField :label="t('admin.dashboardKpis.window.label')">
-          <USelect
-            v-model="windowDays"
-            :items="windowOptions"
-            value-key="value"
-            class="w-40"
-          />
+          <UPopover :content="{ align: 'end' }">
+            <UButton
+              color="neutral"
+              variant="outline"
+              icon="i-lucide-calendar"
+              trailing-icon="i-lucide-chevron-down"
+              :aria-label="t('admin.dashboardKpis.window.label')"
+            >
+              {{ periodLabel }}
+            </UButton>
+
+            <template #content>
+              <div class="p-3 space-y-3">
+                <div class="flex items-center gap-1.5">
+                  <UButton
+                    v-for="p in presets"
+                    :key="p.value"
+                    size="xs"
+                    :color="mode === 'preset' && windowDays === p.value ? 'primary' : 'neutral'"
+                    :variant="mode === 'preset' && windowDays === p.value ? 'solid' : 'soft'"
+                    @click="selectPreset(p.value)"
+                  >
+                    {{ p.label }}
+                  </UButton>
+                  <UButton
+                    size="xs"
+                    icon="i-lucide-calendar-range"
+                    :color="mode === 'custom' ? 'primary' : 'neutral'"
+                    :variant="mode === 'custom' ? 'solid' : 'soft'"
+                    @click="selectCustom"
+                  >
+                    {{ t('admin.dashboardKpis.window.presetCustom') }}
+                  </UButton>
+                </div>
+
+                <!-- Calendar appears only in Custom mode; range selection (start + end). -->
+                <template v-if="mode === 'custom'">
+                  <USeparator :label="t('admin.dashboardKpis.window.customRange')" />
+                  <UCalendar
+                    v-model="customRange"
+                    range
+                    :max-value="todayValue"
+                    :min-value="minValue"
+                  />
+                  <p class="text-xs text-muted text-center">
+                    <template v-if="rangeComplete">
+                      {{ t('admin.dashboardKpis.window.customRangeHint', { days: customDays }) }}
+                    </template>
+                    <template v-else-if="customRange.start">
+                      {{ t('admin.dashboardKpis.window.customPickEnd') }}
+                    </template>
+                    <template v-else>
+                      {{ t('admin.dashboardKpis.window.customPickStart') }}
+                    </template>
+                  </p>
+                </template>
+              </div>
+            </template>
+          </UPopover>
         </UFormField>
       </header>
 

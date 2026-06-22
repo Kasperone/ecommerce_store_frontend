@@ -53,6 +53,11 @@ const WITH_REVENUE: SalesTrendPoint[] = [
   point('2026-05-03', 1, { USD: 20 }),
 ]
 
+const MULTI_CURRENCY: SalesTrendPoint[] = [
+  point('2026-05-01', 1, { USD: 30, EUR: 25 }),
+  point('2026-05-02', 2, { USD: 40, EUR: 10 }),
+]
+
 describe('DashboardSalesTrend', () => {
   it('defaults to a line chart keyed by the active currency, with the windowed total', async () => {
     const wrapper = await mountTrend({
@@ -89,6 +94,30 @@ describe('DashboardSalesTrend', () => {
     const rows = chart.props('data') as Array<Record<string, unknown>>
     expect(rows[0]!.USD).toBeNull() // zero day → null → no bar
     expect(rows[1]!.USD).toBe(40)
+  })
+
+  it('plots only the default currency until more are selected, then overlays a series each', async () => {
+    const wrapper = await mountTrend({
+      points: MULTI_CURRENCY,
+      currencies: ['USD', 'EUR'],
+      defaultCurrency: 'USD',
+      windowDays: 2,
+    })
+    // Default selection is the store default only: single series, legend hidden.
+    let chart = wrapper.findComponent(LineChartStub)
+    expect(Object.keys(chart.props('categories'))).toEqual(['USD'])
+    expect(chart.props('hideLegend')).toBe(true)
+
+    // Select both currencies through the multiselect's v-model.
+    const select = wrapper.findComponent({ name: 'USelectMenu' })
+    expect(select.exists()).toBe(true)
+    select.vm.$emit('update:modelValue', ['USD', 'EUR'])
+    await wrapper.vm.$nextTick()
+
+    chart = wrapper.findComponent(LineChartStub)
+    expect(Object.keys(chart.props('categories'))).toEqual(['USD', 'EUR'])
+    // Multiple series → legend shown.
+    expect(chart.props('hideLegend')).toBe(false)
   })
 
   it('shows the empty note and renders no chart when there is no revenue', async () => {
