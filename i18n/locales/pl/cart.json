@@ -74,6 +74,17 @@
       "namePlaceholder": "Nabywca / nazwa firmy na fakturze",
       "hint": "Wystawimy fakturę VAT na ten NIP i wyślemy ją e-mailem wraz z zamówieniem."
     },
+    "cod": {
+      "toggle": "Płatność przy odbiorze (za pobraniem)",
+      "hint": "Zapłacisz kurierowi przy dostawie — bez płatności online.",
+      "onlineHint": "Sposób płatności (BLIK, Przelewy24 lub karta) wybierzesz w następnym kroku."
+    },
+    "inpost": {
+      "heading": "Wybierz Paczkomat",
+      "prompt": "Wskaż Paczkomat na mapie poniżej.",
+      "selected": "Wybrany Paczkomat: {point}",
+      "notConfigured": "Wybór Paczkomatu jest chwilowo niedostępny — wybierz inny sposób dostawy."
+    },
     "summary": {
       "heading": "Podsumowanie zamówienia",
       "subtotal": "Suma częściowa",
@@ -257,6 +268,10 @@
   "payment": {
     "completePrompt": "Dokończ płatność, aby potwierdzić zamówienie.",
     "walletError": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
+    "cod": {
+      "title": "Płatność przy odbiorze",
+      "message": "Nie musisz płacić online — zapłać kurierowi przy dostawie zamówienia."
+    },
     "methods": {
       "stripe": "Zapłać kartą",
       "payu": "Zapłać przez PayU",

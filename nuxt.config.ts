@@ -52,6 +52,14 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/css/main.css'],
 
+  // The InPost Geowidget is a custom element (web component) — tell the Vue
+  // compiler not to resolve `<inpost-geowidget>` as a Vue component.
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag: string) => tag === 'inpost-geowidget',
+    },
+  },
+
   // nuxt-site-config (consumed by every Nuxt SEO module). `url` + `name` are
   // REQUIRED (site-config v4 removed implicit inference) — without `url` no
   // absolute canonical/hreflang/sitemap/og URLs can be generated. Both are
@@ -87,6 +95,10 @@ export default defineNuxtConfig({
       adsId: '', // Google Ads conversion id, e.g. 'AW-XXXXXXXXX'
       adsPurchaseLabel: '', // the Ads purchase conversion-action label
       merchantId: '', // Merchant Center account id (cart-data on the conversion)
+      // InPost Geowidget token (PUBLIC — the parcel-locker map widget is
+      // client-side). Empty = the picker shows a "not configured" notice and
+      // locker methods can't be completed. Env override: NUXT_PUBLIC_INPOST_GEOWIDGET_TOKEN.
+      inpostGeowidgetToken: '',
     },
   },
 
