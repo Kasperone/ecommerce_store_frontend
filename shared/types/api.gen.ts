@@ -7180,6 +7180,14 @@ export interface components {
             guest_email?: string | null;
             /** Locale */
             locale?: ("en" | "pl") | null;
+            /** Invoice Nip */
+            invoice_nip?: string | null;
+            /** Invoice Name */
+            invoice_name?: string | null;
+            /** Inpost Point Id */
+            inpost_point_id?: string | null;
+            /** Inpost Point Name */
+            inpost_point_name?: string | null;
         };
         /**
          * OrderItemCreate
@@ -7340,6 +7348,10 @@ export interface components {
             total: number;
             /** Currency */
             currency: string;
+            /** Invoice Nip */
+            invoice_nip?: string | null;
+            /** Invoice Name */
+            invoice_name?: string | null;
             /** Payment Method */
             payment_method: string | null;
             /** Payment Intent Id */
@@ -7348,6 +7360,10 @@ export interface components {
             shipping_method_id?: number | null;
             /** Shipping Method Name */
             shipping_method_name?: string | null;
+            /** Inpost Point Id */
+            inpost_point_id?: string | null;
+            /** Inpost Point Name */
+            inpost_point_name?: string | null;
             /** Shipping Carrier */
             shipping_carrier?: string | null;
             /** Tracking Number */
@@ -7446,6 +7462,10 @@ export interface components {
             total: number;
             /** Currency */
             currency: string;
+            /** Invoice Nip */
+            invoice_nip?: string | null;
+            /** Invoice Name */
+            invoice_name?: string | null;
             /** Payment Method */
             payment_method: string | null;
             /** Payment Intent Id */
@@ -7454,6 +7474,10 @@ export interface components {
             shipping_method_id?: number | null;
             /** Shipping Method Name */
             shipping_method_name?: string | null;
+            /** Inpost Point Id */
+            inpost_point_id?: string | null;
+            /** Inpost Point Name */
+            inpost_point_name?: string | null;
             /** Shipping Carrier */
             shipping_carrier?: string | null;
             /** Tracking Number */
@@ -7945,6 +7969,11 @@ export interface components {
             /** Price Eur */
             price_eur?: number | null;
             /**
+             * Vat Rate
+             * @default 23
+             */
+            vat_rate: number;
+            /**
              * Stock
              * @default 0
              */
@@ -8284,6 +8313,11 @@ export interface components {
             /** Price Eur */
             price_eur?: number | null;
             /**
+             * Vat Rate
+             * @default 23
+             */
+            vat_rate: number;
+            /**
              * Stock
              * @default 0
              */
@@ -8444,6 +8478,8 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
+            /** Vat Rate */
+            vat_rate?: number | null;
             /** Low Stock Threshold */
             low_stock_threshold?: number | null;
             /** Allow Backorder */
@@ -8676,6 +8712,11 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
+            /**
+             * Vat Rate
+             * @default 23
+             */
+            vat_rate: number;
             /**
              * Stock
              * @default 0

@@ -1095,6 +1095,8 @@
         "priceUsd": "USD",
         "pricePln": "PLN",
         "priceEur": "EUR",
+        "vatRate": "VAT rate (%)",
+        "vatRateHelp": "Polish VAT: 23 standard, 8 / 5 / 0 for reduced-rate goods.",
         "stock": "Stock",
         "weightKg": "Weight (kg)",
         "lengthCm": "Length (cm)",

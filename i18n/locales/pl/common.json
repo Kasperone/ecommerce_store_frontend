@@ -1099,6 +1099,8 @@
         "priceUsd": "USD",
         "pricePln": "PLN",
         "priceEur": "EUR",
+        "vatRate": "Stawka VAT (%)",
+        "vatRateHelp": "Polski VAT: 23 podstawowa, 8 / 5 / 0 dla towarów objętych stawką obniżoną.",
         "stock": "Stan",
         "weightKg": "Waga (kg)",
         "lengthCm": "Długość (cm)",

@@ -34,6 +34,7 @@ export interface ProductFormPayload {
   price_usd: number | null
   price_pln: number | null
   price_eur: number | null
+  vat_rate: number
   stock: number
   weight_kg: number | null
   // Physical dimensions in cm; nullable so legacy products and admins
@@ -90,6 +91,7 @@ interface FormState {
   price_usd: number | undefined
   price_pln: number | undefined
   price_eur: number | undefined
+  vat_rate: number
   stock: number
   weight_kg: number | undefined
   length_cm: number | undefined
@@ -120,6 +122,7 @@ const state = reactive<FormState>({
   price_usd: undefined,
   price_pln: undefined,
   price_eur: undefined,
+  vat_rate: 23,
   stock: 0,
   weight_kg: undefined,
   length_cm: undefined,
@@ -185,6 +188,7 @@ watch(
       state.price_usd = product.price_usd ?? undefined
       state.price_pln = product.price_pln ?? undefined
       state.price_eur = product.price_eur ?? undefined
+      state.vat_rate = product.vat_rate ?? 23
       state.stock = product.stock
       state.weight_kg = product.weight_kg ?? undefined
       state.length_cm = product.length_cm ?? undefined
@@ -216,6 +220,7 @@ watch(
       state.price_usd = undefined
       state.price_pln = undefined
       state.price_eur = undefined
+      state.vat_rate = 23
       state.stock = 0
       state.weight_kg = undefined
       state.length_cm = undefined
@@ -304,6 +309,7 @@ function buildPayload(): ProductFormPayload {
     price_usd: state.price_usd ?? null,
     price_pln: state.price_pln ?? null,
     price_eur: state.price_eur ?? null,
+    vat_rate: state.vat_rate,
     stock: state.stock,
     weight_kg: state.weight_kg ?? null,
     length_cm: state.length_cm ?? null,
@@ -692,6 +698,21 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
           />
         </div>
       </div>
+
+      <UFormField
+        :label="t('admin.products.fields.vatRate')"
+        name="vat_rate"
+        :help="t('admin.products.fields.vatRateHelp')"
+      >
+        <UInputNumber
+          v-model="state.vat_rate"
+          :min="0"
+          :max="100"
+          :step="1"
+          :disabled="loading"
+          class="w-full sm:w-48"
+        />
+      </UFormField>
 
       <UFormField
         v-if="mode === 'create'"
