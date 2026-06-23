@@ -250,9 +250,10 @@
     "walletError": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
     "methods": {
       "stripe": "Zapłać kartą",
-      "payu": "Zapłać przez PayU",
+      "payu": "BLIK, Przelewy24 lub karta",
       "walletDivider": "Albo zapłać inaczej"
     },
+    "acceptedLabel": "Akceptujemy",
     "return": {
       "title": "Potwierdzamy Twoją płatność",
       "message": "Dziękujemy! Potwierdzamy Twoją płatność. Status zamówienia zaktualizuje się wkrótce — śledź go w swoich zamówieniach.",

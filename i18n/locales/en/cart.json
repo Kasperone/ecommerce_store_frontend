@@ -250,9 +250,10 @@
     "walletError": "We couldn't start the payment. Please try again.",
     "methods": {
       "stripe": "Pay with card",
-      "payu": "Pay with PayU",
+      "payu": "Pay with BLIK, Przelewy24 or card",
       "walletDivider": "Or pay another way"
     },
+    "acceptedLabel": "We accept",
     "return": {
       "title": "Confirming your payment",
       "message": "Thanks! We're confirming your payment. Your order status will update shortly — track it in your orders.",

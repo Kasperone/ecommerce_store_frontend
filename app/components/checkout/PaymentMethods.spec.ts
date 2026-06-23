@@ -45,18 +45,22 @@ async function flush(wrapper: { vm: { $nextTick: () => Promise<void> } }) {
 }
 
 describe('CheckoutPaymentMethods', () => {
-  it('renders both payment methods', async () => {
+  it('renders both payment methods (PayU advertises BLIK/Przelewy24)', async () => {
     const wrapper = await mountSuspended(PaymentMethods, { props: { orderId: 7, amountMinor: 99800, currency: 'USD', orderNumber: 'ORD-7' } })
     expect(wrapper.text()).toContain('Pay with card')
-    expect(wrapper.text()).toContain('Pay with PayU')
+    // The PayU button names BLIK/Przelewy24 so they aren't buried behind "PayU".
+    expect(wrapper.text()).toContain('BLIK, Przelewy24 or card')
+    // Accepted-method trust marks.
+    expect(wrapper.text()).toContain('Przelewy24')
+    expect(wrapper.text()).toContain('Mastercard')
   })
 
   it('starts Stripe checkout and redirects on the card button', async () => {
     stripeMutate.mockResolvedValue({ checkout_url: 'https://checkout.stripe.com/c/pay/cs_1' })
     const wrapper = await mountSuspended(PaymentMethods, { props: { orderId: 7, amountMinor: 99800, currency: 'USD', orderNumber: 'ORD-7' } })
 
-    // First button is the Stripe (card) method.
-    await wrapper.findAll('button')[0]!.trigger('click')
+    // Buttons: [0] = PayU/BLIK (primary, PL-first), [1] = Stripe (card).
+    await wrapper.findAll('button')[1]!.trigger('click')
     await flush(wrapper)
 
     expect(stripeMutate).toHaveBeenCalledWith({ orderId: 7, guestToken: undefined })
@@ -71,7 +75,7 @@ describe('CheckoutPaymentMethods', () => {
     payuMutate.mockResolvedValue({ redirect_uri: 'https://secure.snd.payu.com/pay/abc' })
     const wrapper = await mountSuspended(PaymentMethods, { props: { orderId: 7, amountMinor: 99800, currency: 'USD', orderNumber: 'ORD-7' } })
 
-    await wrapper.findAll('button')[1]!.trigger('click')
+    await wrapper.findAll('button')[0]!.trigger('click')
     await flush(wrapper)
 
     expect(payuMutate).toHaveBeenCalledWith({ orderId: 7, guestToken: undefined })
@@ -94,20 +98,22 @@ describe('CheckoutPaymentMethods', () => {
       },
     })
 
+    // [0] = PayU/BLIK, [1] = Stripe (card).
     await wrapper.findAll('button')[0]!.trigger('click')
     await flush(wrapper)
-    expect(stripeMutate).toHaveBeenCalledWith({ orderId: 9, guestToken: 'tok-guest-abc' })
+    expect(payuMutate).toHaveBeenCalledWith({ orderId: 9, guestToken: 'tok-guest-abc' })
 
     await wrapper.findAll('button')[1]!.trigger('click')
     await flush(wrapper)
-    expect(payuMutate).toHaveBeenCalledWith({ orderId: 9, guestToken: 'tok-guest-abc' })
+    expect(stripeMutate).toHaveBeenCalledWith({ orderId: 9, guestToken: 'tok-guest-abc' })
   })
 
   it('shows an inline error and does not redirect when a provider fails', async () => {
     stripeMutate.mockRejectedValue({ data: { detail: 'Stripe not configured' } })
     const wrapper = await mountSuspended(PaymentMethods, { props: { orderId: 7, amountMinor: 99800, currency: 'USD', orderNumber: 'ORD-7' } })
 
-    await wrapper.findAll('button')[0]!.trigger('click')
+    // [1] = Stripe (card) button.
+    await wrapper.findAll('button')[1]!.trigger('click')
     await flush(wrapper)
 
     expect(mockNavigate).not.toHaveBeenCalled()
