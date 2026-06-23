@@ -7188,6 +7188,8 @@ export interface components {
             inpost_point_id?: string | null;
             /** Inpost Point Name */
             inpost_point_name?: string | null;
+            /** Payment Method */
+            payment_method?: "cod" | null;
         };
         /**
          * OrderItemCreate
