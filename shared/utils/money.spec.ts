@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { CURRENCIES, defaultCurrencyForLocale, formatMoney, selectPrice } from './money'
+import { CURRENCIES, defaultCurrencyForLocale, formatMoney, formatMoneyCompact, selectPrice } from './money'
+
+// pl-PL uses a non-breaking space (U+00A0) for BOTH the thousands separator and
+// the gap before the `zł` symbol — NOT an ASCII space. Asserting with a normal
+// space silently fails, so the escape is spelled out here for every assertion.
+const NBSP = ' '
 
 type Prices = { price_usd: number | null, price_pln: number | null, price_eur: number | null }
 function priced(overrides: Partial<Prices> = {}) {
@@ -31,19 +36,71 @@ describe('selectPrice', () => {
 })
 
 describe('formatMoney', () => {
-  it('formats with the currency symbol/code for the given locale', () => {
+  it('formats Polish PLN as "1234,50 zł" with a comma decimal + nbsp before zł', () => {
+    const pln = formatMoney(1234.5, 'PLN', 'pl')
+    expect(pln).toBe(`1234,50${NBSP}zł`)
+    expect(pln).toContain(',') // comma decimal separator
+    expect(pln).toContain('zł')
+  })
+
+  it('uses a non-breaking space before zł, never an ASCII space', () => {
+    const pln = formatMoney(1234.5, 'PLN', 'pl')
+    // The classic snapshot trap: the same glyphs with an ASCII space must NOT match.
+    expect(pln).not.toContain('1234,50 zł')
+    expect(pln).toContain(`50${NBSP}zł`)
+    // The byte before "zł" is U+00A0, not U+0020.
+    expect(pln.charCodeAt(pln.indexOf('zł') - 1)).toBe(0x00A0)
+  })
+
+  it('groups thousands with a non-breaking space, but not 4-digit integers (minimumGroupingDigits=2)', () => {
+    // 5+ integer digits group; 4 digits do not — correct Polish typography.
+    expect(formatMoney(12345.67, 'PLN', 'pl')).toBe(`12${NBSP}345,67${NBSP}zł`)
+    expect(formatMoney(1234.5, 'PLN', 'pl')).toBe(`1234,50${NBSP}zł`)
+  })
+
+  it('prefers the local symbol over the ISO code for an English visitor (D1 narrowSymbol)', () => {
+    // The whole point of D1: en + PLN shows "zł", not "PLN".
+    const pln = formatMoney(1234.5, 'PLN', 'en')
+    expect(pln).toBe(`zł${NBSP}1,234.50`)
+    expect(pln).not.toContain('PLN')
+  })
+
+  it('renders the $ symbol (not "USD") even in the Polish locale (D1 narrowSymbol)', () => {
+    const usd = formatMoney(1234.5, 'USD', 'pl')
+    expect(usd).toContain('$')
+    expect(usd).not.toContain('USD')
+  })
+
+  it('formats the other currency/locale pairs', () => {
     expect(formatMoney(10, 'USD', 'en')).toContain('$')
     expect(formatMoney(10, 'USD', 'en')).toContain('10')
-
-    const pln = formatMoney(79.99, 'PLN', 'pl')
-    expect(pln).toContain('79')
-    expect(pln).toContain('zł')
-
     expect(formatMoney(9, 'EUR', 'en')).toContain('€')
+    expect(formatMoney(1234.5, 'EUR', 'pl')).toBe(`1234,50${NBSP}€`)
   })
 
   it('defaults to the en locale', () => {
     expect(formatMoney(5, 'USD')).toBe(formatMoney(5, 'USD', 'en'))
+  })
+
+  it('is stable across repeated calls (cached formatter returns identical output)', () => {
+    expect(formatMoney(1234.5, 'PLN', 'pl')).toBe(formatMoney(1234.5, 'PLN', 'pl'))
+  })
+})
+
+describe('formatMoneyCompact', () => {
+  it('abbreviates large amounts with the currency symbol (en → "$1.2K")', () => {
+    const compact = formatMoneyCompact(1234.5, 'USD', 'en')
+    expect(compact).toContain('$')
+    expect(compact).toContain('K')
+    // Compact is genuinely shorter than the full form for large values.
+    expect(compact.length).toBeLessThan(formatMoney(1234567, 'USD', 'en').length)
+  })
+
+  it('abbreviates in Polish ("1,5 tys. zł") keeping the local symbol', () => {
+    const compact = formatMoneyCompact(1500, 'PLN', 'pl')
+    expect(compact).toContain('tys')
+    expect(compact).toContain('zł')
+    expect(compact).toContain(',') // comma decimal even when compacted
   })
 })
 

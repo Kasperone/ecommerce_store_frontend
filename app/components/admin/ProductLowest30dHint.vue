@@ -16,6 +16,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useProductLowest30d } from '#imports'
+import { formatMoney } from '#shared/utils/money'
 
 const props = defineProps<{
   productId?: number
@@ -36,11 +37,7 @@ const formatted = computed(() => {
   if (!data.value || data.value.lowest_price == null || data.value.since == null) {
     return null
   }
-  // Match the admin form's existing Intl.NumberFormat usage for currency.
-  const price = new Intl.NumberFormat(locale.value, {
-    style: 'currency',
-    currency: props.currency,
-  }).format(data.value.lowest_price)
+  const price = formatMoney(data.value.lowest_price, props.currency, locale.value)
   const date = new Date(data.value.since).toLocaleDateString(locale.value)
   return { price, date }
 })

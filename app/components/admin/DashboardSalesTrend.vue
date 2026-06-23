@@ -20,7 +20,7 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { BarChart, CurveType, LineChart } from 'vue-chrts'
-import { formatMoney } from '#shared/utils/money'
+import { formatMoney, formatMoneyCompact } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import type { SalesTrendPoint } from '#shared/types/api'
 
@@ -117,17 +117,13 @@ function fmtMoney(amount: number, currency: CurrencyCode): string {
 // a plain compact number when several currencies share it.
 function yFormatter(tick: number): string {
   if (isMulti.value) {
+    // No single currency owns the axis → a bare compact number (not money).
     return new Intl.NumberFormat(locale.value, {
       notation: 'compact',
       maximumFractionDigits: 1,
     }).format(tick)
   }
-  return new Intl.NumberFormat(locale.value, {
-    style: 'currency',
-    currency: singleCurrency.value,
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(tick)
+  return formatMoneyCompact(tick, singleCurrency.value, locale.value)
 }
 
 const chartData = computed<ChartRow[]>(() =>

@@ -30,6 +30,8 @@ import type {
   RefundResponse,
 } from '#shared/types/api'
 import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
+import { formatMoney } from '#shared/utils/money'
+import type { CurrencyCode } from '#shared/utils/money'
 
 const props = defineProps<{
   order: OrderWithUser
@@ -201,15 +203,8 @@ function onAmountInput() {
 // Derived UI bits
 // ---------------------------------------------------------------------------
 
-const moneyFmt = computed(
-  () => new Intl.NumberFormat(locale.value, {
-    style: 'currency',
-    currency: props.order.currency,
-  }),
-)
-
 function money(n: number): string {
-  return moneyFmt.value.format(n)
+  return formatMoney(n, props.order.currency as CurrencyCode, locale.value)
 }
 
 const runningTotalCopy = computed(() =>

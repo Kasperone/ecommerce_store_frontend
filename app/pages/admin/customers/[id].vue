@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
+import { formatMoney as formatMoneyIntl } from '#shared/utils/money'
+import type { CurrencyCode } from '#shared/utils/money'
 
 definePageMeta({
   middleware: ['admin'],
@@ -34,7 +36,7 @@ const busy = computed(() =>
 const hasCompany = computed(() => !!customer.value?.company_name)
 
 function formatMoney(amount: number, currency: string) {
-  return new Intl.NumberFormat('en', { style: 'currency', currency }).format(amount)
+  return formatMoneyIntl(amount, currency as CurrencyCode, 'en')
 }
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' })
 function formatDate(iso: string | null | undefined) {
