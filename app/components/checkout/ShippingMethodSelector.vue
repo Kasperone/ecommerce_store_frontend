@@ -48,6 +48,11 @@ const emit = defineEmits<{
    * without re-running the quote.
    */
   'update:methodAmount': [amount: number]
+  /**
+   * The chosen method's ``code`` (or null). Lets the checkout show the InPost
+   * Geowidget point-picker when an InPost-locker method (``inpost_*``) is picked.
+   */
+  'update:methodCode': [code: string | null]
 }>()
 
 const { t, locale } = useI18n()
@@ -71,6 +76,7 @@ watch(selectedId, (next) => {
   emit('update:modelValue', next)
   const picked = methods.value.find(m => m.id === next)
   emit('update:methodAmount', picked ? picked.amount : 0)
+  emit('update:methodCode', picked?.code ?? null)
 })
 
 // When the methods list itself changes (re-quoted on country/currency switch)
@@ -79,6 +85,7 @@ watch(selectedId, (next) => {
 watch(methods, (list) => {
   const picked = list.find(m => m.id === selectedId.value)
   emit('update:methodAmount', picked ? picked.amount : 0)
+  emit('update:methodCode', picked?.code ?? null)
 })
 
 // Reset the selection when the available methods change (country/currency

@@ -64,6 +64,12 @@ const error = ref<unknown>(null)
 // payload. Starts empty — a picked saved address sets it (watch below).
 const selectedCountry = ref<string>('')
 const selectedMethodId = ref<number | null>(null)
+// The chosen method's code (from the selector) — drives the InPost picker.
+const selectedMethodCode = ref<string | null>(null)
+const isInpostLocker = computed(() => (selectedMethodCode.value ?? '').toLowerCase().startsWith('inpost'))
+const inpostPoint = ref<{ id: string, name: string } | null>(null)
+// An InPost-locker method requires a picked Paczkomat (mirrors the backend 422).
+const inpostBlocksSubmit = computed(() => isInpostLocker.value && inpostPoint.value === null)
 
 // B2C faktura request ("Chcę fakturę / na firmę"): a consumer buying for their
 // business supplies a company name + NIP printed on the invoice. The NIP is
@@ -77,6 +83,12 @@ const nipInvalid = computed(
 const invoiceBlocksSubmit = computed(
   () => wantsInvoice.value && (nipInvalid.value || invoiceNip.value.trim().length === 0),
 )
+
+// Payment choice made at checkout: 'online' (pay on the success page via
+// PayU/Stripe) or 'cod' (cash on delivery / pobranie — no online capture, the
+// order stays PENDING and is paid to the courier). Only 'cod' rides the
+// create payload; online methods are picked after create on the success page.
+const payOnDelivery = ref(false)
 
 // Prefill source: a chosen saved address populates the form; otherwise the
 // fields start empty. The saved-address picker is the prefill mechanism now —
@@ -202,6 +214,8 @@ async function placeOrder(shipping: ShippingInput) {
   if (selectedMethodId.value == null) return
   // A faktura request must carry a valid NIP (the button is also disabled).
   if (invoiceBlocksSubmit.value) return
+  // An InPost-locker method must have a picked Paczkomat.
+  if (inpostBlocksSubmit.value) return
   error.value = null
   try {
     const order = await createOrder.mutateAsync({
@@ -212,6 +226,17 @@ async function placeOrder(shipping: ShippingInput) {
       shipping_method_id: selectedMethodId.value,
       notes: shipping.notes?.trim() || undefined,
       currency: currency.value,
+      // Cash-on-delivery is the only payment method chosen at create; online
+      // methods are picked after create on the success page.
+      ...(payOnDelivery.value ? { payment_method: 'cod' as const } : {}),
+      // InPost locker: send the picked Paczkomat point (the backend 422s a
+      // locker method without one).
+      ...(isInpostLocker.value && inpostPoint.value
+        ? {
+            inpost_point_id: inpostPoint.value.id,
+            inpost_point_name: inpostPoint.value.name,
+          }
+        : {}),
       // B2C faktura: send the NIP + (optional) buyer name when requested.
       ...(wantsInvoice.value && invoiceNip.value.trim()
         ? {
@@ -302,7 +327,7 @@ async function placeOrder(shipping: ShippingInput) {
               :initial="initialShipping"
               :loading="createOrder.isLoading.value"
               :error="error"
-              :submit-disabled="selectedMethodId === null || invoiceBlocksSubmit"
+              :submit-disabled="selectedMethodId === null || invoiceBlocksSubmit || inpostBlocksSubmit"
               :guest="isGuest"
               @submit="placeOrder"
               @update:country="selectedCountry = $event"
@@ -315,7 +340,13 @@ async function placeOrder(shipping: ShippingInput) {
               :weight-kg="cartWeightKg"
               :cart-volume-cm3="cartVolumeCm3"
               @update:method-amount="shippingAmount = $event"
+              @update:method-code="(c) => { selectedMethodCode = c; inpostPoint = null }"
             />
+
+            <!-- InPost Paczkomat picker — only for an InPost-locker method. -->
+            <ClientOnly v-if="isInpostLocker">
+              <CheckoutInpostPointPicker @select="inpostPoint = $event" />
+            </ClientOnly>
 
             <!-- B2C faktura request (na firmę). Optional; when checked, a valid
                  NIP is required (button stays disabled until it validates). -->
@@ -350,6 +381,18 @@ async function placeOrder(shipping: ShippingInput) {
                   {{ t('checkout.faktura.hint') }}
                 </p>
               </div>
+            </div>
+
+            <!-- Payment choice: online (default, paid on the success page) vs
+                 cash-on-delivery / pobranie. -->
+            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+              <UCheckbox
+                v-model="payOnDelivery"
+                :label="t('checkout.cod.toggle')"
+              />
+              <p class="mt-1 text-xs text-muted">
+                {{ payOnDelivery ? t('checkout.cod.hint') : t('checkout.cod.onlineHint') }}
+              </p>
             </div>
           </section>
 
