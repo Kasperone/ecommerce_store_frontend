@@ -123,13 +123,14 @@ describe('CheckoutShippingMethodSelector', () => {
     expect(amounts!.at(-1)).toEqual([19.99])
   })
 
-  it('shows the "Free over X" hint when a method has a free-above threshold', async () => {
+  it('shows the remaining-to-free-shipping nudge when below the threshold', async () => {
     methodsRef.value = sampleMethods
     const wrapper = await mountSuspended(ShippingMethodSelector, {
       props: { ...defaultProps },
     })
-    // Polish locale would say "Bezpłatnie od 200,00 zł"; EN test asserts on the EN word.
-    expect(wrapper.text()).toMatch(/Free over/)
+    // PL conversion nudge: how much MORE for free shipping (not the bare
+    // threshold). PL locale says "Do darmowej dostawy brakuje …"; EN asserted here.
+    expect(wrapper.text()).toMatch(/more for free shipping/)
   })
 
   it('shows the "Free" label when a method resolved to zero', async () => {
