@@ -65,6 +65,15 @@
       "savedHint": "Pick a saved address to prefill the form, or enter a new one.",
       "enterNew": "Enter a new address"
     },
+    "faktura": {
+      "toggle": "I'd like a VAT invoice (faktura)",
+      "nipLabel": "NIP (tax ID)",
+      "nipPlaceholder": "e.g. 123-456-32-18",
+      "nipInvalid": "Enter a valid 10-digit NIP.",
+      "nameLabel": "Company name (optional)",
+      "namePlaceholder": "Buyer / company name for the invoice",
+      "hint": "We'll issue a VAT invoice to this NIP and email it with your order."
+    },
     "summary": {
       "heading": "Order summary",
       "subtotal": "Subtotal",
