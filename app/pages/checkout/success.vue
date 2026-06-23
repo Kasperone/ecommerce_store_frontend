@@ -72,8 +72,20 @@ const total = computed(() =>
           </div>
         </div>
 
+        <!-- Cash-on-delivery: nothing to pay online — confirm pobranie. -->
         <div
-          v-if="order"
+          v-if="order && order.payment_method === 'cod'"
+          class="mx-auto mt-6 max-w-sm rounded-lg border border-gray-200 p-4 text-sm dark:border-gray-800"
+        >
+          <p class="font-medium">
+            {{ t('payment.cod.title') }}
+          </p>
+          <p class="mt-1 text-muted">
+            {{ t('payment.cod.message') }}
+          </p>
+        </div>
+        <div
+          v-else-if="order"
           class="mx-auto mt-6 max-w-sm"
         >
           <p class="mb-2 text-sm text-muted">

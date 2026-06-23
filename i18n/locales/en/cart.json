@@ -74,6 +74,17 @@
       "namePlaceholder": "Buyer / company name for the invoice",
       "hint": "We'll issue a VAT invoice to this NIP and email it with your order."
     },
+    "cod": {
+      "toggle": "Pay on delivery (cash on delivery)",
+      "hint": "You'll pay the courier when your order arrives — no online payment needed.",
+      "onlineHint": "You'll choose how to pay (BLIK, Przelewy24 or card) on the next step."
+    },
+    "inpost": {
+      "heading": "Choose a parcel locker",
+      "prompt": "Pick a Paczkomat on the map below.",
+      "selected": "Selected locker: {point}",
+      "notConfigured": "Parcel-locker selection is temporarily unavailable — please choose another shipping method."
+    },
     "summary": {
       "heading": "Order summary",
       "subtotal": "Subtotal",
@@ -257,6 +268,10 @@
   "payment": {
     "completePrompt": "Complete your payment to confirm your order.",
     "walletError": "We couldn't start the payment. Please try again.",
+    "cod": {
+      "title": "Pay on delivery",
+      "message": "No online payment needed — pay the courier when your order arrives."
+    },
     "methods": {
       "stripe": "Pay with card",
       "payu": "Pay with PayU",
