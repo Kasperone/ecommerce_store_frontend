@@ -2,6 +2,8 @@
 import { z } from 'zod'
 import type { TableColumn } from '@nuxt/ui'
 import type { ProductWithCategory } from '#shared/types/api'
+import { formatMoney } from '#shared/utils/money'
+import type { CurrencyCode } from '#shared/utils/money'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProductFilterValues, TriState } from '~/components/admin/ProductFilters.vue'
@@ -142,10 +144,10 @@ async function onDelete(id: number) {
 }
 
 // The admin table shows all three currencies side-by-side regardless of the
-// active locale, so format each with its own fixed currency via Intl.
-const usdFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'USD' })
-const plnFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'PLN' })
-const eurFmt = new Intl.NumberFormat('en', { style: 'currency', currency: 'EUR' })
+// active locale, so format each with its own fixed currency (en grouping).
+function fmtPrice(amount: number | null | undefined, currency: CurrencyCode) {
+  return formatMoney(amount ?? 0, currency, 'en')
+}
 
 function primaryThumbnail(product: ProductWithCategory) {
   if (!product.images || product.images.length === 0) return null
@@ -307,13 +309,13 @@ const columns: TableColumn<ProductWithCategory>[] = [
           {{ row.original.category?.name ?? '-' }}
         </template>
         <template #price_usd-cell="{ row }">
-          {{ usdFmt.format(row.original.price_usd) }}
+          {{ fmtPrice(row.original.price_usd, 'USD') }}
         </template>
         <template #price_pln-cell="{ row }">
-          {{ plnFmt.format(row.original.price_pln) }}
+          {{ fmtPrice(row.original.price_pln, 'PLN') }}
         </template>
         <template #price_eur-cell="{ row }">
-          {{ eurFmt.format(row.original.price_eur) }}
+          {{ fmtPrice(row.original.price_eur, 'EUR') }}
         </template>
         <template #is_active-cell="{ row }">
           <div class="flex flex-wrap gap-1">

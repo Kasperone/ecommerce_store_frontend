@@ -13,6 +13,8 @@
  */
 import { useI18n } from 'vue-i18n'
 import type { RefundResponse } from '#shared/types/api'
+import { formatMoney } from '#shared/utils/money'
+import type { CurrencyCode } from '#shared/utils/money'
 
 defineProps<{
   refunds: RefundResponse[]
@@ -26,7 +28,7 @@ const dateFmt = computed(
 )
 
 function money(amount: number, currency: string): string {
-  return new Intl.NumberFormat(locale.value, { style: 'currency', currency }).format(amount)
+  return formatMoney(amount, currency as CurrencyCode, locale.value)
 }
 
 function reasonLabel(reason: string): string {

@@ -63,11 +63,52 @@ export function selectPrice(product: PricedProduct, currency: CurrencyCode): Sel
 }
 
 /**
+ * How the currency unit is rendered. `'narrowSymbol'` prefers the compact
+ * local symbol (`zł` / `$` / `€`) over the ISO code in every locale — so an
+ * English visitor viewing PLN sees `zł 1,234.50` rather than `PLN 1,234.50`.
+ * For a mainly-Polish storefront the local symbol reads more like a price.
+ * Change this one constant to flip the whole store's symbol style.
+ */
+const CURRENCY_DISPLAY: Intl.NumberFormatOptions['currencyDisplay'] = 'narrowSymbol'
+
+/**
+ * Cache one `Intl.NumberFormat` per (locale, currency, compact) tuple.
+ * Constructing the formatter is the expensive part of the Intl API; a PLP or
+ * cart paints dozens of prices that all share a handful of formatters, so
+ * building a fresh instance on every `formatMoney` call is wasted work.
+ */
+const fmtCache = new Map<string, Intl.NumberFormat>()
+function fmt(locale: string, currency: CurrencyCode, compact: boolean): Intl.NumberFormat {
+  const key = `${locale}|${currency}|${compact}`
+  let f = fmtCache.get(key)
+  if (!f) {
+    f = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      currencyDisplay: CURRENCY_DISPLAY,
+      ...(compact ? { notation: 'compact', maximumFractionDigits: 1 } : {}),
+    })
+    fmtCache.set(key, f)
+  }
+  return f
+}
+
+/**
  * Format an amount as currency. `locale` drives grouping/decimal separators
- * (e.g. `pl` → "79,99 zł", `en` → "PLN 79.99").
+ * (e.g. `pl` → "79,99 zł", `en` → "zł 79.99" — see {@link CURRENCY_DISPLAY}).
  */
 export function formatMoney(amount: number, currency: CurrencyCode, locale = 'en'): string {
-  return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount)
+  return fmt(locale, currency, false).format(amount)
+}
+
+/**
+ * Compact currency for tight spaces like chart axis ticks (e.g. `1,2 tys. zł`
+ * for `pl`, `$1.2K` for `en`). Full-precision values belong in tooltips and
+ * table cells; this is display-only shorthand. Same symbol style as
+ * {@link formatMoney}.
+ */
+export function formatMoneyCompact(amount: number, currency: CurrencyCode, locale = 'en'): string {
+  return fmt(locale, currency, true).format(amount)
 }
 
 /** First-visit currency default derived from the UI locale: pl → PLN, else USD. */

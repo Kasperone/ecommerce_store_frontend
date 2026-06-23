@@ -2,6 +2,8 @@
 import { z } from 'zod'
 import type { TableColumn } from '@nuxt/ui'
 import type { OrderListItem, OrderStatus } from '#shared/types/api'
+import { formatMoney as formatMoneyIntl } from '#shared/utils/money'
+import type { CurrencyCode } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
 import { ORDER_STATUSES, statusColor } from '#shared/utils/orderStatus'
 
@@ -69,7 +71,7 @@ function onDateChange(field: 'dateFrom' | 'dateTo', value: string) {
 }
 
 function formatMoney(amount: number, currency: string) {
-  return new Intl.NumberFormat('en', { style: 'currency', currency }).format(amount)
+  return formatMoneyIntl(amount, currency as CurrencyCode, 'en')
 }
 
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' })

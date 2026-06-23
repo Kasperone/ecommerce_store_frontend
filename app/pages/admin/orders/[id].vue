@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { OrderStatus, OrderUpdate, RefundCreate } from '#shared/types/api'
+import { formatMoney as formatMoneyIntl } from '#shared/utils/money'
+import type { CurrencyCode } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import { isCancellable, isRefundable, nextStatuses, statusColor } from '#shared/utils/orderStatus'
@@ -97,7 +99,7 @@ const statusOptions = computed(() => {
 const canCancel = computed(() => order.value != null && isCancellable(order.value.status))
 
 function formatMoney(amount: number, currency: string) {
-  return new Intl.NumberFormat('en', { style: 'currency', currency }).format(amount)
+  return formatMoneyIntl(amount, currency as CurrencyCode, 'en')
 }
 
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' })

@@ -15,7 +15,7 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { BarChart } from 'vue-chrts'
-import { formatMoney } from '#shared/utils/money'
+import { formatMoney, formatMoneyCompact } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
 import type { SalesBucket } from '~/composables/queries/useReportQueries'
 
@@ -82,12 +82,7 @@ function fmtMoney(amount: number): string {
 
 // Compact axis money (e.g. "$1.2K") — full values live in the tooltip.
 function fmtAxisMoney(amount: number): string {
-  return new Intl.NumberFormat(locale.value, {
-    style: 'currency',
-    currency: activeCurrency.value,
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(amount)
+  return formatMoneyCompact(amount, activeCurrency.value, locale.value)
 }
 
 const chartData = computed<ChartRow[]>(() =>
