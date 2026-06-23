@@ -65,6 +65,15 @@
       "savedHint": "Wybierz zapisany adres, aby wypełnić formularz, lub wpisz nowy.",
       "enterNew": "Wpisz nowy adres"
     },
+    "faktura": {
+      "toggle": "Chcę otrzymać fakturę VAT",
+      "nipLabel": "NIP",
+      "nipPlaceholder": "np. 123-456-32-18",
+      "nipInvalid": "Podaj prawidłowy 10-cyfrowy NIP.",
+      "nameLabel": "Nazwa firmy (opcjonalnie)",
+      "namePlaceholder": "Nabywca / nazwa firmy na fakturze",
+      "hint": "Wystawimy fakturę VAT na ten NIP i wyślemy ją e-mailem wraz z zamówieniem."
+    },
     "summary": {
       "heading": "Podsumowanie zamówienia",
       "subtotal": "Suma częściowa",

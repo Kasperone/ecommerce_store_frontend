@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { localizedCartVariantTitle } from '#shared/utils/localizedProduct'
 import { formatMoney, selectPrice } from '#shared/utils/money'
+import { isValidNip } from '#shared/utils/nip'
 import type { ShippingInput } from '#shared/validators/checkout'
 import type { OrderResponse } from '#shared/types/api'
 import type { AppliedCoupon } from '~/components/checkout/CouponField.vue'
@@ -63,6 +64,19 @@ const error = ref<unknown>(null)
 // payload. Starts empty — a picked saved address sets it (watch below).
 const selectedCountry = ref<string>('')
 const selectedMethodId = ref<number | null>(null)
+
+// B2C faktura request ("Chcę fakturę / na firmę"): a consumer buying for their
+// business supplies a company name + NIP printed on the invoice. The NIP is
+// checksum-validated client-side (the backend re-validates + 422s).
+const wantsInvoice = ref(false)
+const invoiceNip = ref('')
+const invoiceName = ref('')
+const nipInvalid = computed(
+  () => wantsInvoice.value && invoiceNip.value.trim().length > 0 && !isValidNip(invoiceNip.value),
+)
+const invoiceBlocksSubmit = computed(
+  () => wantsInvoice.value && (nipInvalid.value || invoiceNip.value.trim().length === 0),
+)
 
 // Prefill source: a chosen saved address populates the form; otherwise the
 // fields start empty. The saved-address picker is the prefill mechanism now —
@@ -186,6 +200,8 @@ async function placeOrder(shipping: ShippingInput) {
   if (authStore.isImpersonating) return
   // Belt-and-braces: the form button is also disabled when this is null.
   if (selectedMethodId.value == null) return
+  // A faktura request must carry a valid NIP (the button is also disabled).
+  if (invoiceBlocksSubmit.value) return
   error.value = null
   try {
     const order = await createOrder.mutateAsync({
@@ -196,6 +212,13 @@ async function placeOrder(shipping: ShippingInput) {
       shipping_method_id: selectedMethodId.value,
       notes: shipping.notes?.trim() || undefined,
       currency: currency.value,
+      // B2C faktura: send the NIP + (optional) buyer name when requested.
+      ...(wantsInvoice.value && invoiceNip.value.trim()
+        ? {
+            invoice_nip: invoiceNip.value.trim(),
+            invoice_name: invoiceName.value.trim() || undefined,
+          }
+        : {}),
       // Manual codes only: an automatic discount is re-picked server-side at
       // order create — sending its code would turn it into a manual code (and
       // 400 the checkout if it expired between preview and create).
@@ -279,7 +302,7 @@ async function placeOrder(shipping: ShippingInput) {
               :initial="initialShipping"
               :loading="createOrder.isLoading.value"
               :error="error"
-              :submit-disabled="selectedMethodId === null"
+              :submit-disabled="selectedMethodId === null || invoiceBlocksSubmit"
               :guest="isGuest"
               @submit="placeOrder"
               @update:country="selectedCountry = $event"
@@ -293,6 +316,41 @@ async function placeOrder(shipping: ShippingInput) {
               :cart-volume-cm3="cartVolumeCm3"
               @update:method-amount="shippingAmount = $event"
             />
+
+            <!-- B2C faktura request (na firmę). Optional; when checked, a valid
+                 NIP is required (button stays disabled until it validates). -->
+            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+              <UCheckbox
+                v-model="wantsInvoice"
+                :label="t('checkout.faktura.toggle')"
+              />
+              <div
+                v-if="wantsInvoice"
+                class="mt-3 space-y-3"
+              >
+                <UFormField
+                  :label="t('checkout.faktura.nipLabel')"
+                  :error="nipInvalid ? t('checkout.faktura.nipInvalid') : undefined"
+                >
+                  <UInput
+                    v-model="invoiceNip"
+                    :placeholder="t('checkout.faktura.nipPlaceholder')"
+                    class="w-full"
+                    inputmode="numeric"
+                  />
+                </UFormField>
+                <UFormField :label="t('checkout.faktura.nameLabel')">
+                  <UInput
+                    v-model="invoiceName"
+                    :placeholder="t('checkout.faktura.namePlaceholder')"
+                    class="w-full"
+                  />
+                </UFormField>
+                <p class="text-xs text-muted">
+                  {{ t('checkout.faktura.hint') }}
+                </p>
+              </div>
+            </div>
           </section>
 
           <aside class="h-fit rounded-lg border border-gray-200 p-4 dark:border-gray-800">
