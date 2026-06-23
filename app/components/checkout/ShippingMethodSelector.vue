@@ -123,7 +123,14 @@ function priceLabel(amount: number, isFree: boolean): string {
 
 function freeAboveHint(amount: number | null | undefined): string | null {
   if (amount == null) return null
-  return t('checkout.shipping.freeAbove', { amount: formatMoney(amount, props.currency, locale.value) })
+  // PL conversion nudge: "Do darmowej dostawy brakuje X" — how much MORE the
+  // cart needs, not the bare threshold. Only rendered for not-yet-free methods
+  // (see the template gate), so the remainder is always positive.
+  const remaining = amount - props.subtotal
+  if (remaining <= 0) return null
+  return t('checkout.shipping.freeAboveRemaining', {
+    amount: formatMoney(remaining, props.currency, locale.value),
+  })
 }
 </script>
 

@@ -58,6 +58,7 @@
       "noMethods": "Nie wysyłamy jeszcze do kraju: {country}.",
       "fetchError": "Nie udało się załadować sposobów dostawy. Spróbuj ponownie.",
       "freeAbove": "Bezpłatnie od {amount}",
+      "freeAboveRemaining": "Do darmowej dostawy brakuje {amount}",
       "free": "Bezpłatnie"
     },
     "address": {

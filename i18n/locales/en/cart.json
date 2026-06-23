@@ -58,6 +58,7 @@
       "noMethods": "We don't ship to {country} yet.",
       "fetchError": "We couldn't load shipping options. Please try again.",
       "freeAbove": "Free over {amount}",
+      "freeAboveRemaining": "Add {amount} more for free shipping",
       "free": "Free"
     },
     "address": {
