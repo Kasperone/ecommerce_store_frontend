@@ -14,7 +14,7 @@ const authStore = useAuthStore()
 const toast = useToast()
 
 useHead({
-  titleTemplate: '%s | Account',
+  title: () => t('account.settings.profile.title'),
 })
 
 interface FormState {

@@ -17,7 +17,7 @@ const router = useRouter()
 const localePath = useLocalePath()
 
 useHead({
-  titleTemplate: '%s | Account',
+  title: () => t('account.settings.privacy.title'),
 })
 
 // Marketing/communications consents moved to the Preferences page (Phase 4) —
