@@ -1614,6 +1614,9 @@
         "codeHint": "Opcjonalny identyfikator przewoźnika — np. inpost_paczkomat, dpd_classic.",
         "codePlaceholder": "standard",
         "description": "Opis",
+        "namePl": "Nazwa (po polsku)",
+        "descriptionPl": "Opis (po polsku)",
+        "localeHint": "Opcjonalne — wyświetlane polskim klientom; przy pustym polu używana jest wartość domyślna.",
         "sortOrder": "Kolejność",
         "active": "Aktywny",
         "fields": {
