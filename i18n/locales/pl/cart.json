@@ -6,32 +6,18 @@
     "emptyCta": "Kontynuuj zakupy",
     "summary": {
       "heading": "Podsumowanie",
-      "subtotal": "Suma częściowa",
-      "shipping": "Wysyłka",
-      "tax": "Podatek",
-      "discount": "Rabat",
-      "total": "Razem"
+      "subtotal": "Suma częściowa"
     },
     "actions": {
       "remove": "Usuń",
       "checkout": "Przejdź do kasy",
       "continueShopping": "Kontynuuj zakupy",
       "viewCart": "Zobacz koszyk",
-      "open": "Otwórz koszyk",
-      "clear": "Wyczyść koszyk",
-      "applyCoupon": "Zastosuj kupon"
+      "open": "Otwórz koszyk"
     },
     "item": {
-      "quantity": "Ilość",
-      "price": "Cena",
-      "total": "Razem",
       "increase": "Zwiększ ilość",
       "decrease": "Zmniejsz ilość"
-    },
-    "messages": {
-      "added": "Dodano do koszyka",
-      "removed": "Usunięto z koszyka",
-      "updated": "Zaktualizowano koszyk"
     },
     "requestQuote": {
       "button": "Poproś o wycenę",
@@ -57,7 +43,6 @@
       "selectCountryFirst": "Wybierz kraj, aby zobaczyć dostępne sposoby dostawy.",
       "noMethods": "Nie wysyłamy jeszcze do kraju: {country}.",
       "fetchError": "Nie udało się załadować sposobów dostawy. Spróbuj ponownie.",
-      "freeAbove": "Bezpłatnie od {amount}",
       "freeAboveRemaining": "Do darmowej dostawy brakuje {amount}",
       "free": "Bezpłatnie"
     },
@@ -106,7 +91,6 @@
       "postalRequired": "Kod pocztowy jest wymagany",
       "postalTooLong": "Kod pocztowy może mieć maksymalnie 20 znaków",
       "countryRequired": "Kraj jest wymagany",
-      "countryTooLong": "Kraj może mieć maksymalnie 100 znaków",
       "countryInvalid": "Wybierz kraj",
       "notesTooLong": "Uwagi mogą mieć maksymalnie 1000 znaków",
       "emailInvalid": "Podaj prawidłowy adres e-mail"
@@ -128,17 +112,14 @@
   },
   "orders": {
     "title": "Moje zamówienia",
-    "accountCard": "Zobacz historię i status zamówień",
     "subtitle": "Twoje zamówienia, od najnowszych",
     "empty": "Nie masz jeszcze żadnych zamówień.",
     "emptyCta": "Zacznij zakupy",
-    "loadError": "Nie udało się załadować zamówień.",
     "back": "Powrót do moich zamówień",
     "viewOrder": "Zobacz zamówienie",
     "fields": {
       "placed": "Złożono",
-      "items": "Produkty",
-      "total": "Razem"
+      "items": "Produkty"
     },
     "detail": {
       "title": "Zamówienie {number}",

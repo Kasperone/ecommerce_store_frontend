@@ -1,36 +1,17 @@
 {
   "details": {
-    "price": "Cena",
     "sku": "SKU",
-    "category": "Kategoria",
-    "brand": "Marka",
-    "availability": "Dostępność",
-    "description": "Opis",
-    "specifications": "Specyfikacja",
-    "reviews": "Opinie"
+    "description": "Opis"
   },
   "actions": {
-    "addToCart": "Dodaj do Koszyka",
-    "buyNow": "Kup Teraz",
-    "addToWishlist": "Dodaj do Ulubionych",
-    "compare": "Porównaj",
-    "share": "Udostępnij"
+    "addToCart": "Dodaj do Koszyka"
   },
   "stock": {
     "inStock": "Dostępny",
     "outOfStock": "Niedostępny",
     "lowStock": "Tylko {count} szt. w magazynie",
-    "preOrder": "Przedsprzedaż",
     "backorder": "Dostępny na zamówienie",
     "addBackorder": "Dodaj do koszyka (na zamówienie)"
-  },
-  "filters": {
-    "sortBy": "Sortuj według",
-    "priceRange": "Zakres Cen",
-    "category": "Kategoria",
-    "brand": "Marka",
-    "rating": "Ocena",
-    "clearAll": "Wyczyść Wszystko"
   },
   "catalog": {
     "title": "Wszystkie produkty",
@@ -124,7 +105,6 @@
     "selectOptions": "Wybierz opcje"
   },
   "currency": {
-    "label": "Waluta",
     "select": "Wybierz walutę"
   },
   "omnibus": {

@@ -9,11 +9,8 @@
   "header": {
     "account": "Account",
     "admin": "Admin",
-    "cart": "Cart",
-    "colorMode": "Toggle color mode",
     "login": "Login",
     "logout": "Logout",
-    "search": "Search products...",
     "signUp": "Sign up",
     "toggleLang": "Switch language",
     "accountSettings": "Account settings"
@@ -74,8 +71,6 @@
       }
     },
     "signedInAs": "Signed in as",
-    "placeholderTitle": "Welcome",
-    "placeholderBody": "Admin features will be added here (products, categories, orders, users).",
     "menu": {
       "exit": "Back to store",
       "groups": {
@@ -112,37 +107,8 @@
       }
     },
     "pages": {
-      "companies": {
-        "title": "Companies (B2B)",
-        "placeholder": "B2B company directory, approvals, account managers will live here. Coming soon."
-      },
-      "quotes": {
-        "title": "Quotes (B2B)",
-        "placeholder": "B2B quote requests, negotiation, conversion to order will live here. Coming soon."
-      },
-      "coupons": {
-        "title": "Coupons",
-        "placeholder": "Discount codes, conditions, and usage caps will live here. Coming soon."
-      },
-      "banners": {
-        "title": "Banners",
-        "placeholder": "Homepage hero and promo-block CMS will live here. Coming soon."
-      },
-      "campaigns": {
-        "title": "Campaigns",
-        "placeholder": "Email campaign segmentation and abandoned-cart recovery will live here. Coming soon."
-      },
-      "reports": {
-        "title": "Reports",
-        "placeholder": "Sales, VAT, inventory, and cohort reports will live here. Coming soon."
-      },
       "settings": {
-        "title": "Settings",
-        "placeholder": "Store info, currencies, tax / VAT, payment methods, email templates will live here. Coming soon."
-      },
-      "staff": {
-        "title": "Staff & Roles",
-        "placeholder": "Admin user list and role management will live here. Coming soon."
+        "title": "Settings"
       }
     },
     "inventory": {
@@ -761,7 +727,6 @@
         "slugHint": "Lowercase letters, numbers, and hyphens",
         "description": "Description",
         "isActive": "Active",
-        "productCount": "Products",
         "googleProductCategory": "Google Product Category"
       },
       "hints": {
@@ -778,9 +743,6 @@
         "googleProductCategory": "e.g. 5613"
       },
       "errors": {
-        "fallback": "Could not save the category.",
-        "duplicateSlug": "A category with this slug already exists.",
-        "hasProducts": "Cannot delete a category with products assigned.",
         "nameRequired": "Name is required",
         "nameTooLong": "Name must be 100 characters or fewer",
         "slugRequired": "Slug is required",
@@ -824,7 +786,6 @@
       "confirm": {
         "deleteTitle": "Delete category",
         "deleteBodyEmpty": "This category will be permanently removed.",
-        "deleteBodyWithProducts": "{count} product is assigned to this category. Reassign it before deleting. | {count} products are assigned to this category. Reassign them before deleting.",
         "helpDirectProducts": "{count} product is attached directly. Reassign it first. | {count} products are attached directly. Reassign them first.",
         "helpProductsAndChildren": "{count} product is attached directly. Remove it before deleting the subtree. | {count} products are attached directly. Remove them before deleting the subtree.",
         "helpSubtreeProducts": "{count} product lives in the subtree. Reassign it before cascading. | {count} products live in the subtree. Reassign them before cascading.",
@@ -1070,7 +1031,6 @@
           "no": "Cancel"
         },
         "staging": {
-          "remove": "Remove from upload",
           "removeAriaLabel": "Remove {filename} from upload",
           "primaryHint": "First image will be the primary product image"
         },
@@ -1106,7 +1066,6 @@
         "isActive": "Active",
         "isFeatured": "Featured",
         "status": "Status",
-        "actions": "",
         "brand": "Brand",
         "gtin": "GTIN",
         "mpn": "MPN",
@@ -1119,7 +1078,6 @@
         "active": "Active",
         "inactive": "Inactive",
         "featured": "Featured",
-        "inStock": "In stock",
         "outOfStock": "Out of stock"
       },
       "filters": {
@@ -1152,9 +1110,6 @@
         "noProducts": "No products yet. Create the first one."
       },
       "errors": {
-        "fallback": "Could not save the product.",
-        "duplicateSlug": "A product with this slug already exists.",
-        "duplicateSku": "A product with this SKU already exists.",
         "nameRequired": "Name is required",
         "nameTooLong": "Name must be 200 characters or fewer",
         "slugRequired": "Slug is required",
@@ -1441,7 +1396,6 @@
         "role": "Role",
         "status": "Status",
         "orders": "Orders",
-        "country": "Country",
         "tags": "Tags"
       },
       "status": {
@@ -1481,8 +1435,6 @@
         "profile": "Profile",
         "phone": "Phone",
         "joined": "Joined",
-        "shipping": "Shipping address",
-        "noShipping": "No shipping address on file.",
         "company": "Company (B2B)",
         "companyName": "Company name",
         "taxId": "Tax ID",
@@ -1746,7 +1698,6 @@
         "title": "Title",
         "subtitle": "Subtitle",
         "imageUrl": "Image URL",
-        "imageUrlHint": "Full URL of the banner image.",
         "linkUrl": "Link URL",
         "linkUrlHint": "Optional. Where the banner links when clicked.",
         "placement": "Placement",
@@ -1762,7 +1713,6 @@
       "errors": {
         "titleRequired": "Title is required.",
         "imageUrlRequired": "Image URL is required.",
-        "placementRequired": "Placement is required.",
         "endsBeforeStarts": "End date must be after the start date."
       },
       "delete": {
@@ -2328,7 +2278,6 @@
     }
   },
   "account": {
-    "dashboard": "My Account",
     "signedInAs": "Signed in as",
     "nav": {
       "title": "My account",
@@ -2358,8 +2307,7 @@
         "heading": "Quotes",
         "open": "{count} open quote | {count} open quotes",
         "awaiting": "{count} awaiting your acceptance",
-        "none": "No open quotes.",
-        "view": "View quotes"
+        "none": "No open quotes."
       },
       "completeness": {
         "title": "Complete your profile",
@@ -2371,7 +2319,6 @@
     "quotes": {
       "title": "Quotes",
       "subtitle": "View and accept the price quotes prepared for your company.",
-      "accountCard": "View and accept your B2B price quotes.",
       "numberPrefix": "QT-",
       "empty": "You don't have any quotes yet.",
       "emptyCta": "Browse products",
@@ -2419,22 +2366,7 @@
         "confirm": "Convert to order"
       }
     },
-    "placeholderTitle": "Welcome",
-    "placeholderBody": "Your account features will appear here (orders, profile, addresses, payment methods).",
-    "preferences": {
-      "title": "Preferences"
-    },
-    "emailLanguage": {
-      "label": "Email language",
-      "hint": "The language we use for order confirmations and other emails.",
-      "en": "English",
-      "pl": "Polish",
-      "saved": "Email language updated.",
-      "error": "Could not update email language."
-    },
     "settings": {
-      "title": "Account settings",
-      "subtitle": "Manage your profile, security, addresses and preferences.",
       "nav": {
         "profile": "Profile",
         "security": "Security",
@@ -2769,11 +2701,8 @@
     }
   },
   "navigation": {
-    "home": "Home",
     "products": "Products",
-    "categories": "Categories",
-    "orders": "My Orders",
-    "wishlist": "Wishlist"
+    "categories": "Categories"
   },
   "search": {
     "placeholder": "Search products…",
@@ -2846,17 +2775,13 @@
         "faq": "FAQ",
         "returns": "Return Policy",
         "shipping": "Shipping & Delivery",
-        "trackOrder": "Track Order",
-        "shippingReturns": "Shipping & Returns"
+        "trackOrder": "Track Order"
       },
       "about": {
         "heading": "About",
         "about": "About Us",
         "careers": "Careers",
         "press": "Press"
-      },
-      "company": {
-        "about": "About Us"
       },
       "account": {
         "heading": "My Account",
@@ -2893,31 +2818,18 @@
     },
     "backToTop": "Back to top",
     "copyright": "© {year} {name}. All rights reserved.",
-    "madeIn": "Made with care in Poland.",
-    "stubPage": {
-      "comingSoon": "This page is coming soon.",
-      "backHome": "Back to home"
-    }
+    "madeIn": "Made with care in Poland."
   },
   "actions": {
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "view": "View",
-    "close": "Close",
-    "submit": "Submit",
     "loading": "Loading...",
-    "confirm": "Confirm",
     "goHome": "Go to Home",
     "dismiss": "Dismiss"
   },
   "messages": {
-    "success": "Success!",
-    "error": "An error occurred",
-    "loading": "Loading...",
-    "noResults": "No results found",
-    "confirmDelete": "Are you sure you want to delete this?",
     "saveErrorTitle": "Could not save changes",
     "saveError": "Could not save changes. Please check the form and try again.",
     "fieldRequired": "This field is required"
@@ -2970,8 +2882,7 @@
       "lastNameRequired": "Last name is required",
       "confirmPasswordRequired": "Confirm password is required",
       "companyNameRequired": "Company name is required",
-      "passwordsDontMatch": "Passwords do not match",
-      "default": "Invalid input"
+      "passwordsDontMatch": "Passwords do not match"
     },
     "passwordStrength": {
       "weak": "Weak",
@@ -3009,9 +2920,7 @@
       "failed": "Verification Failed",
       "expired": "Link Expired",
       "expiredMessage": "This verification link has expired. Please request a new one.",
-      "invalid": "Invalid Link",
       "invalidMessage": "This verification link is invalid or has already been used.",
-      "alreadyVerified": "Email already verified",
       "checkSpam": "Please check your spam folder if you don't see the email."
     },
     "passwordReset": {
@@ -3034,7 +2943,6 @@
     "businessSignup": {
       "title": "Register as a business",
       "subtitle": "Create a business account. Your company will be reviewed before approval.",
-      "submit": "Create business account",
       "success": "Business account created",
       "successDescription": "Check your email to verify your account. Your company will be reviewed by our team."
     }
@@ -3042,12 +2950,6 @@
   "authExtra": {
     "agreeTo": "By continuing, you agree to our",
     "noAccount": "Don't have an account?"
-  },
-  "home": {
-    "banners": {
-      "heroLabel": "Featured promotions",
-      "promoLabel": "Promotions"
-    }
   },
   "wishlist": {
     "title": "Wishlist",
