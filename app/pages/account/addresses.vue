@@ -31,7 +31,7 @@ const { t } = useI18n()
 const toast = useToast()
 
 useHead({
-  titleTemplate: '%s | Account',
+  title: () => t('account.settings.addresses.title'),
 })
 
 const { data: addresses, isLoading } = useAddressesQuery()

@@ -34,7 +34,7 @@ const router = useRouter()
 const { apiFetch } = useApi()
 
 useHead({
-  titleTemplate: '%s | Account',
+  title: () => t('account.settings.security.title'),
 })
 
 // ---- Change password ----
