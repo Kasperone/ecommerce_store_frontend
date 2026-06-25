@@ -28,7 +28,7 @@ const authStore = useAuthStore()
 const localePath = useLocalePath()
 
 useHead({
-  titleTemplate: '%s | Account',
+  title: () => t('account.nav.title'),
 })
 
 // Recent orders — first 3 of the same list the /account/orders page renders.

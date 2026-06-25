@@ -30,7 +30,7 @@ const localePath = useLocalePath()
 const { currency } = useCurrencyPreference()
 
 useHead({
-  titleTemplate: '%s | Account',
+  title: () => t('wishlist.title'),
 })
 
 const { data: items, isLoading } = useWishlistQuery()
