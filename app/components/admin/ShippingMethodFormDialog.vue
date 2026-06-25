@@ -35,6 +35,8 @@ const state = reactive({
   name: '',
   code: '',
   description: '',
+  name_pl: '',
+  description_pl: '',
   sort_order: 0,
   is_active: true,
 })
@@ -44,6 +46,8 @@ const schema = computed(() =>
     name: z.string().trim().min(1, t('messages.fieldRequired')),
     code: z.string(),
     description: z.string(),
+    name_pl: z.string(),
+    description_pl: z.string(),
     sort_order: z.number(),
     is_active: z.boolean(),
   }),
@@ -67,6 +71,8 @@ watch(
       state.name = props.method.name
       state.code = props.method.code ?? ''
       state.description = props.method.description ?? ''
+      state.name_pl = props.method.name_pl ?? ''
+      state.description_pl = props.method.description_pl ?? ''
       state.sort_order = props.method.sort_order
       state.is_active = props.method.is_active
     }
@@ -74,6 +80,8 @@ watch(
       state.name = ''
       state.code = ''
       state.description = ''
+      state.name_pl = ''
+      state.description_pl = ''
       state.sort_order = 0
       state.is_active = true
     }
@@ -93,6 +101,8 @@ async function onSubmit() {
     name: state.name,
     code: state.code.trim() || null,
     description: state.description.trim() || null,
+    name_pl: state.name_pl.trim() || null,
+    description_pl: state.description_pl.trim() || null,
     sort_order: state.sort_order,
     is_active: state.is_active,
   }
@@ -172,6 +182,27 @@ async function onSubmit() {
           >
             <UTextarea
               v-model="state.description"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField
+            :label="t('admin.shipping.methods.namePl')"
+            :hint="t('admin.shipping.methods.localeHint')"
+            name="name_pl"
+          >
+            <UInput
+              v-model="state.name_pl"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField
+            :label="t('admin.shipping.methods.descriptionPl')"
+            name="description_pl"
+          >
+            <UTextarea
+              v-model="state.description_pl"
               class="w-full"
             />
           </UFormField>

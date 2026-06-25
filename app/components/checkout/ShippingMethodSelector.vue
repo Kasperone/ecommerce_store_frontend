@@ -13,6 +13,10 @@ import { countryName } from '#shared/utils/countries'
 import type { SupportedLocale } from '#shared/utils/countries'
 import { formatMoney } from '#shared/utils/money'
 import type { CurrencyCode } from '#shared/utils/money'
+import {
+  localizedShippingMethodDescription,
+  localizedShippingMethodName,
+} from '#shared/utils/localizedShipping'
 
 const props = defineProps<{
   /** ISO-2 (uppercase) from the shipping form's country select. Empty until picked. */
@@ -114,8 +118,8 @@ const localizedCountry = computed(() =>
 const items = computed(() =>
   methods.value.map(m => ({
     value: m.id,
-    label: m.name,
-    description: m.description,
+    label: localizedShippingMethodName(m, locale.value),
+    description: localizedShippingMethodDescription(m, locale.value),
     amount: m.amount,
     isFree: m.is_free,
     freeAbove: m.free_above_subtotal,

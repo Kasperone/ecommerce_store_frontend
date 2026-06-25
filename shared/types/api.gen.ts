@@ -9887,6 +9887,10 @@ export interface components {
             code?: string | null;
             /** Description */
             description?: string | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
             /**
              * Sort Order
              * @default 0
@@ -9931,6 +9935,10 @@ export interface components {
             code: string | null;
             /** Description */
             description: string | null;
+            /** Name Pl */
+            name_pl: string | null;
+            /** Description Pl */
+            description_pl: string | null;
             /** Sort Order */
             sort_order: number;
             /** Is Active */
@@ -9944,6 +9952,10 @@ export interface components {
             code?: string | null;
             /** Description */
             description?: string | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Description Pl */
+            description_pl?: string | null;
             /** Sort Order */
             sort_order?: number | null;
             /** Is Active */
@@ -9968,6 +9980,10 @@ export interface components {
             code: string | null;
             /** Description */
             description: string | null;
+            /** Name Pl */
+            name_pl: string | null;
+            /** Description Pl */
+            description_pl: string | null;
             /** Sort Order */
             sort_order: number;
             /** Amount */
