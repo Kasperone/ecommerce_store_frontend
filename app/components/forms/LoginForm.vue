@@ -14,6 +14,7 @@ const authStore = useAuthStore()
 const toast = useToast()
 const router = useRouter()
 const route = useRoute()
+const localePath = useLocalePath()
 
 const isLoading = ref(false)
 const errorMessage = ref('')
@@ -67,7 +68,13 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
       icon: 'i-lucide-check-circle',
     })
 
-    const redirect = safeRedirect(route.query.redirect, authStore.isAdmin ? '/admin' : '/account')
+    // Localize the default target so a PL login (no explicit ?redirect=) lands
+    // on /pl/account, not the default-locale /account (F-PLD-1). An explicit
+    // ?redirect= is already locale-correct and passes through safeRedirect.
+    const redirect = safeRedirect(
+      route.query.redirect,
+      authStore.isAdmin ? localePath('/admin') : localePath('/account'),
+    )
     router.push(redirect)
   }
   else {
