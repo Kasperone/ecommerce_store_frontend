@@ -156,6 +156,27 @@ export class ApiClient {
   }
 
   /**
+   * Admin: PUT a partial product update. Used by the PL money-path spec to
+   * seed an OMNIBUS price trail — each price change appends a price_history
+   * row via the backend chokepoint, so a down-then-up sequence leaves a
+   * lowest-30d below the current price (the condition the storefront's
+   * <ShopOmnibusPrice> renders on).
+   */
+  async updateProduct(
+    accessToken: string,
+    productId: number,
+    patch: Record<string, unknown>,
+  ): Promise<void> {
+    const res = await this.http.put(`/api/v1/products/${productId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: patch,
+    })
+    if (!res.ok()) {
+      throw new Error(`updateProduct failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
    * Ensures the minimal shipping setup a checkout needs to quote: one zone
    * covering the given countries, one method (stable name), and one flat
    * rate per currency. Idempotent ("ensure" semantics, like the seeded
@@ -522,6 +543,12 @@ export class ApiClient {
     total: number
     currency: string
     coupon_code: string | null
+    // PL launch fields (optional — only the PL money-path spec asserts them).
+    payment_method?: string
+    invoice_nip?: string | null
+    invoice_name?: string | null
+    inpost_point_id?: string | null
+    inpost_point_name?: string | null
     shipping_address: string
     shipping_city: string
     shipping_postal_code: string
