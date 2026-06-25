@@ -74,7 +74,7 @@ const items = computed<NavigationMenuItem[]>(() => {
           color="neutral"
           variant="ghost"
           class="ml-2 hidden px-2 text-sm cursor-pointer sm:inline-flex"
-          aria-label="Toggle language"
+          :aria-label="t('header.toggleLang')"
           @click="toggleLocale"
         >
           {{ locale === 'pl' ? 'PL' : 'EN' }}
@@ -90,8 +90,8 @@ const items = computed<NavigationMenuItem[]>(() => {
             color="primary"
             variant="soft"
             class="ml-2 hidden px-2 sm:inline-flex"
-            aria-label="Admin"
-            to="/admin"
+            :aria-label="t('header.admin')"
+            :to="localePath('/admin')"
             icon="i-lucide-shield"
           />
         </UTooltip>
@@ -113,8 +113,8 @@ const items = computed<NavigationMenuItem[]>(() => {
               color="neutral"
               variant="ghost"
               class="ml-2 hidden px-2 cursor-pointer sm:inline-flex"
-              aria-label="Account"
-              to="/account"
+              :aria-label="t('header.account')"
+              :to="localePath('/account')"
               icon="i-lucide-user"
             />
           </UTooltip>
@@ -205,7 +205,7 @@ const items = computed<NavigationMenuItem[]>(() => {
               class="justify-start"
               :label="t('header.admin')"
               icon="i-lucide-shield"
-              to="/admin"
+              :to="localePath('/admin')"
             />
             <template v-if="!authStore.isAdmin">
               <UButton
@@ -215,7 +215,7 @@ const items = computed<NavigationMenuItem[]>(() => {
                 class="justify-start"
                 :label="t('header.account')"
                 icon="i-lucide-user"
-                to="/account"
+                :to="localePath('/account')"
               />
               <UButton
                 block
