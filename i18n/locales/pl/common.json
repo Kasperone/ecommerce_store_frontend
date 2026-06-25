@@ -750,7 +750,8 @@
         "slugFormat": "Slug musi składać się z małych liter, cyfr i myślników",
         "descriptionTooLong": "Opis nie może mieć więcej niż 500 znaków",
         "metaTitleTooLong": "Tytuł meta nie może mieć więcej niż {max} znaków",
-        "metaDescriptionTooLong": "Opis meta nie może mieć więcej niż {max} znaków"
+        "metaDescriptionTooLong": "Opis meta nie może mieć więcej niż {max} znaków",
+        "googleProductCategoryTooLong": "Kategoria produktu Google może mieć najwyżej 20 znaków"
       },
       "tabs": {
         "en": "Angielski",

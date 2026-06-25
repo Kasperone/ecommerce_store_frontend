@@ -750,7 +750,8 @@
         "slugFormat": "Slug must be lowercase letters, numbers, and hyphens",
         "descriptionTooLong": "Description must be 500 characters or fewer",
         "metaTitleTooLong": "Meta title must be {max} characters or fewer",
-        "metaDescriptionTooLong": "Meta description must be {max} characters or fewer"
+        "metaDescriptionTooLong": "Meta description must be {max} characters or fewer",
+        "googleProductCategoryTooLong": "Google Product Category must be 20 characters or fewer"
       },
       "tabs": {
         "en": "English",
