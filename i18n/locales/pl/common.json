@@ -9,11 +9,8 @@
   "header": {
     "account": "Konto",
     "admin": "Admin",
-    "cart": "Koszyk",
-    "colorMode": "Przełącz tryb kolorów",
     "login": "Zaloguj",
     "logout": "Wyloguj",
-    "search": "Szukaj produktów...",
     "signUp": "Zarejestruj się",
     "toggleLang": "Zmień język",
     "accountSettings": "Ustawienia konta"
@@ -74,8 +71,6 @@
       }
     },
     "signedInAs": "Zalogowano jako",
-    "placeholderTitle": "Witaj",
-    "placeholderBody": "Funkcje administracyjne pojawią się tutaj (produkty, kategorie, zamówienia, użytkownicy).",
     "menu": {
       "exit": "Powrót do sklepu",
       "groups": {
@@ -112,41 +107,8 @@
       }
     },
     "pages": {
-      "products": {
-        "title": "Produkty",
-        "placeholder": "Tutaj znajdzie się zarządzanie katalogiem produktów. Wkrótce."
-      },
-      "companies": {
-        "title": "Firmy (B2B)",
-        "placeholder": "Tutaj znajdzie się katalog firm B2B, akceptacja kont i opiekunowie. Wkrótce."
-      },
-      "quotes": {
-        "title": "Oferty (B2B)",
-        "placeholder": "Tutaj znajdzie się obsługa zapytań ofertowych i konwersja w zamówienia. Wkrótce."
-      },
-      "coupons": {
-        "title": "Kupony",
-        "placeholder": "Tutaj znajdą się kody rabatowe, warunki i limity użycia. Wkrótce."
-      },
-      "banners": {
-        "title": "Banery",
-        "placeholder": "Tutaj znajdzie się zarządzanie banerami i blokami promocyjnymi. Wkrótce."
-      },
-      "campaigns": {
-        "title": "Kampanie",
-        "placeholder": "Tutaj znajdzie się segmentacja kampanii i odzyskiwanie porzuconych koszyków. Wkrótce."
-      },
-      "reports": {
-        "title": "Raporty",
-        "placeholder": "Tutaj znajdą się raporty sprzedaży, VAT, magazynu i kohort. Wkrótce."
-      },
       "settings": {
-        "title": "Ustawienia",
-        "placeholder": "Tutaj znajdą się dane sklepu, waluty, VAT, płatności i szablony e-maili. Wkrótce."
-      },
-      "staff": {
-        "title": "Personel i role",
-        "placeholder": "Tutaj znajdzie się lista administratorów i zarządzanie rolami. Wkrótce."
+        "title": "Ustawienia"
       }
     },
     "inventory": {
@@ -765,7 +727,6 @@
         "slugHint": "Małe litery, cyfry i myślniki",
         "description": "Opis",
         "isActive": "Aktywna",
-        "productCount": "Produkty",
         "googleProductCategory": "Kategoria produktu Google"
       },
       "hints": {
@@ -782,9 +743,6 @@
         "googleProductCategory": "np. 5613"
       },
       "errors": {
-        "fallback": "Nie udało się zapisać kategorii.",
-        "duplicateSlug": "Kategoria z tym slugiem już istnieje.",
-        "hasProducts": "Nie można usunąć kategorii z przypisanymi produktami.",
         "nameRequired": "Nazwa jest wymagana",
         "nameTooLong": "Nazwa nie może mieć więcej niż 100 znaków",
         "slugRequired": "Slug jest wymagany",
@@ -828,7 +786,6 @@
       "confirm": {
         "deleteTitle": "Usuń kategorię",
         "deleteBodyEmpty": "Ta kategoria zostanie trwale usunięta.",
-        "deleteBodyWithProducts": "Do tej kategorii przypisanych jest {count} produktów. Przed usunięciem przenieś je do innej. | Do tej kategorii przypisany jest {count} produkt. Przed usunięciem przenieś go do innej. | Do tej kategorii przypisane są {count} produkty. Przed usunięciem przenieś je do innej. | Do tej kategorii przypisanych jest {count} produktów. Przed usunięciem przenieś je do innej.",
         "helpDirectProducts": "Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Najpierw je przenieś. | Do tej kategorii przypisany jest bezpośrednio {count} produkt. Najpierw go przenieś. | Do tej kategorii przypisane są bezpośrednio {count} produkty. Najpierw je przenieś. | Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Najpierw je przenieś.",
         "helpProductsAndChildren": "Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Usuń je, zanim usuniesz poddrzewo. | Do tej kategorii przypisany jest bezpośrednio {count} produkt. Usuń go, zanim usuniesz poddrzewo. | Do tej kategorii przypisane są bezpośrednio {count} produkty. Usuń je, zanim usuniesz poddrzewo. | Do tej kategorii przypisanych jest bezpośrednio {count} produktów. Usuń je, zanim usuniesz poddrzewo.",
         "helpSubtreeProducts": "{count} produktów znajduje się w poddrzewie. Przenieś je przed kaskadowym usuwaniem. | {count} produkt znajduje się w poddrzewie. Przenieś go przed kaskadowym usuwaniem. | {count} produkty znajdują się w poddrzewie. Przenieś je przed kaskadowym usuwaniem. | {count} produktów znajduje się w poddrzewie. Przenieś je przed kaskadowym usuwaniem.",
@@ -1074,7 +1031,6 @@
           "no": "Anuluj"
         },
         "staging": {
-          "remove": "Usuń z wgrywania",
           "removeAriaLabel": "Usuń {filename} z wgrywania",
           "primaryHint": "Pierwsze zdjęcie będzie głównym zdjęciem produktu"
         },
@@ -1110,7 +1066,6 @@
         "isActive": "Aktywny",
         "isFeatured": "Wyróżniony",
         "status": "Status",
-        "actions": "",
         "brand": "Marka",
         "gtin": "GTIN",
         "mpn": "MPN",
@@ -1123,7 +1078,6 @@
         "active": "Aktywny",
         "inactive": "Nieaktywny",
         "featured": "Wyróżniony",
-        "inStock": "Na stanie",
         "outOfStock": "Brak na stanie"
       },
       "filters": {
@@ -1156,9 +1110,6 @@
         "noProducts": "Brak produktów. Utwórz pierwszy."
       },
       "errors": {
-        "fallback": "Nie udało się zapisać produktu.",
-        "duplicateSlug": "Produkt z tym slugiem już istnieje.",
-        "duplicateSku": "Produkt z tym SKU już istnieje.",
         "nameRequired": "Nazwa jest wymagana",
         "nameTooLong": "Nazwa nie może mieć więcej niż 200 znaków",
         "slugRequired": "Slug jest wymagany",
@@ -1445,7 +1396,6 @@
         "role": "Rola",
         "status": "Status",
         "orders": "Zamówienia",
-        "country": "Kraj",
         "tags": "Tagi"
       },
       "status": {
@@ -1485,8 +1435,6 @@
         "profile": "Profil",
         "phone": "Telefon",
         "joined": "Dołączył",
-        "shipping": "Adres wysyłki",
-        "noShipping": "Brak zapisanego adresu wysyłki.",
         "company": "Firma (B2B)",
         "companyName": "Nazwa firmy",
         "taxId": "NIP",
@@ -1750,7 +1698,6 @@
         "title": "Tytuł",
         "subtitle": "Podtytuł",
         "imageUrl": "URL obrazu",
-        "imageUrlHint": "Pełny adres URL obrazu banera.",
         "linkUrl": "URL odnośnika",
         "linkUrlHint": "Opcjonalne. Dokąd prowadzi baner po kliknięciu.",
         "placement": "Umiejscowienie",
@@ -1766,7 +1713,6 @@
       "errors": {
         "titleRequired": "Tytuł jest wymagany.",
         "imageUrlRequired": "URL obrazu jest wymagany.",
-        "placementRequired": "Umiejscowienie jest wymagane.",
         "endsBeforeStarts": "Data końca musi być późniejsza niż data początku."
       },
       "delete": {
@@ -2332,7 +2278,6 @@
     }
   },
   "account": {
-    "dashboard": "Moje konto",
     "signedInAs": "Zalogowano jako",
     "nav": {
       "title": "Moje konto",
@@ -2362,8 +2307,7 @@
         "heading": "Wyceny",
         "open": "{count} otwartych wycen | {count} otwarta wycena | {count} otwarte wyceny | {count} otwartych wycen",
         "awaiting": "{count} oczekuje na Twoją akceptację | {count} oczekuje na Twoją akceptację | {count} oczekują na Twoją akceptację | {count} oczekuje na Twoją akceptację",
-        "none": "Brak otwartych wycen.",
-        "view": "Zobacz wyceny"
+        "none": "Brak otwartych wycen."
       },
       "completeness": {
         "title": "Uzupełnij swój profil",
@@ -2375,7 +2319,6 @@
     "quotes": {
       "title": "Wyceny",
       "subtitle": "Przeglądaj i akceptuj wyceny przygotowane dla Twojej firmy.",
-      "accountCard": "Przeglądaj i akceptuj swoje wyceny B2B.",
       "numberPrefix": "QT-",
       "empty": "Nie masz jeszcze żadnych wycen.",
       "emptyCta": "Przeglądaj produkty",
@@ -2423,22 +2366,7 @@
         "confirm": "Zamień na zamówienie"
       }
     },
-    "placeholderTitle": "Witaj",
-    "placeholderBody": "Funkcje konta pojawią się tutaj (zamówienia, profil, adresy, metody płatności).",
-    "preferences": {
-      "title": "Preferencje"
-    },
-    "emailLanguage": {
-      "label": "Język wiadomości e-mail",
-      "hint": "Język, którego używamy w potwierdzeniach zamówień i innych wiadomościach.",
-      "en": "Angielski",
-      "pl": "Polski",
-      "saved": "Zaktualizowano język wiadomości e-mail.",
-      "error": "Nie udało się zaktualizować języka wiadomości e-mail."
-    },
     "settings": {
-      "title": "Ustawienia konta",
-      "subtitle": "Zarządzaj profilem, bezpieczeństwem, adresami i preferencjami.",
       "nav": {
         "profile": "Profil",
         "security": "Bezpieczeństwo",
@@ -2773,11 +2701,8 @@
     }
   },
   "navigation": {
-    "home": "Strona Główna",
     "products": "Produkty",
-    "categories": "Kategorie",
-    "orders": "Moje Zamówienia",
-    "wishlist": "Lista Życzeń"
+    "categories": "Kategorie"
   },
   "search": {
     "placeholder": "Szukaj produktów…",
@@ -2850,17 +2775,13 @@
         "faq": "FAQ",
         "returns": "Polityka zwrotów",
         "shipping": "Wysyłka i dostawa",
-        "trackOrder": "Śledź zamówienie",
-        "shippingReturns": "Wysyłka i zwroty"
+        "trackOrder": "Śledź zamówienie"
       },
       "about": {
         "heading": "O nas",
         "about": "O nas",
         "careers": "Kariera",
         "press": "Prasa"
-      },
-      "company": {
-        "about": "O nas"
       },
       "account": {
         "heading": "Moje konto",
@@ -2897,31 +2818,18 @@
     },
     "backToTop": "Powrót na górę",
     "copyright": "© {year} {name}. Wszelkie prawa zastrzeżone.",
-    "madeIn": "Tworzone z troską w Polsce.",
-    "stubPage": {
-      "comingSoon": "Ta strona jest w przygotowaniu.",
-      "backHome": "Wróć na stronę główną"
-    }
+    "madeIn": "Tworzone z troską w Polsce."
   },
   "actions": {
     "save": "Zapisz",
     "cancel": "Anuluj",
     "delete": "Usuń",
     "edit": "Edytuj",
-    "view": "Zobacz",
-    "close": "Zamknij",
-    "submit": "Wyślij",
     "loading": "Ładowanie...",
-    "confirm": "Potwierdź",
     "goHome": "Strona główna",
     "dismiss": "Odrzuć"
   },
   "messages": {
-    "success": "Sukces!",
-    "error": "Wystąpił błąd",
-    "loading": "Ładowanie...",
-    "noResults": "Brak wyników",
-    "confirmDelete": "Czy na pewno chcesz to usunąć?",
     "saveErrorTitle": "Nie udało się zapisać zmian",
     "saveError": "Nie udało się zapisać zmian. Sprawdź formularz i spróbuj ponownie.",
     "fieldRequired": "To pole jest wymagane"
@@ -2974,8 +2882,7 @@
       "lastNameRequired": "Nazwisko jest wymagane",
       "confirmPasswordRequired": "Potwierdzenie hasła jest wymagane",
       "companyNameRequired": "Nazwa firmy jest wymagana",
-      "passwordsDontMatch": "Hasła nie są identyczne",
-      "default": "Nieprawidłowe dane"
+      "passwordsDontMatch": "Hasła nie są identyczne"
     },
     "passwordStrength": {
       "weak": "Słabe",
@@ -3013,9 +2920,7 @@
       "failed": "Weryfikacja nie powiodła się",
       "expired": "Link wygasł",
       "expiredMessage": "Ten link weryfikacyjny wygasł. Poproś o nowy.",
-      "invalid": "Nieprawidłowy link",
       "invalidMessage": "Ten link weryfikacyjny jest nieprawidłowy lub został już użyty.",
-      "alreadyVerified": "Email już zweryfikowany",
       "checkSpam": "Sprawdź folder spam, jeśli nie widzisz emaila."
     },
     "passwordReset": {
@@ -3038,7 +2943,6 @@
     "businessSignup": {
       "title": "Zarejestruj firmę",
       "subtitle": "Załóż konto firmowe. Twoja firma zostanie zweryfikowana przed zatwierdzeniem.",
-      "submit": "Załóż konto firmowe",
       "success": "Konto firmowe utworzone",
       "successDescription": "Sprawdź swoją skrzynkę e-mail, aby zweryfikować konto. Twoja firma zostanie sprawdzona przez nasz zespół."
     }
@@ -3046,12 +2950,6 @@
   "authExtra": {
     "agreeTo": "Kontynuując, zgadzasz się z naszym",
     "noAccount": "Nie masz konta?"
-  },
-  "home": {
-    "banners": {
-      "heroLabel": "Wyróżnione promocje",
-      "promoLabel": "Promocje"
-    }
   },
   "wishlist": {
     "title": "Lista życzeń",

@@ -1,31 +1,5 @@
 {
   "hero": {
     "welcome": "Witamy w Naszym Sklepie"
-  },
-  "features": {
-    "fastModern": {
-      "title": "Szybki i Nowoczesny",
-      "description": "Zbudowany z najnowszych technologii dla najlepszej wydajności"
-    },
-    "securePayments": {
-      "title": "Bezpieczne Płatności",
-      "description": "Integracja PayU i Stripe dla bezpiecznych transakcji"
-    },
-    "freeShipping": {
-      "title": "Darmowa Wysyłka",
-      "description": "Darmowa wysyłka przy zamówieniach powyżej {amount}"
-    },
-    "support": {
-      "title": "Wsparcie 24/7",
-      "description": "Nasz zespół wsparcia jest zawsze gotowy pomóc"
-    }
-  },
-  "cta": {
-    "shopNow": "Kup Teraz",
-    "learnMore": "Dowiedz Się Więcej"
-  },
-  "featured": {
-    "title": "Polecane produkty",
-    "viewAll": "Zobacz wszystkie produkty"
   }
 }

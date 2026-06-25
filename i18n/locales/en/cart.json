@@ -6,32 +6,18 @@
     "emptyCta": "Continue shopping",
     "summary": {
       "heading": "Order summary",
-      "subtotal": "Subtotal",
-      "shipping": "Shipping",
-      "tax": "Tax",
-      "discount": "Discount",
-      "total": "Total"
+      "subtotal": "Subtotal"
     },
     "actions": {
       "remove": "Remove",
       "checkout": "Proceed to checkout",
       "continueShopping": "Continue shopping",
       "viewCart": "View cart",
-      "open": "Open cart",
-      "clear": "Clear cart",
-      "applyCoupon": "Apply coupon"
+      "open": "Open cart"
     },
     "item": {
-      "quantity": "Quantity",
-      "price": "Price",
-      "total": "Total",
       "increase": "Increase quantity",
       "decrease": "Decrease quantity"
-    },
-    "messages": {
-      "added": "Added to cart",
-      "removed": "Removed from cart",
-      "updated": "Cart updated"
     },
     "requestQuote": {
       "button": "Request a quote",
@@ -57,7 +43,6 @@
       "selectCountryFirst": "Select a country to see shipping options.",
       "noMethods": "We don't ship to {country} yet.",
       "fetchError": "We couldn't load shipping options. Please try again.",
-      "freeAbove": "Free over {amount}",
       "freeAboveRemaining": "Add {amount} more for free shipping",
       "free": "Free"
     },
@@ -106,7 +91,6 @@
       "postalRequired": "Postal code is required",
       "postalTooLong": "Postal code must be 20 characters or fewer",
       "countryRequired": "Country is required",
-      "countryTooLong": "Country must be 100 characters or fewer",
       "countryInvalid": "Select a country",
       "notesTooLong": "Notes must be 1000 characters or fewer",
       "emailInvalid": "Enter a valid email address"
@@ -128,17 +112,14 @@
   },
   "orders": {
     "title": "My orders",
-    "accountCard": "View your order history and status",
     "subtitle": "Your orders, newest first",
     "empty": "You haven't placed any orders yet.",
     "emptyCta": "Start shopping",
-    "loadError": "We couldn't load your orders.",
     "back": "Back to my orders",
     "viewOrder": "View order",
     "fields": {
       "placed": "Placed",
-      "items": "Items",
-      "total": "Total"
+      "items": "Items"
     },
     "detail": {
       "title": "Order {number}",

@@ -1,31 +1,5 @@
 {
   "hero": {
     "welcome": "Welcome to Our Store"
-  },
-  "features": {
-    "fastModern": {
-      "title": "Fast & Modern",
-      "description": "Built with latest technologies for best performance"
-    },
-    "securePayments": {
-      "title": "Secure Payments",
-      "description": "PayU and Stripe integration for safe transactions"
-    },
-    "freeShipping": {
-      "title": "Free Shipping",
-      "description": "Free shipping on orders over {amount}"
-    },
-    "support": {
-      "title": "24/7 Support",
-      "description": "Our support team is always here to help"
-    }
-  },
-  "cta": {
-    "shopNow": "Shop Now",
-    "learnMore": "Learn More"
-  },
-  "featured": {
-    "title": "Featured products",
-    "viewAll": "View all products"
   }
 }
