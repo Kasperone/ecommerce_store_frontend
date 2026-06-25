@@ -35,6 +35,9 @@ mockNuxtImport('useRouter', (original: any) => () => {
 })
 mockNuxtImport('useRoute', () => () => mockRoute)
 mockNuxtImport('useToast', () => () => ({ add: mockToastAdd }))
+// Identity localePath — default-locale behavior, so the redirect assertions
+// below stay locale-agnostic (the PL prefixing is exercised in E2E).
+mockNuxtImport('useLocalePath', () => () => (p: string) => p)
 
 vi.mock('~/stores/auth', () => ({
   useAuthStore: () => ({
