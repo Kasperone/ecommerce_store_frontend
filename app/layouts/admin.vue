@@ -5,6 +5,7 @@ import { useAdminSidebarGroups } from '~/components/admin/sidebarMenu'
 const { locale, setLocale, t } = useI18n()
 const authStore = useAuthStore()
 const groups = useAdminSidebarGroups()
+const localePath = useLocalePath()
 
 function toggleLocale() {
   setLocale(locale.value === 'pl' ? 'en' : 'pl')
@@ -22,7 +23,7 @@ function toggleLocale() {
     >
       <template #header="{ collapsed }">
         <NuxtLink
-          to="/admin"
+          :to="localePath('/admin')"
           class="flex items-center gap-2"
         >
           <UIcon
@@ -77,7 +78,7 @@ function toggleLocale() {
             color="neutral"
             variant="ghost"
             icon="i-lucide-home"
-            to="/"
+            :to="localePath('/')"
             :aria-label="t('admin.menu.exit')"
           />
         </template>

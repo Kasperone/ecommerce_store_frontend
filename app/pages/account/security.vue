@@ -31,6 +31,7 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const toast = useToast()
 const router = useRouter()
+const localePath = useLocalePath()
 const { apiFetch } = useApi()
 
 useHead({
@@ -128,7 +129,7 @@ async function onConfirmSignOutAll() {
     // tokens; tear down locally and bounce to login.
     authStore.clearSession()
     signOutAllOpen.value = false
-    await router.push('/login')
+    await router.push(localePath('/login'))
   }
   catch {
     toast.add({ title: t('account.settings.security.signOutAll.error'), color: 'error' })

@@ -14,7 +14,7 @@ const { data: categoryTree } = useStorefrontCategories()
 
 async function handleLogout() {
   await authStore.logout()
-  await router.push('/login')
+  await router.push(localePath('/login'))
 }
 
 function toggleLocale() {
@@ -128,7 +128,7 @@ const items = computed<NavigationMenuItem[]>(() => {
               variant="ghost"
               class="ml-2 hidden px-2 cursor-pointer sm:inline-flex"
               :aria-label="t('header.accountSettings')"
-              to="/account/profile"
+              :to="localePath('/account/profile')"
               icon="i-lucide-settings"
             />
           </UTooltip>
@@ -151,7 +151,7 @@ const items = computed<NavigationMenuItem[]>(() => {
               variant="ghost"
               class="ml-2 hidden px-2 sm:inline-flex"
               aria-label="Login"
-              to="/login"
+              :to="localePath('/login')"
               icon="i-lucide-log-in"
             />
           </UTooltip>
@@ -162,7 +162,7 @@ const items = computed<NavigationMenuItem[]>(() => {
               variant="ghost"
               class="ml-2 hidden px-2 sm:inline-flex"
               aria-label="Sign up"
-              to="/sign-up"
+              :to="localePath('/sign-up')"
               icon="i-lucide-user-plus"
             />
           </UTooltip>
@@ -224,7 +224,7 @@ const items = computed<NavigationMenuItem[]>(() => {
                 class="justify-start"
                 :label="t('header.accountSettings')"
                 icon="i-lucide-settings"
-                to="/account/profile"
+                :to="localePath('/account/profile')"
               />
             </template>
             <UButton
@@ -245,7 +245,7 @@ const items = computed<NavigationMenuItem[]>(() => {
               class="justify-start"
               :label="t('header.login')"
               icon="i-lucide-log-in"
-              to="/login"
+              :to="localePath('/login')"
             />
             <UButton
               block
@@ -254,7 +254,7 @@ const items = computed<NavigationMenuItem[]>(() => {
               class="justify-start"
               :label="t('header.signUp')"
               icon="i-lucide-user-plus"
-              to="/sign-up"
+              :to="localePath('/sign-up')"
             />
           </template>
         </ClientOnly>

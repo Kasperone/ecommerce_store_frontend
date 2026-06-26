@@ -10,6 +10,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 useHead({ title: () => t('admin.inventory.movements.title') })
 
 const filterSchema = z.object({
@@ -81,7 +82,7 @@ function reasonLabel(reason: string) {
           color="neutral"
           icon="i-lucide-arrow-left"
           :padded="false"
-          @click="navigateTo('/admin/inventory')"
+          @click="navigateTo(localePath('/admin/inventory'))"
         >
           {{ $t('admin.inventory.movements.back') }}
         </UButton>

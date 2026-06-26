@@ -12,6 +12,7 @@ const authStore = useAuthStore()
 const toast = useToast()
 const route = useRoute()
 const router = useRouter()
+const localePath = useLocalePath()
 
 const token = computed(() => String(route.params.token ?? ''))
 
@@ -76,7 +77,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
       color: 'success',
       icon: 'i-lucide-check-circle',
     })
-    setTimeout(() => router.push('/login'), 2000)
+    setTimeout(() => router.push(localePath('/login')), 2000)
   }
   else {
     applyApiError(result.raw, result.error || t('auth.passwordReset.confirmError'))
@@ -105,7 +106,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
           :label="t('auth.passwordReset.requestNew')"
           color="primary"
           block
-          to="/password-recovery"
+          :to="localePath('/password-recovery')"
         />
       </div>
 
@@ -128,7 +129,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
           :label="t('auth.passwordReset.goToLogin')"
           color="primary"
           block
-          to="/login"
+          :to="localePath('/login')"
         />
       </div>
 
@@ -188,7 +189,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
 
           <template #footer>
             <ULink
-              to="/password-recovery"
+              :to="localePath('/password-recovery')"
               class="text-primary font-medium"
             >{{ t('auth.passwordReset.requestNew') }}</ULink>
           </template>

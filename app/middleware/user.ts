@@ -7,6 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // and the SSR auth plugin populates the store before middleware fires.
   // See app/plugins/auth.ts.
   const authStore = useAuthStore()
+  const localePath = useLocalePath()
 
   // On hard reload the plugin's tryRestoreSession may still be in flight;
   // racing against it would redirect a logged-in user to /login. Await the
@@ -16,12 +17,14 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (!authStore.isAuthenticated) {
-    return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
+    // localePath keeps the visitor on their current locale; to.fullPath already
+    // carries the locale prefix so the post-login redirect lands on the right one.
+    return navigateTo(`${localePath('/login')}?redirect=${encodeURIComponent(to.fullPath)}`)
   }
 
   // Admins live under /admin — keep customer and staff surfaces disjoint so a
   // staff account never lands on the buyer self-service portal.
   if (authStore.isAdmin) {
-    return navigateTo('/admin')
+    return navigateTo(localePath('/admin'))
   }
 })

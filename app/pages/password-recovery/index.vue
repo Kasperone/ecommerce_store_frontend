@@ -10,6 +10,7 @@ import type { ForgotPasswordFormData } from '#shared/validators/auth'
 const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const isLoading = ref(false)
 const submitted = ref(false)
@@ -96,7 +97,7 @@ const submit = async (payload: FormSubmitEvent<ForgotPasswordFormData>) => {
         >
           <template #footer>
             <ULink
-              to="/login"
+              :to="localePath('/login')"
               class="text-primary font-medium"
             >{{ t('auth.passwordReset.goToLogin') }}</ULink>
           </template>
@@ -126,7 +127,7 @@ const submit = async (payload: FormSubmitEvent<ForgotPasswordFormData>) => {
           color="primary"
           variant="outline"
           block
-          to="/login"
+          :to="localePath('/login')"
         />
       </div>
     </UPageCard>

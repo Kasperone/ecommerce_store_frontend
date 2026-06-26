@@ -9,6 +9,7 @@ import type { PersonalSignUpFormData } from '#shared/validators/auth'
 import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
 
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 const authStore = useAuthStore()
 const toast = useToast()
 const router = useRouter()
@@ -63,7 +64,7 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
       icon: 'i-lucide-check-circle',
     })
 
-    router.push(`/verify-email-sent?email=${encodeURIComponent(payload.data.email)}`)
+    router.push(`${localePath('/verify-email-sent')}?email=${encodeURIComponent(payload.data.email)}`)
   }
   else {
     const fallback = t('auth.registrationError')
@@ -162,7 +163,7 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
 
       <template #footer>
         {{ t('authExtra.agreeTo') }} <ULink
-          to="/terms-of-service"
+          :to="localePath('/terms-of-service')"
           class="text-primary font-medium"
         >{{ t('auth.termsOfService') }}</ULink>
       </template>

@@ -160,10 +160,9 @@ describe('admin/products/new (multi-step submit)', () => {
     })
 
     expect(deleteMutateAsync).not.toHaveBeenCalled()
-    expect(mockNavigateTo).toHaveBeenCalledWith({
-      path: '/admin/products/42/edit',
-      query: { created: '1' },
-    })
+    // localePath resolves the route object to a locale-aware path string
+    // (default-locale EN → no prefix).
+    expect(mockNavigateTo).toHaveBeenCalledWith('/admin/products/42/edit?created=1')
   })
 
   it('happy path with no staged files: create → navigate, no uploads or set-primary', async () => {
@@ -177,10 +176,7 @@ describe('admin/products/new (multi-step submit)', () => {
     expect(uploadMutateAsync).not.toHaveBeenCalled()
     expect(setPrimaryMutateAsync).not.toHaveBeenCalled()
     expect(deleteMutateAsync).not.toHaveBeenCalled()
-    expect(mockNavigateTo).toHaveBeenCalledWith({
-      path: '/admin/products/7/edit',
-      query: { created: '1' },
-    })
+    expect(mockNavigateTo).toHaveBeenCalledWith('/admin/products/7/edit?created=1')
   })
 
   it('upload mid-loop failure: compensating DELETE fires, no navigate', async () => {

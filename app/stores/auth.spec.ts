@@ -33,6 +33,9 @@ mockNuxtImport(
   () => () => ({ public: { apiBase: 'http://test' } }),
 )
 mockNuxtImport('navigateTo', () => mockNavigate)
+// The store calls useApi() for real, which now resolves useLocalePath() at
+// setup — shim it as an identity path resolver (default locale EN, no prefix).
+mockNuxtImport('useLocalePath', () => () => (p: string) => p)
 
 ;(globalThis as any).$fetch = mockFetch
 

@@ -12,6 +12,7 @@ definePageMeta({
 })
 
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 useHead({ title: () => t('admin.quotes.title') })
 
 const filterSchema = z.object({
@@ -113,7 +114,7 @@ const columns: TableColumn<QuoteListItem>[] = [
         <UButton
           color="primary"
           icon="i-lucide-plus"
-          @click="navigateTo('/admin/quotes/new')"
+          @click="navigateTo(localePath('/admin/quotes/new'))"
         >
           {{ $t('admin.quotes.actions.create') }}
         </UButton>
@@ -165,7 +166,7 @@ const columns: TableColumn<QuoteListItem>[] = [
       >
         <template #id-cell="{ row }">
           <ULink
-            :to="`/admin/quotes/${row.original.id}`"
+            :to="localePath(`/admin/quotes/${row.original.id}`)"
             class="font-mono font-medium text-primary"
           >
             #{{ row.original.id }}
@@ -199,7 +200,7 @@ const columns: TableColumn<QuoteListItem>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.quotes.actions.view')"
-              @click="navigateTo(`/admin/quotes/${row.original.id}`)"
+              @click="navigateTo(localePath(`/admin/quotes/${row.original.id}`))"
             />
           </div>
         </template>

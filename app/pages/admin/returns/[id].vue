@@ -12,6 +12,7 @@ definePageMeta({
 })
 
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const route = useRoute()
 const returnId = computed(() => {
@@ -189,7 +190,7 @@ useHead({ title: () => t('admin.returns.detail.title', { id: ret.value?.id ?? ''
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo('/admin/returns')"
+        @click="navigateTo(localePath('/admin/returns'))"
       >
         {{ $t('admin.returns.actions.back') }}
       </UButton>
@@ -281,7 +282,7 @@ useHead({ title: () => t('admin.returns.detail.title', { id: ret.value?.id ?? ''
                 </dt>
                 <dd>
                   <ULink
-                    :to="`/admin/orders/${ret.order_id}`"
+                    :to="localePath(`/admin/orders/${ret.order_id}`)"
                     class="font-mono text-primary"
                     data-testid="return-order-link"
                   >

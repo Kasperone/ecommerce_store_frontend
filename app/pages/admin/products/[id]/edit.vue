@@ -16,6 +16,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -149,7 +150,7 @@ async function saveVariants() {
           variant="ghost"
           icon="i-lucide-arrow-left"
           :aria-label="$t('admin.products.actions.backToList')"
-          @click="navigateTo('/admin/products')"
+          @click="navigateTo(localePath('/admin/products'))"
         />
         <div class="flex-1">
           <h1 class="text-2xl font-bold">
@@ -194,7 +195,7 @@ async function saveVariants() {
           :loading="updateMutation.isLoading.value"
           :error="formError"
           @submit="onSubmit"
-          @cancel="navigateTo('/admin/products')"
+          @cancel="navigateTo(localePath('/admin/products'))"
         />
 
         <section class="space-y-4">

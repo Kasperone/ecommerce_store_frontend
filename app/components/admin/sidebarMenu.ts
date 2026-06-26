@@ -72,6 +72,7 @@ const GROUPS: MenuGroupConfig[] = [
 export function useAdminSidebarGroups(): ComputedRef<NavigationMenuItem[][]> {
   const { t } = useI18n()
   const route = useRoute()
+  const localePath = useLocalePath()
 
   return computed(() =>
     GROUPS.map(group => [
@@ -79,7 +80,7 @@ export function useAdminSidebarGroups(): ComputedRef<NavigationMenuItem[][]> {
       ...group.items.map((item): NavigationMenuItem => ({
         label: t(`admin.menu.items.${item.key}`),
         icon: item.icon,
-        to: item.to,
+        to: localePath(item.to),
         active: item.to === '/admin'
           ? route.path === '/admin' || route.path === '/pl/admin'
           : route.path.startsWith(item.to) || route.path.startsWith(`/pl${item.to}`),

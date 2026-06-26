@@ -8,6 +8,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 useHead({ title: () => t('admin.quotes.create.title') })
 
@@ -26,7 +27,7 @@ async function onSubmit(body: QuoteCreate) {
       color: 'success',
       icon: 'i-lucide-check',
     })
-    await navigateTo(`/admin/quotes/${quote.id}`)
+    await navigateTo(localePath(`/admin/quotes/${quote.id}`))
   }
   catch (err) {
     // 404 (unknown company) / 422 (empty items) both surface in the form.
@@ -43,7 +44,7 @@ async function onSubmit(body: QuoteCreate) {
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo('/admin/quotes')"
+        @click="navigateTo(localePath('/admin/quotes'))"
       >
         {{ $t('admin.quotes.actions.back') }}
       </UButton>
@@ -68,7 +69,7 @@ async function onSubmit(body: QuoteCreate) {
           :loading="createQuote.isLoading.value"
           :error="formError"
           @submit="onSubmit"
-          @cancel="navigateTo('/admin/quotes')"
+          @cancel="navigateTo(localePath('/admin/quotes'))"
         />
       </UCard>
     </div>

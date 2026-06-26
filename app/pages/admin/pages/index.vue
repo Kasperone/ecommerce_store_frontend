@@ -15,6 +15,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 useHead({ title: () => t('admin.cms.title') })
 
 const filterSchema = z.object({
@@ -137,7 +138,7 @@ async function confirmCreate() {
       locale: createState.locale,
     })
     createOpen.value = false
-    await navigateTo(`/admin/pages/${created.id}`)
+    await navigateTo(localePath(`/admin/pages/${created.id}`))
   }
   catch (err) {
     createError.value = err
@@ -221,7 +222,7 @@ async function confirmCreate() {
       >
         <template #slug-cell="{ row }">
           <NuxtLink
-            :to="`/admin/pages/${row.original.id}`"
+            :to="localePath(`/admin/pages/${row.original.id}`)"
             class="font-medium hover:text-primary"
           >
             /{{ row.original.slug }}
@@ -262,7 +263,7 @@ async function confirmCreate() {
               variant="ghost"
               icon="i-lucide-pencil"
               size="sm"
-              :to="`/admin/pages/${row.original.id}`"
+              :to="localePath(`/admin/pages/${row.original.id}`)"
               :aria-label="$t('admin.cms.actions.edit')"
             />
           </div>

@@ -11,6 +11,7 @@ interface Props {
 }
 defineProps<Props>()
 const { t } = useI18n()
+const localePath = useLocalePath()
 </script>
 
 <template>
@@ -32,7 +33,7 @@ const { t } = useI18n()
       >
         <span class="text-muted tabular-nums w-5 text-sm">{{ index + 1 }}.</span>
         <NuxtLink
-          :to="`/admin/products/${item.product_id}/edit`"
+          :to="localePath(`/admin/products/${item.product_id}/edit`)"
           class="flex-1 min-w-0 font-medium truncate hover:text-primary"
         >
           {{ item.name }}
