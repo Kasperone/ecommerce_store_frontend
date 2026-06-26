@@ -12,6 +12,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const route = useRoute()
 const orderId = computed(() => {
@@ -180,7 +181,7 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo('/admin/orders')"
+        @click="navigateTo(localePath('/admin/orders'))"
       >
         {{ $t('admin.orders.actions.back') }}
       </UButton>

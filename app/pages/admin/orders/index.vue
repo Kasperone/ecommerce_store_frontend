@@ -13,6 +13,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 useHead({ title: () => t('admin.orders.title') })
 
 const filterSchema = z.object({
@@ -161,7 +162,7 @@ const columns: TableColumn<OrderListItem>[] = [
       >
         <template #order_number-cell="{ row }">
           <ULink
-            :to="`/admin/orders/${row.original.id}`"
+            :to="localePath(`/admin/orders/${row.original.id}`)"
             class="font-mono font-medium text-primary"
           >
             {{ row.original.order_number }}
@@ -195,7 +196,7 @@ const columns: TableColumn<OrderListItem>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.orders.actions.view')"
-              @click="navigateTo(`/admin/orders/${row.original.id}`)"
+              @click="navigateTo(localePath(`/admin/orders/${row.original.id}`))"
             />
           </div>
         </template>

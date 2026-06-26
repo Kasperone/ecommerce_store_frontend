@@ -14,6 +14,7 @@ import type { TopProductRow } from '~/composables/queries/useReportQueries'
 
 const props = defineProps<{ rows: TopProductRow[] }>()
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 
 /** Per-currency money map → one formatted string per currency (sorted by code). */
 function moneyLines(map: Record<string, number> | undefined): string[] {
@@ -47,7 +48,7 @@ const hasRows = computed(() => props.rows.length > 0)
         <div class="flex-1 min-w-0">
           <NuxtLink
             v-if="row.slug"
-            :to="`/admin/products/${row.product_id}/edit`"
+            :to="localePath(`/admin/products/${row.product_id}/edit`)"
             class="font-medium truncate hover:text-primary block"
           >
             {{ row.name }}

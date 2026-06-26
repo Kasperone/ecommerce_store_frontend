@@ -22,6 +22,9 @@ mockNuxtImport(
   () => () => ({ public: { apiBase: 'http://test' } }),
 )
 mockNuxtImport('navigateTo', () => mockNavigate)
+// Identity path resolver — no /pl/ prefix in tests (default locale is EN), so
+// the 401-bounce assertion on '/login' holds unchanged.
+mockNuxtImport('useLocalePath', () => () => (p: string) => p)
 
 ;(globalThis as any).$fetch = mockFetch
 

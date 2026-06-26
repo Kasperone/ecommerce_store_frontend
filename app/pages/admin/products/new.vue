@@ -7,6 +7,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 useHead({ title: () => t('admin.products.titleNew') })
 
 const { data: categoriesData } = useCategoriesQuery({ isActive: true, limit: 100 })
@@ -48,10 +49,10 @@ async function onSubmit(payload: ProductFormPayload) {
       })
     }
 
-    await navigateTo({
+    await navigateTo(localePath({
       path: `/admin/products/${created.id}/edit`,
       query: { created: '1' },
-    })
+    }))
   }
   catch (err) {
     if (createdId !== null) {
@@ -79,7 +80,7 @@ async function onSubmit(payload: ProductFormPayload) {
           variant="ghost"
           icon="i-lucide-arrow-left"
           :aria-label="$t('admin.products.actions.backToList')"
-          @click="navigateTo('/admin/products')"
+          @click="navigateTo(localePath('/admin/products'))"
         />
         <div>
           <h1 class="text-2xl font-bold">
@@ -97,7 +98,7 @@ async function onSubmit(payload: ProductFormPayload) {
         :error="formError"
         :submit-label="$t('admin.products.actions.saveAndContinue')"
         @submit="onSubmit"
-        @cancel="navigateTo('/admin/products')"
+        @cancel="navigateTo(localePath('/admin/products'))"
       >
         <template #extra-sections>
           <section class="space-y-4">

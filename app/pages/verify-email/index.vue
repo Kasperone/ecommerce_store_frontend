@@ -8,6 +8,7 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
+const localePath = useLocalePath()
 
 useHead({
   titleTemplate: '%s | Verify Email',
@@ -35,7 +36,7 @@ const verifyToken = async (token: string) => {
         if (countdownInterval) {
           clearInterval(countdownInterval)
         }
-        router.push('/login')
+        router.push(localePath('/login'))
       }
     }, 1000)
   }
@@ -69,7 +70,7 @@ const goToLogin = () => {
   if (countdownInterval) {
     clearInterval(countdownInterval)
   }
-  router.push('/login')
+  router.push(localePath('/login'))
 }
 </script>
 
@@ -181,7 +182,7 @@ const goToLogin = () => {
               color="primary"
               variant="outline"
               block
-              @click="router.push('/login')"
+              @click="router.push(localePath('/login'))"
             />
 
             <UButton
@@ -189,7 +190,7 @@ const goToLogin = () => {
               color="neutral"
               variant="ghost"
               block
-              @click="router.push('/')"
+              @click="router.push(localePath('/'))"
             />
           </div>
         </div>

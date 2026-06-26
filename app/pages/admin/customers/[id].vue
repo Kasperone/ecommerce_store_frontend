@@ -10,6 +10,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const auth = useAuthStore()
 const route = useRoute()
@@ -97,7 +98,7 @@ async function onImpersonate() {
   try {
     const res = await auth.startImpersonation(customer.value.id)
     if (res.success) {
-      await navigateTo('/account')
+      await navigateTo(localePath('/account'))
     }
     else {
       toast.add({ title: res.error, color: 'error', icon: 'i-lucide-triangle-alert' })
@@ -119,7 +120,7 @@ useHead({ title: () => t('admin.customers.detail.title', { email: customer.value
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo('/admin/customers')"
+        @click="navigateTo(localePath('/admin/customers'))"
       >
         {{ $t('admin.customers.actions.back') }}
       </UButton>

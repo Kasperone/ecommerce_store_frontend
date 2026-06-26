@@ -16,6 +16,9 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const { mockNavigate } = vi.hoisted(() => ({ mockNavigate: vi.fn() }))
 mockNuxtImport('navigateTo', () => mockNavigate)
+// Identity path resolver — no /pl/ prefix in tests (default locale is EN), so
+// existing assertions on '/' and '/login?redirect=...' hold unchanged.
+mockNuxtImport('useLocalePath', () => () => (p: string) => p)
 mockNuxtImport(
   'defineNuxtRouteMiddleware',
   () => (fn: any) => fn,

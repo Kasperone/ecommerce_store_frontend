@@ -19,6 +19,7 @@ import { narrowFetchError } from '~/utils/apiError'
 export const useApi = () => {
   const config = useRuntimeConfig()
   const authStore = useAuthStore()
+  const localePath = useLocalePath()
 
   const baseURL = config.public.apiBase as string
 
@@ -60,7 +61,7 @@ export const useApi = () => {
       if (!refreshed) {
         // Session is gone — bounce to /login so the UI doesn't keep retrying.
         if (import.meta.client) {
-          await navigateTo('/login')
+          await navigateTo(localePath('/login'))
         }
         throw error
       }
