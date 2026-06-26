@@ -45,7 +45,7 @@ async function onClick() {
 
   if (!auth.isAuthenticated) {
     toast.add({ title: t('wishlist.signInPrompt'), color: 'info' })
-    await navigateTo(localePath(`/login?redirect=${encodeURIComponent(route.fullPath)}`))
+    await navigateTo(localePath({ path: '/login', query: { redirect: route.fullPath } }))
     return
   }
 

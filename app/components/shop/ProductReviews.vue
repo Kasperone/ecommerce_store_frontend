@@ -209,7 +209,7 @@ async function onDelete() {
   }
 }
 
-const loginTo = computed(() => localePath(`/login?redirect=${encodeURIComponent(route.fullPath)}`))
+const loginTo = computed(() => localePath({ path: '/login', query: { redirect: route.fullPath } }))
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium' })
 function starsLabel(rating: number) {
   return t('reviews.starsLabel', { rating })
