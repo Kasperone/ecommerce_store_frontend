@@ -64,7 +64,7 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
       icon: 'i-lucide-check-circle',
     })
 
-    router.push(`${localePath('/verify-email-sent')}?email=${encodeURIComponent(payload.data.email)}`)
+    router.push(localePath({ path: '/verify-email-sent', query: { email: payload.data.email } }))
   }
   else {
     const fallback = t('auth.registrationError')

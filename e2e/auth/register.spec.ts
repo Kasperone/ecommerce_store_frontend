@@ -17,5 +17,10 @@ test('register happy path → redirects to /verify-email-sent', async ({ page })
 
   await page.getByRole('button', { name: /continue/i }).click()
 
-  await expect(page).toHaveURL(new RegExp(`/verify-email-sent\\?email=${encodeURIComponent(user.email).replace(/\./g, '\\.')}`))
+  // Lands on /verify-email-sent carrying the email. Assert the decoded query
+  // value, not an exact encoded URL — the redirect is built with localePath's
+  // route-object form, so Vue Router stringifies the query (leaving `@`
+  // unescaped) rather than us hand-encoding it.
+  await expect(page).toHaveURL(/\/verify-email-sent\?email=/)
+  expect(new URL(page.url()).searchParams.get('email')).toBe(user.email)
 })
