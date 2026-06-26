@@ -9,6 +9,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // and the SSR auth plugin populates the store before middleware fires.
   // See app/plugins/auth.ts.
   const authStore = useAuthStore()
+  const localePath = useLocalePath()
 
   // On hard reload the plugin's tryRestoreSession may still be in flight;
   // racing against it would redirect a logged-in admin to /login.
@@ -18,10 +19,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   if (!authStore.isAuthenticated) {
     const safe = safeRedirect(to.fullPath, '/')
-    return navigateTo(`/login?redirect=${encodeURIComponent(safe)}`)
+    return navigateTo(`${localePath('/login')}?redirect=${encodeURIComponent(safe)}`)
   }
 
   if (!authStore.isAdmin) {
-    return navigateTo('/')
+    return navigateTo(localePath('/'))
   }
 })

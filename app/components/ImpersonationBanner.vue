@@ -10,6 +10,7 @@ import { useI18n } from 'vue-i18n'
 
 const auth = useAuthStore()
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 const customerName = computed(() => {
   const c = auth.impersonating
@@ -23,7 +24,7 @@ async function exit() {
   exiting.value = true
   try {
     await auth.stopImpersonation()
-    await navigateTo('/admin/customers')
+    await navigateTo(localePath('/admin/customers'))
   }
   finally {
     exiting.value = false

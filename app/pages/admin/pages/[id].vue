@@ -310,7 +310,7 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
             color="neutral"
             variant="ghost"
             icon="i-lucide-arrow-left"
-            to="/admin/pages"
+            :to="localePath('/admin/pages')"
             :aria-label="t('admin.cms.editor.back')"
           />
           <div>

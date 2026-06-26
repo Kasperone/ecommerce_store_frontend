@@ -11,6 +11,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 useHead({ title: () => t('admin.inventory.title') })
 
 const filterSchema = z.object({
@@ -110,7 +111,7 @@ function openTransfer(row: InventoryListItem) {
             color="neutral"
             variant="soft"
             icon="i-lucide-scroll-text"
-            @click="navigateTo('/admin/inventory/movements')"
+            @click="navigateTo(localePath('/admin/inventory/movements'))"
           >
             {{ $t('admin.inventory.actions.viewMovements') }}
           </UButton>

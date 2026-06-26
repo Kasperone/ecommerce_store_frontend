@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 
 const tabItems = computed(() => {
   // ensure computed re-runs when locale changes
@@ -32,7 +33,7 @@ const tabItems = computed(() => {
           </h1>
           <p class="text-gray-600 dark:text-gray-400">
             {{ t('authExtra.noAccount') }} <ULink
-              to="/login"
+              :to="localePath('/login')"
               class="text-primary font-medium"
             >{{ t('auth.login') }}</ULink>
           </p>

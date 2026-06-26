@@ -11,6 +11,7 @@ definePageMeta({
 })
 
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 useHead({ title: () => t('admin.returns.title') })
 
 const filterSchema = z.object({
@@ -123,7 +124,7 @@ const columns: TableColumn<ReturnRequestResponse>[] = [
       >
         <template #id-cell="{ row }">
           <ULink
-            :to="`/admin/returns/${row.original.id}`"
+            :to="localePath(`/admin/returns/${row.original.id}`)"
             class="font-mono font-medium text-primary"
           >
             #{{ row.original.id }}
@@ -131,7 +132,7 @@ const columns: TableColumn<ReturnRequestResponse>[] = [
         </template>
         <template #order_number-cell="{ row }">
           <ULink
-            :to="`/admin/orders/${row.original.order_id}`"
+            :to="localePath(`/admin/orders/${row.original.order_id}`)"
             class="font-mono text-sm"
           >
             {{ row.original.order_number ?? `#${row.original.order_id}` }}
@@ -162,7 +163,7 @@ const columns: TableColumn<ReturnRequestResponse>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.returns.actions.view')"
-              @click="navigateTo(`/admin/returns/${row.original.id}`)"
+              @click="navigateTo(localePath(`/admin/returns/${row.original.id}`))"
             />
           </div>
         </template>

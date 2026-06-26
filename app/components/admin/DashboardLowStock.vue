@@ -16,6 +16,7 @@ interface Props {
 }
 const props = defineProps<Props>()
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 const STATUS_COLOR: Record<Status, 'success' | 'warning' | 'error' | 'info'> = {
   in_stock: 'success',
@@ -55,7 +56,7 @@ const moreCount = computed(() => Math.max(0, props.count - props.items.length))
         class="flex items-center gap-3 py-2 first:pt-0 last:pb-0"
       >
         <NuxtLink
-          :to="`/admin/products/${item.product_id}/edit`"
+          :to="localePath(`/admin/products/${item.product_id}/edit`)"
           class="flex-1 min-w-0 font-medium truncate hover:text-primary"
         >
           {{ item.name }}
@@ -93,7 +94,7 @@ const moreCount = computed(() => Math.max(0, props.count - props.items.length))
         </span>
         <span v-else />
         <ULink
-          to="/admin/inventory"
+          :to="localePath('/admin/inventory')"
           class="text-primary"
         >
           {{ t('admin.dashboardKpis.low.viewAll') }}

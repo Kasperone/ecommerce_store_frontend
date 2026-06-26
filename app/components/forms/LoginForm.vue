@@ -118,7 +118,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
         </h1>
         <p class="mt-1 text-base text-pretty text-muted">
           {{ t('authExtra.noAccount') }} <ULink
-            to="/sign-up"
+            :to="localePath('/sign-up')"
             class="text-primary font-medium"
           >{{ t('auth.signUp') }}</ULink>
         </p>
@@ -147,7 +147,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
 
         <template #password-hint>
           <ULink
-            to="/password-recovery"
+            :to="localePath('/password-recovery')"
             class="text-primary font-medium"
             tabindex="-1"
           >{{ t('auth.forgotPassword') }}</ULink>
@@ -181,7 +181,7 @@ const submit = async (payload: FormSubmitEvent<LoginFormData>) => {
 
         <template #footer>
           {{ t('authExtra.agreeTo') }} <ULink
-            to="/terms-of-service"
+            :to="localePath('/terms-of-service')"
             class="text-primary font-medium"
           >{{ t('auth.termsOfService') }}</ULink>
         </template>

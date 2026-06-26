@@ -8,6 +8,7 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const route = useRoute()
 const toast = useToast()
+const localePath = useLocalePath()
 
 useHead({
   titleTemplate: '%s | Verify Email',
@@ -135,7 +136,7 @@ onUnmounted(() => {
       <template #footer>
         <div class="text-center text-sm text-gray-500 dark:text-gray-400">
           <NuxtLink
-            to="/login"
+            :to="localePath('/login')"
             class="text-primary hover:underline"
           >
             {{ t('auth.verification.goToLogin') }}

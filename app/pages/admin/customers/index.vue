@@ -11,6 +11,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 useHead({ title: () => t('admin.customers.title') })
 
 const tri = z.enum(['all', 'true', 'false']).optional()
@@ -201,7 +202,7 @@ const columns: TableColumn<CustomerListItem>[] = [
       >
         <template #email-cell="{ row }">
           <ULink
-            :to="`/admin/customers/${row.original.id}`"
+            :to="localePath(`/admin/customers/${row.original.id}`)"
             class="font-medium text-primary"
           >
             {{ row.original.email }}
@@ -268,7 +269,7 @@ const columns: TableColumn<CustomerListItem>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.customers.actions.view')"
-              @click="navigateTo(`/admin/customers/${row.original.id}`)"
+              @click="navigateTo(localePath(`/admin/customers/${row.original.id}`))"
             />
           </div>
         </template>

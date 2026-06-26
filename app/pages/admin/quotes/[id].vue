@@ -11,6 +11,7 @@ definePageMeta({
 })
 
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const route = useRoute()
 const quoteId = computed(() => {
@@ -78,7 +79,7 @@ async function onConvertConfirm() {
       color: 'success',
       icon: 'i-lucide-check',
     })
-    await navigateTo(`/admin/orders/${order.id}`)
+    await navigateTo(localePath(`/admin/orders/${order.id}`))
   }
   catch (err) {
     applyConvertError(err, t('messages.saveError'))
@@ -142,7 +143,7 @@ async function onDeleteConfirm() {
       color: 'success',
       icon: 'i-lucide-check',
     })
-    await navigateTo('/admin/quotes')
+    await navigateTo(localePath('/admin/quotes'))
   }
   catch (err) {
     applyDeleteError(err, t('messages.saveError'))
@@ -160,7 +161,7 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo('/admin/quotes')"
+        @click="navigateTo(localePath('/admin/quotes'))"
       >
         {{ $t('admin.quotes.actions.back') }}
       </UButton>
@@ -210,7 +211,7 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
               variant="soft"
               icon="i-lucide-package-check"
               data-testid="quote-converted-link"
-              @click="navigateTo(`/admin/orders/${convertedOrderId}`)"
+              @click="navigateTo(localePath(`/admin/orders/${convertedOrderId}`))"
             >
               {{ $t('admin.quotes.convert.converted') }}
             </UButton>
