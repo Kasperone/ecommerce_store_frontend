@@ -28,6 +28,10 @@ mockNuxtImport('useRouter', (original: any) => () => {
   })
 })
 mockNuxtImport('useToast', () => () => ({ add: mockToastAdd }))
+// Identity localePath resolver — passes a route location through untouched so the
+// post-signup redirect can be asserted as {path, query} (intent), decoupled from
+// Vue Router's URL encoding. Default-locale EN adds no prefix.
+mockNuxtImport('useLocalePath', () => () => (loc: unknown) => loc)
 
 vi.mock('~/stores/auth', () => ({
   useAuthStore: () => ({
@@ -85,9 +89,10 @@ describe('PersonalSignUpForm', () => {
     await submitForm(wrapper)
 
     expect(mockRegister).toHaveBeenCalledTimes(1)
-    expect(mockPush).toHaveBeenCalledWith(
-      `/verify-email-sent?email=${encodeURIComponent('ada@example.com')}`,
-    )
+    expect(mockPush).toHaveBeenCalledWith({
+      path: '/verify-email-sent',
+      query: { email: 'ada@example.com' },
+    })
   })
 
   it('blocks submit when required fields are empty (Zod validation)', async () => {
