@@ -114,7 +114,7 @@ function onSubmit(event: { data: ShippingInput }) {
       >
         {{ t('checkout.guest.hint') }}
         <ULink
-          :to="localePath('/login?redirect=/checkout')"
+          :to="localePath({ path: '/login', query: { redirect: localePath('/checkout') } })"
           class="text-primary hover:underline"
         >
           {{ t('checkout.guest.signIn') }}
