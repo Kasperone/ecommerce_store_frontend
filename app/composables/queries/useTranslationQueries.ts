@@ -29,7 +29,7 @@ const TRANSLATIONS_NAMESPACE = ['translations'] as const
 export const TRANSLATION_LOCALES = ['pl'] as const
 export type TranslationLocale = (typeof TRANSLATION_LOCALES)[number]
 
-export type TranslationStatusFilter = 'all' | 'missing'
+export type TranslationStatusFilter = 'all' | 'missing' | 'outdated'
 
 export interface TranslationListParams {
   locale?: TranslationLocale

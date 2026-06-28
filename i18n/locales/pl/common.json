@@ -2283,7 +2283,6 @@
       "subtitle": "Przeglądaj i uzupełniaj tłumaczenia treści sklepu.",
       "localeLabel": "Język",
       "searchPlaceholder": "Szukaj po nazwie…",
-      "missingOnly": "Pokaż tylko nieprzetłumaczone",
       "complete": "Kompletne",
       "incomplete": "Niekompletne",
       "completeness": "Przetłumaczono {translated} z {total}",
@@ -2310,7 +2309,12 @@
         "description": "Opis",
         "metaTitle": "Meta tytuł",
         "metaDescription": "Meta opis"
-      }
+      },
+      "filterAll": "Wszystkie",
+      "filterMissing": "Nieprzetłumaczone",
+      "filterOutdated": "Do przeglądu",
+      "needsReview": "Do przeglądu",
+      "sourceChanged": "Źródło zmienione"
     }
   },
   "account": {
