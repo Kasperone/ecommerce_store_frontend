@@ -2283,7 +2283,6 @@
       "subtitle": "Review and fill in translations for your store content.",
       "localeLabel": "Language",
       "searchPlaceholder": "Search by name…",
-      "missingOnly": "Show untranslated only",
       "complete": "Complete",
       "incomplete": "Incomplete",
       "completeness": "{translated} of {total} translated",
@@ -2310,7 +2309,12 @@
         "description": "Description",
         "metaTitle": "Meta title",
         "metaDescription": "Meta description"
-      }
+      },
+      "filterAll": "All",
+      "filterMissing": "Untranslated",
+      "filterOutdated": "Needs review",
+      "needsReview": "Needs review",
+      "sourceChanged": "Source changed"
     }
   },
   "account": {

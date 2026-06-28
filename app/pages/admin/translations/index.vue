@@ -25,7 +25,10 @@ import {
   useTranslationResourceTypesQuery,
   useUpdateTranslation,
 } from '~/composables/queries/useTranslationQueries'
-import type { TranslationLocale } from '~/composables/queries/useTranslationQueries'
+import type {
+  TranslationLocale,
+  TranslationStatusFilter,
+} from '~/composables/queries/useTranslationQueries'
 
 definePageMeta({ middleware: ['admin'], layout: 'admin' })
 
@@ -42,12 +45,12 @@ const localeItems = computed(() =>
 // URL-backed view state.
 const filterSchema = z.object({
   type: z.string().optional(),
-  status: z.enum(['all', 'missing']).optional(),
+  status: z.enum(['all', 'missing', 'outdated']).optional(),
   q: z.string().optional(),
 })
 const defaults = {
   type: undefined as string | undefined,
-  status: 'all' as 'all' | 'missing',
+  status: 'all' as TranslationStatusFilter,
   q: undefined as string | undefined,
 }
 const { filters, set } = useUrlFilters(filterSchema, defaults)
@@ -87,10 +90,15 @@ const searchInput = ref(filters.value.q ?? '')
 const debouncedSearch = refDebounced(searchInput, 300)
 watch(debouncedSearch, value => set({ q: value || undefined }))
 
-const missingOnly = computed({
-  get: () => filters.value.status === 'missing',
-  set: (value: boolean) => set({ status: value ? 'missing' : 'all' }),
+const statusFilter = computed({
+  get: () => filters.value.status ?? 'all',
+  set: (value: TranslationStatusFilter) => set({ status: value === 'all' ? undefined : value }),
 })
+const statusItems = computed(() => [
+  { label: t('admin.translations.filterAll'), value: 'all' as const },
+  { label: t('admin.translations.filterMissing'), value: 'missing' as const },
+  { label: t('admin.translations.filterOutdated'), value: 'outdated' as const },
+])
 
 // ---------------------------------------------------------------------------
 // List
@@ -204,9 +212,10 @@ async function save() {
             :placeholder="t('admin.translations.searchPlaceholder')"
             class="w-64"
           />
-          <USwitch
-            v-model="missingOnly"
-            :label="t('admin.translations.missingOnly')"
+          <USelect
+            v-model="statusFilter"
+            :items="statusItems"
+            class="w-48"
           />
         </div>
 
@@ -225,11 +234,21 @@ async function save() {
             </span>
           </template>
           <template #status-cell="{ row }">
-            <UBadge :color="row.original.complete ? 'success' : 'warning'">
-              {{ row.original.complete
-                ? t('admin.translations.complete')
-                : t('admin.translations.incomplete') }}
-            </UBadge>
+            <div class="flex flex-wrap items-center gap-2">
+              <UBadge :color="row.original.complete ? 'success' : 'neutral'">
+                {{ row.original.complete
+                  ? t('admin.translations.complete')
+                  : t('admin.translations.incomplete') }}
+              </UBadge>
+              <UBadge
+                v-if="row.original.has_outdated"
+                color="warning"
+                variant="subtle"
+                icon="i-lucide-history"
+              >
+                {{ t('admin.translations.needsReview') }}
+              </UBadge>
+            </div>
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end">
@@ -273,8 +292,17 @@ async function save() {
                 :key="field.key"
                 class="space-y-1.5"
               >
-                <p class="text-sm font-medium">
+                <p class="flex items-center gap-2 text-sm font-medium">
                   {{ t(field.label_key) }}
+                  <UBadge
+                    v-if="field.outdated"
+                    color="warning"
+                    variant="subtle"
+                    size="sm"
+                    icon="i-lucide-history"
+                  >
+                    {{ t('admin.translations.sourceChanged') }}
+                  </UBadge>
                 </p>
                 <p class="rounded-md bg-elevated/50 px-3 py-2 text-sm text-muted">
                   <span class="mr-1 text-xs uppercase tracking-wide text-dimmed">

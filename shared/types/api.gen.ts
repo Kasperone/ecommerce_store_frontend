@@ -10994,6 +10994,11 @@ export interface components {
             needs_translation: boolean;
             /** Translated */
             translated: boolean;
+            /**
+             * Outdated
+             * @default false
+             */
+            outdated: boolean;
         };
         /**
          * TranslationResourceListResponse
@@ -11032,6 +11037,11 @@ export interface components {
             translated_count: number;
             /** Applicable Count */
             applicable_count: number;
+            /**
+             * Has Outdated
+             * @default false
+             */
+            has_outdated: boolean;
             /** Fields */
             fields: components["schemas"]["TranslationFieldRow"][];
         };
@@ -17677,7 +17687,7 @@ export interface operations {
         parameters: {
             query?: {
                 locale?: string;
-                status?: "all" | "missing";
+                status?: "all" | "missing" | "outdated";
                 q?: string | null;
                 page?: number;
                 page_size?: number;
