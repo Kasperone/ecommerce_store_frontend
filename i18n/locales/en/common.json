@@ -103,7 +103,8 @@
         "auditLog": "Audit Log",
         "settings": "Settings",
         "staff": "Staff & Roles",
-        "segments": "Segments"
+        "segments": "Segments",
+        "translations": "Translations"
       }
     },
     "pages": {
@@ -2275,6 +2276,40 @@
         "created": "Segment created.",
         "updated": "Segment updated.",
         "deleted": "Segment deleted."
+      }
+    },
+    "translations": {
+      "title": "Translations",
+      "subtitle": "Review and fill in translations for your store content.",
+      "localeLabel": "Language",
+      "searchPlaceholder": "Search by name…",
+      "missingOnly": "Show untranslated only",
+      "complete": "Complete",
+      "incomplete": "Incomplete",
+      "completeness": "{translated} of {total} translated",
+      "edit": "Edit",
+      "editTitle": "Edit translation",
+      "source": "Source (English)",
+      "noSource": "No source value",
+      "save": "Save",
+      "saved": "Translation saved",
+      "saveError": "Could not save the translation",
+      "empty": "Nothing to translate here.",
+      "loadError": "Could not load translations",
+      "locales": {
+        "pl": "Polish"
+      },
+      "resources": {
+        "shippingMethod": "Shipping methods",
+        "product": "Products",
+        "category": "Categories",
+        "collection": "Collections"
+      },
+      "fields": {
+        "name": "Name",
+        "description": "Description",
+        "metaTitle": "Meta title",
+        "metaDescription": "Meta description"
       }
     }
   },
