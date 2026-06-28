@@ -103,7 +103,8 @@
         "auditLog": "Dziennik zdarzeń",
         "settings": "Ustawienia",
         "staff": "Personel i role",
-        "segments": "Segmenty"
+        "segments": "Segmenty",
+        "translations": "Tłumaczenia"
       }
     },
     "pages": {
@@ -2275,6 +2276,40 @@
         "created": "Segment utworzony.",
         "updated": "Segment zaktualizowany.",
         "deleted": "Segment usunięty."
+      }
+    },
+    "translations": {
+      "title": "Tłumaczenia",
+      "subtitle": "Przeglądaj i uzupełniaj tłumaczenia treści sklepu.",
+      "localeLabel": "Język",
+      "searchPlaceholder": "Szukaj po nazwie…",
+      "missingOnly": "Pokaż tylko nieprzetłumaczone",
+      "complete": "Kompletne",
+      "incomplete": "Niekompletne",
+      "completeness": "Przetłumaczono {translated} z {total}",
+      "edit": "Edytuj",
+      "editTitle": "Edytuj tłumaczenie",
+      "source": "Źródło (angielski)",
+      "noSource": "Brak wartości źródłowej",
+      "save": "Zapisz",
+      "saved": "Zapisano tłumaczenie",
+      "saveError": "Nie udało się zapisać tłumaczenia",
+      "empty": "Nie ma tu nic do przetłumaczenia.",
+      "loadError": "Nie udało się wczytać tłumaczeń",
+      "locales": {
+        "pl": "polski"
+      },
+      "resources": {
+        "shippingMethod": "Metody dostawy",
+        "product": "Produkty",
+        "category": "Kategorie",
+        "collection": "Kolekcje"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "description": "Opis",
+        "metaTitle": "Meta tytuł",
+        "metaDescription": "Meta opis"
       }
     }
   },
