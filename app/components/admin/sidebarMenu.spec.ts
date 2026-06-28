@@ -13,9 +13,14 @@ describe('adminMenuGroups (constant)', () => {
     ])
   })
 
-  it('exposes 22 routes total across all groups', () => {
+  it('exposes 23 routes total across all groups', () => {
     const items = adminMenuGroups.flatMap(g => g.items)
-    expect(items).toHaveLength(22)
+    expect(items).toHaveLength(23)
+  })
+
+  it('includes the translations route under configuration', () => {
+    const configuration = adminMenuGroups.find(g => g.key === 'configuration')!
+    expect(configuration.items.map(i => i.to)).toContain('/admin/translations')
   })
 
   it('includes the segments route under marketing', () => {

@@ -3500,6 +3500,66 @@ export interface paths {
         patch: operations["update_settings_api_v1_admin_settings_patch"];
         trace?: never;
     };
+    "/api/v1/admin/translations/resource-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Resource Types
+         * @description Registry summary + per-type completeness counts for ``locale`` (admin).
+         */
+        get: operations["list_resource_types_api_v1_admin_translations_resource_types_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/translations/{resource_type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Translations
+         * @description List a resource type's rows with source + translation + completeness (admin).
+         */
+        get: operations["list_translations_api_v1_admin_translations__resource_type__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/translations/{resource_type}/{resource_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Translation
+         * @description Write translations for one resource's fields in ``locale`` (admin).
+         */
+        put: operations["update_translation_api_v1_admin_translations__resource_type___resource_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/warehouses/": {
         parameters: {
             query?: never;
@@ -10914,6 +10974,113 @@ export interface components {
             to_resulting_stock: number;
         };
         /**
+         * TranslationFieldRow
+         * @description One translatable field of a resource, with source + current translation.
+         */
+        TranslationFieldRow: {
+            /** Key */
+            key: string;
+            /** Label Key */
+            label_key: string;
+            /** Source */
+            source: string | null;
+            /** Translation */
+            translation: string | null;
+            /** Multiline */
+            multiline: boolean;
+            /** Max Len */
+            max_len: number | null;
+            /** Needs Translation */
+            needs_translation: boolean;
+            /** Translated */
+            translated: boolean;
+        };
+        /**
+         * TranslationResourceListResponse
+         * @description Paginated rows for one resource type + locale.
+         */
+        TranslationResourceListResponse: {
+            /** Items */
+            items: components["schemas"]["TranslationResourceRow"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+            /** Locale */
+            locale: string;
+            /** Resource Type */
+            resource_type: string;
+        };
+        /**
+         * TranslationResourceRow
+         * @description A resource row in the workspace: its label + per-field translation state.
+         */
+        TranslationResourceRow: {
+            /** Id */
+            id: number;
+            /** Label */
+            label: string;
+            /** Resource Type */
+            resource_type: string;
+            /** Complete */
+            complete: boolean;
+            /** Translated Count */
+            translated_count: number;
+            /** Applicable Count */
+            applicable_count: number;
+            /** Fields */
+            fields: components["schemas"]["TranslationFieldRow"][];
+        };
+        /**
+         * TranslationResourceTypeSummary
+         * @description Completeness rollup for one resource type in a locale.
+         */
+        TranslationResourceTypeSummary: {
+            /** Type */
+            type: string;
+            /** Label Key */
+            label_key: string;
+            /** Resource Count */
+            resource_count: number;
+            /** Complete Count */
+            complete_count: number;
+            /** Incomplete Count */
+            incomplete_count: number;
+        };
+        /**
+         * TranslationResourceTypesResponse
+         * @description Registry summary + per-type completeness counts for a locale.
+         */
+        TranslationResourceTypesResponse: {
+            /** Locale */
+            locale: string;
+            /** Types */
+            types: components["schemas"]["TranslationResourceTypeSummary"][];
+            /** Resource Count */
+            resource_count: number;
+            /** Complete Count */
+            complete_count: number;
+            /** Incomplete Count */
+            incomplete_count: number;
+        };
+        /**
+         * TranslationUpdateRequest
+         * @description Body for a translation update: ``{field_key: value}``.
+         *
+         *     A blank/whitespace value clears the translation (stored as NULL), which the
+         *     storefront then renders via the English fallback.
+         */
+        TranslationUpdateRequest: {
+            /** Fields */
+            fields?: {
+                [key: string]: string | null;
+            };
+        };
+        /**
          * UserCreate
          * @description Schema for user registration
          */
@@ -17462,6 +17629,112 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StoreConfigResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_resource_types_api_v1_admin_translations_resource_types_get: {
+        parameters: {
+            query?: {
+                locale?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TranslationResourceTypesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_translations_api_v1_admin_translations__resource_type__get: {
+        parameters: {
+            query?: {
+                locale?: string;
+                status?: "all" | "missing";
+                q?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                resource_type: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TranslationResourceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_translation_api_v1_admin_translations__resource_type___resource_id__put: {
+        parameters: {
+            query?: {
+                locale?: string;
+            };
+            header?: never;
+            path: {
+                resource_type: string;
+                resource_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TranslationUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TranslationResourceRow"];
                 };
             };
             /** @description Validation Error */

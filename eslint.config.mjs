@@ -62,6 +62,11 @@ const i18nDynamicKeyIgnores = [
   '/^admin\\.segments\\.role\\./',
   '/^admin\\.segments\\.tagMatch\\./',
   '/^admin\\.shipping\\.rates\\.pricingKind\\./',
+  // translations workspace — field/resource/locale labels resolved via
+  // t(field.label_key) / t(`…locales.${code}`), keys come from the backend registry
+  '/^admin\\.translations\\.fields\\./',
+  '/^admin\\.translations\\.locales\\./',
+  '/^admin\\.translations\\.resources\\./',
   // checkout
   '/^checkout\\.errors\\./',
   // errorPage (error.vue dynamic lookup)
