@@ -2835,7 +2835,7 @@ export interface paths {
         put?: never;
         /**
          * Create Page
-         * @description Create a draft page. ``custom-html`` blocks are sanitized before storage.
+         * @description Create a draft page. Raw-HTML blocks are sanitized before storage.
          */
         post: operations["create_page_api_v1_admin_pages__post"];
         delete?: never;
