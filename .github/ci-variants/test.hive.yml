@@ -261,6 +261,11 @@ jobs:
             -e CORS_ORIGINS='["http://localhost:3100"]' \
             -e RATE_LIMIT_STORAGE_URL=memory:// \
             -e E2E_DISABLE_RATE_LIMIT=true \
+            -e R2_ACCOUNT_ID="${{ secrets.R2_ACCOUNT_ID }}" \
+            -e R2_ACCESS_KEY_ID="${{ secrets.R2_ACCESS_KEY_ID }}" \
+            -e R2_SECRET_ACCESS_KEY="${{ secrets.R2_SECRET_ACCESS_KEY }}" \
+            -e R2_BUCKET_NAME="${{ secrets.R2_BUCKET_NAME }}" \
+            -e R2_PUBLIC_URL="${{ secrets.R2_PUBLIC_URL }}" \
             "$BACKEND_IMAGE"
 
       - name: Wait for backend /health
@@ -313,6 +318,12 @@ jobs:
         run: npx playwright install-deps chromium
 
       - name: Run Playwright
+        env:
+          # Un-skips e2e/admin/product-gallery.spec.ts (real-R2 upload path).
+          # The R2_* secrets above give the backend container real dev-bucket
+          # creds; keys are products/{id}/{uuid}.{ext} so CI runs can't collide
+          # with dev objects.
+          E2E_R2_ENABLED: "1"
         run: npm run e2e
 
       - name: Capture backend logs (on failure)
