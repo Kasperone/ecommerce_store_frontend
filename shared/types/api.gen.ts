@@ -3427,6 +3427,159 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/draft-orders/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Draft Orders
+         * @description List draft orders (newest first), filterable by status.
+         *
+         *     Rows carry the customer email + totals (no line items — fetch a single
+         *     draft for those).
+         */
+        get: operations["list_draft_orders_api_v1_admin_draft_orders__get"];
+        put?: never;
+        /**
+         * Create Draft Order
+         * @description Create an empty draft with a pinned ``currency``.
+         *
+         *     The customer is optional (``user_id`` and/or ``guest_email`` may be
+         *     omitted while drafting); an explicit ``user_id`` must exist (404). Lines
+         *     are added via ``POST /{id}/items``.
+         */
+        post: operations["create_draft_order_api_v1_admin_draft_orders__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/draft-orders/{draft_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Draft Order
+         * @description Get one draft by id, with its nested line items (live-priced).
+         */
+        get: operations["get_draft_order_api_v1_admin_draft_orders__draft_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Draft Order
+         * @description Delete an open draft (its line items cascade). 409 on a ``completed``
+         *     draft — that one documents a real conversion.
+         */
+        delete: operations["delete_draft_order_api_v1_admin_draft_orders__draft_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Draft Order
+         * @description Update a draft header (partial). Only fields sent are applied; an
+         *     explicit ``null`` clears a nullable field. ``currency`` is immutable
+         *     (pinned at create). A ``discount`` change recomputes the totals. 409 on a
+         *     ``completed`` draft; 404 on an unknown ``user_id`` / ``shipping_method_id``.
+         */
+        patch: operations["update_draft_order_api_v1_admin_draft_orders__draft_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/draft-orders/{draft_id}/convert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convert Draft Order
+         * @description Convert an **open** draft into a real pending order.
+         *
+         *     The order is owned by the draft's customer (``user_id``) or guest
+         *     (``guest_email`` + a fresh ``guest_token``) — the converting admin is only
+         *     the audit actor. Lines honour any ``unit_price_override`` (no re-pricing)
+         *     and otherwise price from the live catalog in the draft's currency; stock
+         *     is validated + decremented from the default warehouse like a normal
+         *     order; shipping resolves for real from the draft's address + method; the
+         *     manual discount is clamped to the subtotal. ``mark_as_paid`` flips the
+         *     order to PAID in the same transaction (issues the gap-free faktura);
+         *     ``send_email`` enqueues the confirmation email (plus the paid email when
+         *     ``mark_as_paid``).
+         *
+         *     Eligibility (else error): draft not found → 404; not open / already
+         *     converted → 409; no items, stale (deleted-product) line, no owner,
+         *     incomplete shipping address, no shipping method, variant problems,
+         *     unavailable product, insufficient stock, no rate for the draft's
+         *     country+currency, or an InPost locker method (drafts carry no Paczkomat
+         *     point) → 422.
+         */
+        post: operations["convert_draft_order_api_v1_admin_draft_orders__draft_id__convert_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/draft-orders/{draft_id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Draft Order Item
+         * @description Add a catalog line to an open draft; returns the updated draft.
+         *
+         *     The product must exist and be active, and a product with active variants
+         *     requires a ``variant_id`` (shared order-create rules) — 422 otherwise.
+         *     ``unit_price_override`` pins the line price; omit it for live catalog
+         *     pricing in the draft's currency. No stock is held.
+         */
+        post: operations["add_draft_order_item_api_v1_admin_draft_orders__draft_id__items_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/draft-orders/{draft_id}/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Draft Order Item
+         * @description Remove a line from an open draft and recompute the totals. 409 on a
+         *     ``completed`` draft.
+         */
+        delete: operations["remove_draft_order_item_api_v1_admin_draft_orders__draft_id__items__item_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Draft Order Item
+         * @description Patch a line's ``quantity`` and/or ``unit_price_override``; returns the
+         *     updated draft. Send an explicit ``unit_price_override: null`` to clear the
+         *     pin back to live catalog pricing. 409 on a ``completed`` draft.
+         */
+        patch: operations["update_draft_order_item_api_v1_admin_draft_orders__draft_id__items__item_id__patch"];
+        trace?: never;
+    };
     "/api/v1/admin/staff/": {
         parameters: {
             query?: never;
@@ -6617,6 +6770,274 @@ export interface components {
             consents: {
                 [key: string]: unknown;
             }[];
+        };
+        /**
+         * DraftOrderConvert
+         * @description Request body for ``POST /api/v1/admin/draft-orders/{id}/convert``.
+         *
+         *     ``payment_method`` lands on the order as-is (free-string column; the
+         *     allowed set here mirrors the admin-conversion MVP — online methods are
+         *     set by the payment-start flow, not here). ``mark_as_paid`` flips the
+         *     order to PAID in the same transaction and issues the gap-free faktura.
+         *     ``send_email`` enqueues the order-confirmation email (plus the paid
+         *     email when ``mark_as_paid``) — works for guests via ``guest_email``.
+         */
+        DraftOrderConvert: {
+            /**
+             * Payment Method
+             * @default manual
+             * @enum {string}
+             */
+            payment_method: "manual" | "cod";
+            /**
+             * Mark As Paid
+             * @default false
+             */
+            mark_as_paid: boolean;
+            /**
+             * Send Email
+             * @default false
+             */
+            send_email: boolean;
+        };
+        /**
+         * DraftOrderCreate
+         * @description Request body for ``POST /api/v1/admin/draft-orders``.
+         *
+         *     ``currency`` is pinned here and immutable afterwards. The customer is
+         *     optional while drafting — ``user_id`` (validated for existence in the
+         *     route → 404) and/or ``guest_email`` may both be omitted; conversion
+         *     (PR 3) enforces exactly one owner. Lines are added via the item
+         *     sub-endpoints, not here.
+         */
+        DraftOrderCreate: {
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** User Id */
+            user_id?: number | null;
+            /** Guest Email */
+            guest_email?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * DraftOrderItemCreate
+         * @description A single line for ``POST /api/v1/admin/draft-orders/{id}/items``.
+         *
+         *     ``variant_id`` follows the order-create rules (``resolve_line_variant``):
+         *     required when the product has active variants, rejected when
+         *     missing/inactive/another product's (422). ``unit_price_override`` NULL
+         *     means "price from the catalog in the draft's currency at read/convert
+         *     time"; a value pins the line to an admin price.
+         */
+        DraftOrderItemCreate: {
+            /** Product Id */
+            product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price Override */
+            unit_price_override?: number | null;
+        };
+        /**
+         * DraftOrderItemResponse
+         * @description A draft line as the API returns it.
+         *
+         *     ``product_name`` / ``variant_title`` resolve live from the catalog
+         *     relationship (``None`` when the product/variant was deleted — the line is
+         *     visibly stale). ``effective_unit_price`` / ``line_total`` are the
+         *     server-computed preview in the draft's currency (``None`` only on a stale
+         *     line with no override).
+         */
+        DraftOrderItemResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Draft Order Id */
+            draft_order_id: number;
+            /** Product Id */
+            product_id: number | null;
+            /** Variant Id */
+            variant_id: number | null;
+            /** Product Name */
+            product_name?: string | null;
+            /** Variant Title */
+            variant_title?: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price Override */
+            unit_price_override: number | null;
+            /** Effective Unit Price */
+            effective_unit_price: number | null;
+            /** Line Total */
+            line_total: number | null;
+        };
+        /**
+         * DraftOrderItemUpdate
+         * @description Request body for ``PATCH .../items/{item_id}`` (all fields optional).
+         *
+         *     Send an explicit ``null`` for ``unit_price_override`` to clear the pin
+         *     back to live catalog pricing; omit the field to leave it unchanged
+         *     (mirrors the ``low_stock_default_threshold`` nullable-PATCH convention).
+         */
+        DraftOrderItemUpdate: {
+            /** Quantity */
+            quantity?: number | null;
+            /** Unit Price Override */
+            unit_price_override?: number | null;
+        };
+        /**
+         * DraftOrderListItem
+         * @description Lightweight draft row for list views (customer + totals, no items).
+         */
+        DraftOrderListItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** User Id */
+            user_id: number | null;
+            /** Guest Email */
+            guest_email: string | null;
+            /** Customer Email */
+            customer_email?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "completed";
+            /** Currency */
+            currency: string;
+            /** Discount */
+            discount: number;
+            /** Subtotal */
+            subtotal: number;
+            /** Total */
+            total: number;
+            /** Converted Order Id */
+            converted_order_id?: number | null;
+            /** Item Count */
+            item_count: number;
+        };
+        /**
+         * DraftOrderListResponse
+         * @description Paginated draft-order list.
+         */
+        DraftOrderListResponse: {
+            /** Items */
+            items: components["schemas"]["DraftOrderListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * DraftOrderResponse
+         * @description A full draft order as the API returns it (header + nested ``items``).
+         */
+        DraftOrderResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** User Id */
+            user_id: number | null;
+            /** Guest Email */
+            guest_email: string | null;
+            /** Customer Email */
+            customer_email?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "completed";
+            /** Currency */
+            currency: string;
+            /** Shipping Address */
+            shipping_address: string | null;
+            /** Shipping City */
+            shipping_city: string | null;
+            /** Shipping Postal Code */
+            shipping_postal_code: string | null;
+            /** Shipping Country */
+            shipping_country: string | null;
+            /** Shipping Method Id */
+            shipping_method_id: number | null;
+            /** Discount */
+            discount: number;
+            /** Subtotal */
+            subtotal: number;
+            /** Total */
+            total: number;
+            /** Notes */
+            notes: string | null;
+            /** Converted Order Id */
+            converted_order_id?: number | null;
+            /** Items */
+            items?: components["schemas"]["DraftOrderItemResponse"][];
+        };
+        /**
+         * DraftOrderUpdate
+         * @description Request body for ``PATCH /api/v1/admin/draft-orders/{id}`` (all optional).
+         *
+         *     Only fields explicitly sent are applied; send an explicit ``null`` to
+         *     clear a nullable field (mirrors the ``low_stock_default_threshold``
+         *     nullable-PATCH convention). There is deliberately **no** ``currency``
+         *     (pinned at create) and no ``status`` (set by conversion only). A
+         *     ``completed`` draft rejects every PATCH with 409.
+         */
+        DraftOrderUpdate: {
+            /** User Id */
+            user_id?: number | null;
+            /** Guest Email */
+            guest_email?: string | null;
+            /** Shipping Address */
+            shipping_address?: string | null;
+            /** Shipping City */
+            shipping_city?: string | null;
+            /** Shipping Postal Code */
+            shipping_postal_code?: string | null;
+            /** Shipping Country */
+            shipping_country?: string | null;
+            /** Shipping Method Id */
+            shipping_method_id?: number | null;
+            /** Discount */
+            discount?: number | null;
+            /** Notes */
+            notes?: string | null;
         };
         /**
          * EmailResend
@@ -17527,6 +17948,304 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_draft_orders_api_v1_admin_draft_orders__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by draft status */
+                status?: ("open" | "completed") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOrderListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_draft_order_api_v1_admin_draft_orders__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftOrderCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_draft_order_api_v1_admin_draft_orders__draft_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draft_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_draft_order_api_v1_admin_draft_orders__draft_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draft_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_draft_order_api_v1_admin_draft_orders__draft_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draft_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftOrderUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    convert_draft_order_api_v1_admin_draft_orders__draft_id__convert_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draft_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftOrderConvert"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_draft_order_item_api_v1_admin_draft_orders__draft_id__items_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draft_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftOrderItemCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_draft_order_item_api_v1_admin_draft_orders__draft_id__items__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draft_id: number;
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_draft_order_item_api_v1_admin_draft_orders__draft_id__items__item_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draft_id: number;
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftOrderItemUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOrderResponse"];
                 };
             };
             /** @description Validation Error */

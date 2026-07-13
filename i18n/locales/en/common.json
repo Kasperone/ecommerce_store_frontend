@@ -90,6 +90,7 @@
         "warehouses": "Warehouses",
         "reviews": "Reviews",
         "orders": "Orders",
+        "draftOrders": "Draft orders",
         "returns": "Returns",
         "customers": "Customers",
         "companies": "Companies (B2B)",
@@ -2103,6 +2104,143 @@
         "confirm": "Convert",
         "dismiss": "Cancel",
         "flash": "Quote converted to order {number}."
+      }
+    },
+    "draftOrders": {
+      "title": "Draft orders",
+      "subtitle": "Compose orders on behalf of customers and convert them when ready",
+      "actions": {
+        "create": "New draft order",
+        "view": "View",
+        "save": "Save changes",
+        "delete": "Delete",
+        "back": "Back to draft orders"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses"
+      },
+      "fields": {
+        "id": "Draft",
+        "customer": "Customer",
+        "currency": "Currency",
+        "total": "Total",
+        "status": "Status",
+        "created": "Created"
+      },
+      "status": {
+        "open": "Open",
+        "completed": "Completed"
+      },
+      "empty": {
+        "noDrafts": "No draft orders yet.",
+        "noResults": "No draft orders match your filters."
+      },
+      "create": {
+        "title": "New draft order",
+        "subtitle": "Pick the currency (it cannot be changed later), optionally set the customer email, then add line items."
+      },
+      "form": {
+        "currency": "Currency",
+        "currencyHint": "Pinned at creation — every price on this draft uses it.",
+        "guestEmail": "Customer email",
+        "guestEmailHint": "Optional. The order confirmation goes here unless a registered customer is linked later.",
+        "notes": "Notes",
+        "create": "Create draft order",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "invalidEmail": "Enter a valid email address.",
+        "invalidCustomerId": "Customer ID must be a positive whole number.",
+        "invalidDiscount": "Discount must be zero or a positive amount."
+      },
+      "flashes": {
+        "created": "Draft order created.",
+        "updated": "Draft order updated.",
+        "deleted": "Draft order deleted."
+      },
+      "detail": {
+        "title": "Draft order #{id}",
+        "heading": "Draft order #{id}",
+        "loading": "Loading draft order…",
+        "noOwner": "No customer set",
+        "completedNotice": "This draft has been converted to an order and is read-only.",
+        "details": "Details",
+        "customerId": "Customer ID",
+        "customerIdHint": "Optional. Links a registered customer as the order owner (takes precedence over the email).",
+        "guestEmail": "Guest email",
+        "address": "Shipping address",
+        "city": "City",
+        "postalCode": "Postal code",
+        "country": "Country",
+        "countryPlaceholder": "Select a country",
+        "shippingMethod": "Shipping method",
+        "shippingMethodPlaceholder": "Select a shipping method",
+        "discount": "Discount",
+        "discountHint": "Manual discount in {currency}, subtracted from the subtotal.",
+        "notes": "Notes",
+        "items": "Line items"
+      },
+      "items": {
+        "searchPlaceholder": "Search products to add…",
+        "searching": "Searching…",
+        "noResults": "No products found.",
+        "clearPick": "Clear selected product",
+        "variant": "Variant",
+        "variantPlaceholder": "Select a variant",
+        "quantity": "Qty",
+        "quantityShort": "Qty: {count}",
+        "override": "Price override",
+        "overrideHint": "Leave empty for catalog price.",
+        "overridePlaceholder": "Catalog price",
+        "overridden": "overridden",
+        "unitPrice": "Unit price",
+        "add": "Add line",
+        "saveLine": "Save line",
+        "remove": "Remove line",
+        "empty": "No line items yet — search the catalog above to add some.",
+        "staleLine": "Deleted product",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "total": "Total",
+        "errors": {
+          "invalidOverride": "Price override must be zero or a positive amount."
+        }
+      },
+      "delete": {
+        "title": "Delete draft order",
+        "body": "This permanently removes the draft and its line items. This cannot be undone.",
+        "confirm": "Delete draft",
+        "dismiss": "Cancel"
+      },
+      "convert": {
+        "cardTitle": "Convert to order",
+        "cardSubtitle": "Creates a real pending order from this draft: catalog prices and overrides are honored, stock is validated and reserved, and shipping is charged from the selected method and address.",
+        "paymentMethod": "Payment method",
+        "paymentMethods": {
+          "manual": "Manual (recorded outside the store)",
+          "cod": "Cash on delivery"
+        },
+        "markAsPaid": "Mark as paid",
+        "markAsPaidHint": "Immediately marks the order as paid and issues the invoice.",
+        "sendEmail": "Send confirmation email",
+        "sendEmailHint": "Emails the order confirmation to the customer (plus the payment confirmation when marked as paid).",
+        "action": "Convert to order",
+        "converted": "View converted order",
+        "confirmTitle": "Convert draft to order?",
+        "confirmBody": "This creates a pending order for the draft's customer, reserves stock, and locks the draft. It cannot be undone.",
+        "confirm": "Convert",
+        "dismiss": "Cancel",
+        "flash": "Draft converted to order {number}.",
+        "reasons": {
+          "already_converted": "This draft has already been converted.",
+          "no_items": "Add at least one line item before converting.",
+          "stale_line": "A line references a deleted product — remove it before converting.",
+          "no_owner": "Set a customer ID or a guest email before converting.",
+          "missing_address": "Add a full shipping address (street, city, postal code, country) first.",
+          "missing_shipping_method": "Select a shipping method before converting.",
+          "unsupported_method": "InPost locker methods are not supported for draft orders — pick another shipping method."
+        }
       }
     },
     "returns": {
