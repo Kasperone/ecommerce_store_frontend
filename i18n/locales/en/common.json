@@ -370,6 +370,7 @@
         "socialYoutube": "YouTube",
         "brandTagline": "Tagline",
         "emailFromName": "Email sender name",
+        "primaryColor": "Primary brand color",
         "logoUrl": "Logo URL",
         "returnsWindowDays": "Returns window (days)",
         "lowStockDefaultThreshold": "Default low-stock threshold",
@@ -386,6 +387,7 @@
         "branding": "The wordmark + tagline shown in the header and footer. The store name above is used as the brand name.",
         "brandTagline": "Short line shown under the logo in the footer.",
         "emailFromName": "Sender display name for transactional emails. Leave blank to use the store name.",
+        "primaryColor": "Buttons, links and accents across the storefront. Dark shades are auto-adjusted for contrast. Leave blank for the default theme.",
         "logoUrl": "Optional image URL for your logo. Leave blank to use the default wordmark.",
         "returns": "Customer return (RMA) policy.",
         "returnsWindowDays": "Days after delivery during which a return can be requested. 0 disables returns store-wide.",
@@ -398,6 +400,7 @@
       "errors": {
         "required": "This field is required.",
         "email": "Enter a valid email address.",
+        "hexColor": "Enter a color as #rrggbb hex, or leave blank.",
         "vatRange": "VAT rate must be between 0 and 100.",
         "returnsWindow": "Returns window must be a whole number of days (0 or more).",
         "lowStockThreshold": "Threshold must be a whole number of units (0 or more)."
