@@ -1,6 +1,7 @@
 import { watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { API_ENDPOINTS } from '#shared/constants/api'
+import type { SavedCartItemIn } from '#shared/types/api'
 
 /**
  * Authed cart sync (abandoned-cart recovery v1), client-only.
@@ -19,14 +20,6 @@ import { API_ENDPOINTS } from '#shared/constants/api'
  * The unchanged-upsert case is the backend's problem by contract (deep-equal
  * items must not touch the row), so re-sends are harmless.
  */
-
-// TODO: fold into api.gen.ts resync after BE merge (the endpoint isn't live
-// yet, so `npm run gen:types` can't see it — plan §2.1 is the contract).
-interface SavedCartItemIn {
-  product_id: number
-  variant_id: number | null
-  quantity: number
-}
 
 export default defineNuxtPlugin(() => {
   const authStore = useAuthStore()
