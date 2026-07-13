@@ -349,7 +349,8 @@
         "social": "Social media",
         "branding": "Branding",
         "returns": "Returns",
-        "inventory": "Inventory"
+        "inventory": "Inventory",
+        "abandonedCart": "Abandoned cart recovery"
       },
       "fields": {
         "storeName": "Store name",
@@ -375,7 +376,9 @@
         "logoUrl": "Logo URL",
         "returnsWindowDays": "Returns window (days)",
         "lowStockDefaultThreshold": "Default low-stock threshold",
-        "lowStockDefaultThresholdPlaceholder": "No global default"
+        "lowStockDefaultThresholdPlaceholder": "No global default",
+        "abandonedCartEnabled": "Send recovery emails",
+        "abandonedCartThresholdHours": "Abandonment threshold (hours)"
       },
       "hints": {
         "email": "Shown on invoices and used as the sender for store emails.",
@@ -393,7 +396,10 @@
         "returns": "Customer return (RMA) policy.",
         "returnsWindowDays": "Days after delivery during which a return can be requested. 0 disables returns store-wide.",
         "inventory": "Store-wide inventory alerting defaults.",
-        "lowStockDefaultThreshold": "Applied to products without their own threshold. Leave empty to disable the global default."
+        "lowStockDefaultThreshold": "Applied to products without their own threshold. Leave empty to disable the global default.",
+        "abandonedCart": "Email signed-in customers a one-click link to restore a cart they left behind.",
+        "abandonedCartEnabled": "When on, eligible customers get one recovery email per abandoned cart.",
+        "abandonedCartThresholdHours": "How many hours a cart must sit unchanged before it counts as abandoned (1–720)."
       },
       "actions": {
         "save": "Save changes"
@@ -404,7 +410,8 @@
         "hexColor": "Enter a color as #rrggbb hex, or leave blank.",
         "vatRange": "VAT rate must be between 0 and 100.",
         "returnsWindow": "Returns window must be a whole number of days (0 or more).",
-        "lowStockThreshold": "Threshold must be a whole number of units (0 or more)."
+        "lowStockThreshold": "Threshold must be a whole number of units (0 or more).",
+        "abandonedCartThreshold": "Threshold must be a whole number of hours between 1 and 720."
       },
       "flashes": {
         "saved": "Settings saved."

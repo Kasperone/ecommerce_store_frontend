@@ -61,7 +61,7 @@ export interface CartItem {
   quantity: number
 }
 
-type AddableProduct = Pick<
+export type AddableProduct = Pick<
   ProductResponse | ProductWithCategory,
   | 'id'
   | 'slug'
@@ -78,6 +78,17 @@ type AddableProduct = Pick<
   | 'width_cm'
   | 'height_cm'
 >
+
+/**
+ * One line of a recovered cart (abandoned-cart recovery v1). The recover
+ * endpoint returns FRESH catalog data per line — full `ProductResponse` +
+ * variant — so `mergeRecovered` can reuse `add()`'s snapshot/clamp logic.
+ */
+export interface RecoveredCartLine {
+  quantity: number
+  product: AddableProduct
+  variant: ProductVariantPublic | null
+}
 
 const STORAGE_KEY = 'cart'
 
@@ -155,6 +166,25 @@ export const useCartStore = defineStore('cart', () => {
     item.quantity = item.allowBackorder ? quantity : Math.min(quantity, item.stock)
   }
 
+  /**
+   * Merge a recovered cart (from a recovery-email link) into the local cart.
+   *
+   * Additive semantics (plan D6): a line that already exists locally — same
+   * `(productId, variantId)` pair — keeps its EXISTING quantity (the local
+   * cart is the user's most recent intent; doubling quantities from a restore
+   * link is the worst failure mode). Missing lines are added via `add()`,
+   * which snapshots fresh product data and clamps to stock/backorder.
+   */
+  function mergeRecovered(lines: RecoveredCartLine[]) {
+    for (const line of lines) {
+      const existing = items.value.find(
+        item => lineMatches(item, line.product.id, line.variant?.id),
+      )
+      if (existing) continue
+      add(line.product, line.quantity, line.variant)
+    }
+  }
+
   function clear() {
     items.value = []
   }
@@ -200,6 +230,7 @@ export const useCartStore = defineStore('cart', () => {
     count,
     isEmpty,
     add,
+    mergeRecovered,
     setQuantity,
     remove,
     clear,
