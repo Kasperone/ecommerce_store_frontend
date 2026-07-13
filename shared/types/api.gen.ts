@@ -10631,6 +10631,8 @@ export interface components {
             store_name: string;
             /** Brand Tagline */
             brand_tagline: string;
+            /** Email From Name */
+            email_from_name: string;
             /** Logo Url */
             logo_url: string;
             /** Legal Name */
@@ -10682,6 +10684,8 @@ export interface components {
             store_name?: string | null;
             /** Brand Tagline */
             brand_tagline?: string | null;
+            /** Email From Name */
+            email_from_name?: string | null;
             /** Logo Url */
             logo_url?: string | null;
             /** Legal Name */
