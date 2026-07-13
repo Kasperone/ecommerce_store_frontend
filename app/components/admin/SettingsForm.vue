@@ -43,6 +43,8 @@ interface FormState {
   invoice_vat_rate: number | undefined
   returns_window_days: number | undefined
   low_stock_default_threshold: number | undefined
+  abandoned_cart_enabled: boolean
+  abandoned_cart_threshold_hours: number | undefined
 }
 
 const state = reactive<FormState>({
@@ -69,6 +71,8 @@ const state = reactive<FormState>({
   invoice_vat_rate: undefined,
   returns_window_days: undefined,
   low_stock_default_threshold: undefined,
+  abandoned_cart_enabled: false,
+  abandoned_cart_threshold_hours: undefined,
 })
 
 watch(
@@ -98,6 +102,8 @@ watch(
     state.invoice_vat_rate = config.invoice_vat_rate
     state.returns_window_days = config.returns_window_days
     state.low_stock_default_threshold = config.low_stock_default_threshold ?? undefined
+    state.abandoned_cart_enabled = config.abandoned_cart_enabled ?? false
+    state.abandoned_cart_threshold_hours = config.abandoned_cart_threshold_hours
   },
   // immediate so a config already resolved at mount prefills the fields.
   { immediate: true },
@@ -167,6 +173,13 @@ const schema = computed(() =>
       .int(t('admin.settings.errors.lowStockThreshold'))
       .min(0, t('admin.settings.errors.lowStockThreshold'))
       .nullable(),
+    abandoned_cart_enabled: z.boolean(),
+    // Mirrors the backend CHECK (>= 1) + schema cap (<= 720 hours = 30 days).
+    abandoned_cart_threshold_hours: z
+      .number({ message: t('admin.settings.errors.abandonedCartThreshold') })
+      .int(t('admin.settings.errors.abandonedCartThreshold'))
+      .min(1, t('admin.settings.errors.abandonedCartThreshold'))
+      .max(720, t('admin.settings.errors.abandonedCartThreshold')),
   }),
 )
 
@@ -210,6 +223,8 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
     returns_window_days: state.returns_window_days ?? undefined,
     // Empty input clears the global default (null); a number sets it.
     low_stock_default_threshold: state.low_stock_default_threshold ?? null,
+    abandoned_cart_enabled: state.abandoned_cart_enabled,
+    abandoned_cart_threshold_hours: state.abandoned_cart_threshold_hours ?? undefined,
   }
   emit('submit', patch)
 }
@@ -622,6 +637,46 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
           :disabled="loading"
           class="w-full"
           data-testid="settings-low-stock-threshold"
+        />
+      </UFormField>
+    </section>
+
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold">
+          {{ t('admin.settings.sections.abandonedCart') }}
+        </h2>
+        <p class="text-xs text-muted mt-1">
+          {{ t('admin.settings.hints.abandonedCart') }}
+        </p>
+      </div>
+
+      <UFormField
+        :label="t('admin.settings.fields.abandonedCartEnabled')"
+        :help="t('admin.settings.hints.abandonedCartEnabled')"
+        name="abandoned_cart_enabled"
+      >
+        <USwitch
+          v-model="state.abandoned_cart_enabled"
+          :disabled="loading"
+          data-testid="settings-abandoned-cart-enabled"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('admin.settings.fields.abandonedCartThresholdHours')"
+        :help="t('admin.settings.hints.abandonedCartThresholdHours')"
+        name="abandoned_cart_threshold_hours"
+        class="max-w-xs"
+      >
+        <UInputNumber
+          v-model="state.abandoned_cart_threshold_hours"
+          :min="1"
+          :max="720"
+          :step="1"
+          :disabled="loading"
+          class="w-full"
+          data-testid="settings-abandoned-cart-threshold"
         />
       </UFormField>
     </section>

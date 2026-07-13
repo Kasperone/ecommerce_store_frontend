@@ -19,8 +19,17 @@
 import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 import type { components } from '#shared/types/api.gen'
 
-export type StoreConfig = components['schemas']['StoreConfigResponse']
-export type StoreConfigUpdate = components['schemas']['StoreConfigUpdate']
+// TODO: fold into api.gen.ts resync after BE merge — the abandoned-cart fields
+// (plan §2.3) aren't in the generated schema yet because `npm run gen:types`
+// needs the new backend live on localhost:8000. Drop these intersections once
+// the resync lands them in `StoreConfigResponse` / `StoreConfigUpdate`.
+interface AbandonedCartConfigFields {
+  abandoned_cart_enabled?: boolean
+  abandoned_cart_threshold_hours?: number
+}
+
+export type StoreConfig = components['schemas']['StoreConfigResponse'] & AbandonedCartConfigFields
+export type StoreConfigUpdate = components['schemas']['StoreConfigUpdate'] & AbandonedCartConfigFields
 
 const SETTINGS_NAMESPACE = ['settings'] as const
 

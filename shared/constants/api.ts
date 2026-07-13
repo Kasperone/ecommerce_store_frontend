@@ -95,6 +95,14 @@ export const API_ENDPOINTS = {
     CONVERT: '/api/v1/admin/draft-orders/{id}/convert', // POST - Convert an open draft into a real order (admin)
   },
 
+  // Carts endpoints (abandoned-cart recovery v1). The sync PUT snapshots the
+  // authed user's local cart server-side; the recover GET is the public
+  // email-link endpoint (opaque token, no auth).
+  CARTS: {
+    SYNC: '/api/v1/carts/mine', // PUT - Upsert authed cart snapshot (empty items deletes the row)
+    RECOVER: '/api/v1/carts/recover/{token}', // GET - Public recovery-token cart fetch (rate-limited, 404 on unknown token)
+  },
+
   // Orders endpoints (customer-facing subset; admin flows live in the queries layer)
   ORDERS: {
     BASE: '/api/v1/orders',
@@ -213,6 +221,13 @@ export const buildApiUrl = {
    */
   orderTrack: (token: string) =>
     API_ENDPOINTS.ORDERS.TRACK.replace('{token}', encodeURIComponent(token)),
+
+  /**
+   * Build the public abandoned-cart recovery URL (GET)
+   * @param token Opaque recovery token (43-char urlsafe, from the recovery email)
+   */
+  cartRecover: (token: string) =>
+    API_ENDPOINTS.CARTS.RECOVER.replace('{token}', encodeURIComponent(token)),
 
   /**
    * Build the PayU checkout-start URL (POST; add `?guest_token=` for guest orders)

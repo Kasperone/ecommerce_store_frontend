@@ -304,3 +304,63 @@ describe('useCartStore — variants', () => {
     expect(cart.isEmpty).toBe(true)
   })
 })
+
+// ---------------------------------------------------------------------------
+// mergeRecovered — abandoned-cart recovery (additive; existing lines win, D6).
+// ---------------------------------------------------------------------------
+
+describe('useCartStore — mergeRecovered', () => {
+  it('adds missing lines from the recovered cart', () => {
+    const cart = useCartStore()
+    cart.mergeRecovered([
+      { quantity: 2, product: product({ id: 1 }) as never, variant: null },
+      { quantity: 1, product: product({ id: 2, slug: 'gadget', name: 'Gadget' }) as never, variant: null },
+    ])
+    expect(cart.items).toHaveLength(2)
+    expect(cart.items[0]).toMatchObject({ productId: 1, quantity: 2 })
+    expect(cart.items[1]).toMatchObject({ productId: 2, name: 'Gadget', quantity: 1 })
+  })
+
+  it('keeps the EXISTING local quantity on a line collision (no doubling)', () => {
+    const cart = useCartStore()
+    cart.add(product({ id: 1 }), 3)
+    cart.mergeRecovered([
+      { quantity: 5, product: product({ id: 1 }) as never, variant: null },
+    ])
+    expect(cart.items).toHaveLength(1)
+    expect(cart.items[0]!.quantity).toBe(3)
+  })
+
+  it('respects variant identity — same product, different variant is a new line', () => {
+    const cart = useCartStore()
+    cart.add(product({ id: 1 }), 1, variant({ id: 11 }))
+    cart.mergeRecovered([
+      // Same (product, variant) pair → existing quantity wins.
+      { quantity: 4, product: product({ id: 1 }) as never, variant: variant({ id: 11 }) },
+      // Same product, other variant → added as its own line.
+      { quantity: 2, product: product({ id: 1 }) as never, variant: variant({ id: 12, title: 'Blue / XL' }) },
+      // Variantless line of the same product → also its own line.
+      { quantity: 1, product: product({ id: 1 }) as never, variant: null },
+    ])
+    expect(cart.items).toHaveLength(3)
+    expect(cart.items.find(i => i.variantId === 11)!.quantity).toBe(1)
+    expect(cart.items.find(i => i.variantId === 12)!.quantity).toBe(2)
+    expect(cart.items.find(i => (i.variantId ?? null) === null)!.quantity).toBe(1)
+  })
+
+  it('clamps recovered quantities to current stock via add()', () => {
+    const cart = useCartStore()
+    cart.mergeRecovered([
+      { quantity: 10, product: product({ id: 1, stock: 2 }) as never, variant: null },
+    ])
+    expect(cart.items[0]!.quantity).toBe(2)
+  })
+
+  it('skips a recovered line that is out of stock without backorder', () => {
+    const cart = useCartStore()
+    cart.mergeRecovered([
+      { quantity: 1, product: product({ id: 1, stock: 0 }) as never, variant: null },
+    ])
+    expect(cart.isEmpty).toBe(true)
+  })
+})

@@ -22,6 +22,20 @@
     "requestQuote": {
       "button": "Poproś o wycenę",
       "error": "Nie udało się poprosić o wycenę. Spróbuj ponownie."
+    },
+    "recover": {
+      "title": "Przywróć koszyk",
+      "restoring": "Przywracamy Twój koszyk…",
+      "restored": "Twój koszyk został przywrócony",
+      "invalid": "Ten link do przywrócenia koszyka jest nieprawidłowy. Sprawdź link w wiadomości e-mail.",
+      "expired": "Ten link do przywrócenia koszyka wygasł.",
+      "alreadyOrdered": "Wygląda na to, że to zamówienie zostało już złożone — dziękujemy!",
+      "empty": "Produkty z Twojego koszyka nie są już dostępne.",
+      "error": "Nie udało się przywrócić koszyka. Spróbuj ponownie.",
+      "retry": "Spróbuj ponownie",
+      "backToCart": "Przejdź do koszyka",
+      "browseProducts": "Przeglądaj produkty",
+      "viewOrders": "Zobacz moje zamówienia"
     }
   },
   "checkout": {
