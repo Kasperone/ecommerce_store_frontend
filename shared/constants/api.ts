@@ -82,6 +82,19 @@ export const API_ENDPOINTS = {
     SUGGEST: '/api/v1/search/suggest', // GET - Mixed autocomplete (products + categories)
   },
 
+  // Admin draft orders — compose an order before conversion. Trailing slash
+  // on the collection routes (FastAPI 307s the slashless form through the h3
+  // proxy). Item mutations return the FULL updated draft.
+  DRAFT_ORDERS: {
+    BASE: '/api/v1/admin/draft-orders',
+    LIST: '/api/v1/admin/draft-orders/', // GET - Paginated list with status filter (admin)
+    CREATE: '/api/v1/admin/draft-orders/', // POST - Create empty draft with pinned currency (admin)
+    BY_ID: '/api/v1/admin/draft-orders/{id}', // GET/PATCH/DELETE - One draft, header edits (admin)
+    ITEMS: '/api/v1/admin/draft-orders/{id}/items', // POST - Add a catalog line (admin)
+    ITEM_BY_ID: '/api/v1/admin/draft-orders/{id}/items/{itemId}', // PATCH/DELETE - One line (admin)
+    CONVERT: '/api/v1/admin/draft-orders/{id}/convert', // POST - Convert an open draft into a real order (admin)
+  },
+
   // Orders endpoints (customer-facing subset; admin flows live in the queries layer)
   ORDERS: {
     BASE: '/api/v1/orders',
@@ -266,6 +279,37 @@ export const buildApiUrl = {
    */
   collectionBySlug: (slug: string) =>
     API_ENDPOINTS.COLLECTIONS.PUBLIC_BY_SLUG.replace('{slug}', slug),
+
+  /**
+   * Build a draft-order URL by ID (GET/PATCH/DELETE)
+   * @param id Draft order ID
+   */
+  draftOrderById: (id: number | string) =>
+    API_ENDPOINTS.DRAFT_ORDERS.BY_ID.replace('{id}', String(id)),
+
+  /**
+   * Build the draft-order items collection URL (POST)
+   * @param id Draft order ID
+   */
+  draftOrderItems: (id: number | string) =>
+    API_ENDPOINTS.DRAFT_ORDERS.ITEMS.replace('{id}', String(id)),
+
+  /**
+   * Build a single draft-order item URL (PATCH/DELETE)
+   * @param id Draft order ID
+   * @param itemId Draft order item ID
+   */
+  draftOrderItemById: (id: number | string, itemId: number | string) =>
+    API_ENDPOINTS.DRAFT_ORDERS.ITEM_BY_ID
+      .replace('{id}', String(id))
+      .replace('{itemId}', String(itemId)),
+
+  /**
+   * Build the draft-order convert URL (POST)
+   * @param id Draft order ID
+   */
+  draftOrderConvert: (id: number | string) =>
+    API_ENDPOINTS.DRAFT_ORDERS.CONVERT.replace('{id}', String(id)),
 } as const
 
 /**

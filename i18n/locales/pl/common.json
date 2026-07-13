@@ -90,6 +90,7 @@
         "warehouses": "Magazyny",
         "reviews": "Opinie",
         "orders": "Zamówienia",
+        "draftOrders": "Zamówienia robocze",
         "returns": "Zwroty",
         "customers": "Klienci",
         "companies": "Firmy (B2B)",
@@ -2103,6 +2104,143 @@
         "confirm": "Konwertuj",
         "dismiss": "Anuluj",
         "flash": "Ofertę skonwertowano na zamówienie {number}."
+      }
+    },
+    "draftOrders": {
+      "title": "Zamówienia robocze",
+      "subtitle": "Twórz zamówienia w imieniu klientów i konwertuj je, gdy będą gotowe",
+      "actions": {
+        "create": "Nowe zamówienie robocze",
+        "view": "Podgląd",
+        "save": "Zapisz zmiany",
+        "delete": "Usuń",
+        "back": "Powrót do zamówień roboczych"
+      },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy"
+      },
+      "fields": {
+        "id": "Szkic",
+        "customer": "Klient",
+        "currency": "Waluta",
+        "total": "Razem",
+        "status": "Status",
+        "created": "Utworzono"
+      },
+      "status": {
+        "open": "Otwarte",
+        "completed": "Zakończone"
+      },
+      "empty": {
+        "noDrafts": "Brak zamówień roboczych.",
+        "noResults": "Żadne zamówienie robocze nie pasuje do filtrów."
+      },
+      "create": {
+        "title": "Nowe zamówienie robocze",
+        "subtitle": "Wybierz walutę (nie można jej później zmienić), opcjonalnie podaj e-mail klienta, a następnie dodaj pozycje."
+      },
+      "form": {
+        "currency": "Waluta",
+        "currencyHint": "Ustalana przy tworzeniu — wszystkie ceny w tym szkicu jej używają.",
+        "guestEmail": "E-mail klienta",
+        "guestEmailHint": "Opcjonalnie. Na ten adres trafi potwierdzenie zamówienia, o ile później nie zostanie powiązany zarejestrowany klient.",
+        "notes": "Notatki",
+        "create": "Utwórz zamówienie robocze",
+        "cancel": "Anuluj"
+      },
+      "errors": {
+        "invalidEmail": "Wpisz prawidłowy adres e-mail.",
+        "invalidCustomerId": "ID klienta musi być dodatnią liczbą całkowitą.",
+        "invalidDiscount": "Rabat musi być zerem lub kwotą dodatnią."
+      },
+      "flashes": {
+        "created": "Utworzono zamówienie robocze.",
+        "updated": "Zaktualizowano zamówienie robocze.",
+        "deleted": "Usunięto zamówienie robocze."
+      },
+      "detail": {
+        "title": "Zamówienie robocze #{id}",
+        "heading": "Zamówienie robocze #{id}",
+        "loading": "Wczytywanie zamówienia roboczego…",
+        "noOwner": "Nie ustawiono klienta",
+        "completedNotice": "Ten szkic został skonwertowany na zamówienie i jest tylko do odczytu.",
+        "details": "Szczegóły",
+        "customerId": "ID klienta",
+        "customerIdHint": "Opcjonalnie. Wiąże zarejestrowanego klienta jako właściciela zamówienia (ma pierwszeństwo przed e-mailem).",
+        "guestEmail": "E-mail gościa",
+        "address": "Adres dostawy",
+        "city": "Miasto",
+        "postalCode": "Kod pocztowy",
+        "country": "Kraj",
+        "countryPlaceholder": "Wybierz kraj",
+        "shippingMethod": "Metoda dostawy",
+        "shippingMethodPlaceholder": "Wybierz metodę dostawy",
+        "discount": "Rabat",
+        "discountHint": "Rabat ręczny w {currency}, odejmowany od sumy częściowej.",
+        "notes": "Notatki",
+        "items": "Pozycje"
+      },
+      "items": {
+        "searchPlaceholder": "Szukaj produktów do dodania…",
+        "searching": "Szukanie…",
+        "noResults": "Nie znaleziono produktów.",
+        "clearPick": "Wyczyść wybrany produkt",
+        "variant": "Wariant",
+        "variantPlaceholder": "Wybierz wariant",
+        "quantity": "Ilość",
+        "quantityShort": "Ilość: {count}",
+        "override": "Nadpisanie ceny",
+        "overrideHint": "Zostaw puste, aby użyć ceny katalogowej.",
+        "overridePlaceholder": "Cena katalogowa",
+        "overridden": "nadpisana",
+        "unitPrice": "Cena jedn.",
+        "add": "Dodaj pozycję",
+        "saveLine": "Zapisz pozycję",
+        "remove": "Usuń pozycję",
+        "empty": "Brak pozycji — wyszukaj produkty w katalogu powyżej, aby je dodać.",
+        "staleLine": "Usunięty produkt",
+        "subtotal": "Suma częściowa",
+        "discount": "Rabat",
+        "total": "Razem",
+        "errors": {
+          "invalidOverride": "Nadpisana cena musi być zerem lub kwotą dodatnią."
+        }
+      },
+      "delete": {
+        "title": "Usuń zamówienie robocze",
+        "body": "Trwale usuwa szkic wraz z pozycjami. Tej operacji nie można cofnąć.",
+        "confirm": "Usuń szkic",
+        "dismiss": "Anuluj"
+      },
+      "convert": {
+        "cardTitle": "Konwertuj na zamówienie",
+        "cardSubtitle": "Tworzy prawdziwe oczekujące zamówienie z tego szkicu: ceny katalogowe i nadpisania są honorowane, stan magazynowy jest sprawdzany i rezerwowany, a dostawa naliczana według wybranej metody i adresu.",
+        "paymentMethod": "Metoda płatności",
+        "paymentMethods": {
+          "manual": "Ręczna (rozliczana poza sklepem)",
+          "cod": "Za pobraniem"
+        },
+        "markAsPaid": "Oznacz jako opłacone",
+        "markAsPaidHint": "Natychmiast oznacza zamówienie jako opłacone i wystawia fakturę.",
+        "sendEmail": "Wyślij e-mail z potwierdzeniem",
+        "sendEmailHint": "Wysyła klientowi potwierdzenie zamówienia (oraz potwierdzenie płatności, gdy oznaczono jako opłacone).",
+        "action": "Konwertuj na zamówienie",
+        "converted": "Zobacz utworzone zamówienie",
+        "confirmTitle": "Konwertować szkic na zamówienie?",
+        "confirmBody": "Utworzy to oczekujące zamówienie dla klienta ze szkicu, zarezerwuje stan magazynowy i zablokuje szkic. Tej operacji nie można cofnąć.",
+        "confirm": "Konwertuj",
+        "dismiss": "Anuluj",
+        "flash": "Szkic skonwertowano na zamówienie {number}.",
+        "reasons": {
+          "already_converted": "Ten szkic został już skonwertowany.",
+          "no_items": "Dodaj co najmniej jedną pozycję przed konwersją.",
+          "stale_line": "Jedna z pozycji odwołuje się do usuniętego produktu — usuń ją przed konwersją.",
+          "no_owner": "Ustaw ID klienta lub e-mail gościa przed konwersją.",
+          "missing_address": "Najpierw uzupełnij pełny adres dostawy (ulica, miasto, kod pocztowy, kraj).",
+          "missing_shipping_method": "Wybierz metodę dostawy przed konwersją.",
+          "unsupported_method": "Metody paczkomatowe InPost nie są obsługiwane dla zamówień roboczych — wybierz inną metodę dostawy."
+        }
       }
     },
     "returns": {
