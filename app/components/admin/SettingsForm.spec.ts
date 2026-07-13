@@ -33,6 +33,7 @@ const config = {
   store_name: 'Acme Store',
   brand_tagline: 'Quality goods',
   email_from_name: 'Acme Mail',
+  primary_color: '#1e40af',
   logo_url: '',
   legal_name: 'Acme Sp. z o.o.',
   email: 'shop@acme.test',

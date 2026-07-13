@@ -23,6 +23,7 @@ interface FormState {
   store_name: string
   brand_tagline: string
   email_from_name: string
+  primary_color: string
   logo_url: string
   legal_name: string
   email: string
@@ -48,6 +49,7 @@ const state = reactive<FormState>({
   store_name: '',
   brand_tagline: '',
   email_from_name: '',
+  primary_color: '',
   logo_url: '',
   legal_name: '',
   email: '',
@@ -76,6 +78,7 @@ watch(
     state.store_name = config.store_name
     state.brand_tagline = config.brand_tagline
     state.email_from_name = config.email_from_name
+    state.primary_color = config.primary_color
     state.logo_url = config.logo_url
     state.legal_name = config.legal_name
     state.email = config.email
@@ -131,6 +134,7 @@ const schema = computed(() =>
     store_name: z.string().min(1, t('admin.settings.errors.required')),
     brand_tagline: z.string(),
     email_from_name: z.string(),
+    primary_color: z.string().regex(/^#[0-9a-f]{6}$/i, t('admin.settings.errors.hexColor')).or(z.literal('')),
     logo_url: z.string(),
     legal_name: z.string(),
     email: z.string().email(t('admin.settings.errors.email')).or(z.literal('')),
@@ -185,6 +189,7 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
     store_name: state.store_name.trim(),
     brand_tagline: state.brand_tagline.trim(),
     email_from_name: state.email_from_name.trim(),
+    primary_color: state.primary_color.trim().toLowerCase(),
     logo_url: state.logo_url.trim(),
     legal_name: state.legal_name.trim(),
     email: state.email.trim(),
@@ -318,6 +323,41 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
           :disabled="loading"
           class="w-full"
         />
+      </UFormField>
+
+      <UFormField
+        :label="t('admin.settings.fields.primaryColor')"
+        :help="t('admin.settings.hints.primaryColor')"
+        name="primary_color"
+      >
+        <div class="flex items-center gap-2">
+          <UPopover>
+            <UButton
+              :disabled="loading"
+              color="neutral"
+              variant="outline"
+              :aria-label="t('admin.settings.fields.primaryColor')"
+            >
+              <span
+                class="size-4 rounded-full border border-neutral-300 dark:border-neutral-600"
+                :style="{ backgroundColor: state.primary_color || 'transparent' }"
+              />
+            </UButton>
+            <template #content>
+              <UColorPicker
+                v-model="state.primary_color"
+                format="hex"
+                class="p-2"
+              />
+            </template>
+          </UPopover>
+          <UInput
+            v-model="state.primary_color"
+            :disabled="loading"
+            placeholder="#16a34a"
+            class="w-40 font-mono"
+          />
+        </div>
       </UFormField>
 
       <UFormField

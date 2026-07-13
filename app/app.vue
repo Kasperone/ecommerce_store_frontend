@@ -10,6 +10,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useHead } from '#imports'
 import * as uiLocales from '@nuxt/ui/locale'
+import { brandThemeCss } from '#shared/utils/theme'
 
 const { locale } = useI18n()
 
@@ -17,6 +18,14 @@ const { locale } = useI18n()
 // drives the document <title> suffix so a rebrand needs no code change.
 const { data: storeConfig } = useStoreConfig()
 const brandName = computed(() => storeConfig.value?.store_name?.trim() || 'E-commerce Store')
+
+// Runtime brand theme (brand program B4+C): if the admin configured a
+// primary_color, generate the full Nuxt UI primary ramp from it and inject it
+// as an UNLAYERED inline <style> — unlayered wins over Nuxt UI's @layer theme,
+// and main.css's --ui-primary step mappings (700 light / 400 dark, incl. the
+// WCAG remap) consume the ramp unchanged. SSR-rendered from the serialized
+// store-config payload, so there is no flash of the default theme.
+const brandTheme = computed(() => brandThemeCss(storeConfig.value?.primary_color?.trim() ?? ''))
 
 const uiLocale = computed(() => {
   // map string locale (e.g. 'en' or 'pl') to the nuxt ui locale object; fallback to en
@@ -44,6 +53,7 @@ useHead(() => ({
   },
   link: [...(i18nHead.value.link ?? [])],
   meta: [...(i18nHead.value.meta ?? [])],
+  style: brandTheme.value ? [{ innerHTML: brandTheme.value, id: 'brand-theme' }] : [],
 }))
 
 // Site-wide og:image fallback (SEO blueprint SEO-1.4 / D9): no URL ever
