@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { buildApiUrl } from '#shared/constants/api'
-import type { ProductResponse, ProductVariantPublic } from '#shared/types/api'
+import type { RecoveredCartResponse } from '#shared/types/api'
 import { CART_RECOVERY_GENERIC_KEY, cartRecoveryErrorKey } from '#shared/utils/cartRecoveryStatus'
 import { parseProblem } from '#shared/utils/problemDetails'
 
@@ -19,18 +19,6 @@ import { parseProblem } from '#shared/utils/problemDetails'
  * Failures render one of the machine-code-keyed states — see
  * `shared/utils/cartRecoveryStatus.ts`.
  */
-
-// TODO: fold into api.gen.ts resync after BE merge (the endpoint isn't live
-// yet, so `npm run gen:types` can't see it — plan §2.2 is the contract).
-interface RecoveredCartItem {
-  quantity: number
-  product: ProductResponse
-  variant: ProductVariantPublic | null
-}
-
-interface RecoveredCartResponse {
-  items: RecoveredCartItem[]
-}
 
 const { t } = useI18n()
 const route = useRoute()
@@ -53,12 +41,19 @@ async function recover() {
   status.value = 'loading'
   try {
     const res = await apiFetch<RecoveredCartResponse>(buildApiUrl.cartRecover(token))
-    if (res.items.length === 0) {
+    // Generated schema marks `items`/`variant` optional (Pydantic defaults);
+    // normalize at the boundary — the store's RecoveredCartLine requires both.
+    const lines = (res.items ?? []).map(item => ({
+      quantity: item.quantity,
+      product: item.product,
+      variant: item.variant ?? null,
+    }))
+    if (lines.length === 0) {
       // Every snapshotted line is gone/inactive — nothing to restore.
       status.value = 'empty'
       return
     }
-    cart.mergeRecovered(res.items)
+    cart.mergeRecovered(lines)
     toast.add({ title: t('cart.recover.restored'), color: 'success' })
     await navigateTo(localePath({ path: '/cart' }))
   }

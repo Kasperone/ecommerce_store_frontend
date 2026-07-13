@@ -66,6 +66,13 @@ export type OrderUpdate = components['schemas']['OrderUpdate']
 // Guest checkout — public account-less tracking view (`GET /orders/track/{token}`).
 export type GuestOrderResponse = components['schemas']['GuestOrderResponse']
 export type GuestOrderItem = components['schemas']['GuestOrderItem']
+
+// Abandoned-cart recovery — authed saved-cart sync (`PUT /carts/mine`) +
+// public token restore (`GET /carts/recover/{token}`).
+export type SavedCartItemIn = components['schemas']['SavedCartItemIn']
+export type SavedCartSyncRequest = components['schemas']['SavedCartSyncRequest']
+export type RecoveredCartItem = components['schemas']['RecoveredCartItem']
+export type RecoveredCartResponse = components['schemas']['RecoveredCartResponse']
 export type RefundCreate = components['schemas']['RefundCreate']
 export type RefundResponse = components['schemas']['RefundResponse']
 // v2 per-line picker — RefundItemCreate (request) carries an `order_item_id` +

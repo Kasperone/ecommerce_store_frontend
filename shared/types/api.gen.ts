@@ -1128,6 +1128,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/carts/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Sync My Cart
+         * @description Upsert the caller's server-side cart snapshot (ids + quantities).
+         *
+         *     Best-effort mirror of the browser cart: ids are not validated against the
+         *     catalog here (stale lines get dropped at recover time). ``items: []``
+         *     deletes the row. A deep-equal upsert leaves the row untouched so
+         *     ``updated_at`` keeps measuring real inactivity; any actual change re-arms
+         *     the abandonment candidate (token + sent-at reset). No rate limit — authed,
+         *     cheap, and the frontend debounces.
+         */
+        put: operations["sync_my_cart_api_v1_carts_mine_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/carts/recover/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recover Cart
+         * @description Resolve a recovery token to fresh cart contents (public, no account).
+         *
+         *     The opaque token from the recovery email is the credential. Returns only
+         *     already-public catalog data (product/variant shapes of the public product
+         *     endpoints) plus the snapshot quantities — prices/stock are current, never
+         *     a snapshot. Lines whose product is gone/inactive or whose variant no
+         *     longer exists are silently dropped (``items`` may be empty). Fetching does
+         *     NOT consume the token; it stays valid until the TTL.
+         *
+         *     NOTE: keep this route above any future ``/{id}`` route (route-ordering
+         *     discipline — see ``orders.py::track_guest_order``).
+         */
+        get: operations["recover_cart_api_v1_carts_recover__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/coupons/validate": {
         parameters: {
             query?: never;
@@ -6770,6 +6827,10 @@ export interface components {
             consents: {
                 [key: string]: unknown;
             }[];
+            /** Saved Cart */
+            saved_cart?: {
+                [key: string]: unknown;
+            } | null;
         };
         /**
          * DraftOrderConvert
@@ -9530,6 +9591,24 @@ export interface components {
             items?: components["schemas"]["QuoteItemCreate"][] | null;
         };
         /**
+         * RecoveredCartItem
+         * @description One recovered line: snapshot quantity + fresh catalog data.
+         */
+        RecoveredCartItem: {
+            /** Quantity */
+            quantity: number;
+            product: components["schemas"]["ProductResponse"];
+            variant?: components["schemas"]["ProductVariantPublic"] | null;
+        };
+        /**
+         * RecoveredCartResponse
+         * @description Body of ``GET /api/v1/carts/recover/{token}``; dead lines are dropped.
+         */
+        RecoveredCartResponse: {
+            /** Items */
+            items?: components["schemas"]["RecoveredCartItem"][];
+        };
+        /**
          * RefundCreate
          * @description Body for ``POST /api/v1/admin/orders/{id}/refunds``.
          *
@@ -10156,6 +10235,40 @@ export interface components {
             revenue: {
                 [key: string]: number;
             };
+        };
+        /**
+         * SavedCartItemIn
+         * @description One cart line in the sync body (ids + quantity only).
+         */
+        SavedCartItemIn: {
+            /** Product Id */
+            product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
+            /** Quantity */
+            quantity: number;
+        };
+        /**
+         * SavedCartSyncRequest
+         * @description Body of ``PUT /api/v1/carts/mine``; ``items: []`` deletes the row.
+         */
+        SavedCartSyncRequest: {
+            /** Items */
+            items: components["schemas"]["SavedCartItemIn"][];
+        };
+        /**
+         * SavedCartSyncResponse
+         * @description Ack for the sync upsert; ``item_count`` = sum of quantities (0 = deleted).
+         */
+        SavedCartSyncResponse: {
+            /**
+             * Status
+             * @default ok
+             * @constant
+             */
+            status: "ok";
+            /** Item Count */
+            item_count: number;
         };
         /**
          * SearchResponse
@@ -11096,6 +11209,16 @@ export interface components {
             returns_window_days: number;
             /** Low Stock Default Threshold */
             low_stock_default_threshold?: number | null;
+            /**
+             * Abandoned Cart Enabled
+             * @default false
+             */
+            abandoned_cart_enabled: boolean;
+            /**
+             * Abandoned Cart Threshold Hours
+             * @default 24
+             */
+            abandoned_cart_threshold_hours: number;
         };
         /**
          * StoreConfigUpdate
@@ -11151,6 +11274,10 @@ export interface components {
             returns_window_days?: number | null;
             /** Low Stock Default Threshold */
             low_stock_default_threshold?: number | null;
+            /** Abandoned Cart Enabled */
+            abandoned_cart_enabled?: boolean | null;
+            /** Abandoned Cart Threshold Hours */
+            abandoned_cart_threshold_hours?: number | null;
         };
         /**
          * StripeCheckoutResponse
@@ -13497,6 +13624,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReturnRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sync_my_cart_api_v1_carts_mine_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedCartSyncRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedCartSyncResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recover_cart_api_v1_carts_recover__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecoveredCartResponse"];
                 };
             };
             /** @description Validation Error */
