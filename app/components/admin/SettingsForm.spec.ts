@@ -32,6 +32,7 @@ const config = {
   id: 1,
   store_name: 'Acme Store',
   brand_tagline: 'Quality goods',
+  email_from_name: 'Acme Mail',
   logo_url: '',
   legal_name: 'Acme Sp. z o.o.',
   email: 'shop@acme.test',

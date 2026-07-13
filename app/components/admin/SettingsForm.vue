@@ -22,6 +22,7 @@ const toast = useToast()
 interface FormState {
   store_name: string
   brand_tagline: string
+  email_from_name: string
   logo_url: string
   legal_name: string
   email: string
@@ -46,6 +47,7 @@ interface FormState {
 const state = reactive<FormState>({
   store_name: '',
   brand_tagline: '',
+  email_from_name: '',
   logo_url: '',
   legal_name: '',
   email: '',
@@ -73,6 +75,7 @@ watch(
     if (!config) return
     state.store_name = config.store_name
     state.brand_tagline = config.brand_tagline
+    state.email_from_name = config.email_from_name
     state.logo_url = config.logo_url
     state.legal_name = config.legal_name
     state.email = config.email
@@ -127,6 +130,7 @@ const schema = computed(() =>
   z.object({
     store_name: z.string().min(1, t('admin.settings.errors.required')),
     brand_tagline: z.string(),
+    email_from_name: z.string(),
     logo_url: z.string(),
     legal_name: z.string(),
     email: z.string().email(t('admin.settings.errors.email')).or(z.literal('')),
@@ -180,6 +184,7 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
   const patch: StoreConfigUpdate = {
     store_name: state.store_name.trim(),
     brand_tagline: state.brand_tagline.trim(),
+    email_from_name: state.email_from_name.trim(),
     logo_url: state.logo_url.trim(),
     legal_name: state.legal_name.trim(),
     email: state.email.trim(),
@@ -298,6 +303,18 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
       >
         <UInput
           v-model="state.brand_tagline"
+          :disabled="loading"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('admin.settings.fields.emailFromName')"
+        :help="t('admin.settings.hints.emailFromName')"
+        name="email_from_name"
+      >
+        <UInput
+          v-model="state.email_from_name"
           :disabled="loading"
           class="w-full"
         />
