@@ -53,6 +53,8 @@ const config = {
   invoice_vat_rate: 23,
   returns_window_days: 30,
   low_stock_default_threshold: 5,
+  abandoned_cart_enabled: false,
+  abandoned_cart_threshold_hours: 24,
   created_at: '2026-05-28T00:00:00Z',
   updated_at: '2026-05-28T00:00:00Z',
 }
@@ -150,6 +152,50 @@ describe('SettingsForm', () => {
     await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
 
+    expect(wrapper.emitted('submit')).toBeFalsy()
+  })
+
+  it('prefills + emits the abandoned-cart toggle and threshold', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    // Prefilled from the loaded config.
+    expect((wrapper.vm as any).state.abandoned_cart_enabled).toBe(false)
+    expect((wrapper.vm as any).state.abandoned_cart_threshold_hours).toBe(24)
+
+    // Flip the toggle on and shorten the threshold.
+    const toggle = wrapper.findComponent({ name: 'USwitch' })
+    toggle.vm.$emit('update:modelValue', true)
+    // Fourth UInputNumber is abandoned_cart_threshold_hours (after VAT +
+    // returns + low-stock).
+    const threshold = wrapper.findAllComponents({ name: 'UInputNumber' })[3]!
+    threshold.vm.$emit('update:modelValue', 6)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    const submits = wrapper.emitted('submit')
+    expect(submits).toBeTruthy()
+    expect(submits![0]![0]).toMatchObject({
+      abandoned_cart_enabled: true,
+      abandoned_cart_threshold_hours: 6,
+    })
+  })
+
+  it('blocks save and does not emit when the abandoned-cart threshold is out of range', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    const threshold = wrapper.findAllComponents({ name: 'UInputNumber' })[3]!
+    threshold.vm.$emit('update:modelValue', 0) // backend CHECK is >= 1
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+    expect(wrapper.emitted('submit')).toBeFalsy()
+
+    threshold.vm.$emit('update:modelValue', 721) // schema cap is <= 720
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
     expect(wrapper.emitted('submit')).toBeFalsy()
   })
 

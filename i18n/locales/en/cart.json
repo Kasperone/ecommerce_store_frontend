@@ -22,6 +22,20 @@
     "requestQuote": {
       "button": "Request a quote",
       "error": "Could not request a quote. Please try again."
+    },
+    "recover": {
+      "title": "Restore your cart",
+      "restoring": "Restoring your cart…",
+      "restored": "Your cart has been restored",
+      "invalid": "This recovery link isn't valid. It may have been mistyped — check the link in your email.",
+      "expired": "This recovery link has expired.",
+      "alreadyOrdered": "Looks like you've already completed this order — thank you!",
+      "empty": "The items from your cart are no longer available.",
+      "error": "We couldn't restore your cart. Please try again.",
+      "retry": "Try again",
+      "backToCart": "Go to cart",
+      "browseProducts": "Browse products",
+      "viewOrders": "View my orders"
     }
   },
   "checkout": {

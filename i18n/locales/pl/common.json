@@ -349,7 +349,8 @@
         "social": "Media społecznościowe",
         "branding": "Marka",
         "returns": "Zwroty",
-        "inventory": "Magazyn"
+        "inventory": "Magazyn",
+        "abandonedCart": "Ratowanie porzuconych koszyków"
       },
       "fields": {
         "storeName": "Nazwa sklepu",
@@ -375,7 +376,9 @@
         "logoUrl": "Adres URL logo",
         "returnsWindowDays": "Okno zwrotów (dni)",
         "lowStockDefaultThreshold": "Domyślny próg niskiego stanu",
-        "lowStockDefaultThresholdPlaceholder": "Brak globalnego progu"
+        "lowStockDefaultThresholdPlaceholder": "Brak globalnego progu",
+        "abandonedCartEnabled": "Wysyłaj e-maile z przypomnieniem",
+        "abandonedCartThresholdHours": "Próg porzucenia (godziny)"
       },
       "hints": {
         "email": "Widoczny na fakturach i używany jako nadawca e-maili sklepu.",
@@ -393,7 +396,10 @@
         "returns": "Polityka zwrotów konsumenckich (RMA).",
         "returnsWindowDays": "Liczba dni od dostarczenia, w których można zgłosić zwrot. 0 wyłącza zwroty w całym sklepie.",
         "inventory": "Domyślne ustawienia alertów magazynowych dla całego sklepu.",
-        "lowStockDefaultThreshold": "Stosowany do produktów bez własnego progu. Pozostaw puste, aby wyłączyć globalny próg."
+        "lowStockDefaultThreshold": "Stosowany do produktów bez własnego progu. Pozostaw puste, aby wyłączyć globalny próg.",
+        "abandonedCart": "Wysyłaj zalogowanym klientom link przywracający koszyk, który porzucili.",
+        "abandonedCartEnabled": "Po włączeniu uprawnieni klienci otrzymają jeden e-mail z przypomnieniem na porzucony koszyk.",
+        "abandonedCartThresholdHours": "Po ilu godzinach bez zmian koszyk jest uznawany za porzucony (1–720)."
       },
       "actions": {
         "save": "Zapisz zmiany"
@@ -404,7 +410,8 @@
         "hexColor": "Podaj kolor w formacie #rrggbb lub pozostaw puste.",
         "vatRange": "Stawka VAT musi mieścić się w zakresie 0–100.",
         "returnsWindow": "Okno zwrotów musi być liczbą całkowitą dni (0 lub więcej).",
-        "lowStockThreshold": "Próg musi być liczbą całkowitą jednostek (0 lub więcej)."
+        "lowStockThreshold": "Próg musi być liczbą całkowitą jednostek (0 lub więcej).",
+        "abandonedCartThreshold": "Próg musi być liczbą całkowitą godzin w zakresie 1–720."
       },
       "flashes": {
         "saved": "Ustawienia zapisane."
