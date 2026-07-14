@@ -1221,6 +1221,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/gift-cards/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check Gift Card
+         * @description Preview a gift card's usability + balance for a ``currency`` order.
+         *
+         *     The presented code is normalized (uppercased, spaces/dashes stripped) and
+         *     looked up by sha256 hash — the plaintext is never stored or logged.
+         */
+        post: operations["check_gift_card_api_v1_gift_cards_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/contact": {
         parameters: {
             query?: never;
@@ -1822,6 +1845,50 @@ export interface paths {
          * @description Detach a tag from a customer (admin). Idempotent; returns the remaining tags.
          */
         delete: operations["remove_customer_tag_api_v1_admin_customers__customer_id__tags__tag_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{customer_id}/store-credit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Customer Store Credit
+         * @description A customer's store credit: per-currency balances + ledger, newest first.
+         */
+        get: operations["get_customer_store_credit_api_v1_admin_customers__customer_id__store_credit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{customer_id}/store-credit/adjust": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Adjust Customer Store Credit
+         * @description Apply a signed store-credit grant/correction (ledger kind ``adjust``).
+         *
+         *     Creates the (customer, currency) account lazily on the first grant. A
+         *     result below zero is refused with 400 ``store_credit_balance_negative``
+         *     (machine code in ``detail``). Returns the refreshed summary.
+         */
+        post: operations["adjust_customer_store_credit_api_v1_admin_customers__customer_id__store_credit_adjust_post"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3251,6 +3318,81 @@ export interface paths {
         patch: operations["update_coupon_api_v1_admin_coupons__coupon_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/gift-cards/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Gift Cards
+         * @description List gift cards (newest first), filterable by status/currency/q.
+         */
+        get: operations["list_gift_cards_api_v1_admin_gift_cards__get"];
+        put?: never;
+        /**
+         * Issue Gift Card
+         * @description Issue a gift card. The 201 body is the ONLY response with the plaintext code.
+         *
+         *     When ``recipient_email`` is set, the issue email (localized via ``locale``)
+         *     goes out best-effort — a transport failure never fails the issue, because
+         *     the admin already sees the code in the response and can pass it on.
+         */
+        post: operations["issue_gift_card_api_v1_admin_gift_cards__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/gift-cards/{gift_card_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Gift Card
+         * @description Get one gift card with its ledger (newest first).
+         */
+        get: operations["get_gift_card_api_v1_admin_gift_cards__gift_card_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Gift Card
+         * @description Update management fields (status / expires_at / note). Balance is not
+         *     patchable — use the adjust endpoint so the ledger stays complete.
+         */
+        patch: operations["update_gift_card_api_v1_admin_gift_cards__gift_card_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/gift-cards/{gift_card_id}/adjust": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Adjust Gift Card
+         * @description Apply a signed manual balance correction (ledger kind ``adjust``).
+         *
+         *     Resulting balance must stay >= 0 — else 400 ``gift_card_balance_negative``.
+         */
+        post: operations["adjust_gift_card_api_v1_admin_gift_cards__gift_card_id__adjust_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/collections/": {
         parameters: {
             query?: never;
@@ -4160,6 +4302,26 @@ export interface paths {
          *     5-year retention window is documented only (D-B-4 / D-ACCT-1).
          */
         post: operations["request_account_deletion_api_v1_me_account_deletion_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/store-credit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Store Credit
+         * @description The caller's per-currency store-credit balances + ledger (newest first).
+         */
+        get: operations["get_my_store_credit_api_v1_account_store_credit_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -6831,6 +6993,14 @@ export interface components {
             saved_cart?: {
                 [key: string]: unknown;
             } | null;
+            /** Gift Cards */
+            gift_cards?: {
+                [key: string]: unknown;
+            }[];
+            /** Store Credit */
+            store_credit?: {
+                [key: string]: unknown;
+            };
         };
         /**
          * DraftOrderConvert
@@ -7241,6 +7411,244 @@ export interface components {
         GenericMessage: {
             /** Message */
             message: string;
+        };
+        /**
+         * GiftCardAdjustRequest
+         * @description Request body for ``POST /admin/gift-cards/{id}/adjust`` (signed amount).
+         */
+        GiftCardAdjustRequest: {
+            /** Amount */
+            amount: number;
+            /** Note */
+            note?: string | null;
+        };
+        /**
+         * GiftCardCheckRequest
+         * @description Request body for the public ``POST /gift-cards/check``.
+         */
+        GiftCardCheckRequest: {
+            /** Code */
+            code: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+        };
+        /**
+         * GiftCardCheckResponse
+         * @description Public check result — balance preview only, never card metadata.
+         */
+        GiftCardCheckResponse: {
+            /** Last4 */
+            last4: string;
+            /** Balance */
+            balance: number;
+            /** Currency */
+            currency: string;
+        };
+        /**
+         * GiftCardDetailResponse
+         * @description Detail shape: the card plus its ledger, newest first.
+         */
+        GiftCardDetailResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Last4 */
+            last4: string;
+            /** Initial Value */
+            initial_value: number;
+            /** Balance */
+            balance: number;
+            /** Currency */
+            currency: string;
+            /** Status */
+            status: string;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Recipient Email */
+            recipient_email?: string | null;
+            /** User Id */
+            user_id?: number | null;
+            /** Note */
+            note?: string | null;
+            /** Entries */
+            entries: components["schemas"]["GiftCardEntryResponse"][];
+        };
+        /**
+         * GiftCardEntryResponse
+         * @description One ledger row (signed ``amount`` + the ``balance_after`` it produced).
+         */
+        GiftCardEntryResponse: {
+            /** Id */
+            id: number;
+            /** Amount */
+            amount: number;
+            /** Kind */
+            kind: string;
+            /** Balance After */
+            balance_after: number;
+            /** Order Id */
+            order_id?: number | null;
+            /** Actor User Id */
+            actor_user_id?: number | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * GiftCardIssueRequest
+         * @description Request body for ``POST /admin/gift-cards`` (issue a card).
+         *
+         *     ``locale`` picks the issue-email language (EN/PL) when ``recipient_email``
+         *     is given; ``user_id`` optionally links the card to a customer account
+         *     (metadata only — redemption stays bearer, D8).
+         */
+        GiftCardIssueRequest: {
+            /** Initial Value */
+            initial_value: number;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** Expires At */
+            expires_at?: string | null;
+            /** Recipient Email */
+            recipient_email?: string | null;
+            /** User Id */
+            user_id?: number | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Locale
+             * @default en
+             * @enum {string}
+             */
+            locale: "en" | "pl";
+        };
+        /**
+         * GiftCardIssueResponse
+         * @description The 201 issue response — the ONLY response carrying the plaintext code.
+         *
+         *     ``code`` is dash-formatted (``XXXX-XXXX-XXXX-XXXX``) for display; the check
+         *     endpoint normalizes separators/case on lookup.
+         */
+        GiftCardIssueResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Last4 */
+            last4: string;
+            /** Initial Value */
+            initial_value: number;
+            /** Balance */
+            balance: number;
+            /** Currency */
+            currency: string;
+            /** Status */
+            status: string;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Recipient Email */
+            recipient_email?: string | null;
+            /** User Id */
+            user_id?: number | null;
+            /** Note */
+            note?: string | null;
+            /** Code */
+            code: string;
+        };
+        /**
+         * GiftCardListResponse
+         * @description Paginated gift-card list (house envelope).
+         */
+        GiftCardListResponse: {
+            /** Items */
+            items: components["schemas"]["GiftCardResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * GiftCardResponse
+         * @description A gift card as the admin API returns it (id + timestamps, no code).
+         */
+        GiftCardResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Last4 */
+            last4: string;
+            /** Initial Value */
+            initial_value: number;
+            /** Balance */
+            balance: number;
+            /** Currency */
+            currency: string;
+            /** Status */
+            status: string;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Recipient Email */
+            recipient_email?: string | null;
+            /** User Id */
+            user_id?: number | null;
+            /** Note */
+            note?: string | null;
+        };
+        /**
+         * GiftCardUpdate
+         * @description Request body for ``PATCH /admin/gift-cards/{id}`` (all fields optional).
+         *
+         *     Only fields explicitly sent are applied; an explicit ``null`` clears
+         *     ``expires_at`` / ``note``. Balance is NOT patchable — use the adjust
+         *     endpoint so every movement lands in the ledger.
+         */
+        GiftCardUpdate: {
+            /** Status */
+            status?: ("active" | "disabled") | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Note */
+            note?: string | null;
         };
         /**
          * GuestOrderItem
@@ -11145,6 +11553,10 @@ export interface components {
             social_tiktok: string;
             /** Social Youtube */
             social_youtube: string;
+            /** Gift Cards Enabled */
+            gift_cards_enabled: boolean;
+            /** Store Credit Enabled */
+            store_credit_enabled: boolean;
         };
         /**
          * StoreConfigResponse
@@ -11219,6 +11631,16 @@ export interface components {
              * @default 24
              */
             abandoned_cart_threshold_hours: number;
+            /**
+             * Gift Cards Enabled
+             * @default false
+             */
+            gift_cards_enabled: boolean;
+            /**
+             * Store Credit Enabled
+             * @default false
+             */
+            store_credit_enabled: boolean;
         };
         /**
          * StoreConfigUpdate
@@ -11278,6 +11700,75 @@ export interface components {
             abandoned_cart_enabled?: boolean | null;
             /** Abandoned Cart Threshold Hours */
             abandoned_cart_threshold_hours?: number | null;
+            /** Gift Cards Enabled */
+            gift_cards_enabled?: boolean | null;
+            /** Store Credit Enabled */
+            store_credit_enabled?: boolean | null;
+        };
+        /**
+         * StoreCreditAccountResponse
+         * @description One per-currency balance.
+         */
+        StoreCreditAccountResponse: {
+            /** Currency */
+            currency: string;
+            /** Balance */
+            balance: number;
+        };
+        /**
+         * StoreCreditAdjustRequest
+         * @description Request body for ``POST /admin/customers/{id}/store-credit/adjust``.
+         *
+         *     ``amount`` is signed: positive grants, negative claws back (a result below
+         *     zero is refused with 400 ``store_credit_balance_negative``).
+         */
+        StoreCreditAdjustRequest: {
+            /** Amount */
+            amount: number;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "USD" | "PLN" | "EUR";
+            /** Note */
+            note?: string | null;
+        };
+        /**
+         * StoreCreditEntryResponse
+         * @description One ledger row, labelled with its account's currency.
+         */
+        StoreCreditEntryResponse: {
+            /** Id */
+            id: number;
+            /** Currency */
+            currency: string;
+            /** Amount */
+            amount: number;
+            /** Kind */
+            kind: string;
+            /** Balance After */
+            balance_after: number;
+            /** Order Id */
+            order_id?: number | null;
+            /** Refund Id */
+            refund_id?: number | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * StoreCreditSummaryResponse
+         * @description The customer's store credit: per-currency accounts + ledger (newest first).
+         */
+        StoreCreditSummaryResponse: {
+            /** Accounts */
+            accounts: components["schemas"]["StoreCreditAccountResponse"][];
+            /** Entries */
+            entries: components["schemas"]["StoreCreditEntryResponse"][];
         };
         /**
          * StripeCheckoutResponse
@@ -13736,6 +14227,39 @@ export interface operations {
             };
         };
     };
+    check_gift_card_api_v1_gift_cards_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GiftCardCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GiftCardCheckResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     submit_contact_form_api_v1_contact_post: {
         parameters: {
             query?: never;
@@ -14686,6 +15210,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagChip"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_customer_store_credit_api_v1_admin_customers__customer_id__store_credit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreCreditSummaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adjust_customer_store_credit_api_v1_admin_customers__customer_id__store_credit_adjust_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreCreditAdjustRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreCreditSummaryResponse"];
                 };
             };
             /** @description Validation Error */
@@ -17613,6 +18203,177 @@ export interface operations {
             };
         };
     };
+    list_gift_cards_api_v1_admin_gift_cards__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Filter by status */
+                status?: ("active" | "disabled") | null;
+                currency?: string | null;
+                /** @description Match last4 (exact) or recipient email (contains) */
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GiftCardListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    issue_gift_card_api_v1_admin_gift_cards__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GiftCardIssueRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GiftCardIssueResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_gift_card_api_v1_admin_gift_cards__gift_card_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                gift_card_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GiftCardDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_gift_card_api_v1_admin_gift_cards__gift_card_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                gift_card_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GiftCardUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GiftCardResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adjust_gift_card_api_v1_admin_gift_cards__gift_card_id__adjust_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                gift_card_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GiftCardAdjustRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GiftCardDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_collections_api_v1_admin_collections__get: {
         parameters: {
             query?: never;
@@ -19454,6 +20215,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccountDeletionResponse"];
+                };
+            };
+        };
+    };
+    get_my_store_credit_api_v1_account_store_credit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreCreditSummaryResponse"];
                 };
             };
         };

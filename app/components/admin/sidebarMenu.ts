@@ -48,6 +48,7 @@ const GROUPS: MenuGroupConfig[] = [
     items: [
       { key: 'pages', to: '/admin/pages', icon: 'i-lucide-layout-template' },
       { key: 'coupons', to: '/admin/coupons', icon: 'i-lucide-ticket' },
+      { key: 'giftCards', to: '/admin/gift-cards', icon: 'i-lucide-gift' },
       { key: 'banners', to: '/admin/banners', icon: 'i-lucide-image' },
       { key: 'campaigns', to: '/admin/campaigns', icon: 'i-lucide-megaphone' },
       { key: 'segments', to: '/admin/segments', icon: 'i-lucide-users-round' },
