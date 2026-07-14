@@ -90,7 +90,10 @@
       "subtotal": "Suma częściowa",
       "shipping": "Dostawa",
       "total": "Razem",
-      "discount": "Rabat"
+      "discount": "Rabat",
+      "giftCard": "Karta podarunkowa",
+      "storeCredit": "Środki w sklepie",
+      "amountDue": "Do zapłaty"
     },
     "success": {
       "title": "Zamówienie złożone!",
@@ -122,6 +125,28 @@
       "invalid": "Ten kod rabatowy jest nieprawidłowy.",
       "automatic": "Rabat automatyczny",
       "freeShipping": "Darmowa dostawa"
+    },
+    "giftCard": {
+      "label": "Karta podarunkowa",
+      "placeholder": "Kod karty podarunkowej",
+      "apply": "Zastosuj",
+      "remove": "Usuń kartę podarunkową",
+      "balance": "Saldo",
+      "errors": {
+        "notFound": "Nie znaleźliśmy karty podarunkowej o tym kodzie.",
+        "disabled": "Ta karta podarunkowa została zablokowana.",
+        "expired": "Ta karta podarunkowa wygasła.",
+        "depleted": "Na tej karcie podarunkowej nie ma już środków.",
+        "currencyMismatch": "Tej karty podarunkowej nie można użyć w tej walucie.",
+        "featureDisabled": "Karty podarunkowe nie są obecnie akceptowane.",
+        "rateLimited": "Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.",
+        "generic": "Nie udało się zastosować tej karty podarunkowej. Spróbuj ponownie."
+      }
+    },
+    "storeCredit": {
+      "toggle": "Wykorzystaj moje środki w sklepie",
+      "balance": "Saldo",
+      "applies": "−{amount} zostanie odliczone od tego zamówienia"
     }
   },
   "orders": {
@@ -146,7 +171,10 @@
       "shippingCost": "Wysyłka",
       "total": "Razem",
       "notes": "Uwagi",
-      "discount": "Rabat"
+      "discount": "Rabat",
+      "giftCard": "Karta podarunkowa",
+      "storeCredit": "Środki w sklepie",
+      "amountDue": "Do zapłaty"
     },
     "tracking": {
       "title": "Przesyłka",
@@ -267,6 +295,10 @@
     "cod": {
       "title": "Płatność przy odbiorze",
       "message": "Nie musisz płacić online — zapłać kurierowi przy dostawie zamówienia."
+    },
+    "paidInFull": {
+      "title": "Opłacone w całości",
+      "message": "Karta podarunkowa i/lub środki w sklepie pokryły całe zamówienie — nie ma nic więcej do zapłaty."
     },
     "methods": {
       "stripe": "Zapłać kartą",

@@ -90,7 +90,10 @@
       "subtotal": "Subtotal",
       "shipping": "Shipping",
       "total": "Total",
-      "discount": "Discount"
+      "discount": "Discount",
+      "giftCard": "Gift card",
+      "storeCredit": "Store credit",
+      "amountDue": "Amount due"
     },
     "success": {
       "title": "Order placed!",
@@ -122,6 +125,28 @@
       "invalid": "This coupon code is not valid.",
       "automatic": "Automatic discount",
       "freeShipping": "Free shipping"
+    },
+    "giftCard": {
+      "label": "Gift card",
+      "placeholder": "Gift card code",
+      "apply": "Apply",
+      "remove": "Remove gift card",
+      "balance": "Balance",
+      "errors": {
+        "notFound": "We couldn't find a gift card with that code.",
+        "disabled": "This gift card has been disabled.",
+        "expired": "This gift card has expired.",
+        "depleted": "This gift card has no balance left.",
+        "currencyMismatch": "This gift card can't be used in this currency.",
+        "featureDisabled": "Gift cards aren't accepted right now.",
+        "rateLimited": "Too many attempts. Please wait a moment and try again.",
+        "generic": "We couldn't apply that gift card. Please try again."
+      }
+    },
+    "storeCredit": {
+      "toggle": "Use my store credit",
+      "balance": "Balance",
+      "applies": "−{amount} will be applied to this order"
     }
   },
   "orders": {
@@ -146,7 +171,10 @@
       "shippingCost": "Shipping",
       "total": "Total",
       "notes": "Notes",
-      "discount": "Discount"
+      "discount": "Discount",
+      "giftCard": "Gift card",
+      "storeCredit": "Store credit",
+      "amountDue": "Amount due"
     },
     "tracking": {
       "title": "Shipment",
@@ -267,6 +295,10 @@
     "cod": {
       "title": "Pay on delivery",
       "message": "No online payment needed — pay the courier when your order arrives."
+    },
+    "paidInFull": {
+      "title": "Paid in full",
+      "message": "Your gift card and/or store credit covered the whole order — there's nothing left to pay."
     },
     "methods": {
       "stripe": "Pay with card",

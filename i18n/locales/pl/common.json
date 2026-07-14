@@ -2641,6 +2641,26 @@
       "groupAccount": "Konto",
       "groupCompany": "Firma"
     },
+    "storeCredit": {
+      "title": "Środki w sklepie",
+      "subtitle": "Twoje saldo środków w sklepie i historia operacji. Wykorzystaj je przy zamówieniu.",
+      "empty": "Nie masz jeszcze środków w sklepie.",
+      "balances": "Salda",
+      "kinds": {
+        "adjust": "Korekta",
+        "redeem": "Wykorzystano na zamówienie",
+        "release": "Zwolnienie środków",
+        "refund": "Zwrot"
+      },
+      "ledger": {
+        "title": "Historia operacji",
+        "kind": "Rodzaj",
+        "amount": "Kwota",
+        "balanceAfter": "Saldo po operacji",
+        "order": "Zamówienie",
+        "date": "Data"
+      }
+    },
     "overview": {
       "welcome": "Witaj ponownie, {name}",
       "recentOrders": "Ostatnie zamówienia",
@@ -2726,6 +2746,7 @@
         "security": "Bezpieczeństwo",
         "addresses": "Adresy",
         "wishlist": "Lista życzeń",
+        "storeCredit": "Środki w sklepie",
         "preferences": "Preferencje",
         "privacy": "Prywatność",
         "company": "Firma",

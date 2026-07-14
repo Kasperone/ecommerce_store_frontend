@@ -3,10 +3,12 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { localizedCartVariantTitle } from '#shared/utils/localizedProduct'
 import { formatMoney, selectPrice } from '#shared/utils/money'
+import { tenderCoverage } from '#shared/utils/giftCard'
 import { isValidNip } from '#shared/utils/nip'
 import type { ShippingInput } from '#shared/validators/checkout'
 import type { OrderResponse } from '#shared/types/api'
 import type { AppliedCoupon } from '~/components/checkout/CouponField.vue'
+import type { AppliedGiftCard } from '~/components/checkout/GiftCardField.vue'
 import { useAddressesQuery } from '~/composables/queries/useAddresses'
 
 // No `user` middleware — guest checkout is allowed. Anonymous buyers supply a
@@ -183,12 +185,39 @@ const subtotal = computed(() => formatMoney(subtotalAmount.value, currency.value
 const shippingFormatted = computed(() => formatMoney(shippingAmount.value, currency.value, locale.value))
 const freeShippingFormatted = computed(() => formatMoney(0, currency.value, locale.value))
 const discountFormatted = computed(() => formatMoney(discountAmount.value, currency.value, locale.value))
-const total = computed(() =>
-  formatMoney(
-    subtotalAmount.value - discountAmount.value + effectiveShippingAmount.value,
-    currency.value,
-    locale.value,
-  ),
+const orderTotalAmount = computed(() =>
+  subtotalAmount.value - discountAmount.value + effectiveShippingAmount.value,
+)
+const total = computed(() => formatMoney(orderTotalAmount.value, currency.value, locale.value))
+
+// Stored-value tenders (D2/D10): applied AFTER the coupon, against the order
+// total — gift card first (min(balance, total)), then store credit
+// (min(balance, remainder)). Both are previewed client-side here; the backend
+// re-computes and debits authoritatively at order create, so `amount_due` on
+// the created order (not this preview) is what a provider is charged.
+const appliedGiftCard = ref<AppliedGiftCard | null>(null)
+const useStoreCredit = ref(false)
+const storeCreditApplied = ref(0)
+
+const giftCardCoverage = computed(() =>
+  appliedGiftCard.value
+    ? tenderCoverage(appliedGiftCard.value.balance, orderTotalAmount.value)
+    : 0,
+)
+const remainingAfterGiftCard = computed(() => orderTotalAmount.value - giftCardCoverage.value)
+const amountDueAmount = computed(() =>
+  Math.max(0, orderTotalAmount.value - giftCardCoverage.value - storeCreditApplied.value),
+)
+const hasTenders = computed(() => giftCardCoverage.value > 0 || storeCreditApplied.value > 0)
+
+const giftCardFormatted = computed(() =>
+  formatMoney(giftCardCoverage.value, currency.value, locale.value),
+)
+const storeCreditFormatted = computed(() =>
+  formatMoney(storeCreditApplied.value, currency.value, locale.value),
+)
+const amountDueFormatted = computed(() =>
+  formatMoney(amountDueAmount.value, currency.value, locale.value),
 )
 
 // GA4 begin_checkout once on mount (the composable guards SSR/consent). The
@@ -250,6 +279,12 @@ async function placeOrder(shipping: ShippingInput) {
       coupon_code: appliedCoupon.value && !appliedCoupon.value.isAutomatic
         ? appliedCoupon.value.code
         : undefined,
+      // Stored-value tenders (D2/D10). The gift-card code is sent verbatim (the
+      // backend re-validates + debits, failing loud on a depleted card);
+      // `use_store_credit` is opportunistic — the backend spends min(balance,
+      // remainder) and contributes 0 when there's nothing to spend.
+      ...(appliedGiftCard.value ? { gift_card_code: appliedGiftCard.value.code } : {}),
+      use_store_credit: useStoreCredit.value,
       // Anonymous only: contact email + UI locale (order emails + invoice
       // language). An authed request must NOT send guest_email (backend 422s).
       ...(isGuest.value
@@ -425,6 +460,21 @@ async function placeOrder(shipping: ShippingInput) {
                 :currency="currency"
               />
             </div>
+            <!-- Stored-value tenders (D2): each self-gates on its public toggle
+                 (+ auth/balance for store credit) and renders nothing when off. -->
+            <div class="mt-3 space-y-3">
+              <CheckoutGiftCardField
+                v-model="appliedGiftCard"
+                :currency="currency"
+                :order-total="orderTotalAmount"
+              />
+              <CheckoutStoreCreditField
+                v-model="useStoreCredit"
+                :currency="currency"
+                :remaining="remainingAfterGiftCard"
+                @update:applied="storeCreditApplied = $event"
+              />
+            </div>
             <div class="mt-3 space-y-1 border-t border-gray-100 pt-3 dark:border-gray-800">
               <div class="flex items-center justify-between text-sm text-muted">
                 <span>{{ t('checkout.summary.subtotal') }}</span>
@@ -456,9 +506,39 @@ async function placeOrder(shipping: ShippingInput) {
                 </span>
                 <span v-else>{{ shippingFormatted }}</span>
               </div>
-              <div class="flex items-center justify-between pt-1 font-semibold">
+              <div
+                :class="[
+                  'flex items-center justify-between pt-1',
+                  hasTenders ? 'text-sm text-muted' : 'font-semibold',
+                ]"
+              >
                 <span>{{ t('checkout.summary.total') }}</span>
                 <span data-testid="summary-total">{{ total }}</span>
+              </div>
+              <!-- Stored-value tender deductions + amount actually due -->
+              <div
+                v-if="giftCardCoverage > 0"
+                class="flex items-center justify-between text-sm text-primary"
+                data-testid="summary-gift-card"
+              >
+                <span>{{ t('checkout.summary.giftCard') }}</span>
+                <span>−{{ giftCardFormatted }}</span>
+              </div>
+              <div
+                v-if="storeCreditApplied > 0"
+                class="flex items-center justify-between text-sm text-primary"
+                data-testid="summary-store-credit"
+              >
+                <span>{{ t('checkout.summary.storeCredit') }}</span>
+                <span>−{{ storeCreditFormatted }}</span>
+              </div>
+              <div
+                v-if="hasTenders"
+                class="flex items-center justify-between border-t border-gray-100 pt-1 font-semibold dark:border-gray-800"
+                data-testid="summary-amount-due"
+              >
+                <span>{{ t('checkout.summary.amountDue') }}</span>
+                <span data-testid="summary-amount-due-value">{{ amountDueFormatted }}</span>
               </div>
             </div>
             <ULink

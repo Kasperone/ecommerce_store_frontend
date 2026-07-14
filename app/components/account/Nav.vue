@@ -24,6 +24,13 @@ const route = useRoute()
 const { isB2B, company } = useCompanyContext()
 const isCompanyAdmin = computed(() => company.value?.role === 'COMPANY_ADMIN')
 
+// Store credit is a stored-value feature that ships dark (D7): the account
+// entry appears only when the public `store_credit_enabled` toggle is on.
+// `useStoreConfig` is the SSR-serialized public read, so this stays
+// deterministic across hydration.
+const storeConfig = useStoreConfig()
+const storeCreditEnabled = computed(() => storeConfig.data.value?.store_credit_enabled === true)
+
 interface NavItem {
   key: string
   to: string
@@ -51,6 +58,9 @@ const accountItems = computed<NavItem[]>(() => [
   { key: 'profile', to: localePath('/account/profile'), icon: 'i-lucide-user', match: 'exact' },
   { key: 'addresses', to: localePath('/account/addresses'), icon: 'i-lucide-map-pin', match: 'exact' },
   { key: 'wishlist', to: localePath('/account/wishlist'), icon: 'i-lucide-heart', match: 'exact' },
+  ...(storeCreditEnabled.value
+    ? [{ key: 'storeCredit', to: localePath('/account/store-credit'), icon: 'i-lucide-wallet', match: 'exact' as const }]
+    : []),
   { key: 'security', to: localePath('/account/security'), icon: 'i-lucide-lock', match: 'exact' },
   { key: 'preferences', to: localePath('/account/preferences'), icon: 'i-lucide-settings-2', match: 'exact' },
 ])

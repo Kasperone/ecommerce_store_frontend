@@ -2641,6 +2641,26 @@
       "groupAccount": "Account",
       "groupCompany": "Company"
     },
+    "storeCredit": {
+      "title": "Store credit",
+      "subtitle": "Your store-credit balances and history. Spend it at checkout.",
+      "empty": "You don't have any store credit yet.",
+      "balances": "Balances",
+      "kinds": {
+        "adjust": "Adjustment",
+        "redeem": "Spent on order",
+        "release": "Released",
+        "refund": "Refund"
+      },
+      "ledger": {
+        "title": "History",
+        "kind": "Type",
+        "amount": "Amount",
+        "balanceAfter": "Balance after",
+        "order": "Order",
+        "date": "Date"
+      }
+    },
     "overview": {
       "welcome": "Welcome back, {name}",
       "recentOrders": "Recent orders",
@@ -2726,6 +2746,7 @@
         "security": "Security",
         "addresses": "Addresses",
         "wishlist": "Wishlist",
+        "storeCredit": "Store credit",
         "preferences": "Preferences",
         "privacy": "Privacy",
         "company": "Company",
