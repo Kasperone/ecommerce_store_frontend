@@ -50,6 +50,14 @@ function money(value: number) {
 const placedOn = computed(() =>
   order.value ? new Date(order.value.created_at).toLocaleDateString(locale.value) : '',
 )
+
+// Stored-value tenders (D2): the trimmed guest view still carries the tender
+// figures + amount due, so a guest sees what a card/credit covered.
+const hasTenders = computed(
+  () =>
+    order.value != null
+    && ((order.value.gift_card_amount ?? 0) > 0 || (order.value.store_credit_amount ?? 0) > 0),
+)
 </script>
 
 <template>
@@ -154,12 +162,42 @@ const placedOn = computed(() =>
             </div>
             <div
               :class="[
-                'mt-1 flex justify-between border-t border-gray-100 pt-2',
-                'font-medium dark:border-gray-800',
+                'mt-1 flex justify-between border-t border-gray-100 pt-2 dark:border-gray-800',
+                hasTenders ? 'text-sm text-muted' : 'font-medium',
               ]"
             >
               <span>{{ t('orders.detail.total') }}</span><span>{{ money(order.total) }}</span>
             </div>
+            <template v-if="hasTenders">
+              <div
+                v-if="(order.gift_card_amount ?? 0) > 0"
+                class="flex justify-between py-1 text-sm text-primary"
+                data-testid="track-gift-card"
+              >
+                <span>
+                  {{ t('orders.detail.giftCard') }}
+                  <span
+                    v-if="order.gift_card_last4"
+                    class="text-muted"
+                  >(•••• {{ order.gift_card_last4 }})</span>
+                </span>
+                <span>−{{ money(order.gift_card_amount) }}</span>
+              </div>
+              <div
+                v-if="(order.store_credit_amount ?? 0) > 0"
+                class="flex justify-between py-1 text-sm text-primary"
+                data-testid="track-store-credit"
+              >
+                <span>{{ t('orders.detail.storeCredit') }}</span>
+                <span>−{{ money(order.store_credit_amount) }}</span>
+              </div>
+              <div
+                class="mt-1 flex justify-between border-t border-gray-100 pt-2 font-medium dark:border-gray-800"
+                data-testid="track-amount-due"
+              >
+                <span>{{ t('orders.detail.amountDue') }}</span><span>{{ money(order.amount_due) }}</span>
+              </div>
+            </template>
           </section>
         </div>
 

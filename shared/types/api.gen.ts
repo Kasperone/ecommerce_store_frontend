@@ -7700,6 +7700,20 @@ export interface components {
             total: number;
             /** Currency */
             currency: string;
+            /**
+             * Gift Card Amount
+             * @default 0
+             */
+            gift_card_amount: number;
+            /**
+             * Store Credit Amount
+             * @default 0
+             */
+            store_credit_amount: number;
+            /** Amount Due */
+            amount_due: number;
+            /** Gift Card Last4 */
+            gift_card_last4?: string | null;
             /** Shipping Method Name */
             shipping_method_name?: string | null;
             /** Shipping Carrier */
@@ -8140,6 +8154,13 @@ export interface components {
             inpost_point_name?: string | null;
             /** Payment Method */
             payment_method?: "cod" | null;
+            /** Gift Card Code */
+            gift_card_code?: string | null;
+            /**
+             * Use Store Credit
+             * @default false
+             */
+            use_store_credit: boolean;
         };
         /**
          * OrderItemCreate
@@ -8300,6 +8321,20 @@ export interface components {
             total: number;
             /** Currency */
             currency: string;
+            /**
+             * Gift Card Amount
+             * @default 0
+             */
+            gift_card_amount: number;
+            /**
+             * Store Credit Amount
+             * @default 0
+             */
+            store_credit_amount: number;
+            /** Amount Due */
+            amount_due: number;
+            /** Gift Card Last4 */
+            gift_card_last4?: string | null;
             /** Invoice Nip */
             invoice_nip?: string | null;
             /** Invoice Name */
@@ -8414,6 +8449,20 @@ export interface components {
             total: number;
             /** Currency */
             currency: string;
+            /**
+             * Gift Card Amount
+             * @default 0
+             */
+            gift_card_amount: number;
+            /**
+             * Store Credit Amount
+             * @default 0
+             */
+            store_credit_amount: number;
+            /** Amount Due */
+            amount_due: number;
+            /** Gift Card Last4 */
+            gift_card_last4?: string | null;
             /** Invoice Nip */
             invoice_nip?: string | null;
             /** Invoice Name */
@@ -10059,6 +10108,13 @@ export interface components {
              * @description Optional per-line picker. Omit (or send empty) for a goodwill credit with no line attribution; required when ``restock=True``.
              */
             items?: components["schemas"]["RefundItemCreate"][] | null;
+            /**
+             * Destination
+             * @description Where the money goes (D6). ``original`` = record-only (today's behavior); ``store_credit`` credits the order's user account in the same transaction (400 ``store_credit_requires_account`` on guest orders).
+             * @default original
+             * @enum {string}
+             */
+            destination: "original" | "store_credit";
         };
         /**
          * RefundItemCreate
@@ -10153,6 +10209,12 @@ export interface components {
             note: string | null;
             /** Restock */
             restock: boolean;
+            /**
+             * Destination
+             * @default original
+             * @enum {string}
+             */
+            destination: "original" | "store_credit";
             /** Provider Refund Id */
             provider_refund_id: string | null;
             /** Actor User Id */

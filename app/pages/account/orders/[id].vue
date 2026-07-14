@@ -38,6 +38,14 @@ const returnError = ref<unknown>(null)
 
 const canCancel = computed(() => order.value?.status === 'pending')
 const canPay = computed(() => order.value?.status === 'pending')
+
+// Stored-value tenders (D2): show the gift-card / store-credit deductions +
+// amount due when either covered part of the order.
+const hasTenders = computed(
+  () =>
+    order.value != null
+    && ((order.value.gift_card_amount ?? 0) > 0 || (order.value.store_credit_amount ?? 0) > 0),
+)
 const canRequestReturn = computed(() => returnEligibility.value?.eligible === true)
 
 async function onReturnSubmit(payload: ReturnRequestCreate) {
@@ -182,7 +190,7 @@ useHead({
           </p>
           <CheckoutPaymentMethods
             :order-id="order.id"
-            :amount-minor="Math.round(order.total * 100)"
+            :amount-minor="Math.round(order.amount_due * 100)"
             :currency="order.currency"
             :order-number="order.order_number"
           />
@@ -286,12 +294,42 @@ useHead({
             </div>
             <div
               :class="[
-                'mt-1 flex justify-between border-t border-gray-100 pt-2',
-                'font-medium dark:border-gray-800',
+                'mt-1 flex justify-between border-t border-gray-100 pt-2 dark:border-gray-800',
+                hasTenders ? 'text-sm text-muted' : 'font-medium',
               ]"
             >
               <span>{{ t('orders.detail.total') }}</span><span>{{ money(order.total) }}</span>
             </div>
+            <template v-if="hasTenders">
+              <div
+                v-if="(order.gift_card_amount ?? 0) > 0"
+                class="flex justify-between py-1 text-sm text-primary"
+                data-testid="order-gift-card"
+              >
+                <span>
+                  {{ t('orders.detail.giftCard') }}
+                  <span
+                    v-if="order.gift_card_last4"
+                    class="text-muted"
+                  >(•••• {{ order.gift_card_last4 }})</span>
+                </span>
+                <span>−{{ money(order.gift_card_amount) }}</span>
+              </div>
+              <div
+                v-if="(order.store_credit_amount ?? 0) > 0"
+                class="flex justify-between py-1 text-sm text-primary"
+                data-testid="order-store-credit"
+              >
+                <span>{{ t('orders.detail.storeCredit') }}</span>
+                <span>−{{ money(order.store_credit_amount) }}</span>
+              </div>
+              <div
+                class="mt-1 flex justify-between border-t border-gray-100 pt-2 font-medium dark:border-gray-800"
+                data-testid="order-amount-due"
+              >
+                <span>{{ t('orders.detail.amountDue') }}</span><span>{{ money(order.amount_due) }}</span>
+              </div>
+            </template>
           </section>
         </div>
       </div>
