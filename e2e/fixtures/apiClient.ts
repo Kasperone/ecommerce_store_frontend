@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import { request as playwrightRequest, type APIRequestContext } from '@playwright/test'
 import { Client as PgClient } from 'pg'
 import type { TestUser } from './testUser'
@@ -441,6 +441,51 @@ export class ApiClient {
     return token
   }
 
+  /**
+   * DB: mint an active gift card straight into `gift_cards`, returning the
+   * plaintext code the storefront will redeem. Gift-card codes are bearer money
+   * — the backend only stores the sha256 hex of the *normalized* code (uppercase,
+   * dashes/spaces stripped; see `crud/gift_card.py::hash_code`) plus `last4`, and
+   * the plaintext exists only in the issue response/email (no resend). So E2E
+   * can't read a code back from an admin-issued card; it seeds one at the DB
+   * seam with a known plaintext instead (same posture as markVerified /
+   * mintCartRecoveryToken). The code we mint is already normalized (uppercase,
+   * no dashes), so `hash_code(code)` here matches the backend's lookup exactly.
+   * `created_at`/`updated_at` are Python-side defaults (not server defaults), so
+   * a raw INSERT must set them.
+   */
+  async mintGiftCard(input: {
+    balance: number
+    currency: 'USD' | 'PLN' | 'EUR'
+  }): Promise<{ id: number, code: string, last4: string }> {
+    const code = `E2EGIFT${randomBytes(6).toString('hex').toUpperCase()}`
+    const codeHash = createHash('sha256').update(code).digest('hex')
+    const last4 = code.slice(-4)
+    const res = await this.pg.query<{ id: number }>(
+      `INSERT INTO gift_cards
+         (code_hash, last4, initial_value, balance, currency, status,
+          created_at, updated_at)
+       VALUES ($1, $2, $3, $3, $4, 'active',
+          (NOW() AT TIME ZONE 'UTC'), (NOW() AT TIME ZONE 'UTC'))
+       RETURNING id`,
+      [codeHash, last4, input.balance, input.currency],
+    )
+    const id = res.rows[0]?.id
+    if (id === undefined) throw new Error('mintGiftCard: INSERT returned no id')
+    return { id, code, last4 }
+  }
+
+  /** DB: a gift card's remaining balance — asserts the redeem debit landed. */
+  async getGiftCardBalance(giftCardId: number): Promise<number> {
+    const res = await this.pg.query<{ balance: string }>(
+      'SELECT balance FROM gift_cards WHERE id = $1',
+      [giftCardId],
+    )
+    const raw = res.rows[0]?.balance
+    if (raw === undefined) throw new Error(`getGiftCardBalance: no card ${giftCardId}`)
+    return Number(raw)
+  }
+
   async getUserId(email: string): Promise<number> {
     const res = await this.pg.query<{ id: number }>(
       'SELECT id FROM users WHERE email = $1',
@@ -594,6 +639,13 @@ export class ApiClient {
     total: number
     currency: string
     coupon_code: string | null
+    // Stored-value tenders (gift cards + store credit). `amount_due = total −
+    // gift_card_amount − store_credit_amount`; a provider charges `amount_due`,
+    // and `amount_due === 0` means the order was PAID at creation.
+    gift_card_amount: number
+    store_credit_amount: number
+    amount_due: number
+    gift_card_last4: string | null
     // PL launch fields (optional — only the PL money-path spec asserts them).
     payment_method?: string
     invoice_nip?: string | null
