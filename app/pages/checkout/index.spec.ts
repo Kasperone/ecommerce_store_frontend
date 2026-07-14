@@ -120,6 +120,19 @@ const StubCoupon = defineComponent({
   emits: ['update:modelValue'],
   setup: () => () => h('div', 'coupon'),
 })
+// Tender fields self-gate on public toggles / auth / balance (covered by their
+// own specs); here they're stubbed so the page's summary + payload wiring is
+// tested by driving their emits.
+const StubGiftCard = defineComponent({
+  props: ['currency', 'orderTotal', 'modelValue'],
+  emits: ['update:modelValue'],
+  setup: () => () => h('div', 'gift-card'),
+})
+const StubStoreCredit = defineComponent({
+  props: ['currency', 'remaining', 'modelValue'],
+  emits: ['update:modelValue', 'update:applied'],
+  setup: () => () => h('div', 'store-credit'),
+})
 
 const tick = () => new Promise(r => setTimeout(r, 0))
 
@@ -134,6 +147,8 @@ async function mountPage() {
         ClientOnly: PassThroughStub,
         CheckoutShippingMethodSelector: StubSelector,
         CheckoutCouponField: StubCoupon,
+        CheckoutGiftCardField: StubGiftCard,
+        CheckoutStoreCreditField: StubStoreCredit,
       },
     },
   })
@@ -345,6 +360,90 @@ describe('checkout — discounts (automatic + free shipping)', () => {
 
     expect(mutateAsync).toHaveBeenCalledTimes(1)
     expect(mutateAsync.mock.calls[0]![0].coupon_code).toBe('SAVE5')
+  })
+})
+
+describe('checkout — stored-value tenders (gift card + store credit)', () => {
+  // USD subtotal of the stubbed cart: 10×1 + 5×2 = $20.
+  async function mountWithShipping(amount = 10) {
+    const wrapper = await mountPage()
+    await tick()
+    const selector = wrapper.findComponent(StubSelector)
+    selector.vm.$emit('update:modelValue', 5)
+    selector.vm.$emit('update:methodAmount', amount)
+    await tick()
+    return wrapper
+  }
+
+  it('threads the order total into the gift-card field and the remaining into store credit', async () => {
+    const wrapper = await mountWithShipping(10)
+    // orderTotal = subtotal 20 + shipping 10 = 30; no gift card → remaining 30.
+    expect(wrapper.findComponent(StubGiftCard).props('orderTotal')).toBe(30)
+    expect(wrapper.findComponent(StubStoreCredit).props('remaining')).toBe(30)
+  })
+
+  it('shows the gift-card + amount-due summary lines and passes remaining after the card', async () => {
+    const wrapper = await mountWithShipping(10)
+    wrapper.findComponent(StubGiftCard).vm.$emit('update:modelValue', {
+      code: 'ABCD1234EFGH5678', last4: '5678', balance: 12, currency: 'USD',
+    })
+    await tick()
+
+    // Coverage = min(12, 30) = 12; amount due = 30 − 12 = 18.
+    expect(wrapper.find('[data-testid="summary-gift-card"]').text()).toContain('$12.00')
+    expect(wrapper.find('[data-testid="summary-amount-due-value"]').text()).toBe('$18.00')
+    // Store credit now applies to the remaining $18.
+    expect(wrapper.findComponent(StubStoreCredit).props('remaining')).toBe(18)
+  })
+
+  it('shows the store-credit summary line off the applied-amount emit', async () => {
+    const wrapper = await mountWithShipping(10)
+    wrapper.findComponent(StubStoreCredit).vm.$emit('update:applied', 8)
+    await tick()
+
+    expect(wrapper.find('[data-testid="summary-store-credit"]').text()).toContain('$8.00')
+    // Amount due = 30 − 8 = 22.
+    expect(wrapper.find('[data-testid="summary-amount-due-value"]').text()).toBe('$22.00')
+  })
+
+  it('sends gift_card_code + use_store_credit on the order payload', async () => {
+    mutateAsync.mockResolvedValue({
+      id: 9, order_number: 'ORD-9', status: 'pending', currency: 'USD',
+      total: 30, amount_due: 10, items: [],
+    })
+    const wrapper = await mountWithShipping(10)
+    wrapper.findComponent(StubGiftCard).vm.$emit('update:modelValue', {
+      code: 'ABCD1234EFGH5678', last4: '5678', balance: 12, currency: 'USD',
+    })
+    wrapper.findComponent(StubStoreCredit).vm.$emit('update:modelValue', true)
+    await tick()
+
+    const form = wrapper.findComponent({ name: 'CheckoutShippingForm' })
+    form.vm.$emit('submit', {
+      address: '1 Main St', city: 'Warsaw', postalCode: '00-001', country: 'PL',
+    })
+    await tick()
+
+    const payload = mutateAsync.mock.calls[0]![0]
+    expect(payload.gift_card_code).toBe('ABCD1234EFGH5678')
+    expect(payload.use_store_credit).toBe(true)
+  })
+
+  it('omits gift_card_code and sends use_store_credit=false when no tender is applied', async () => {
+    mutateAsync.mockResolvedValue({
+      id: 10, order_number: 'ORD-10', status: 'pending', currency: 'USD',
+      total: 30, amount_due: 30, items: [],
+    })
+    const wrapper = await mountWithShipping(10)
+    const form = wrapper.findComponent({ name: 'CheckoutShippingForm' })
+    form.vm.$emit('submit', {
+      address: '1 Main St', city: 'Warsaw', postalCode: '00-001', country: 'PL',
+    })
+    await tick()
+
+    const payload = mutateAsync.mock.calls[0]![0]
+    expect('gift_card_code' in payload).toBe(false)
+    expect(payload.use_store_credit).toBe(false)
   })
 })
 

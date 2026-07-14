@@ -33,11 +33,24 @@ const viewOrderTo = computed(() => {
 
 useHead({ title: () => t('checkout.success.title') })
 
-const total = computed(() =>
-  order.value
-    ? formatMoney(order.value.total, order.value.currency as CurrencyCode, locale.value)
-    : null,
+function money(value: number) {
+  return order.value
+    ? formatMoney(value, order.value.currency as CurrencyCode, locale.value)
+    : ''
+}
+
+const total = computed(() => (order.value ? money(order.value.total) : null))
+
+// Stored-value tenders (D2) — the created order carries the authoritative
+// figures. When `amount_due === 0` the backend already flipped the order to PAID
+// at creation (gift card / store credit fully covered it), so there is nothing
+// to collect online: the provider picker is skipped entirely (D10).
+const hasTenders = computed(
+  () =>
+    order.value != null
+    && ((order.value.gift_card_amount ?? 0) > 0 || (order.value.store_credit_amount ?? 0) > 0),
 )
+const isPaidInFull = computed(() => order.value != null && order.value.amount_due === 0)
 </script>
 
 <template>
@@ -66,15 +79,65 @@ const total = computed(() =>
             <span class="text-muted">{{ t('checkout.success.orderNumber') }}</span>
             <strong class="font-mono">{{ order.order_number }}</strong>
           </div>
-          <div class="mt-2 flex items-center justify-between">
+          <div
+            :class="[
+              'mt-2 flex items-center justify-between',
+              hasTenders ? 'text-sm text-muted' : '',
+            ]"
+          >
             <span class="text-muted">{{ t('checkout.summary.total') }}</span>
             <span class="font-medium">{{ total }}</span>
           </div>
+          <template v-if="hasTenders && order">
+            <div
+              v-if="(order.gift_card_amount ?? 0) > 0"
+              class="mt-1 flex items-center justify-between text-sm text-primary"
+              data-testid="success-gift-card"
+            >
+              <span>
+                {{ t('checkout.summary.giftCard') }}
+                <span
+                  v-if="order.gift_card_last4"
+                  class="text-muted"
+                >(•••• {{ order.gift_card_last4 }})</span>
+              </span>
+              <span>−{{ money(order.gift_card_amount) }}</span>
+            </div>
+            <div
+              v-if="(order.store_credit_amount ?? 0) > 0"
+              class="mt-1 flex items-center justify-between text-sm text-primary"
+              data-testid="success-store-credit"
+            >
+              <span>{{ t('checkout.summary.storeCredit') }}</span>
+              <span>−{{ money(order.store_credit_amount) }}</span>
+            </div>
+            <div
+              class="mt-1 flex items-center justify-between border-t border-gray-100 pt-2 font-medium dark:border-gray-800"
+              data-testid="success-amount-due"
+            >
+              <span>{{ t('checkout.summary.amountDue') }}</span>
+              <span>{{ money(order.amount_due) }}</span>
+            </div>
+          </template>
         </div>
 
+        <!-- Fully covered by gift card / store credit (amount_due === 0): the
+             order is already PAID at creation — no provider step. -->
+        <div
+          v-if="order && isPaidInFull"
+          class="mx-auto mt-6 max-w-sm rounded-lg border border-gray-200 p-4 text-sm dark:border-gray-800"
+          data-testid="paid-in-full"
+        >
+          <p class="font-medium">
+            {{ t('payment.paidInFull.title') }}
+          </p>
+          <p class="mt-1 text-muted">
+            {{ t('payment.paidInFull.message') }}
+          </p>
+        </div>
         <!-- Cash-on-delivery: nothing to pay online — confirm pobranie. -->
         <div
-          v-if="order && order.payment_method === 'cod'"
+          v-else-if="order && order.payment_method === 'cod'"
           class="mx-auto mt-6 max-w-sm rounded-lg border border-gray-200 p-4 text-sm dark:border-gray-800"
         >
           <p class="font-medium">
@@ -84,6 +147,7 @@ const total = computed(() =>
             {{ t('payment.cod.message') }}
           </p>
         </div>
+        <!-- Otherwise pay the amount still due (post-tender) via a provider. -->
         <div
           v-else-if="order"
           class="mx-auto mt-6 max-w-sm"
@@ -93,7 +157,7 @@ const total = computed(() =>
           </p>
           <CheckoutPaymentMethods
             :order-id="order.id"
-            :amount-minor="Math.round(order.total * 100)"
+            :amount-minor="Math.round(order.amount_due * 100)"
             :currency="order.currency"
             :order-number="order.order_number"
             :guest-token="order.guest_token"
