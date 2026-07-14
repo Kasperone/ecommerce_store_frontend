@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import { request as playwrightRequest, type APIRequestContext } from '@playwright/test'
 import { Client as PgClient } from 'pg'
 import type { TestUser } from './testUser'
@@ -388,6 +389,56 @@ export class ApiClient {
     }
     const order = await res.json() as { id: number, order_number: string, status: string }
     return { id: order.id, order_number: order.order_number, status: order.status }
+  }
+
+  /**
+   * DB: the user's server-side cart snapshot (`saved_carts`, abandoned-cart
+   * recovery), or null. Specs poll this to see the debounced
+   * `PUT /carts/mine` sync land — only the sync endpoint writes this row.
+   */
+  async getSavedCart(userId: number): Promise<{
+    items: Array<{ product_id: number, variant_id: number | null, quantity: number }>
+    recovery_token: string | null
+    recovery_email_sent_at: Date | null
+  } | null> {
+    const res = await this.pg.query<{
+      items: Array<{ product_id: number, variant_id: number | null, quantity: number }>
+      recovery_token: string | null
+      recovery_email_sent_at: Date | null
+    }>(
+      `SELECT items, recovery_token, recovery_email_sent_at
+         FROM saved_carts
+        WHERE user_id = $1`,
+      [userId],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /**
+   * DB: stamp a live recovery token onto the user's saved-cart row — exactly
+   * the pair the email job commits per send (`recovery_token` +
+   * `recovery_email_sent_at`; see backend
+   * `app/services/abandoned_cart_email.py`). The job itself is gated on
+   * store_config enablement, threshold-hours of inactivity, and marketing
+   * consent — process machinery owned by backend integration tests. E2E cares
+   * about the money path from a live token onward, so it's minted at the DB
+   * seam (same posture as markVerified/lockUser). Node's
+   * `randomBytes(32).toString('base64url')` matches the job's
+   * `secrets.token_urlsafe(32)` shape (43-char base64url).
+   */
+  async mintCartRecoveryToken(userId: number): Promise<string> {
+    const token = randomBytes(32).toString('base64url')
+    const res = await this.pg.query(
+      `UPDATE saved_carts
+          SET recovery_token = $1,
+              recovery_email_sent_at = (NOW() AT TIME ZONE 'UTC')
+        WHERE user_id = $2`,
+      [token, userId],
+    )
+    if (res.rowCount !== 1) {
+      throw new Error(`mintCartRecoveryToken: no saved_carts row for user ${userId}`)
+    }
+    return token
   }
 
   async getUserId(email: string): Promise<number> {
