@@ -97,6 +97,7 @@
         "quotes": "Oferty (B2B)",
         "pages": "Strony",
         "coupons": "Kupony",
+        "giftCards": "Karty podarunkowe",
         "banners": "Banery",
         "campaigns": "Kampanie",
         "shipping": "Wysyłka",
@@ -350,7 +351,8 @@
         "branding": "Marka",
         "returns": "Zwroty",
         "inventory": "Magazyn",
-        "abandonedCart": "Ratowanie porzuconych koszyków"
+        "abandonedCart": "Ratowanie porzuconych koszyków",
+        "giftCards": "Karty podarunkowe i środki w sklepie"
       },
       "fields": {
         "storeName": "Nazwa sklepu",
@@ -378,7 +380,9 @@
         "lowStockDefaultThreshold": "Domyślny próg niskiego stanu",
         "lowStockDefaultThresholdPlaceholder": "Brak globalnego progu",
         "abandonedCartEnabled": "Wysyłaj e-maile z przypomnieniem",
-        "abandonedCartThresholdHours": "Próg porzucenia (godziny)"
+        "abandonedCartThresholdHours": "Próg porzucenia (godziny)",
+        "giftCardsEnabled": "Włącz karty podarunkowe",
+        "storeCreditEnabled": "Włącz środki w sklepie"
       },
       "hints": {
         "email": "Widoczny na fakturach i używany jako nadawca e-maili sklepu.",
@@ -399,7 +403,10 @@
         "lowStockDefaultThreshold": "Stosowany do produktów bez własnego progu. Pozostaw puste, aby wyłączyć globalny próg.",
         "abandonedCart": "Wysyłaj zalogowanym klientom link przywracający koszyk, który porzucili.",
         "abandonedCartEnabled": "Po włączeniu uprawnieni klienci otrzymają jeden e-mail z przypomnieniem na porzucony koszyk.",
-        "abandonedCartThresholdHours": "Po ilu godzinach bez zmian koszyk jest uznawany za porzucony (1–720)."
+        "abandonedCartThresholdHours": "Po ilu godzinach bez zmian koszyk jest uznawany za porzucony (1–720).",
+        "giftCards": "Obie funkcje są domyślnie wyłączone — włącz je, gdy sklep ma je przyjmować przy składaniu zamówienia.",
+        "giftCardsEnabled": "Po włączeniu klienci mogą realizować kody kart podarunkowych przy składaniu zamówienia.",
+        "storeCreditEnabled": "Po włączeniu zalogowani klienci mogą płacić środkami zgromadzonymi w sklepie."
       },
       "actions": {
         "save": "Zapisz zmiany"
@@ -501,6 +508,126 @@
       },
       "badges": {
         "auto": "Auto"
+      }
+    },
+    "giftCards": {
+      "title": "Karty podarunkowe",
+      "subtitle": "Wystawiaj przedpłacone karty podarunkowe i zarządzaj ich saldem",
+      "actions": {
+        "issue": "Wystaw kartę",
+        "back": "Wróć do kart podarunkowych",
+        "disable": "Dezaktywuj",
+        "enable": "Aktywuj",
+        "edit": "Edytuj",
+        "view": "Szczegóły"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "disabled": "Nieaktywne",
+        "currency": "Waluta",
+        "allCurrencies": "Wszystkie waluty",
+        "search": "Szukaj",
+        "searchPlaceholder": "Ostatnie 4 znaki lub e-mail odbiorcy"
+      },
+      "fields": {
+        "code": "Kod",
+        "initialValue": "Wartość początkowa",
+        "balance": "Saldo",
+        "currency": "Waluta",
+        "status": "Status",
+        "expiresAt": "Wygasa",
+        "recipient": "Odbiorca",
+        "customer": "Klient",
+        "note": "Notatka",
+        "issuedAt": "Wystawiona"
+      },
+      "status": {
+        "active": "Aktywna",
+        "disabled": "Nieaktywna",
+        "expired": "Wygasła"
+      },
+      "empty": {
+        "noCards": "Brak kart podarunkowych.",
+        "noResults": "Żadna karta nie pasuje do filtrów."
+      },
+      "issue": {
+        "title": "Wystaw kartę podarunkową",
+        "initialValue": "Wartość początkowa",
+        "initialValueHint": "Saldo startowe w walucie karty.",
+        "currency": "Waluta",
+        "currencyHint": "Kartę można zrealizować tylko przy zamówieniach w jej walucie.",
+        "expiresAt": "Data wygaśnięcia",
+        "expiresAtHint": "Opcjonalne. Pozostaw puste, aby karta nie wygasała.",
+        "recipientEmail": "E-mail odbiorcy",
+        "recipientEmailHint": "Opcjonalne. Po podaniu kod zostanie wysłany na ten adres.",
+        "userId": "ID powiązanego klienta",
+        "userIdHint": "Opcjonalne. Powiązanie z kontem klienta (informacyjne — realizacja pozostaje po kodzie).",
+        "note": "Notatka wewnętrzna",
+        "locale": "Język wiadomości",
+        "localeEn": "angielski",
+        "localePl": "polski",
+        "submit": "Wystaw",
+        "cancel": "Anuluj"
+      },
+      "codePanel": {
+        "title": "Karta podarunkowa wystawiona",
+        "warning": "Skopiuj kod teraz — ze względów bezpieczeństwa jest przechowywany w postaci skrótu i nigdy nie zostanie ponownie wyświetlony.",
+        "copy": "Kopiuj kod",
+        "copied": "Kod skopiowany do schowka.",
+        "copyFailed": "Nie udało się skopiować — zaznacz kod i skopiuj go ręcznie.",
+        "emailedTo": "Kod został też wysłany na adres {email}.",
+        "done": "Gotowe"
+      },
+      "detail": {
+        "title": "Karta podarunkowa {code}",
+        "loading": "Wczytywanie karty…",
+        "ledger": "Historia operacji",
+        "ledgerEmpty": "Brak operacji."
+      },
+      "ledger": {
+        "kind": "Rodzaj",
+        "amount": "Kwota",
+        "balanceAfter": "Saldo po operacji",
+        "order": "Zamówienie",
+        "note": "Notatka",
+        "date": "Data",
+        "kinds": {
+          "issue": "Wystawienie",
+          "redeem": "Realizacja",
+          "release": "Zwolnienie środków",
+          "refund": "Zwrot",
+          "adjust": "Korekta"
+        }
+      },
+      "edit": {
+        "title": "Edytuj kartę podarunkową",
+        "expiresAt": "Data wygaśnięcia",
+        "expiresAtHint": "Wyczyść pole, aby usunąć datę wygaśnięcia.",
+        "note": "Notatka wewnętrzna",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "adjust": {
+        "title": "Skoryguj saldo",
+        "hint": "Kwota ze znakiem: dodatnia zwiększa saldo, ujemna je pomniejsza. Każda operacja trafia do historii.",
+        "amount": "Kwota",
+        "note": "Notatka",
+        "submit": "Zastosuj korektę"
+      },
+      "errors": {
+        "initialValuePositive": "Wartość początkowa musi być większa od 0.",
+        "recipientEmail": "Podaj prawidłowy adres e-mail.",
+        "amountNonZero": "Kwota musi być liczbą różną od zera.",
+        "balanceNegative": "Ta korekta sprowadziłaby saldo poniżej zera."
+      },
+      "flashes": {
+        "issued": "Karta podarunkowa wystawiona.",
+        "updated": "Karta podarunkowa zaktualizowana.",
+        "disabled": "Karta podarunkowa dezaktywowana.",
+        "enabled": "Karta podarunkowa aktywowana.",
+        "adjusted": "Saldo skorygowane."
       }
     },
     "companies": {
@@ -1443,6 +1570,43 @@
         "orders": "Złożone zamówienia",
         "spent": "Wydano łącznie",
         "lastOrder": "Ostatnie zamówienie"
+      },
+      "storeCredit": {
+        "title": "Środki w sklepie",
+        "balances": "Salda",
+        "noBalances": "Klient nie ma jeszcze środków w sklepie.",
+        "adjust": {
+          "title": "Skoryguj środki",
+          "hint": "Kwota ze znakiem: dodatnia przyznaje środki, ujemna je odbiera. Każda operacja trafia do historii.",
+          "amount": "Kwota",
+          "currency": "Waluta",
+          "note": "Notatka",
+          "submit": "Zastosuj korektę"
+        },
+        "ledger": {
+          "title": "Historia operacji",
+          "empty": "Brak operacji.",
+          "kind": "Rodzaj",
+          "currency": "Waluta",
+          "amount": "Kwota",
+          "balanceAfter": "Saldo po operacji",
+          "order": "Zamówienie",
+          "note": "Notatka",
+          "date": "Data",
+          "kinds": {
+            "adjust": "Korekta",
+            "redeem": "Realizacja",
+            "release": "Zwolnienie środków",
+            "refund": "Zwrot"
+          }
+        },
+        "errors": {
+          "amountNonZero": "Kwota musi być liczbą różną od zera.",
+          "balanceNegative": "Ta korekta sprowadziłaby saldo poniżej zera."
+        },
+        "flashes": {
+          "adjusted": "Środki w sklepie skorygowane."
+        }
       },
       "detail": {
         "title": "Klient {email}",
