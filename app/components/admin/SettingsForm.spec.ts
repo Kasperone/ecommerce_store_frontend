@@ -55,6 +55,8 @@ const config = {
   low_stock_default_threshold: 5,
   abandoned_cart_enabled: false,
   abandoned_cart_threshold_hours: 24,
+  gift_cards_enabled: false,
+  store_credit_enabled: false,
   created_at: '2026-05-28T00:00:00Z',
   updated_at: '2026-05-28T00:00:00Z',
 }
@@ -197,6 +199,30 @@ describe('SettingsForm', () => {
     await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
     expect(wrapper.emitted('submit')).toBeFalsy()
+  })
+
+  it('prefills + emits the gift-cards and store-credit toggles', async () => {
+    const wrapper = await mountSuspended(SettingsForm, { props: { config } })
+    // Prefilled from the loaded config (both ship dark = false).
+    expect((wrapper.vm as any).state.gift_cards_enabled).toBe(false)
+    expect((wrapper.vm as any).state.store_credit_enabled).toBe(false)
+
+    // Switch order: abandoned-cart, gift cards, store credit.
+    const switches = wrapper.findAllComponents({ name: 'USwitch' })
+    expect(switches.length).toBeGreaterThanOrEqual(3)
+    switches[1]!.vm.$emit('update:modelValue', true)
+    switches[2]!.vm.$emit('update:modelValue', true)
+    await new Promise(r => setTimeout(r, 0))
+
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+
+    const submits = wrapper.emitted('submit')
+    expect(submits).toBeTruthy()
+    expect(submits![0]![0]).toMatchObject({
+      gift_cards_enabled: true,
+      store_credit_enabled: true,
+    })
   })
 
   it('blocks save and does not emit when the returns window is negative', async () => {

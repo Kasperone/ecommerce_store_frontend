@@ -97,6 +97,7 @@
         "quotes": "Quotes (B2B)",
         "pages": "Pages",
         "coupons": "Coupons",
+        "giftCards": "Gift cards",
         "banners": "Banners",
         "campaigns": "Campaigns",
         "shipping": "Shipping",
@@ -350,7 +351,8 @@
         "branding": "Branding",
         "returns": "Returns",
         "inventory": "Inventory",
-        "abandonedCart": "Abandoned cart recovery"
+        "abandonedCart": "Abandoned cart recovery",
+        "giftCards": "Gift cards & store credit"
       },
       "fields": {
         "storeName": "Store name",
@@ -378,7 +380,9 @@
         "lowStockDefaultThreshold": "Default low-stock threshold",
         "lowStockDefaultThresholdPlaceholder": "No global default",
         "abandonedCartEnabled": "Send recovery emails",
-        "abandonedCartThresholdHours": "Abandonment threshold (hours)"
+        "abandonedCartThresholdHours": "Abandonment threshold (hours)",
+        "giftCardsEnabled": "Enable gift cards",
+        "storeCreditEnabled": "Enable store credit"
       },
       "hints": {
         "email": "Shown on invoices and used as the sender for store emails.",
@@ -399,7 +403,10 @@
         "lowStockDefaultThreshold": "Applied to products without their own threshold. Leave empty to disable the global default.",
         "abandonedCart": "Email signed-in customers a one-click link to restore a cart they left behind.",
         "abandonedCartEnabled": "When on, eligible customers get one recovery email per abandoned cart.",
-        "abandonedCartThresholdHours": "How many hours a cart must sit unchanged before it counts as abandoned (1–720)."
+        "abandonedCartThresholdHours": "How many hours a cart must sit unchanged before it counts as abandoned (1–720).",
+        "giftCards": "Both ship disabled — turn them on when checkout should accept them.",
+        "giftCardsEnabled": "When on, customers can redeem gift-card codes at checkout.",
+        "storeCreditEnabled": "When on, signed-in customers can pay with their store-credit balance at checkout."
       },
       "actions": {
         "save": "Save changes"
@@ -501,6 +508,126 @@
       },
       "badges": {
         "auto": "Auto"
+      }
+    },
+    "giftCards": {
+      "title": "Gift cards",
+      "subtitle": "Issue prepaid gift cards and manage their balances",
+      "actions": {
+        "issue": "Issue gift card",
+        "back": "Back to gift cards",
+        "disable": "Disable",
+        "enable": "Enable",
+        "edit": "Edit",
+        "view": "Details"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "active": "Active",
+        "disabled": "Disabled",
+        "currency": "Currency",
+        "allCurrencies": "All currencies",
+        "search": "Search",
+        "searchPlaceholder": "Last 4 characters or recipient email"
+      },
+      "fields": {
+        "code": "Code",
+        "initialValue": "Initial value",
+        "balance": "Balance",
+        "currency": "Currency",
+        "status": "Status",
+        "expiresAt": "Expires",
+        "recipient": "Recipient",
+        "customer": "Customer",
+        "note": "Note",
+        "issuedAt": "Issued"
+      },
+      "status": {
+        "active": "Active",
+        "disabled": "Disabled",
+        "expired": "Expired"
+      },
+      "empty": {
+        "noCards": "No gift cards yet.",
+        "noResults": "No gift cards match your filters."
+      },
+      "issue": {
+        "title": "Issue gift card",
+        "initialValue": "Initial value",
+        "initialValueHint": "The starting balance, in the card's currency.",
+        "currency": "Currency",
+        "currencyHint": "A card is redeemable only on orders in its currency.",
+        "expiresAt": "Expires at",
+        "expiresAtHint": "Optional. Leave empty for no expiry.",
+        "recipientEmail": "Recipient email",
+        "recipientEmailHint": "Optional. When set, the code is emailed to this address.",
+        "userId": "Linked customer ID",
+        "userIdHint": "Optional. Links the card to a customer account (informational — redemption stays by code).",
+        "note": "Internal note",
+        "locale": "Email language",
+        "localeEn": "English",
+        "localePl": "Polish",
+        "submit": "Issue",
+        "cancel": "Cancel"
+      },
+      "codePanel": {
+        "title": "Gift card issued",
+        "warning": "Copy the code now — for security it is stored hashed and will never be shown again.",
+        "copy": "Copy code",
+        "copied": "Code copied to clipboard.",
+        "copyFailed": "Could not copy — select the code and copy it manually.",
+        "emailedTo": "The code was also emailed to {email}.",
+        "done": "Done"
+      },
+      "detail": {
+        "title": "Gift card {code}",
+        "loading": "Loading gift card…",
+        "ledger": "Ledger",
+        "ledgerEmpty": "No movements yet."
+      },
+      "ledger": {
+        "kind": "Kind",
+        "amount": "Amount",
+        "balanceAfter": "Balance after",
+        "order": "Order",
+        "note": "Note",
+        "date": "Date",
+        "kinds": {
+          "issue": "Issue",
+          "redeem": "Redemption",
+          "release": "Release",
+          "refund": "Refund",
+          "adjust": "Adjustment"
+        }
+      },
+      "edit": {
+        "title": "Edit gift card",
+        "expiresAt": "Expires at",
+        "expiresAtHint": "Clear the field to remove the expiry.",
+        "note": "Internal note",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "adjust": {
+        "title": "Adjust balance",
+        "hint": "Signed amount: positive adds funds, negative removes them. Every movement lands in the ledger.",
+        "amount": "Amount",
+        "note": "Note",
+        "submit": "Apply adjustment"
+      },
+      "errors": {
+        "initialValuePositive": "Initial value must be greater than 0.",
+        "recipientEmail": "Enter a valid email address.",
+        "amountNonZero": "Amount must be a non-zero number.",
+        "balanceNegative": "This adjustment would take the balance below zero."
+      },
+      "flashes": {
+        "issued": "Gift card issued.",
+        "updated": "Gift card updated.",
+        "disabled": "Gift card disabled.",
+        "enabled": "Gift card enabled.",
+        "adjusted": "Balance adjusted."
       }
     },
     "companies": {
@@ -1443,6 +1570,43 @@
         "orders": "Orders placed",
         "spent": "Total spent",
         "lastOrder": "Last order"
+      },
+      "storeCredit": {
+        "title": "Store credit",
+        "balances": "Balances",
+        "noBalances": "No store credit yet.",
+        "adjust": {
+          "title": "Adjust store credit",
+          "hint": "Signed amount: positive grants credit, negative claws it back. Every movement lands in the ledger.",
+          "amount": "Amount",
+          "currency": "Currency",
+          "note": "Note",
+          "submit": "Apply adjustment"
+        },
+        "ledger": {
+          "title": "Ledger",
+          "empty": "No movements yet.",
+          "kind": "Kind",
+          "currency": "Currency",
+          "amount": "Amount",
+          "balanceAfter": "Balance after",
+          "order": "Order",
+          "note": "Note",
+          "date": "Date",
+          "kinds": {
+            "adjust": "Adjustment",
+            "redeem": "Redemption",
+            "release": "Release",
+            "refund": "Refund"
+          }
+        },
+        "errors": {
+          "amountNonZero": "Amount must be a non-zero number.",
+          "balanceNegative": "This adjustment would take the balance below zero."
+        },
+        "flashes": {
+          "adjusted": "Store credit adjusted."
+        }
       },
       "detail": {
         "title": "Customer {email}",

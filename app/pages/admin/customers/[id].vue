@@ -276,6 +276,9 @@ useHead({ title: () => t('admin.customers.detail.title', { email: customer.value
         <!-- Internal notes -->
         <AdminCustomerNotes :customer-id="customer.id" />
 
+        <!-- Store credit -->
+        <AdminCustomerStoreCredit :customer-id="customer.id" />
+
         <!-- Actions -->
         <UCard>
           <template #header>

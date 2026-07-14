@@ -45,6 +45,8 @@ interface FormState {
   low_stock_default_threshold: number | undefined
   abandoned_cart_enabled: boolean
   abandoned_cart_threshold_hours: number | undefined
+  gift_cards_enabled: boolean
+  store_credit_enabled: boolean
 }
 
 const state = reactive<FormState>({
@@ -73,6 +75,8 @@ const state = reactive<FormState>({
   low_stock_default_threshold: undefined,
   abandoned_cart_enabled: false,
   abandoned_cart_threshold_hours: undefined,
+  gift_cards_enabled: false,
+  store_credit_enabled: false,
 })
 
 watch(
@@ -104,6 +108,8 @@ watch(
     state.low_stock_default_threshold = config.low_stock_default_threshold ?? undefined
     state.abandoned_cart_enabled = config.abandoned_cart_enabled ?? false
     state.abandoned_cart_threshold_hours = config.abandoned_cart_threshold_hours
+    state.gift_cards_enabled = config.gift_cards_enabled ?? false
+    state.store_credit_enabled = config.store_credit_enabled ?? false
   },
   // immediate so a config already resolved at mount prefills the fields.
   { immediate: true },
@@ -180,6 +186,8 @@ const schema = computed(() =>
       .int(t('admin.settings.errors.abandonedCartThreshold'))
       .min(1, t('admin.settings.errors.abandonedCartThreshold'))
       .max(720, t('admin.settings.errors.abandonedCartThreshold')),
+    gift_cards_enabled: z.boolean(),
+    store_credit_enabled: z.boolean(),
   }),
 )
 
@@ -225,6 +233,8 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
     low_stock_default_threshold: state.low_stock_default_threshold ?? null,
     abandoned_cart_enabled: state.abandoned_cart_enabled,
     abandoned_cart_threshold_hours: state.abandoned_cart_threshold_hours ?? undefined,
+    gift_cards_enabled: state.gift_cards_enabled,
+    store_credit_enabled: state.store_credit_enabled,
   }
   emit('submit', patch)
 }
@@ -677,6 +687,41 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
           :disabled="loading"
           class="w-full"
           data-testid="settings-abandoned-cart-threshold"
+        />
+      </UFormField>
+    </section>
+
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold">
+          {{ t('admin.settings.sections.giftCards') }}
+        </h2>
+        <p class="text-xs text-muted mt-1">
+          {{ t('admin.settings.hints.giftCards') }}
+        </p>
+      </div>
+
+      <UFormField
+        :label="t('admin.settings.fields.giftCardsEnabled')"
+        :help="t('admin.settings.hints.giftCardsEnabled')"
+        name="gift_cards_enabled"
+      >
+        <USwitch
+          v-model="state.gift_cards_enabled"
+          :disabled="loading"
+          data-testid="settings-gift-cards-enabled"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="t('admin.settings.fields.storeCreditEnabled')"
+        :help="t('admin.settings.hints.storeCreditEnabled')"
+        name="store_credit_enabled"
+      >
+        <USwitch
+          v-model="state.store_credit_enabled"
+          :disabled="loading"
+          data-testid="settings-store-credit-enabled"
         />
       </UFormField>
     </section>
