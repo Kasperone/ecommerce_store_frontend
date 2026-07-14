@@ -19,6 +19,14 @@
  * server-run authed query throws a hydration mismatch on a hard load
  * (SSR-hydration rule #87).
  *
+ * It is also **auth-gated**: guests are never B2B and the endpoint 401s
+ * without a token. That matters because the cart CTA mounts on the PUBLIC
+ * /cart page — an unauthenticated probe's 401 walks useApi's refresh-then-
+ * bounce path and hard-redirects the guest to /login (caught by the
+ * abandoned-cart recovery e2e spec: a recovered logged-out cart could never
+ * be viewed). `enabled` is a reactive getter, so when a restored session
+ * flips `isAuthenticated` post-boot the query activates and fetches then.
+ *
  * A null body is the expected "not B2B" signal, not an error to surface — so
  * `isB2B` derives from a successful response with a non-null company while the
  * raw `error` is left for callers that genuinely want it (none currently do).
@@ -39,11 +47,14 @@ const COMPANY_NAMESPACE = ['company', 'me'] as const
 
 export function useCompanyContext() {
   const { apiFetch } = useApi()
+  const authStore = useAuthStore()
 
   const query = useQuery({
     key: () => [...COMPANY_NAMESPACE],
     query: () => apiFetch<CompanyMe | null>('/api/v1/companies/me'),
-    enabled: () => import.meta.client,
+    // Client-gated (SSR-hydration rule #87) AND auth-gated (guests are never
+    // B2B; an unauthed 401 would bounce guests to /login via useApi).
+    enabled: () => import.meta.client && authStore.isAuthenticated,
     // The B2B probe is near-static for a session; cache hard so it does not re-fire per page.
     staleTime: 1000 * 60 * 5,
     // Not-a-B2B-account is a 200 + null body (an expected outcome), so there's
