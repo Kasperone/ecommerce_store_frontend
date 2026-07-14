@@ -8,16 +8,26 @@ import { mount } from '@vue/test-utils'
  * B2B gating context. `GET /companies/me` 200 → `isB2B` true (the caller is a
  * company contact); a 404 leaves `isB2B` false (not a business account). Specs
  * assert on the URL hit + the derived `isB2B` for both outcomes.
+ *
+ * The query is auth-gated: for guests it must never fire — the endpoint 401s
+ * unauthenticated, and on the public /cart page (quote CTA) that 401 would
+ * bounce the guest to /login via useApi's session-expired path.
  */
 
 const apiFetch = vi.fn()
+const authState = { isAuthenticated: true }
 
 vi.mock('~/composables/useApi', () => ({
   useApi: () => ({ apiFetch }),
 }))
 
+vi.mock('~/stores/auth', () => ({
+  useAuthStore: () => authState,
+}))
+
 beforeEach(() => {
   vi.clearAllMocks()
+  authState.isAuthenticated = true
 })
 
 afterEach(() => {
@@ -66,6 +76,18 @@ describe('useCompanyContext', () => {
 
     const ctx = (await runInComponent(() => useCompanyContext())) as any
 
+    expect(ctx.isB2B.value).toBe(false)
+    expect(ctx.company.value).toBeNull()
+  })
+
+  it('never probes for guests (auth-gated) and reports isB2B=false', async () => {
+    authState.isAuthenticated = false
+    apiFetch.mockResolvedValue({ id: 3, name: 'Acme', status: 'approved' })
+    const { useCompanyContext } = await import('./useCompanyContext')
+
+    const ctx = (await runInComponent(() => useCompanyContext())) as any
+
+    expect(apiFetch).not.toHaveBeenCalled()
     expect(ctx.isB2B.value).toBe(false)
     expect(ctx.company.value).toBeNull()
   })
