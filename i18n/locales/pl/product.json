@@ -1,5 +1,4 @@
 {
-  "b2bPrice": "Twoja cena: {price}",
   "details": {
     "sku": "SKU",
     "description": "Opis"
@@ -100,7 +99,8 @@
     }
   },
   "price": {
-    "from": "Od {price}"
+    "from": "Od {price}",
+    "b2b": "Twoja cena: {price}"
   },
   "variants": {
     "selectOptions": "Wybierz opcje"

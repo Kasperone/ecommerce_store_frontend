@@ -315,7 +315,7 @@ useSchemaOrg([
               class="mt-1 text-sm font-semibold text-primary"
               data-testid="b2b-price"
             >
-              {{ t('product.b2bPrice', {
+              {{ t('price.b2b', {
                 price: formatMoney(b2bPrice.amount, b2bPrice.currency, locale),
               }) }}
             </p>
