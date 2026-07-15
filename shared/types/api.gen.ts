@@ -3683,6 +3683,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/price-lists/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Price Lists
+         * @description List price lists (newest first), searchable by name. Rows carry the entry
+         *     count (no entries — fetch a single list for those).
+         */
+        get: operations["list_price_lists_api_v1_admin_price_lists__get"];
+        put?: never;
+        /**
+         * Create Price List
+         * @description Create an empty price list. Add entries via the entry endpoints.
+         */
+        post: operations["create_price_list_api_v1_admin_price_lists__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/price-lists/{price_list_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Price List
+         * @description Get one price list with its nested entries.
+         */
+        get: operations["get_price_list_api_v1_admin_price_lists__price_list_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Price List
+         * @description Delete a price list (its entries cascade). Any company assigned this list
+         *     is unassigned (``companies.price_list_id`` → NULL via ON DELETE SET NULL).
+         */
+        delete: operations["delete_price_list_api_v1_admin_price_lists__price_list_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Price List
+         * @description Update a price list header (partial). Deactivating a list (``is_active``
+         *     false) makes it inert at checkout — assigned companies fall back to catalog.
+         */
+        patch: operations["update_price_list_api_v1_admin_price_lists__price_list_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/price-lists/{price_list_id}/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Entry
+         * @description Add a negotiated-price entry to a price list.
+         *
+         *     404 if the list or product does not exist; 422 if ``variant_id`` is set but
+         *     does not belong to the product; 409 if an entry already exists at this exact
+         *     ``(product, variant)`` grain (PATCH it instead).
+         */
+        post: operations["add_entry_api_v1_admin_price_lists__price_list_id__entries_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/price-lists/{price_list_id}/entries/{entry_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Entry
+         * @description Remove an entry (the product falls back to its catalog price for buyers on
+         *     this list). 404 if the entry is not in this list.
+         */
+        delete: operations["delete_entry_api_v1_admin_price_lists__price_list_id__entries__entry_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Entry
+         * @description Update an entry's prices (partial). 404 if the entry is not in this list;
+         *     422 if the change would clear all three currency prices (an entry must keep
+         *     at least one).
+         */
+        patch: operations["update_entry_api_v1_admin_price_lists__price_list_id__entries__entry_id__patch"];
+        trace?: never;
+    };
     "/api/v1/admin/draft-orders/": {
         parameters: {
             query?: never;
@@ -6126,6 +6232,8 @@ export interface components {
             billing_address_state?: string | null;
             /** Default Currency */
             default_currency?: string | null;
+            /** Price List Id */
+            price_list_id?: number | null;
         };
         /**
          * CompanyListResponse
@@ -6200,6 +6308,8 @@ export interface components {
             billing_address_state?: string | null;
             /** Default Currency */
             default_currency?: string | null;
+            /** Price List Id */
+            price_list_id?: number | null;
             /** Primary User Email */
             primary_user_email?: string | null;
             /**
@@ -6378,6 +6488,8 @@ export interface components {
             billing_address_state?: string | null;
             /** Default Currency */
             default_currency?: string | null;
+            /** Price List Id */
+            price_list_id?: number | null;
             /** Primary User Email */
             primary_user_email?: string | null;
         };
@@ -6405,6 +6517,8 @@ export interface components {
             notes?: string | null;
             /** Primary User Id */
             primary_user_id?: number | null;
+            /** Price List Id */
+            price_list_id?: number | null;
         };
         /**
          * ContactRequest
@@ -9064,6 +9178,172 @@ export interface components {
             expires_at: string;
         };
         /**
+         * PriceListCreate
+         * @description Request body for ``POST /api/v1/admin/price-lists``.
+         *
+         *     Entries are managed via the dedicated entry endpoints after creation; the
+         *     list is created empty.
+         */
+        PriceListCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * PriceListEntryCreate
+         * @description Request body for adding/replacing an entry on a price list.
+         */
+        PriceListEntryCreate: {
+            /** Product Id */
+            product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+        };
+        /**
+         * PriceListEntryResponse
+         * @description A price-list entry as the API returns it.
+         *
+         *     ``product_name`` / ``variant_title`` are denormalized for the admin editor so
+         *     a row renders without a per-row product lookup.
+         */
+        PriceListEntryResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Price List Id */
+            price_list_id: number;
+            /** Product Id */
+            product_id: number;
+            /** Variant Id */
+            variant_id: number | null;
+            /** Product Name */
+            product_name?: string | null;
+            /** Variant Title */
+            variant_title?: string | null;
+            /** Price Usd */
+            price_usd: number | null;
+            /** Price Pln */
+            price_pln: number | null;
+            /** Price Eur */
+            price_eur: number | null;
+        };
+        /**
+         * PriceListEntryUpdate
+         * @description Request body for ``PATCH`` of a single entry (all fields optional).
+         *
+         *     Only fields explicitly sent are applied. Sending all three prices as null is
+         *     rejected in the route (an entry must keep at least one price).
+         */
+        PriceListEntryUpdate: {
+            /** Price Usd */
+            price_usd?: number | null;
+            /** Price Pln */
+            price_pln?: number | null;
+            /** Price Eur */
+            price_eur?: number | null;
+        };
+        /**
+         * PriceListListItem
+         * @description Lightweight price-list row for list views (no entries).
+         */
+        PriceListListItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Notes */
+            notes: string | null;
+            /** Entry Count */
+            entry_count: number;
+        };
+        /**
+         * PriceListListResponse
+         * @description Paginated price-list list.
+         */
+        PriceListListResponse: {
+            /** Items */
+            items: components["schemas"]["PriceListListItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * PriceListResponse
+         * @description A full price list as the API returns it (header + nested ``entries``).
+         */
+        PriceListResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Notes */
+            notes: string | null;
+            /** Entries */
+            entries?: components["schemas"]["PriceListEntryResponse"][];
+        };
+        /**
+         * PriceListUpdate
+         * @description Request body for ``PATCH /api/v1/admin/price-lists/{id}`` (all optional).
+         */
+        PriceListUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
          * ProductBulkSet
          * @description The narrow set of fields a bulk-edit may write across many products.
          *
@@ -9592,6 +9872,12 @@ export interface components {
              * @default false
              */
             has_variants: boolean;
+            /** B2B Price Usd */
+            b2b_price_usd?: number | null;
+            /** B2B Price Pln */
+            b2b_price_pln?: number | null;
+            /** B2B Price Eur */
+            b2b_price_eur?: number | null;
             /**
              * In Stock
              * @description True when stock > 0.
@@ -9992,6 +10278,12 @@ export interface components {
              * @default false
              */
             has_variants: boolean;
+            /** B2B Price Usd */
+            b2b_price_usd?: number | null;
+            /** B2B Price Pln */
+            b2b_price_pln?: number | null;
+            /** B2B Price Eur */
+            b2b_price_eur?: number | null;
             category?: components["schemas"]["CategoryResponse"] | null;
             /** Options */
             options?: components["schemas"]["ProductOptionResponse"][];
@@ -13352,7 +13644,9 @@ export interface operations {
     get_product_api_v1_products__product_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 product_id: number;
             };
@@ -13447,7 +13741,9 @@ export interface operations {
     get_product_by_slug_api_v1_products_slug__slug__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 slug: string;
             };
@@ -19314,6 +19610,269 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_price_lists_api_v1_admin_price_lists__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Case-insensitive substring on name */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceListListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_price_list_api_v1_admin_price_lists__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceListCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_price_list_api_v1_admin_price_lists__price_list_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                price_list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_price_list_api_v1_admin_price_lists__price_list_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                price_list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_price_list_api_v1_admin_price_lists__price_list_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                price_list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceListUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_entry_api_v1_admin_price_lists__price_list_id__entries_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                price_list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceListEntryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceListEntryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entry_api_v1_admin_price_lists__price_list_id__entries__entry_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                price_list_id: number;
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_entry_api_v1_admin_price_lists__price_list_id__entries__entry_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                price_list_id: number;
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceListEntryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceListEntryResponse"];
                 };
             };
             /** @description Validation Error */

@@ -9,7 +9,7 @@ import {
   localizedProductMetaTitle,
   localizedProductName,
 } from '#shared/utils/localizedProduct'
-import { defaultCurrencyForLocale, selectPrice } from '#shared/utils/money'
+import { defaultCurrencyForLocale, formatMoney, selectPrice } from '#shared/utils/money'
 import { parseProblem } from '#shared/utils/problemDetails'
 
 const { t, locale } = useI18n()
@@ -18,6 +18,24 @@ const localePath = useLocalePath()
 const slug = route.params.slug as string
 
 const { data: product, error } = await useProductDetail(slug)
+
+// B2B negotiated price (Shopify-gap P2 #14): a client-only, B2B-gated companion
+// fetch of this product (the public fetch above is anonymous, so it never carries
+// b2b_price_*). Shown as a "Your price" line for active company members whose
+// price list has a product-grain entry for this product.
+const { currency: activeCurrency } = useCurrencyPreference()
+const { product: b2bProduct } = useB2bProductPrice(slug)
+const b2bPrice = computed(() => {
+  const p = b2bProduct.value
+  if (!p) return null
+  const field = ({
+    USD: 'b2b_price_usd',
+    PLN: 'b2b_price_pln',
+    EUR: 'b2b_price_eur',
+  } as const)[activeCurrency.value]
+  const amount = p[field]
+  return typeof amount === 'number' ? { amount, currency: activeCurrency.value } : null
+})
 
 // A missing slug (or any fetch failure) becomes a proper error page rather than
 // an empty shell — 404 for not-found, the upstream status otherwise (incl. the
@@ -292,6 +310,15 @@ useSchemaOrg([
               :variant="selectedVariant"
               :variant-id="selectedVariant?.id ?? null"
             />
+            <p
+              v-if="b2bPrice"
+              class="mt-1 text-sm font-semibold text-primary"
+              data-testid="b2b-price"
+            >
+              {{ t('price.b2b', {
+                price: formatMoney(b2bPrice.amount, b2bPrice.currency, locale),
+              }) }}
+            </p>
           </div>
 
           <ShopVariantSelector
