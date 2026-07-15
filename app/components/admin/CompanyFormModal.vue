@@ -105,6 +105,19 @@ function clearContact() {
   primaryContactEmail.value = null
 }
 
+// Assigned B2B price list (nullable). When set, an active member's checkout lines
+// are priced from the list. Populated from the admin price-lists list; a "None"
+// option clears the assignment (sends `price_list_id: null`).
+const priceListId = ref<number | null>(null)
+const { data: priceListsPage } = usePriceListsQuery(() => ({ pageSize: 100 }))
+const priceListOptions = computed(() => [
+  { label: t('admin.companies.form.priceListNone'), value: null as number | null },
+  ...(priceListsPage.value?.items ?? []).map(pl => ({
+    label: pl.is_active ? pl.name : t('admin.companies.form.priceListInactive', { name: pl.name }),
+    value: pl.id as number | null,
+  })),
+])
+
 const isEdit = computed(() => props.company !== null)
 const loading = computed(() => createCompany.isLoading.value || updateCompany.isLoading.value)
 
@@ -127,6 +140,7 @@ watch(
     state.notes = c?.notes ?? ''
     primaryUserId.value = c?.primary_user_id ?? null
     primaryContactEmail.value = c?.primary_user_email ?? null
+    priceListId.value = c?.price_list_id ?? null
     contactSearch.value = ''
   },
   // immediate so an already-open mount (and re-opens) prefill from the company prop.
@@ -150,6 +164,7 @@ function buildCreateBody(): CompanyCreate {
     account_manager: trim(state.account_manager),
     notes: trim(state.notes),
     primary_user_id: primaryUserId.value,
+    price_list_id: priceListId.value,
   }
 }
 
@@ -305,6 +320,20 @@ async function onSubmit() {
           >
             {{ t('admin.companies.primaryContact.current', { email: primaryContactEmail }) }}
           </p>
+        </UFormField>
+
+        <UFormField
+          :label="t('admin.companies.form.priceList')"
+          :help="t('admin.companies.form.priceListHint')"
+          name="price_list_id"
+        >
+          <USelect
+            v-model="priceListId"
+            :items="priceListOptions"
+            value-key="value"
+            class="w-full"
+            data-testid="company-price-list"
+          />
         </UFormField>
 
         <UFormField

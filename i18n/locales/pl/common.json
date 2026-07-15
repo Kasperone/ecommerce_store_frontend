@@ -94,6 +94,7 @@
         "returns": "Zwroty",
         "customers": "Klienci",
         "companies": "Firmy (B2B)",
+        "priceLists": "Cenniki (B2B)",
         "quotes": "Oferty (B2B)",
         "pages": "Strony",
         "coupons": "Kupony",
@@ -715,6 +716,10 @@
         "status": "Status",
         "accountManager": "Opiekun klienta",
         "accountManagerHint": "Wewnętrzny opiekun tego konta.",
+        "priceList": "Cennik",
+        "priceListHint": "Negocjowane ceny B2B stosowane dla członków tej firmy przy zamówieniu.",
+        "priceListNone": "Brak (ceny katalogowe)",
+        "priceListInactive": "{name} (nieaktywny)",
         "notes": "Notatki",
         "save": "Zapisz",
         "cancel": "Anuluj"
@@ -740,6 +745,63 @@
         "searchPlaceholder": "Szukaj klientów po e-mailu lub nazwisku…",
         "clear": "Wyczyść kontakt główny",
         "current": "Obecny: {email}"
+      }
+    },
+    "priceLists": {
+      "title": "Cenniki",
+      "subtitle": "Negocjowane ceny B2B przypisane do firm. Członkowie płacą ceny z cennika przy zamówieniu; produkty bez pozycji korzystają z ceny katalogowej.",
+      "empty": "Brak cenników. Utwórz jeden, a następnie dodaj ceny produktów.",
+      "confirmDelete": "Usunąć cennik \"{name}\"? Firmy z niego korzystające przejdą na ceny katalogowe.",
+      "actions": {
+        "create": "Nowy cennik",
+        "edit": "Edytuj",
+        "editHeader": "Edytuj dane",
+        "delete": "Usuń"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "status": "Status",
+        "entries": "Produkty"
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "form": {
+        "createTitle": "Nowy cennik",
+        "editTitle": "Edytuj cennik",
+        "name": "Nazwa",
+        "active": "Aktywny",
+        "activeHint": "Nieaktywne cenniki są pomijane przy zamówieniu (członkowie płacą ceny katalogowe).",
+        "notes": "Notatki",
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "errors": {
+        "nameRequired": "Nazwa jest wymagana."
+      },
+      "detail": {
+        "title": "Cennik",
+        "back": "Powrót do cenników"
+      },
+      "entries": {
+        "addTitle": "Dodaj cenę produktu",
+        "editTitle": "Edytuj cenę produktu",
+        "product": "Produkt",
+        "priceHint": "Ustaw co najmniej jedną walutę. Puste waluty korzystają z ceny katalogowej.",
+        "add": "Dodaj",
+        "update": "Zapisz",
+        "cancelEdit": "Anuluj",
+        "empty": "Brak cen produktów. Wybierz produkt powyżej i ustaw jego cenę."
+      },
+      "flashes": {
+        "created": "Cennik utworzony.",
+        "updated": "Cennik zaktualizowany.",
+        "deleted": "Cennik usunięty.",
+        "deleteError": "Nie udało się usunąć cennika.",
+        "entrySaved": "Cena produktu zapisana.",
+        "entryDeleted": "Cena produktu usunięta.",
+        "entryError": "Nie udało się zapisać ceny produktu."
       }
     },
     "reports": {
