@@ -99,7 +99,8 @@
     }
   },
   "price": {
-    "from": "From {price}"
+    "from": "From {price}",
+    "b2b": "Your price: {price}"
   },
   "variants": {
     "selectOptions": "Select options"

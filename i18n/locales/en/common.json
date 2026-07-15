@@ -94,6 +94,7 @@
         "returns": "Returns",
         "customers": "Customers",
         "companies": "Companies (B2B)",
+        "priceLists": "Price lists (B2B)",
         "quotes": "Quotes (B2B)",
         "pages": "Pages",
         "coupons": "Coupons",
@@ -715,6 +716,10 @@
         "status": "Status",
         "accountManager": "Account manager",
         "accountManagerHint": "Internal owner for this account.",
+        "priceList": "Price list",
+        "priceListHint": "Negotiated B2B prices applied to this company's members at checkout.",
+        "priceListNone": "None (catalog prices)",
+        "priceListInactive": "{name} (inactive)",
         "notes": "Notes",
         "save": "Save",
         "cancel": "Cancel"
@@ -740,6 +745,63 @@
         "searchPlaceholder": "Search customers by email or name…",
         "clear": "Clear primary contact",
         "current": "Current: {email}"
+      }
+    },
+    "priceLists": {
+      "title": "Price lists",
+      "subtitle": "Negotiated B2B prices assigned to companies. Members are charged list prices at checkout; products with no entry fall back to catalog.",
+      "empty": "No price lists yet. Create one, then add product prices.",
+      "confirmDelete": "Delete price list \"{name}\"? Companies using it fall back to catalog prices.",
+      "actions": {
+        "create": "New price list",
+        "edit": "Edit",
+        "editHeader": "Edit details",
+        "delete": "Delete"
+      },
+      "fields": {
+        "name": "Name",
+        "status": "Status",
+        "entries": "Products"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "form": {
+        "createTitle": "New price list",
+        "editTitle": "Edit price list",
+        "name": "Name",
+        "active": "Active",
+        "activeHint": "Inactive lists are ignored at checkout (members pay catalog prices).",
+        "notes": "Notes",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "nameRequired": "Name is required."
+      },
+      "detail": {
+        "title": "Price list",
+        "back": "Back to price lists"
+      },
+      "entries": {
+        "addTitle": "Add product price",
+        "editTitle": "Edit product price",
+        "product": "Product",
+        "priceHint": "Set at least one currency. Blank currencies fall back to the catalog price.",
+        "add": "Add",
+        "update": "Update",
+        "cancelEdit": "Cancel",
+        "empty": "No product prices yet. Pick a product above and set its price."
+      },
+      "flashes": {
+        "created": "Price list created.",
+        "updated": "Price list updated.",
+        "deleted": "Price list deleted.",
+        "deleteError": "Could not delete the price list.",
+        "entrySaved": "Product price saved.",
+        "entryDeleted": "Product price removed.",
+        "entryError": "Could not save the product price."
       }
     },
     "reports": {

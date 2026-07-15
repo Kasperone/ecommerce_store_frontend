@@ -93,6 +93,17 @@ export class ApiClient {
     return await res.json() as { first_name: string, last_name: string, phone: string | null }
   }
 
+  /** The integer user id for an email (via pg) — the price-list spec needs it to
+   * set a company's primary contact. */
+  async userIdByEmail(email: string): Promise<number> {
+    const res = await this.pg.query<{ id: number }>(
+      'SELECT id FROM users WHERE email = $1',
+      [email],
+    )
+    if (res.rows.length === 0) throw new Error(`userIdByEmail: no user for ${email}`)
+    return res.rows[0]!.id
+  }
+
   async truncateAuthTables(): Promise<void> {
     await this.pg.query('TRUNCATE TABLE users, refresh_tokens, verification_tokens RESTART IDENTITY CASCADE')
   }
@@ -528,6 +539,70 @@ export class ApiClient {
     })
     if (!res.ok() && res.status() !== 404) {
       throw new Error(`deleteCompany failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
+   * Admin-creates a B2B price list with one product-grain entry (all three
+   * currency prices) for the price-list money-path spec. Returns the list id.
+   */
+  async createPriceListWithEntry(
+    accessToken: string,
+    input: {
+      name: string
+      productId: number
+      priceUsd: number
+      pricePln: number
+      priceEur: number
+    },
+  ): Promise<{ id: number }> {
+    const auth = { authorization: `Bearer ${accessToken}` }
+    const listRes = await this.http.post('/api/v1/admin/price-lists/', {
+      headers: auth,
+      data: { name: input.name, is_active: true },
+    })
+    if (!listRes.ok()) {
+      throw new Error(`createPriceList failed: ${listRes.status()} ${await listRes.text()}`)
+    }
+    const list = await listRes.json() as { id: number }
+    const entryRes = await this.http.post(`/api/v1/admin/price-lists/${list.id}/entries`, {
+      headers: auth,
+      data: {
+        product_id: input.productId,
+        variant_id: null,
+        price_usd: input.priceUsd,
+        price_pln: input.pricePln,
+        price_eur: input.priceEur,
+      },
+    })
+    if (!entryRes.ok()) {
+      throw new Error(`addPriceListEntry failed: ${entryRes.status()} ${await entryRes.text()}`)
+    }
+    return { id: list.id }
+  }
+
+  /** Admin: assign a price list to a company (PATCH `price_list_id`). */
+  async assignPriceListToCompany(
+    accessToken: string,
+    companyId: number,
+    priceListId: number,
+  ): Promise<void> {
+    const res = await this.http.patch(`/api/v1/admin/companies/${companyId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: { price_list_id: priceListId },
+    })
+    if (!res.ok()) {
+      throw new Error(`assignPriceList failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** Admin: delete a price list (204; assigned companies unassign via SET NULL). */
+  async deletePriceList(accessToken: string, priceListId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/price-lists/${priceListId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deletePriceList failed: ${res.status()} ${await res.text()}`)
     }
   }
 
