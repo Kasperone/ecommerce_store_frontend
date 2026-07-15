@@ -113,12 +113,17 @@ test.describe('Admin order editing (A2)', () => {
       // --- save (single PATCH /orders/{id}/items)
       await page.getByTestId('order-edit-save').click()
 
-      // Reliable post-save signal: the edit event lands at the top of the
-      // timeline (events are newest-first, and the timeline refetches on save).
-      // We deliberately do NOT assert on the editor auto-closing — that close
-      // races with the order-query refetch (the order prop briefly goes
-      // undefined, tearing down + remounting the editor), so it's not
-      // deterministic; the timeline event and the server read-back are.
+      // The editor collapses back to the read-only card on save. This used to
+      // race with the save's invalidation refetch: the detail page gated its
+      // whole content subtree on `isLoading`, which flips true on that refetch,
+      // so the editor unmounted mid-save and the in-flight `emit('saved')` fired
+      // from a detached instance — the editor remounted still open. The page now
+      // gates loading on `status === 'pending'` (initial load only), so the
+      // content stays mounted through refetches and the close is deterministic.
+      await expect(editor).toBeHidden({ timeout: 20_000 })
+
+      // The edit event also lands at the top of the timeline (events are
+      // newest-first, and the timeline refetches on save).
       const timeline = page.locator('ol').filter({ hasText: 'Order created' })
       await expect(timeline.locator('> li').first())
         .toContainText('Order items edited', { timeout: 20_000 })

@@ -20,7 +20,19 @@ const orderId = computed(() => {
   return Number.isInteger(raw) && raw > 0 ? raw : undefined
 })
 
-const { data: order, error: loadError, isLoading } = useOrderQuery(orderId)
+const { data: order, error: loadError, status } = useOrderQuery(orderId)
+
+// Show the full-page loading state only on the genuine FIRST load (no data
+// yet), NOT on background refetches. `isLoading` (asyncStatus === 'loading') is
+// true on every refetch — including the invalidation an item-edit save triggers
+// — so gating on it would swap the whole `v-else-if="order"` subtree out for the
+// loading branch mid-save, unmounting the items editor and recreating it after
+// the refetch. The in-flight save's `onSave` would then `emit('saved')` from the
+// now-detached instance, the parent never hears it, and the editor remounts
+// still open (the flicker this fixes). `status === 'pending'` is only true until
+// the first response, so background refetches keep the content mounted. Same
+// pattern as the dashboard (`admin/index.vue`).
+const initialLoading = computed(() => status.value === 'pending' && !loadError.value)
 
 const updateMutation = useUpdateOrder()
 const cancelMutation = useCancelOrder()
@@ -199,7 +211,7 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
       </UButton>
 
       <div
-        v-if="isLoading"
+        v-if="initialLoading"
         class="text-muted text-sm py-12 text-center"
       >
         {{ $t('admin.orders.detail.loading') }}
