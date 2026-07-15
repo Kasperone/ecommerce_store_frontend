@@ -1584,6 +1584,32 @@
           "refunded": "Refund issued ({amount})",
           "edited": "Order items edited"
         }
+      },
+      "edit": {
+        "editItems": "Edit items",
+        "title": "Edit order items",
+        "cancel": "Cancel",
+        "save": "Save changes",
+        "saved": "Order updated.",
+        "searchPlaceholder": "Search products to add…",
+        "searching": "Searching…",
+        "noResults": "No products found.",
+        "clearPick": "Clear selection",
+        "variant": "Variant",
+        "variantPlaceholder": "Select a variant",
+        "addLine": "Add",
+        "noLines": "No items — add at least one to save.",
+        "quantity": "Qty",
+        "unitPrice": "Unit price",
+        "remove": "Remove line",
+        "discount": "Discount",
+        "shippingMethod": "Shipping method",
+        "subtotal": "Subtotal",
+        "totalPreview": "Total (preview)",
+        "previewHint": "Shipping and the final total are recalculated on save.",
+        "errors": {
+          "notEditable": "This order can no longer be edited (it is no longer pending)."
+        }
       }
     },
     "customers": {

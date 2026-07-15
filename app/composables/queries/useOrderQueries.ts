@@ -15,6 +15,7 @@ import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type {
   OrderCreate,
+  OrderEditRequest,
   OrderListResponse,
   OrderResponse,
   OrderStatus,
@@ -113,6 +114,29 @@ export function useUpdateOrder() {
         body: patch,
       }),
     onSuccess: () => queryCache.invalidateQueries({ key: [...ORDERS_NAMESPACE] }),
+  })
+}
+
+/**
+ * `PATCH /api/v1/orders/{id}/items` — replace a PENDING order's line set and
+ * recompute totals (admin, `orders:write`). Sends the full desired line set +
+ * optional manual discount + shipping method. Invalidates the orders namespace
+ * and the order's timeline (an `edited` event is written) on success. 409 when
+ * the order is not pending; the caller maps that machine state to copy.
+ */
+export function useEditOrderItems() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: ({ orderId, edit }: { orderId: number, edit: OrderEditRequest }) =>
+      apiFetch<OrderWithUser>(`/api/v1/orders/${orderId}/items`, {
+        method: 'PATCH',
+        body: edit,
+      }),
+    onSuccess: (_data, { orderId }) => {
+      void queryCache.invalidateQueries({ key: [...ORDERS_NAMESPACE] })
+      void queryCache.invalidateQueries({ key: ['order-events', orderId] })
+    },
   })
 }
 

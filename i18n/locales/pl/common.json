@@ -1584,6 +1584,32 @@
           "refunded": "Wystawiono zwrot ({amount})",
           "edited": "Edytowano pozycje zamówienia"
         }
+      },
+      "edit": {
+        "editItems": "Edytuj pozycje",
+        "title": "Edytuj pozycje zamówienia",
+        "cancel": "Anuluj",
+        "save": "Zapisz zmiany",
+        "saved": "Zaktualizowano zamówienie.",
+        "searchPlaceholder": "Szukaj produktów do dodania…",
+        "searching": "Szukanie…",
+        "noResults": "Nie znaleziono produktów.",
+        "clearPick": "Wyczyść wybór",
+        "variant": "Wariant",
+        "variantPlaceholder": "Wybierz wariant",
+        "addLine": "Dodaj",
+        "noLines": "Brak pozycji — dodaj co najmniej jedną, aby zapisać.",
+        "quantity": "Ilość",
+        "unitPrice": "Cena jedn.",
+        "remove": "Usuń pozycję",
+        "discount": "Rabat",
+        "shippingMethod": "Metoda wysyłki",
+        "subtotal": "Suma częściowa",
+        "totalPreview": "Razem (podgląd)",
+        "previewHint": "Wysyłka i suma końcowa są przeliczane przy zapisie.",
+        "errors": {
+          "notEditable": "Tego zamówienia nie można już edytować (nie jest już oczekujące)."
+        }
       }
     },
     "customers": {
