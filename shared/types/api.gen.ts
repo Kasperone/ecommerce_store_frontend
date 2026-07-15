@@ -8563,6 +8563,73 @@ export interface components {
             tracking_url?: string | null;
         };
         /**
+         * OrderUserResponse
+         * @description Nested owner for the order-detail view.
+         *
+         *     Relaxes ``email`` to a plain ``str`` (``UserResponse.email`` is ``EmailStr``)
+         *     so an order whose owner was GDPR-anonymized still serializes. The anonymizer
+         *     sets the email to the reserved ``.invalid`` TLD
+         *     (``deleted-user-<id>@anon.invalid``), which ``EmailStr`` rejects — without
+         *     this relaxation ``GET /orders/{id}`` 500s with a ``ResponseValidationError``
+         *     and the admin can't open the order at all. The value is still a string, just
+         *     not RFC-deliverable; ``first_name``/``last_name`` ("deleted"/"user") stay
+         *     visible so the admin sees *why* the row looks empty.
+         */
+        OrderUserResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Email */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Phone */
+            phone?: string | null;
+            /**
+             * Locale
+             * @default en
+             * @enum {string}
+             */
+            locale: "en" | "pl";
+            /** Is Active */
+            is_active: boolean;
+            /** Is Verified */
+            is_verified: boolean;
+            role: components["schemas"]["UserRole"];
+            /**
+             * Is Owner
+             * @default false
+             */
+            is_owner: boolean;
+            /** Capabilities */
+            capabilities?: string[];
+            /** Company Name */
+            company_name?: string | null;
+            /** Company Tax Id */
+            company_tax_id?: string | null;
+            /** Company Address Street */
+            company_address_street?: string | null;
+            /** Company Address City */
+            company_address_city?: string | null;
+            /** Company Address Postal Code */
+            company_address_postal_code?: string | null;
+            /** Company Address Country */
+            company_address_country?: string | null;
+            /** Company Address State */
+            company_address_state?: string | null;
+        };
+        /**
          * OrderWithUser
          * @description Order response with user details (``user`` is null on guest orders)
          */
@@ -8657,7 +8724,7 @@ export interface components {
             items?: components["schemas"]["OrderItemResponse"][];
             /** Refunds */
             refunds?: components["schemas"]["RefundResponse"][];
-            user?: components["schemas"]["UserResponse"] | null;
+            user?: components["schemas"]["OrderUserResponse"] | null;
         };
         /**
          * PageCreate
