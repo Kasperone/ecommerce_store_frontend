@@ -206,6 +206,46 @@ describe('useAuthStore', () => {
     })
   })
 
+  describe('capabilities — isOwner / can()', () => {
+    async function loginAs(userFixture: unknown) {
+      mockAuthFetcher.mockResolvedValueOnce({
+        access_token: buildJwt(FUTURE_EXP()),
+        token_type: 'bearer',
+      })
+      routeFetch({ '/auth/me': () => userFixture })
+      const store = await loadStore()
+      await store.login('x@example.com', 'pw')
+      return store
+    }
+
+    it('owner implicitly holds every capability', async () => {
+      const store = await loginAs({ ...ADMIN_USER, is_owner: true, capabilities: [] })
+      expect(store.isOwner).toBe(true)
+      expect(store.can('catalog:write')).toBe(true)
+      expect(store.can('staff:write')).toBe(true)
+      expect(store.can('anything:at:all')).toBe(true)
+    })
+
+    it('scoped staffer holds only granted capabilities', async () => {
+      const store = await loginAs({
+        ...ADMIN_USER,
+        is_owner: false,
+        capabilities: ['catalog:write', 'marketing:write'],
+      })
+      expect(store.isOwner).toBe(false)
+      expect(store.can('catalog:write')).toBe(true)
+      expect(store.can('marketing:write')).toBe(true)
+      expect(store.can('orders:refund')).toBe(false)
+      expect(store.can('staff:write')).toBe(false)
+    })
+
+    it('logged-out user can do nothing', async () => {
+      const store = await loadStore()
+      expect(store.isOwner).toBe(false)
+      expect(store.can('catalog:write')).toBe(false)
+    })
+  })
+
   describe('logout', () => {
     it('hits /auth/logout, clears local state, and swallows network errors', async () => {
       mockAuthFetcher.mockResolvedValueOnce({

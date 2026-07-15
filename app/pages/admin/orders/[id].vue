@@ -58,8 +58,13 @@ const { errorMessage: cancelError, applyApiError: applyCancelError } = useValida
 // `isRefundable` mirrors the backend `REFUNDABLE_STATUSES` set in
 // `app/crud/refund.py`. v2 added `partially_refunded` to it because another
 // refund may bring the cumulative total to `order.total` → REFUNDED.
+// Refunds are financial — gated on the `orders:refund` capability, which is
+// distinct from the `orders:write` that grants access to the orders section.
+// A staffer with orders:write but not orders:refund can view/edit orders but
+// won't see the Refund button (the backend also 403s the route).
+const auth = useAuthStore()
 const canRefund = computed(
-  () => order.value != null && isRefundable(order.value.status),
+  () => order.value != null && isRefundable(order.value.status) && auth.can('orders:refund'),
 )
 
 watch(order, (o) => {
