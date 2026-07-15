@@ -63,6 +63,8 @@ export type OrderWithUser = components['schemas']['OrderWithUser']
 export type OrderItemResponse = components['schemas']['OrderItemResponse']
 export type OrderCreate = components['schemas']['OrderCreate']
 export type OrderUpdate = components['schemas']['OrderUpdate']
+export type OrderEditRequest = components['schemas']['OrderEditRequest']
+export type OrderEditLine = components['schemas']['OrderEditLine']
 // Guest checkout — public account-less tracking view (`GET /orders/track/{token}`).
 export type GuestOrderResponse = components['schemas']['GuestOrderResponse']
 export type GuestOrderItem = components['schemas']['GuestOrderItem']

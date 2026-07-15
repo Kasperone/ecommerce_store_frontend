@@ -67,6 +67,13 @@ const canRefund = computed(
   () => order.value != null && isRefundable(order.value.status) && auth.can('orders:refund'),
 )
 
+// Line-item editing: only a PENDING order (no faktura, unsettled) and only with
+// the orders:write capability. The backend enforces both (409 / 403).
+const canEditItems = computed(
+  () => order.value?.status === 'pending' && auth.can('orders:write'),
+)
+const editingItems = ref(false)
+
 watch(order, (o) => {
   if (!o) return
   statusModel.value = o.status
@@ -267,12 +274,31 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
           :tracking-url="order.tracking_url"
         />
 
-        <!-- Items -->
-        <UCard>
+        <!-- Items — edit mode (pending + orders:write) or read-only -->
+        <AdminOrderItemsEditor
+          v-if="editingItems && order"
+          :order="order"
+          @saved="editingItems = false"
+          @cancel="editingItems = false"
+        />
+        <UCard v-else>
           <template #header>
-            <h2 class="font-semibold">
-              {{ $t('admin.orders.detail.items') }}
-            </h2>
+            <div class="flex items-center justify-between">
+              <h2 class="font-semibold">
+                {{ $t('admin.orders.detail.items') }}
+              </h2>
+              <UButton
+                v-if="canEditItems"
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-pencil"
+                data-testid="order-edit-items-toggle"
+                @click="editingItems = true"
+              >
+                {{ $t('admin.orders.edit.editItems') }}
+              </UButton>
+            </div>
           </template>
           <div class="divide-y divide-default">
             <div
