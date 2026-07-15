@@ -195,6 +195,11 @@ export interface UserResponse {
   is_active: boolean
   is_verified: boolean
   role: 'CUSTOMER' | 'ADMIN'
+  // Granular staff permissions (see shared/constants/capabilities.ts). An owner
+  // implicitly holds every capability. Present on every /auth/me response; the
+  // admin UI gates off these via the auth store's `isOwner` / `can()`.
+  is_owner: boolean
+  capabilities: string[]
   created_at: string
   updated_at: string
 

@@ -61,6 +61,21 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAdmin = computed(() => user.value?.role === 'ADMIN')
 
+  // Granular staff permissions. `isAdmin` stays the coarse "any staff" gate the
+  // admin middleware uses; `isOwner` + `can()` gate individual admin surfaces.
+  const isOwner = computed(() => user.value?.is_owner === true)
+
+  const capabilities = computed<string[]>(() => user.value?.capabilities ?? [])
+
+  /**
+   * Whether the current staffer may perform a capability-gated write. An owner
+   * implicitly holds every capability. UX-only — the backend `require_capability`
+   * dependency is the real boundary.
+   */
+  function can(cap: string): boolean {
+    return isOwner.value || capabilities.value.includes(cap)
+  }
+
   const isImpersonating = computed(() => !!impersonating.value)
 
   // ---- internal helpers ----
@@ -638,6 +653,9 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     fullName,
     isAdmin,
+    isOwner,
+    capabilities,
+    can,
     isImpersonating,
 
     // Actions
