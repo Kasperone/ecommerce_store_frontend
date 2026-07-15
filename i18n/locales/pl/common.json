@@ -333,10 +333,53 @@
         "active": "Aktywny",
         "activeHint": "Nieaktywni użytkownicy nie mogą się logować.",
         "save": "Zapisz",
-        "cancel": "Anuluj"
+        "cancel": "Anuluj",
+        "owner": "Właściciel",
+        "ownerHint": "Właściciele mają wszystkie uprawnienia i zarządzają personelem.",
+        "capabilities": "Uprawnienia",
+        "capabilitiesHint": "Wybierz obszary, które ten pracownik może edytować.",
+        "capabilitiesOwnerHint": "Właściciele mają wszystkie uprawnienia."
       },
       "flashes": {
         "updated": "Członek personelu zaktualizowany."
+      },
+      "capabilities": {
+        "catalog:write": {
+          "label": "Katalog",
+          "hint": "Produkty, kategorie, kolekcje, tagi, media, recenzje"
+        },
+        "inventory:write": {
+          "label": "Magazyn",
+          "hint": "Korekty stanów, dostawy, transfery, magazyny"
+        },
+        "orders:write": {
+          "label": "Zamówienia",
+          "hint": "Status zamówień, edycja, wersje robocze, zwroty, wyceny, oś czasu"
+        },
+        "orders:refund": {
+          "label": "Zwroty i środki",
+          "hint": "Zwroty płatności, faktury korygujące, karty podarunkowe, środki w sklepie"
+        },
+        "customers:write": {
+          "label": "Klienci",
+          "hint": "Dane klientów, notatki, tagi, segmenty, firmy"
+        },
+        "marketing:write": {
+          "label": "Marketing",
+          "hint": "Kupony, banery, kampanie"
+        },
+        "content:write": {
+          "label": "Treści",
+          "hint": "Strony i bloki CMS"
+        },
+        "settings:write": {
+          "label": "Ustawienia",
+          "hint": "Konfiguracja sklepu, wysyłka, tłumaczenia"
+        },
+        "staff:write": {
+          "label": "Personel",
+          "hint": "Zarządzanie personelem i uprawnieniami"
+        }
       }
     },
     "settings": {

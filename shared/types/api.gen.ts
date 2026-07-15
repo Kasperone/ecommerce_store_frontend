@@ -3818,11 +3818,22 @@ export interface paths {
         head?: never;
         /**
          * Update Staff
-         * @description Set a user's ``role`` and/or ``is_active`` (admin).
+         * @description Set a user's ``role`` / ``is_active`` / ``is_owner`` / ``capabilities`` (admin).
          *
-         *     Both guards run against the **merged** target state (a PATCH may send only
-         *     one field): the acting admin can't demote/deactivate themselves, and the
-         *     last active admin can't be demoted or deactivated.
+         *     All guards run against the **merged** target state (a PATCH may send only
+         *     one field):
+         *
+         *     - **Privilege escalation** — only an *owner* may set/clear ``is_owner``,
+         *       change ``capabilities``, or edit an account that is *currently* an owner.
+         *       A scoped ``staff:write`` holder can only flip role/activation on
+         *       non-owner accounts. (This endpoint is already gated ``staff:write``.)
+         *     - **Self-lockout** — the acting admin can't demote/deactivate themselves.
+         *     - **Last active admin** — can't drop the only remaining active admin.
+         *     - **Last active owner** — can't remove the only remaining active owner
+         *       (owners are the only accounts that can manage staff/capabilities).
+         *
+         *     A demotion to ``CUSTOMER`` also clears ``is_owner`` and ``capabilities`` —
+         *     those are staff-only and meaningless off an admin account.
          */
         patch: operations["update_staff_api_v1_admin_staff__user_id__patch"];
         trace?: never;
@@ -6767,6 +6778,13 @@ export interface components {
             /** Is Verified */
             is_verified: boolean;
             role: components["schemas"]["UserRole"];
+            /**
+             * Is Owner
+             * @default false
+             */
+            is_owner: boolean;
+            /** Capabilities */
+            capabilities?: string[];
             /** Company Name */
             company_name?: string | null;
             /** Company Tax Id */
@@ -11508,20 +11526,31 @@ export interface components {
             is_active: boolean;
             /** Is Verified */
             is_verified: boolean;
+            /** Is Owner */
+            is_owner: boolean;
+            /** Capabilities */
+            capabilities: string[];
         };
         /**
          * StaffUpdate
          * @description Request body for ``PATCH /api/v1/admin/staff/{user_id}`` (all optional).
          *
-         *     Either field may be sent on its own. ``role`` promotes/demotes between
-         *     ``CUSTOMER`` and ``ADMIN``; ``is_active`` toggles login access. The route
-         *     enforces the self-lockout and last-active-admin guards against the merged
-         *     state.
+         *     Any field may be sent on its own. ``role`` promotes/demotes between
+         *     ``CUSTOMER`` and ``ADMIN``; ``is_active`` toggles login access;
+         *     ``is_owner`` grants/revokes the implicit-all-capabilities owner flag;
+         *     ``capabilities`` sets the explicit scoped-staffer grant set (validated ⊆
+         *     the closed taxonomy). The route enforces the self-lockout,
+         *     last-active-admin, last-owner, and privilege-escalation guards against the
+         *     merged state.
          */
         StaffUpdate: {
             role?: components["schemas"]["UserRole"] | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Is Owner */
+            is_owner?: boolean | null;
+            /** Capabilities */
+            capabilities?: string[] | null;
         };
         /**
          * StockAdjustRequest
@@ -12265,6 +12294,13 @@ export interface components {
             /** Is Verified */
             is_verified: boolean;
             role: components["schemas"]["UserRole"];
+            /**
+             * Is Owner
+             * @default false
+             */
+            is_owner: boolean;
+            /** Capabilities */
+            capabilities?: string[];
             /** Company Name */
             company_name?: string | null;
             /** Company Tax Id */

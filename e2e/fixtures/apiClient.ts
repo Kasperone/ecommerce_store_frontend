@@ -70,7 +70,13 @@ export class ApiClient {
   }
 
   async promoteAdmin(email: string): Promise<void> {
-    await this.pg.query(`UPDATE users SET role = 'ADMIN' WHERE email = $1`, [email])
+    // is_owner mirrors the A1 migration backfill: a seeded admin is an owner
+    // (implicitly every capability), so capability-gated write routes and the
+    // full admin sidebar are available in E2E.
+    await this.pg.query(
+      `UPDATE users SET role = 'ADMIN', is_owner = true WHERE email = $1`,
+      [email],
+    )
   }
 
   async getMe(accessToken: string): Promise<{

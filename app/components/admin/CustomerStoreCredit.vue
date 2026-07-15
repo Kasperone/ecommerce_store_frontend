@@ -16,6 +16,9 @@ import type { StoreCreditAdjustRequest } from '~/composables/queries/useStoreCre
 const props = defineProps<{ customerId: number }>()
 
 const { t, locale } = useI18n()
+// Granting/deducting store credit moves money — gated on orders:refund, which
+// is distinct from the customers:write that grants access to the customer page.
+const auth = useAuthStore()
 const localePath = useLocalePath()
 const toast = useToast()
 
@@ -141,8 +144,11 @@ async function onAdjust() {
         </div>
       </div>
 
-      <!-- Signed adjust -->
-      <div class="space-y-2 mb-4">
+      <!-- Signed adjust — owner / orders:refund only (financial) -->
+      <div
+        v-if="auth.can('orders:refund')"
+        class="space-y-2 mb-4"
+      >
         <p class="text-xs text-muted">
           {{ $t('admin.customers.storeCredit.adjust.hint') }}
         </p>

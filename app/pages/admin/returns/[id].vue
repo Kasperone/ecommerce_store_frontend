@@ -15,6 +15,9 @@ const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const route = useRoute()
+// Refunds are financial (orders:refund) — distinct from the orders:write that
+// grants access to the returns section. Hide the Refund action accordingly.
+const auth = useAuthStore()
 const returnId = computed(() => {
   const raw = Number(route.params.id)
   return Number.isInteger(raw) && raw > 0 ? raw : undefined
@@ -255,7 +258,7 @@ useHead({ title: () => t('admin.returns.detail.title', { id: ret.value?.id ?? ''
               {{ $t('admin.returns.actions.receive') }}
             </UButton>
             <UButton
-              v-if="availableActions.includes('refund')"
+              v-if="availableActions.includes('refund') && auth.can('orders:refund')"
               color="error"
               variant="soft"
               icon="i-lucide-undo-2"

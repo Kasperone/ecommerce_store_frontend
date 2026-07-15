@@ -333,10 +333,53 @@
         "active": "Active",
         "activeHint": "Inactive users cannot log in.",
         "save": "Save",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "owner": "Owner",
+        "ownerHint": "Owners have every permission and can manage staff.",
+        "capabilities": "Permissions",
+        "capabilitiesHint": "Choose which areas this staff member can edit.",
+        "capabilitiesOwnerHint": "Owners have every permission."
       },
       "flashes": {
         "updated": "Staff member updated."
+      },
+      "capabilities": {
+        "catalog:write": {
+          "label": "Catalog",
+          "hint": "Products, categories, collections, tags, media, reviews"
+        },
+        "inventory:write": {
+          "label": "Inventory",
+          "hint": "Stock adjustments, restocks, transfers, warehouses"
+        },
+        "orders:write": {
+          "label": "Orders",
+          "hint": "Order status, editing, drafts, returns, quotes, timeline"
+        },
+        "orders:refund": {
+          "label": "Refunds & stored value",
+          "hint": "Refunds, corrective invoices, gift cards, store credit"
+        },
+        "customers:write": {
+          "label": "Customers",
+          "hint": "Customer records, notes, tags, segments, companies"
+        },
+        "marketing:write": {
+          "label": "Marketing",
+          "hint": "Coupons, banners, campaigns"
+        },
+        "content:write": {
+          "label": "Content",
+          "hint": "CMS pages and blocks"
+        },
+        "settings:write": {
+          "label": "Settings",
+          "hint": "Store config, shipping, translations"
+        },
+        "staff:write": {
+          "label": "Staff",
+          "hint": "Manage other staff and their permissions"
+        }
       }
     },
     "settings": {

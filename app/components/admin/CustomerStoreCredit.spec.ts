@@ -38,6 +38,9 @@ mockNuxtImport('useAdjustCustomerStoreCredit', () => () => ({
   isLoading: ref(false),
 }))
 mockNuxtImport('useToast', () => () => ({ add: mocks.toastAdd }))
+// The signed-adjust form is gated on the orders:refund capability — grant it so
+// the panel renders the form. Capability gating itself is tested in auth.spec.ts.
+mockNuxtImport('useAuthStore', () => () => ({ can: () => true, isOwner: true }))
 
 const SUMMARY = {
   accounts: [

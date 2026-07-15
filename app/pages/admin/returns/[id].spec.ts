@@ -58,6 +58,9 @@ vi.mock('~/composables/queries/useReturnQueries', () => ({
 }))
 
 mockNuxtImport('useRoute', () => () => ({ params: { id: '3' } }))
+// The Refund action is gated on the orders:refund capability — grant it so the
+// button renders. Capability gating itself is covered in auth.spec.ts.
+mockNuxtImport('useAuthStore', () => () => ({ can: () => true, isOwner: true }))
 
 const { mockNavigate } = vi.hoisted(() => ({ mockNavigate: vi.fn() }))
 mockNuxtImport('navigateTo', () => mockNavigate)
