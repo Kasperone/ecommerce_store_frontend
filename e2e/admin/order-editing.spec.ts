@@ -54,10 +54,14 @@ test.describe('Admin order editing (A2)', () => {
       })
       productBId = productB.id
 
+      // Reuse the SHARED US fixture every checkout spec uses ('E2E Standard' /
+      // US / $10) — idempotent, adds no method. A per-run cheaper method would
+      // pollute the shared US zone and get auto-selected by the UI checkout
+      // specs (breaking their shipping-total assertions).
       const { methodId } = await api.ensureShippingFixture(adminToken, {
-        methodName: `E2E Edit US ${runId}`,
+        methodName: 'E2E Standard',
         countryCodes: ['US'],
-        rates: [{ currency: 'USD', amount: 0 }],
+        rates: [{ currency: 'USD', amount: 10 }],
       })
 
       await api.register(user)
@@ -102,9 +106,9 @@ test.describe('Admin order editing (A2)', () => {
       await setUInputNumber(page.getByRole('spinbutton', { name: 'Discount' }), 1.51)
 
       // Live preview (client-side) already reflects the recompute:
-      // subtotal = 2×10.01 + 1×5.00 = 25.02; total = 25.02 − 1.51 = 23.51.
+      // subtotal = 2×10.01 + 1×5.00 = 25.02; total = 25.02 − 1.51 + 10 (shipping) = 33.51.
       await expect(page.getByTestId('order-edit-subtotal')).toContainText('25.02')
-      await expect(page.getByTestId('order-edit-total')).toContainText('23.51')
+      await expect(page.getByTestId('order-edit-total')).toContainText('33.51')
 
       // --- save (single PATCH /orders/{id}/items)
       await page.getByTestId('order-edit-save').click()
@@ -126,8 +130,8 @@ test.describe('Admin order editing (A2)', () => {
       const saved = await api.getOrder(freshCustomerToken, order.id)
       expect(saved.subtotal).toBe(25.02)
       expect(saved.discount).toBe(1.51)
-      expect(saved.shipping).toBe(0)
-      expect(saved.total).toBe(23.51)
+      expect(saved.shipping).toBe(10)
+      expect(saved.total).toBe(33.51)
       expect(saved.items).toHaveLength(2)
       const productIds = saved.items.map(i => i.product_id).sort((a, b) => a - b)
       expect(productIds).toEqual([productAId, productBId].sort((a, b) => a - b))
@@ -163,10 +167,11 @@ test.describe('Admin order editing (A2)', () => {
         stock: 5,
       })
       productId = product.id
+      // Shared US fixture (see the pending test) — no per-run method.
       const { methodId } = await api.ensureShippingFixture(adminToken, {
-        methodName: `E2E Edit US ${runId}`,
+        methodName: 'E2E Standard',
         countryCodes: ['US'],
-        rates: [{ currency: 'USD', amount: 0 }],
+        rates: [{ currency: 'USD', amount: 10 }],
       })
 
       await api.register(user)
