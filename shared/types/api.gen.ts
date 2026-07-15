@@ -992,6 +992,33 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orders/{order_id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Edit Order Items
+         * @description Replace a **pending** order's line items and recompute its totals (admin).
+         *
+         *     Editable operations (all expressed as the full desired line set): add/remove
+         *     a line, change a quantity, override a line price, adjust the manual discount,
+         *     change the shipping method. Non-pending orders are refused with **409** —
+         *     a paid order's changes go through the refund / corrective-invoice path.
+         *     Stock is reconciled (release prior lines, re-acquire the new set) and an
+         *     ``edited`` timeline event is written. Gated on ``orders:write``.
+         */
+        patch: operations["edit_order_items_api_v1_orders__order_id__items_patch"];
+        trace?: never;
+    };
     "/api/v1/orders/{order_id}/cancel": {
         parameters: {
             query?: never;
@@ -8211,6 +8238,41 @@ export interface components {
             use_store_credit: boolean;
         };
         /**
+         * OrderEditLine
+         * @description One line in an order-edit request (the full desired line set is sent).
+         *
+         *     ``unit_price_override`` NULL prices the line from the live catalog at the
+         *     order's currency; a concrete value pins a negotiated/admin price (mirrors
+         *     draft orders). Money is a wire ``float`` (converted to Decimal in the route).
+         */
+        OrderEditLine: {
+            /** Product Id */
+            product_id: number;
+            /** Variant Id */
+            variant_id?: number | null;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price Override */
+            unit_price_override?: number | null;
+        };
+        /**
+         * OrderEditRequest
+         * @description Request body for ``PATCH /api/v1/orders/{id}/items`` (admin, pending only).
+         *
+         *     ``lines`` is the complete desired line set (not a delta). ``discount`` sets
+         *     the order's manual discount (kept if omitted); ``shipping_method_id`` swaps
+         *     the method (kept if omitted — shipping is re-resolved either way against the
+         *     new lines).
+         */
+        OrderEditRequest: {
+            /** Lines */
+            lines: components["schemas"]["OrderEditLine"][];
+            /** Discount */
+            discount?: number | null;
+            /** Shipping Method Id */
+            shipping_method_id?: number | null;
+        };
+        /**
          * OrderEventActor
          * @description Minimal actor identity for a timeline row (None for system events).
          */
@@ -14105,6 +14167,41 @@ export interface operations {
                 content: {
                     "application/json": unknown;
                     "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_order_items_api_v1_orders__order_id__items_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderEditRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithUser"];
                 };
             };
             /** @description Validation Error */
