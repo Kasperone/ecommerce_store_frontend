@@ -1566,6 +1566,24 @@
         "updated": "Zamówienie zaktualizowane.",
         "cancelled": "Zamówienie anulowane.",
         "refundIssued": "Zwrot wystawiony."
+      },
+      "timeline": {
+        "title": "Oś czasu",
+        "system": "System",
+        "comment": "Dodaj notatkę",
+        "commentPlaceholder": "Dodaj wewnętrzną notatkę o tym zamówieniu…",
+        "commentError": "Nie udało się dodać notatki.",
+        "loading": "Ładowanie osi czasu…",
+        "loadError": "Nie udało się załadować osi czasu.",
+        "empty": "Brak zdarzeń na osi czasu.",
+        "kinds": {
+          "created": "Utworzono zamówienie",
+          "paid": "Otrzymano płatność",
+          "statusChanged": "Zmieniono status z {from} na {to}",
+          "trackingAdded": "Dodano śledzenie: {tracking}",
+          "refunded": "Wystawiono zwrot ({amount})",
+          "edited": "Edytowano pozycje zamówienia"
+        }
       }
     },
     "customers": {
