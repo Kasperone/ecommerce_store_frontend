@@ -478,6 +478,8 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
           :refunds="order.refunds ?? []"
           :currency="order.currency"
         />
+
+        <AdminOrderTimeline :order-id="order.id" />
       </template>
 
       <UModal

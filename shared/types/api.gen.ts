@@ -1064,6 +1064,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orders/{order_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Order Events
+         * @description The order's timeline, newest first (admin — any staff may read).
+         *
+         *     System milestones (created / paid / status_changed / refunded /
+         *     tracking_added / edited) plus free-text staff comments (``kind='note'``).
+         *     404 when the order doesn't exist.
+         */
+        get: operations["list_order_events_api_v1_orders__order_id__events_get"];
+        put?: never;
+        /**
+         * Create Order Comment
+         * @description Append a free-text staff comment to the order's timeline (``kind='note'``).
+         *
+         *     Gated on ``orders:write``. The comment is attributed to the acting staffer.
+         */
+        post: operations["create_order_comment_api_v1_orders__order_id__events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orders/{order_id}/returns/eligibility": {
         parameters: {
             query?: never;
@@ -8181,6 +8211,62 @@ export interface components {
             use_store_credit: boolean;
         };
         /**
+         * OrderEventActor
+         * @description Minimal actor identity for a timeline row (None for system events).
+         */
+        OrderEventActor: {
+            /** Id */
+            id: number;
+            /** Email */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+        };
+        /**
+         * OrderEventCreate
+         * @description Request body for POSTing a free-text staff comment to the timeline.
+         */
+        OrderEventCreate: {
+            /** Comment */
+            comment: string;
+        };
+        /**
+         * OrderEventResponse
+         * @description A single timeline entry as the admin API returns it.
+         *
+         *     ``TimestampSchema`` supplies ``id`` / ``created_at`` / ``updated_at``.
+         *     ``actor`` is null for system events (webhook payment, cron). ``payload``
+         *     carries structured context per kind (e.g. ``{"from": "pending", "to":
+         *     "paid"}``); the frontend renders a label from ``kind`` + ``payload``.
+         */
+        OrderEventResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Order Id */
+            order_id: number;
+            /** Kind */
+            kind: string;
+            /** Comment */
+            comment?: string | null;
+            /** Payload */
+            payload?: {
+                [key: string]: unknown;
+            };
+            actor?: components["schemas"]["OrderEventActor"] | null;
+        };
+        /**
          * OrderItemCreate
          * @description Schema for creating an order item
          */
@@ -14116,6 +14202,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RefundResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_order_events_api_v1_orders__order_id__events_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderEventResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_order_comment_api_v1_orders__order_id__events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderEventCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderEventResponse"];
                 };
             };
             /** @description Validation Error */

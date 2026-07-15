@@ -1566,6 +1566,24 @@
         "updated": "Order updated.",
         "cancelled": "Order cancelled.",
         "refundIssued": "Refund issued."
+      },
+      "timeline": {
+        "title": "Timeline",
+        "system": "System",
+        "comment": "Add note",
+        "commentPlaceholder": "Add an internal note about this order…",
+        "commentError": "Could not add the note.",
+        "loading": "Loading timeline…",
+        "loadError": "Could not load the timeline.",
+        "empty": "No timeline events yet.",
+        "kinds": {
+          "created": "Order created",
+          "paid": "Payment received",
+          "statusChanged": "Status changed from {from} to {to}",
+          "trackingAdded": "Tracking added: {tracking}",
+          "refunded": "Refund issued ({amount})",
+          "edited": "Order items edited"
+        }
       }
     },
     "customers": {
