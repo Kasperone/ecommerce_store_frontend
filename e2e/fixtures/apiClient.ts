@@ -520,17 +520,53 @@ export class ApiClient {
    */
   async createCompanyWithPrimaryUser(
     accessToken: string,
-    input: { name: string, primaryUserId: number },
+    input: {
+      name: string
+      primaryUserId: number
+      // B2B net terms (Program 2): when set, the company allows pay-on-account
+      // with the given term length; `creditLimit` (in `defaultCurrency`) hard-
+      // blocks the option once outstanding + a new order would exceed it.
+      netTerms?: { days: number, creditLimit?: number, defaultCurrency?: string }
+    },
   ): Promise<{ id: number }> {
     const res = await this.http.post('/api/v1/admin/companies/', {
       headers: { authorization: `Bearer ${accessToken}` },
-      data: { name: input.name, primary_user_id: input.primaryUserId, status: 'approved' },
+      data: {
+        name: input.name,
+        primary_user_id: input.primaryUserId,
+        status: 'approved',
+        ...(input.netTerms
+          ? {
+              net_terms_enabled: true,
+              net_terms_days: input.netTerms.days,
+              credit_limit: input.netTerms.creditLimit ?? null,
+              default_currency: input.netTerms.defaultCurrency ?? 'USD',
+            }
+          : {}),
+      },
     })
     if (!res.ok()) {
       throw new Error(`createCompany failed: ${res.status()} ${await res.text()}`)
     }
     const company = await res.json() as { id: number }
     return { id: company.id }
+  }
+
+  /**
+   * Admin-records the bank transfer settling a net-terms (pay-on-account) order.
+   * Stamps `net_terms_paid_at` server-side (Program 2). Returns the updated order.
+   */
+  async recordNetTermsPayment(
+    accessToken: string,
+    orderId: number,
+  ): Promise<{ net_terms_paid_at: string | null }> {
+    const res = await this.http.post(`/api/v1/orders/${orderId}/record-net-terms-payment`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`recordNetTermsPayment failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json() as { net_terms_paid_at: string | null }
   }
 
   async deleteCompany(accessToken: string, companyId: number): Promise<void> {
@@ -729,6 +765,10 @@ export class ApiClient {
     gift_card_last4: string | null
     // PL launch fields (optional — only the PL money-path spec asserts them).
     payment_method?: string
+    // B2B net terms (optional — only the net-terms money-path spec asserts them).
+    company_id?: number | null
+    payment_due_at?: string | null
+    net_terms_paid_at?: string | null
     invoice_nip?: string | null
     invoice_name?: string | null
     inpost_point_id?: string | null

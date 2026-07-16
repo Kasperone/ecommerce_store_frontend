@@ -79,6 +79,16 @@
       "hint": "Zapłacisz kurierowi przy dostawie — bez płatności online.",
       "onlineHint": "Sposób płatności (BLIK, Przelewy24 lub karta) wybierzesz w następnym kroku."
     },
+    "netTerms": {
+      "toggle": "Płatność z odroczonym terminem (Net {days})",
+      "hint": "Fakturę wystawiamy od razu, a Twoja firma płaci przelewem w ciągu {days} dni — bez płatności online.",
+      "available": "Dostępny limit kredytowy: {amount}",
+      "errors": {
+        "creditLimit": "To zamówienie przekroczyłoby limit kredytowy Twojej firmy. Ureguluj zaległe faktury lub wybierz inną metodę płatności.",
+        "currency": "Płatność z odroczonym terminem jest dostępna tylko w walucie rozliczeniowej Twojej firmy. Zmień walutę lub wybierz inną metodę płatności.",
+        "unavailable": "Płatność z odroczonym terminem nie jest dostępna dla Twojego konta."
+      }
+    },
     "inpost": {
       "heading": "Wybierz Paczkomat",
       "prompt": "Wskaż Paczkomat na mapie poniżej.",
