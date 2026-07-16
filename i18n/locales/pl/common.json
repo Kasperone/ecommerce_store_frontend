@@ -745,6 +745,19 @@
         "searchPlaceholder": "Szukaj klientów po e-mailu lub nazwisku…",
         "clear": "Wyczyść kontakt główny",
         "current": "Obecny: {email}"
+      },
+      "netTerms": {
+        "enable": "Zezwól na płatność z odroczonym terminem (net terms)",
+        "enableHint": "Aktywni członkowie mogą składać zamówienia z odroczoną płatnością — faktura przy zamówieniu, zapłata później przelewem.",
+        "days": "Termin płatności",
+        "netN": "Net {days} dni",
+        "currency": "Waluta rozliczeniowa",
+        "currencyHint": "Limit kredytowy jest w tej walucie; płatność z odroczonym terminem musi ją zachować.",
+        "creditLimit": "Limit kredytowy",
+        "creditLimitHint": "W walucie rozliczeniowej firmy. Pozostaw puste dla nielimitowanego kredytu.",
+        "creditLimitUnlimited": "Bez limitu",
+        "outstanding": "Do zapłaty: {outstanding} {currency}",
+        "available": "Dostępne: {available} {currency}"
       }
     },
     "priceLists": {
@@ -1582,6 +1595,13 @@
         "body": "Spowoduje to przywrócenie stanu magazynowego dla każdej pozycji i ustawienie statusu na anulowane. Tej operacji nie można cofnąć.",
         "confirm": "Anuluj zamówienie",
         "dismiss": "Zachowaj zamówienie"
+      },
+      "netTerms": {
+        "recordPayment": "Zarejestruj płatność",
+        "recorded": "Płatność zarejestrowana.",
+        "due": "Z odroczonym terminem · termin {date}",
+        "overdue": "Z odroczonym terminem · po terminie od {date}",
+        "paid": "Opłacone · {date}"
       },
       "refund": {
         "button": "Wystaw zwrot",
@@ -3098,6 +3118,14 @@
         "loading": "Wczytywanie firmy…",
         "notAMember": "To konto nie jest powiązane z firmą. Firmami zarządza Twój administrator.",
         "readOnlyNotice": "Tylko administrator firmy może edytować te dane.",
+        "netTerms": {
+          "title": "Płatność z odroczonym terminem",
+          "term": "Termin płatności",
+          "netN": "Net {days} dni",
+          "creditLimit": "Limit kredytowy",
+          "outstanding": "Saldo do zapłaty",
+          "available": "Dostępny kredyt"
+        },
         "pendingTitle": "Firma oczekuje na zatwierdzenie",
         "pendingBody": "Twoja firma oczekuje na zatwierdzenie. W międzyczasie możesz zaktualizować jej dane.",
         "save": "Zapisz zmiany",

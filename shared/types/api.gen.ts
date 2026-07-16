@@ -992,6 +992,33 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orders/{order_id}/record-net-terms-payment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Net Terms Payment
+         * @description Record the bank transfer that settles a net-terms (pay-on-account) order (admin).
+         *
+         *     Stamps ``net_terms_paid_at`` and appends a ``net_terms_paid`` timeline event;
+         *     the order's fulfilment status is untouched (payment is tracked orthogonally —
+         *     a net-terms order ships while unpaid) and no faktura is re-issued (it was
+         *     issued at placement). Frees the amount against the company's credit limit.
+         *     409 if the order isn't a net-terms order; idempotent if already paid. Gated on
+         *     ``orders:write``.
+         */
+        post: operations["record_net_terms_payment_api_v1_orders__order_id__record_net_terms_payment_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orders/{order_id}/items": {
         parameters: {
             query?: never;
@@ -3321,6 +3348,30 @@ export interface paths {
         patch: operations["update_company_api_v1_admin_companies__company_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/companies/{company_id}/credit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Company Credit
+         * @description The company's net-terms credit summary (limit / outstanding AR / available).
+         *
+         *     Outstanding is the sum of the company's unpaid, non-cancelled net-terms orders
+         *     in its billing currency. Read-only; drives the admin company edit view's
+         *     credit readout.
+         */
+        get: operations["get_company_credit_api_v1_admin_companies__company_id__credit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/coupons/": {
         parameters: {
             query?: never;
@@ -4780,6 +4831,32 @@ export interface paths {
         patch: operations["update_my_company_api_v1_companies_me_patch"];
         trace?: never;
     };
+    "/api/v1/companies/me/credit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Company Credit
+         * @description The caller's company net-terms credit summary (limit / outstanding / available).
+         *
+         *     Any active member may read it (net terms is a company-level relationship). A
+         *     non-B2B caller gets a ``net_terms_enabled: false`` body (200, not 404) so the
+         *     checkout probe stays quiet on non-B2B accounts — same posture as
+         *     ``GET /companies/me``. The buyer uses it to see the pay-on-account option, the
+         *     due term, and remaining credit at checkout.
+         */
+        get: operations["get_my_company_credit_api_v1_companies_me_credit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/companies/me/users": {
         parameters: {
             query?: never;
@@ -6234,6 +6311,42 @@ export interface components {
             default_currency?: string | null;
             /** Price List Id */
             price_list_id?: number | null;
+            /**
+             * Net Terms Enabled
+             * @default false
+             */
+            net_terms_enabled: boolean;
+            /** Net Terms Days */
+            net_terms_days?: number | null;
+            /** Credit Limit */
+            credit_limit?: number | null;
+        };
+        /**
+         * CompanyCreditResponse
+         * @description B2B net-terms credit summary for a company (admin + buyer views).
+         *
+         *     ``credit_limit`` / ``available`` are ``null`` when the company has no limit
+         *     (unlimited credit). ``outstanding`` is the sum of the company's unpaid,
+         *     non-cancelled net-terms orders in ``currency`` (the company's billing
+         *     currency; ``null`` when unset). ``net_terms_enabled`` / ``net_terms_days``
+         *     echo the company config so a single fetch drives the checkout/portal display.
+         */
+        CompanyCreditResponse: {
+            /** Net Terms Enabled */
+            net_terms_enabled: boolean;
+            /** Net Terms Days */
+            net_terms_days?: number | null;
+            /** Currency */
+            currency?: string | null;
+            /** Credit Limit */
+            credit_limit?: number | null;
+            /**
+             * Outstanding
+             * @default 0
+             */
+            outstanding: number;
+            /** Available */
+            available?: number | null;
         };
         /**
          * CompanyListResponse
@@ -6310,6 +6423,15 @@ export interface components {
             default_currency?: string | null;
             /** Price List Id */
             price_list_id?: number | null;
+            /**
+             * Net Terms Enabled
+             * @default false
+             */
+            net_terms_enabled: boolean;
+            /** Net Terms Days */
+            net_terms_days?: number | null;
+            /** Credit Limit */
+            credit_limit?: number | null;
             /** Primary User Email */
             primary_user_email?: string | null;
             /**
@@ -6490,6 +6612,15 @@ export interface components {
             default_currency?: string | null;
             /** Price List Id */
             price_list_id?: number | null;
+            /**
+             * Net Terms Enabled
+             * @default false
+             */
+            net_terms_enabled: boolean;
+            /** Net Terms Days */
+            net_terms_days?: number | null;
+            /** Credit Limit */
+            credit_limit?: number | null;
             /** Primary User Email */
             primary_user_email?: string | null;
         };
@@ -6519,6 +6650,12 @@ export interface components {
             primary_user_id?: number | null;
             /** Price List Id */
             price_list_id?: number | null;
+            /** Net Terms Enabled */
+            net_terms_enabled?: boolean | null;
+            /** Net Terms Days */
+            net_terms_days?: number | null;
+            /** Credit Limit */
+            credit_limit?: number | null;
         };
         /**
          * ContactRequest
@@ -8342,7 +8479,7 @@ export interface components {
             /** Inpost Point Name */
             inpost_point_name?: string | null;
             /** Payment Method */
-            payment_method?: "cod" | null;
+            payment_method?: ("cod" | "net_terms") | null;
             /** Gift Card Code */
             gift_card_code?: string | null;
             /**
@@ -8525,6 +8662,14 @@ export interface components {
             item_count: number;
             /** Customer Email */
             customer_email?: string | null;
+            /** Payment Method */
+            payment_method?: string | null;
+            /** Company Id */
+            company_id?: number | null;
+            /** Payment Due At */
+            payment_due_at?: string | null;
+            /** Net Terms Paid At */
+            net_terms_paid_at?: string | null;
             /** Shipping Carrier */
             shipping_carrier?: string | null;
             /** Tracking Number */
@@ -8623,6 +8768,12 @@ export interface components {
             payment_method: string | null;
             /** Payment Intent Id */
             payment_intent_id: string | null;
+            /** Company Id */
+            company_id?: number | null;
+            /** Payment Due At */
+            payment_due_at?: string | null;
+            /** Net Terms Paid At */
+            net_terms_paid_at?: string | null;
             /** Shipping Method Id */
             shipping_method_id?: number | null;
             /** Shipping Method Name */
@@ -8818,6 +8969,12 @@ export interface components {
             payment_method: string | null;
             /** Payment Intent Id */
             payment_intent_id: string | null;
+            /** Company Id */
+            company_id?: number | null;
+            /** Payment Due At */
+            payment_due_at?: string | null;
+            /** Net Terms Paid At */
+            net_terms_paid_at?: string | null;
             /** Shipping Method Id */
             shipping_method_id?: number | null;
             /** Shipping Method Name */
@@ -14543,6 +14700,37 @@ export interface operations {
             };
         };
     };
+    record_net_terms_payment_api_v1_orders__order_id__record_net_terms_payment_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithUser"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     edit_order_items_api_v1_orders__order_id__items_patch: {
         parameters: {
             query?: never;
@@ -18749,6 +18937,37 @@ export interface operations {
             };
         };
     };
+    get_company_credit_api_v1_admin_companies__company_id__credit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                company_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyCreditResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_coupons_api_v1_admin_coupons__get: {
         parameters: {
             query?: {
@@ -21641,6 +21860,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_company_credit_api_v1_companies_me_credit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyCreditResponse"];
                 };
             };
         };

@@ -37,6 +37,11 @@ useHead({
 const { data: company, isLoading, error } = useCompanyProfileQuery()
 const { mutateAsync: updateProfile } = useUpdateCompanyProfile()
 
+// B2B net-terms credit summary (Program 2). Surfaced as a read-only card when
+// the company has pay-on-account enabled, so a buyer can see their term, credit
+// limit, outstanding balance and remaining credit alongside the profile.
+const { credit: netTermsCredit, netTermsEligible } = useCompanyCredit()
+
 const isAdmin = computed(() => company.value?.role === 'COMPANY_ADMIN')
 // "Not a B2B member" resolves two ways: the endpoint returns 200 + a null body
 // (current — `company.value === null`), or, against an older backend, a 404
@@ -159,6 +164,51 @@ async function onSubmit(values: CompanyProfileInput) {
             :title="t('account.settings.company.pendingTitle')"
             :description="t('account.settings.company.pendingBody')"
           />
+
+          <UCard
+            v-if="netTermsEligible && netTermsCredit"
+            data-testid="company-net-terms-credit"
+          >
+            <template #header>
+              <h3 class="font-semibold">
+                {{ t('account.settings.company.netTerms.title') }}
+              </h3>
+            </template>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div>
+                <dt class="text-gray-500 dark:text-gray-400">
+                  {{ t('account.settings.company.netTerms.term') }}
+                </dt>
+                <dd class="font-medium">
+                  {{ t('account.settings.company.netTerms.netN', { days: netTermsCredit.net_terms_days }) }}
+                </dd>
+              </div>
+              <div v-if="netTermsCredit.credit_limit != null">
+                <dt class="text-gray-500 dark:text-gray-400">
+                  {{ t('account.settings.company.netTerms.creditLimit') }}
+                </dt>
+                <dd class="font-medium">
+                  {{ netTermsCredit.credit_limit }} {{ netTermsCredit.currency }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-gray-500 dark:text-gray-400">
+                  {{ t('account.settings.company.netTerms.outstanding') }}
+                </dt>
+                <dd class="font-medium">
+                  {{ netTermsCredit.outstanding }} {{ netTermsCredit.currency }}
+                </dd>
+              </div>
+              <div v-if="netTermsCredit.available != null">
+                <dt class="text-gray-500 dark:text-gray-400">
+                  {{ t('account.settings.company.netTerms.available') }}
+                </dt>
+                <dd class="font-medium">
+                  {{ netTermsCredit.available }} {{ netTermsCredit.currency }}
+                </dd>
+              </div>
+            </dl>
+          </UCard>
 
           <UCard>
             <AccountCompanyProfileForm

@@ -79,6 +79,16 @@
       "hint": "You'll pay the courier when your order arrives — no online payment needed.",
       "onlineHint": "You'll choose how to pay (BLIK, Przelewy24 or card) on the next step."
     },
+    "netTerms": {
+      "toggle": "Pay on account (Net {days})",
+      "hint": "Your company is invoiced now and pays within {days} days by bank transfer — no online payment needed.",
+      "available": "Available credit: {amount}",
+      "errors": {
+        "creditLimit": "This order would exceed your company's credit limit. Pay down outstanding invoices or choose another payment method.",
+        "currency": "Pay on account is only available in your company's billing currency. Switch currency or choose another payment method.",
+        "unavailable": "Pay on account isn't available for your account."
+      }
+    },
     "inpost": {
       "heading": "Choose a parcel locker",
       "prompt": "Pick a Paczkomat on the map below.",

@@ -745,6 +745,19 @@
         "searchPlaceholder": "Search customers by email or name…",
         "clear": "Clear primary contact",
         "current": "Current: {email}"
+      },
+      "netTerms": {
+        "enable": "Allow pay on account (net terms)",
+        "enableHint": "Active members can place orders on account — invoiced at checkout, paid later by bank transfer.",
+        "days": "Payment term",
+        "netN": "Net {days} days",
+        "currency": "Billing currency",
+        "currencyHint": "The credit limit is set in this currency; on-account checkout must match it.",
+        "creditLimit": "Credit limit",
+        "creditLimitHint": "In the company's billing currency. Leave blank for unlimited credit.",
+        "creditLimitUnlimited": "Unlimited",
+        "outstanding": "Outstanding: {outstanding} {currency}",
+        "available": "Available: {available} {currency}"
       }
     },
     "priceLists": {
@@ -1582,6 +1595,13 @@
         "body": "This restores stock for every line and sets the order to cancelled. This cannot be undone.",
         "confirm": "Cancel order",
         "dismiss": "Keep order"
+      },
+      "netTerms": {
+        "recordPayment": "Record payment",
+        "recorded": "Payment recorded.",
+        "due": "On account · due {date}",
+        "overdue": "On account · overdue since {date}",
+        "paid": "Paid on account · {date}"
       },
       "refund": {
         "button": "Issue refund",
@@ -3098,6 +3118,14 @@
         "loading": "Loading company…",
         "notAMember": "This account is not linked to a business. Companies are managed by your administrator.",
         "readOnlyNotice": "Only a company administrator can edit these details.",
+        "netTerms": {
+          "title": "Pay on account",
+          "term": "Payment term",
+          "netN": "Net {days} days",
+          "creditLimit": "Credit limit",
+          "outstanding": "Outstanding balance",
+          "available": "Available credit"
+        },
         "pendingTitle": "Company pending approval",
         "pendingBody": "Your company is awaiting approval. You can update its details in the meantime.",
         "save": "Save changes",

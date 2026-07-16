@@ -10,6 +10,7 @@ import type { OrderResponse } from '#shared/types/api'
 import type { AppliedCoupon } from '~/components/checkout/CouponField.vue'
 import type { AppliedGiftCard } from '~/components/checkout/GiftCardField.vue'
 import { useAddressesQuery } from '~/composables/queries/useAddresses'
+import { normalizeApiError } from '~/utils/apiError'
 
 // No `user` middleware — guest checkout is allowed. Anonymous buyers supply a
 // contact email (backend `guest_email`, 422 without it); authed buyers keep the
@@ -91,6 +92,44 @@ const invoiceBlocksSubmit = computed(
 // order stays PENDING and is paid to the courier). Only 'cod' rides the
 // create payload; online methods are picked after create on the success page.
 const payOnDelivery = ref(false)
+
+// B2B net terms (pay on account). Offered only to an active member of a
+// net-terms-enabled company (the credit summary drives eligibility + the due
+// term + remaining credit). When chosen, the order is placed unpaid with a
+// printed due date and the faktura is issued at placement. Mutually exclusive
+// with cash-on-delivery. Non-B2B buyers never see it (a `{net_terms_enabled:
+// false}` body).
+const { credit: companyCredit, netTermsEligible } = useCompanyCredit()
+const payOnAccount = ref(false)
+// Enforce mutual exclusion: turning one deferred-payment option on clears the other.
+watch(payOnAccount, (on) => {
+  if (on) payOnDelivery.value = false
+})
+watch(payOnDelivery, (on) => {
+  if (on) payOnAccount.value = false
+})
+// The remaining credit is measured in the company's billing currency; a
+// checkout in a different currency can't use net terms (the backend 409s
+// net_terms_currency_mismatch). Surface it as an eligibility gate so the option
+// only shows when it can actually succeed.
+const netTermsCurrencyOk = computed(
+  () =>
+    companyCredit.value?.credit_limit == null
+    || companyCredit.value?.currency === currency.value,
+)
+const showNetTerms = computed(() => netTermsEligible.value && netTermsCurrencyOk.value)
+
+// Map the backend's net-terms machine codes (409) to a friendly message shown
+// inside the pay-on-account card, so an over-limit / currency / eligibility
+// failure reads clearly instead of surfacing the raw code in the form alert.
+const netTermsError = computed<string | null>(() => {
+  if (!error.value) return null
+  const code = normalizeApiError(error.value, '').message
+  if (code === 'credit_limit_exceeded') return t('checkout.netTerms.errors.creditLimit')
+  if (code === 'net_terms_currency_mismatch') return t('checkout.netTerms.errors.currency')
+  if (code === 'net_terms_unavailable') return t('checkout.netTerms.errors.unavailable')
+  return null
+})
 
 // Prefill source: a chosen saved address populates the form; otherwise the
 // fields start empty. The saved-address picker is the prefill mechanism now —
@@ -255,9 +294,14 @@ async function placeOrder(shipping: ShippingInput) {
       shipping_method_id: selectedMethodId.value,
       notes: shipping.notes?.trim() || undefined,
       currency: currency.value,
-      // Cash-on-delivery is the only payment method chosen at create; online
-      // methods are picked after create on the success page.
-      ...(payOnDelivery.value ? { payment_method: 'cod' as const } : {}),
+      // Deferred-payment methods chosen at create: cash-on-delivery (pobranie)
+      // or B2B net terms (pay on account). Mutually exclusive; online methods
+      // are picked after create on the success page.
+      ...(payOnAccount.value
+        ? { payment_method: 'net_terms' as const }
+        : payOnDelivery.value
+          ? { payment_method: 'cod' as const }
+          : {}),
       // InPost locker: send the picked Paczkomat point (the backend 422s a
       // locker method without one).
       ...(isInpostLocker.value && inpostPoint.value
@@ -427,6 +471,39 @@ async function placeOrder(shipping: ShippingInput) {
               />
               <p class="mt-1 text-xs text-muted">
                 {{ payOnDelivery ? t('checkout.cod.hint') : t('checkout.cod.onlineHint') }}
+              </p>
+            </div>
+
+            <!-- B2B net terms (pay on account) — only for an eligible member of a
+                 net-terms company. Placed unpaid with a printed due date; the
+                 faktura is issued at placement. -->
+            <div
+              v-if="showNetTerms"
+              class="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
+              data-testid="net-terms-card"
+            >
+              <UCheckbox
+                v-model="payOnAccount"
+                :label="t('checkout.netTerms.toggle', { days: companyCredit?.net_terms_days })"
+                data-testid="net-terms-toggle"
+              />
+              <p class="mt-1 text-xs text-muted">
+                {{ t('checkout.netTerms.hint', { days: companyCredit?.net_terms_days }) }}
+              </p>
+              <p
+                v-if="companyCredit?.available != null"
+                class="mt-1 text-xs text-muted"
+              >
+                {{ t('checkout.netTerms.available', {
+                  amount: formatMoney(companyCredit.available, companyCredit.currency ?? currency, locale),
+                }) }}
+              </p>
+              <p
+                v-if="netTermsError"
+                class="mt-2 text-xs text-error"
+                data-testid="net-terms-error"
+              >
+                {{ netTermsError }}
               </p>
             </div>
           </section>
