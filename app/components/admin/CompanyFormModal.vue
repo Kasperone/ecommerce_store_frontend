@@ -110,6 +110,26 @@ function clearContact() {
 // option clears the assignment (sends `price_list_id: null`).
 const priceListId = ref<number | null>(null)
 const { data: priceListsPage } = usePriceListsQuery(() => ({ pageSize: 100 }))
+
+// B2B net terms (Program 2). Enable pay-on-account, set the term length (Net N)
+// and an optional credit limit (in the company's default currency; blank =
+// unlimited). Kept as standalone refs (outside the zod-validated `state`) like
+// the price-list / contact pickers. When editing, the credit readout shows
+// outstanding AR + remaining credit.
+const NET_TERMS_DAY_OPTIONS = [7, 14, 15, 30, 45, 60, 90]
+const NET_TERMS_CURRENCIES = ['USD', 'PLN', 'EUR']
+const netTermsEnabled = ref(false)
+const netTermsDays = ref<number | null>(30)
+const creditLimit = ref<number | null>(null)
+// The company's billing currency — the credit limit is denominated in it, and
+// pay-on-account is only allowed when the checkout currency matches. Required
+// whenever net terms is enabled (defaults to USD for a new company).
+const billingCurrency = ref<string>('USD')
+const netTermsDayItems = computed(() =>
+  NET_TERMS_DAY_OPTIONS.map(d => ({ label: t('admin.companies.netTerms.netN', { days: d }), value: d })),
+)
+const currencyItems = NET_TERMS_CURRENCIES.map(c => ({ label: c, value: c }))
+const { data: companyCredit } = useCompanyCreditQuery(() => props.company?.id ?? null)
 const priceListOptions = computed(() => [
   { label: t('admin.companies.form.priceListNone'), value: null as number | null },
   ...(priceListsPage.value?.items ?? []).map(pl => ({
@@ -141,6 +161,10 @@ watch(
     primaryUserId.value = c?.primary_user_id ?? null
     primaryContactEmail.value = c?.primary_user_email ?? null
     priceListId.value = c?.price_list_id ?? null
+    netTermsEnabled.value = c?.net_terms_enabled ?? false
+    netTermsDays.value = c?.net_terms_days ?? 30
+    creditLimit.value = c?.credit_limit ?? null
+    billingCurrency.value = c?.default_currency ?? 'USD'
     contactSearch.value = ''
   },
   // immediate so an already-open mount (and re-opens) prefill from the company prop.
@@ -165,6 +189,15 @@ function buildCreateBody(): CompanyCreate {
     notes: trim(state.notes),
     primary_user_id: primaryUserId.value,
     price_list_id: priceListId.value,
+    net_terms_enabled: netTermsEnabled.value,
+    // Only meaningful when enabled; the backend ignores days for a disabled
+    // company, but keep the chosen term so re-enabling restores it.
+    net_terms_days: netTermsDays.value,
+    // Blank = unlimited (explicit null clears any prior limit).
+    credit_limit: creditLimit.value,
+    // The billing currency the credit limit is denominated in. Only sent when
+    // net terms is enabled, so a non-net-terms company's currency is untouched.
+    ...(netTermsEnabled.value ? { default_currency: billingCurrency.value } : {}),
   }
 }
 
@@ -335,6 +368,84 @@ async function onSubmit() {
             data-testid="company-price-list"
           />
         </UFormField>
+
+        <div class="rounded-lg border border-gray-200 p-4 space-y-3 dark:border-gray-800">
+          <div>
+            <UCheckbox
+              v-model="netTermsEnabled"
+              :label="t('admin.companies.netTerms.enable')"
+              data-testid="company-net-terms-enabled"
+            />
+            <p class="mt-1 text-xs text-muted">
+              {{ t('admin.companies.netTerms.enableHint') }}
+            </p>
+          </div>
+
+          <div
+            v-if="netTermsEnabled"
+            class="grid grid-cols-1 sm:grid-cols-3 gap-4"
+          >
+            <UFormField
+              :label="t('admin.companies.netTerms.days')"
+              name="net_terms_days"
+            >
+              <USelect
+                v-model="netTermsDays"
+                :items="netTermsDayItems"
+                value-key="value"
+                class="w-full"
+                data-testid="company-net-terms-days"
+              />
+            </UFormField>
+
+            <UFormField
+              :label="t('admin.companies.netTerms.currency')"
+              :help="t('admin.companies.netTerms.currencyHint')"
+              name="default_currency"
+            >
+              <USelect
+                v-model="billingCurrency"
+                :items="currencyItems"
+                value-key="value"
+                class="w-full"
+                data-testid="company-billing-currency"
+              />
+            </UFormField>
+
+            <UFormField
+              :label="t('admin.companies.netTerms.creditLimit')"
+              :help="t('admin.companies.netTerms.creditLimitHint')"
+              name="credit_limit"
+            >
+              <UInput
+                v-model.number="creditLimit"
+                type="number"
+                min="0"
+                step="0.01"
+                :placeholder="t('admin.companies.netTerms.creditLimitUnlimited')"
+                class="w-full"
+                data-testid="company-credit-limit"
+              />
+            </UFormField>
+          </div>
+
+          <p
+            v-if="isEdit && netTermsEnabled && companyCredit"
+            class="text-xs text-muted"
+            data-testid="company-credit-readout"
+          >
+            {{ t('admin.companies.netTerms.outstanding', {
+              outstanding: companyCredit.outstanding,
+              currency: companyCredit.currency ?? '',
+            }) }}
+            <template v-if="companyCredit.available != null">
+              · {{ t('admin.companies.netTerms.available', {
+                available: companyCredit.available,
+                currency: companyCredit.currency ?? '',
+              }) }}
+            </template>
+          </p>
+        </div>
 
         <UFormField
           :label="t('admin.companies.form.notes')"

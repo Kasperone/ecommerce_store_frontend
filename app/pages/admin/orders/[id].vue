@@ -123,6 +123,37 @@ const statusOptions = computed(() => {
 
 const canCancel = computed(() => order.value != null && isCancellable(order.value.status))
 
+// B2B net terms (pay on account): payment is tracked orthogonally to fulfilment
+// (the order ships while unpaid, never entering PAID). The admin records the
+// bank transfer here; `net_terms_paid_at` flips the state. Overdue = a due date
+// in the past while still unpaid.
+const recordPaymentMutation = useRecordNetTermsPayment()
+const isNetTerms = computed(() => order.value?.payment_method === 'net_terms')
+const netTermsPaid = computed(() => isNetTerms.value && order.value?.net_terms_paid_at != null)
+const canRecordPayment = computed(
+  () => isNetTerms.value && !netTermsPaid.value && auth.can('orders:write'),
+)
+const netTermsOverdue = computed(() => {
+  const due = order.value?.payment_due_at
+  return isNetTerms.value && !netTermsPaid.value && due != null && new Date(due) < new Date()
+})
+
+async function onRecordPayment() {
+  if (!order.value) return
+  formError.value = ''
+  try {
+    await recordPaymentMutation.mutateAsync(order.value.id)
+    toast.add({
+      title: t('admin.orders.netTerms.recorded'),
+      color: 'success',
+      icon: 'i-lucide-check',
+    })
+  }
+  catch (err) {
+    applyFormError(err, t('messages.saveError'))
+  }
+}
+
 function formatMoney(amount: number, currency: string) {
   return formatMoneyIntl(amount, currency as CurrencyCode, 'en')
 }
@@ -426,6 +457,38 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
               />
             </UFormField>
 
+            <!-- B2B net terms: pay-on-account state (due date / overdue / paid). -->
+            <div
+              v-if="isNetTerms"
+              class="flex flex-wrap items-center gap-2 text-sm"
+              data-testid="order-net-terms-status"
+            >
+              <UBadge
+                v-if="netTermsPaid"
+                color="success"
+                variant="soft"
+                icon="i-lucide-check"
+              >
+                {{ $t('admin.orders.netTerms.paid', {
+                  date: order.net_terms_paid_at ? formatDate(order.net_terms_paid_at) : '',
+                }) }}
+              </UBadge>
+              <UBadge
+                v-else
+                :color="netTermsOverdue ? 'error' : 'warning'"
+                variant="soft"
+                icon="i-lucide-clock"
+              >
+                {{ netTermsOverdue
+                  ? $t('admin.orders.netTerms.overdue', {
+                    date: order.payment_due_at ? formatDate(order.payment_due_at) : '',
+                  })
+                  : $t('admin.orders.netTerms.due', {
+                    date: order.payment_due_at ? formatDate(order.payment_due_at) : '',
+                  }) }}
+              </UBadge>
+            </div>
+
             <UFormField :label="$t('admin.orders.detail.internalNotes')">
               <UTextarea
                 v-model="notesModel"
@@ -492,6 +555,17 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
                   @click="refundError = null; refundOpen = true"
                 >
                   {{ $t('admin.orders.refund.button') }}
+                </UButton>
+                <UButton
+                  v-if="canRecordPayment"
+                  color="success"
+                  variant="soft"
+                  icon="i-lucide-banknote"
+                  :loading="recordPaymentMutation.isLoading.value"
+                  data-testid="record-net-terms-payment"
+                  @click="onRecordPayment"
+                >
+                  {{ $t('admin.orders.netTerms.recordPayment') }}
                 </UButton>
               </div>
               <div class="flex items-center gap-2">

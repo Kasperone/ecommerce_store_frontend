@@ -22,6 +22,7 @@ export type CompanyResponse = components['schemas']['CompanyResponse']
 export type CompanyListResponse = components['schemas']['CompanyListResponse']
 export type CompanyCreate = components['schemas']['CompanyCreate']
 export type CompanyUpdate = components['schemas']['CompanyUpdate']
+export type CompanyCreditResponse = components['schemas']['CompanyCreditResponse']
 export type CompanyStatus = CompanyResponse['status']
 
 const COMPANIES_NAMESPACE = ['companies'] as const
@@ -52,6 +53,23 @@ export function useCompaniesQuery(params: MaybeRefOrGetter<CompanyListParams> = 
     enabled: () => import.meta.client,
     // Mutations invalidate this namespace; 60s just absorbs back-nav refetch churn.
     staleTime: 1000 * 60,
+  })
+}
+
+/**
+ * `GET /api/v1/admin/companies/{id}/credit` — the company's net-terms credit
+ * summary (limit / outstanding AR / available). Gated on a truthy id (the modal
+ * only fetches when editing an existing company).
+ */
+export function useCompanyCreditQuery(id: MaybeRefOrGetter<number | null>) {
+  const { apiFetch } = useApi()
+  return useQuery({
+    key: () => [...COMPANIES_NAMESPACE, 'credit', toValue(id)],
+    query: () =>
+      apiFetch<CompanyCreditResponse>(`/api/v1/admin/companies/${toValue(id)}/credit`),
+    enabled: () => import.meta.client && toValue(id) != null,
+    staleTime: 1000 * 30,
+    retry: false,
   })
 }
 

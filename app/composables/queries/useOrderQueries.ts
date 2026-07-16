@@ -141,6 +141,29 @@ export function useEditOrderItems() {
 }
 
 /**
+ * `POST /api/v1/orders/{id}/record-net-terms-payment` — record the bank transfer
+ * that settles a B2B pay-on-account order (admin, `orders:write`). Stamps
+ * `net_terms_paid_at` and frees the amount against the company's credit limit;
+ * fulfilment status is untouched. Invalidates the orders namespace + the
+ * company-credit query so the admin credit readout refreshes. Idempotent server-
+ * side; 409 (`not_a_net_terms_order`) on a non-net-terms order.
+ */
+export function useRecordNetTermsPayment() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: (id: number) =>
+      apiFetch<OrderWithUser>(`/api/v1/orders/${id}/record-net-terms-payment`, {
+        method: 'POST',
+      }),
+    onSuccess: () => {
+      void queryCache.invalidateQueries({ key: [...ORDERS_NAMESPACE] })
+      void queryCache.invalidateQueries({ key: ['companies', 'credit'] })
+    },
+  })
+}
+
+/**
  * `POST /api/v1/orders/{id}/cancel` — restores stock and sets status=cancelled.
  */
 export function useCancelOrder() {
