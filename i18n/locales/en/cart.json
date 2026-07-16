@@ -80,8 +80,8 @@
       "onlineHint": "You'll choose how to pay (BLIK, Przelewy24 or card) on the next step."
     },
     "netTerms": {
-      "toggle": "Pay on account (Net {days})",
-      "hint": "Your company is invoiced now and pays within {days} days by bank transfer — no online payment needed.",
+      "toggle": "Pay on account ({term})",
+      "hint": "Your company is invoiced now and pays {due} by bank transfer — no online payment needed.",
       "available": "Available credit: {amount}",
       "errors": {
         "creditLimit": "This order would exceed your company's credit limit. Pay down outstanding invoices or choose another payment method.",

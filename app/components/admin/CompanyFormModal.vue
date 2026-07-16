@@ -111,23 +111,35 @@ function clearContact() {
 const priceListId = ref<number | null>(null)
 const { data: priceListsPage } = usePriceListsQuery(() => ({ pageSize: 100 }))
 
-// B2B net terms (Program 2). Enable pay-on-account, set the term length (Net N)
-// and an optional credit limit (in the company's default currency; blank =
-// unlimited). Kept as standalone refs (outside the zod-validated `state`) like
-// the price-list / contact pickers. When editing, the credit readout shows
-// outstanding AR + remaining credit.
-const NET_TERMS_DAY_OPTIONS = [7, 14, 15, 30, 45, 60, 90]
+// B2B net terms (Program 2 + tail Program A). Enable pay-on-account, assign a
+// named payment term (the template deciding the due date), gate which member
+// roles may use it, and set an optional credit limit (in the company's default
+// currency; blank = unlimited). Kept as standalone refs (outside the
+// zod-validated `state`) like the price-list / contact pickers. When editing,
+// the credit readout shows outstanding AR + remaining credit.
 const NET_TERMS_CURRENCIES = ['USD', 'PLN', 'EUR']
+const NET_TERMS_ROLES = ['COMPANY_ADMIN', 'APPROVER', 'BUYER', 'VIEWER'] as const
+const DEFAULT_ROLES = ['COMPANY_ADMIN', 'APPROVER', 'BUYER']
 const netTermsEnabled = ref(false)
-const netTermsDays = ref<number | null>(30)
+const paymentTermId = ref<number | null>(null)
+const allowedRoles = ref<string[]>([...DEFAULT_ROLES])
 const creditLimit = ref<number | null>(null)
 // The company's billing currency — the credit limit is denominated in it, and
 // pay-on-account is only allowed when the checkout currency matches. Required
 // whenever net terms is enabled (defaults to USD for a new company).
 const billingCurrency = ref<string>('USD')
-const netTermsDayItems = computed(() =>
-  NET_TERMS_DAY_OPTIONS.map(d => ({ label: t('admin.companies.netTerms.netN', { days: d }), value: d })),
-)
+const { data: paymentTermsPage } = usePaymentTermsQuery(() => ({ pageSize: 100 }))
+const paymentTermItems = computed(() => [
+  { label: t('admin.companies.netTerms.termNone'), value: null as number | null },
+  ...(paymentTermsPage.value?.items ?? []).map(pt => ({
+    label: pt.is_active ? pt.name : t('admin.companies.netTerms.termInactive', { name: pt.name }),
+    value: pt.id as number | null,
+  })),
+])
+const roleItems = NET_TERMS_ROLES.map(r => ({
+  label: t(`admin.companies.netTerms.roles.${r}`),
+  value: r as string,
+}))
 const currencyItems = NET_TERMS_CURRENCIES.map(c => ({ label: c, value: c }))
 const { data: companyCredit } = useCompanyCreditQuery(() => props.company?.id ?? null)
 const priceListOptions = computed(() => [
@@ -162,7 +174,8 @@ watch(
     primaryContactEmail.value = c?.primary_user_email ?? null
     priceListId.value = c?.price_list_id ?? null
     netTermsEnabled.value = c?.net_terms_enabled ?? false
-    netTermsDays.value = c?.net_terms_days ?? 30
+    paymentTermId.value = c?.payment_term_id ?? null
+    allowedRoles.value = c?.net_terms_allowed_roles ?? [...DEFAULT_ROLES]
     creditLimit.value = c?.credit_limit ?? null
     billingCurrency.value = c?.default_currency ?? 'USD'
     contactSearch.value = ''
@@ -190,9 +203,11 @@ function buildCreateBody(): CompanyCreate {
     primary_user_id: primaryUserId.value,
     price_list_id: priceListId.value,
     net_terms_enabled: netTermsEnabled.value,
-    // Only meaningful when enabled; the backend ignores days for a disabled
-    // company, but keep the chosen term so re-enabling restores it.
-    net_terms_days: netTermsDays.value,
+    // The assigned payment term (null clears → pay-on-account off). Kept even
+    // when disabled so re-enabling restores it.
+    payment_term_id: paymentTermId.value,
+    // Which member roles may pay on account (default admin+approver+buyer).
+    net_terms_allowed_roles: allowedRoles.value as CompanyCreate['net_terms_allowed_roles'],
     // Blank = unlimited (explicit null clears any prior limit).
     credit_limit: creditLimit.value,
     // The billing currency the credit limit is denominated in. Only sent when
@@ -386,15 +401,16 @@ async function onSubmit() {
             class="grid grid-cols-1 sm:grid-cols-3 gap-4"
           >
             <UFormField
-              :label="t('admin.companies.netTerms.days')"
-              name="net_terms_days"
+              :label="t('admin.companies.netTerms.term')"
+              :help="t('admin.companies.netTerms.termHint')"
+              name="payment_term_id"
             >
               <USelect
-                v-model="netTermsDays"
-                :items="netTermsDayItems"
+                v-model="paymentTermId"
+                :items="paymentTermItems"
                 value-key="value"
                 class="w-full"
-                data-testid="company-net-terms-days"
+                data-testid="company-payment-term"
               />
             </UFormField>
 
@@ -428,6 +444,22 @@ async function onSubmit() {
               />
             </UFormField>
           </div>
+
+          <UFormField
+            v-if="netTermsEnabled"
+            :label="t('admin.companies.netTerms.allowedRoles')"
+            :help="t('admin.companies.netTerms.allowedRolesHint')"
+            name="net_terms_allowed_roles"
+          >
+            <USelectMenu
+              v-model="allowedRoles"
+              :items="roleItems"
+              value-key="value"
+              multiple
+              class="w-full"
+              data-testid="company-allowed-roles"
+            />
+          </UFormField>
 
           <p
             v-if="isEdit && netTermsEnabled && companyCredit"

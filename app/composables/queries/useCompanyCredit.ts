@@ -2,7 +2,7 @@
  * Pinia Colada query for the caller's B2B net-terms credit summary (Program 2).
  *
  * `GET /api/v1/companies/me/credit` → `CompanyCreditResponse`
- * (`net_terms_enabled`, `net_terms_days`, `currency`, `credit_limit`,
+ * (`net_terms_enabled`, `payment_term`, `currency`, `credit_limit`,
  * `outstanding`, `available`). A non-B2B caller gets a
  * `{ net_terms_enabled: false }` body (200, not 404 — same quiet-probe posture
  * as `GET /companies/me`), so `enabled` gates on auth to avoid a guest 401
@@ -37,10 +37,11 @@ export function useCompanyCredit() {
     retry: false,
   })
 
-  // Pay-on-account is offered only when the company has net terms enabled AND a
-  // configured term length (the backend guards identically in resolve_net_terms).
+  // Pay-on-account is offered only when the company has net terms enabled AND an
+  // assigned payment term (the backend guards identically in resolve_net_terms;
+  // role gating is enforced server-side and reflected in this summary's config).
   const netTermsEligible = computed(
-    () => !!query.data.value?.net_terms_enabled && query.data.value?.net_terms_days != null,
+    () => !!query.data.value?.net_terms_enabled && query.data.value?.payment_term != null,
   )
 
   return {

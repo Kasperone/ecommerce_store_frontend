@@ -27,7 +27,7 @@ definePageMeta({
   middleware: 'user',
 })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
 
 useHead({
@@ -179,8 +179,15 @@ async function onSubmit(values: CompanyProfileInput) {
                 <dt class="text-gray-500 dark:text-gray-400">
                   {{ t('account.settings.company.netTerms.term') }}
                 </dt>
-                <dd class="font-medium">
-                  {{ t('account.settings.company.netTerms.netN', { days: netTermsCredit.net_terms_days }) }}
+                <dd
+                  class="font-medium"
+                  data-testid="company-net-terms-term"
+                >
+                  {{ netTermsCredit.payment_term?.name }}
+                  <span
+                    v-if="netTermsCredit.payment_term"
+                    class="text-gray-500 dark:text-gray-400"
+                  >· {{ describeTermDue(netTermsCredit.payment_term, t, locale) }}</span>
                 </dd>
               </div>
               <div v-if="netTermsCredit.credit_limit != null">

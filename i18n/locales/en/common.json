@@ -107,7 +107,8 @@
         "settings": "Settings",
         "staff": "Staff & Roles",
         "segments": "Segments",
-        "translations": "Translations"
+        "translations": "Translations",
+        "paymentTerms": "Payment terms (B2B)"
       }
     },
     "pages": {
@@ -749,15 +750,25 @@
       "netTerms": {
         "enable": "Allow pay on account (net terms)",
         "enableHint": "Active members can place orders on account — invoiced at checkout, paid later by bank transfer.",
-        "days": "Payment term",
-        "netN": "Net {days} days",
         "currency": "Billing currency",
         "currencyHint": "The credit limit is set in this currency; on-account checkout must match it.",
         "creditLimit": "Credit limit",
         "creditLimitHint": "In the company's billing currency. Leave blank for unlimited credit.",
         "creditLimitUnlimited": "Unlimited",
         "outstanding": "Outstanding: {outstanding} {currency}",
-        "available": "Available: {available} {currency}"
+        "available": "Available: {available} {currency}",
+        "term": "Payment term",
+        "termHint": "The named term that sets each on-account invoice's due date.",
+        "termNone": "— None —",
+        "termInactive": "{name} (inactive)",
+        "allowedRoles": "Roles allowed to pay on account",
+        "allowedRolesHint": "Only members with these roles see the pay-on-account option.",
+        "roles": {
+          "COMPANY_ADMIN": "Company admin",
+          "APPROVER": "Approver",
+          "BUYER": "Buyer",
+          "VIEWER": "Viewer"
+        }
       }
     },
     "priceLists": {
@@ -2798,6 +2809,57 @@
       "filterOutdated": "Needs review",
       "needsReview": "Needs review",
       "sourceChanged": "Source changed"
+    },
+    "paymentTerms": {
+      "title": "Payment terms",
+      "subtitle": "Named net-terms templates (Net N, due on receipt, fixed date) you can assign to B2B companies.",
+      "empty": "No payment terms yet. Create one to offer pay-on-account with a due date.",
+      "actions": {
+        "create": "New term",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "fields": {
+        "name": "Name",
+        "type": "Type",
+        "due": "Due",
+        "status": "Status"
+      },
+      "types": {
+        "net_days": "Net days",
+        "due_on_receipt": "Due on receipt",
+        "fixed_date": "Fixed date"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "confirmDelete": "Delete payment term \"{name}\"? Companies using it will fall back to no net terms.",
+      "flashes": {
+        "created": "Payment term created",
+        "updated": "Payment term updated",
+        "deleted": "Payment term deleted",
+        "deleteError": "Couldn't delete the payment term"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "netDaysRequired": "Enter the number of days",
+        "dueDateRequired": "Pick a due date"
+      },
+      "form": {
+        "createTitle": "New payment term",
+        "editTitle": "Edit payment term",
+        "save": "Save",
+        "cancel": "Cancel",
+        "name": "Name",
+        "type": "Term type",
+        "netDays": "Days until due",
+        "netDaysHint": "Invoice is due this many days after the order (Net N).",
+        "dueDate": "Due date",
+        "active": "Active",
+        "activeHint": "Inactive terms can't be chosen at checkout.",
+        "notes": "Notes"
+      }
     }
   },
   "account": {
@@ -3538,5 +3600,12 @@
     },
     "goHome": "Back to homepage",
     "browseProducts": "Browse products"
+  },
+  "paymentTerms": {
+    "due": {
+      "netDays": "within {days} days",
+      "onReceipt": "on receipt",
+      "fixedDate": "by {date}"
+    }
   }
 }

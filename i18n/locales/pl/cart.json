@@ -80,8 +80,8 @@
       "onlineHint": "Sposób płatności (BLIK, Przelewy24 lub karta) wybierzesz w następnym kroku."
     },
     "netTerms": {
-      "toggle": "Płatność z odroczonym terminem (Net {days})",
-      "hint": "Fakturę wystawiamy od razu, a Twoja firma płaci przelewem w ciągu {days} dni — bez płatności online.",
+      "toggle": "Płatność na konto ({term})",
+      "hint": "Twoja firma otrzymuje fakturę teraz i płaci {due} przelewem — bez płatności online.",
       "available": "Dostępny limit kredytowy: {amount}",
       "errors": {
         "creditLimit": "To zamówienie przekroczyłoby limit kredytowy Twojej firmy. Ureguluj zaległe faktury lub wybierz inną metodę płatności.",

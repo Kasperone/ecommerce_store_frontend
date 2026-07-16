@@ -484,11 +484,13 @@ async function placeOrder(shipping: ShippingInput) {
             >
               <UCheckbox
                 v-model="payOnAccount"
-                :label="t('checkout.netTerms.toggle', { days: companyCredit?.net_terms_days })"
+                :label="t('checkout.netTerms.toggle', { term: companyCredit?.payment_term?.name })"
                 data-testid="net-terms-toggle"
               />
               <p class="mt-1 text-xs text-muted">
-                {{ t('checkout.netTerms.hint', { days: companyCredit?.net_terms_days }) }}
+                {{ t('checkout.netTerms.hint', {
+                  due: describeTermDue(companyCredit?.payment_term, t, locale),
+                }) }}
               </p>
               <p
                 v-if="companyCredit?.available != null"

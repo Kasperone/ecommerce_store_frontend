@@ -3840,6 +3840,62 @@ export interface paths {
         patch: operations["update_entry_api_v1_admin_price_lists__price_list_id__entries__entry_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/payment-terms/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Payment Terms
+         * @description List payment terms (newest first), searchable by name.
+         */
+        get: operations["list_payment_terms_api_v1_admin_payment_terms__get"];
+        put?: never;
+        /**
+         * Create Payment Term
+         * @description Create a payment term. Shape is validated by the schema.
+         */
+        post: operations["create_payment_term_api_v1_admin_payment_terms__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/payment-terms/{payment_term_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Payment Term
+         * @description Get one payment term.
+         */
+        get: operations["get_payment_term_api_v1_admin_payment_terms__payment_term_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Payment Term
+         * @description Delete a payment term. Any company assigned it is unassigned
+         *     (``companies.payment_term_id`` → NULL via ON DELETE SET NULL), which turns
+         *     pay-on-account off for that company until a new term is assigned.
+         */
+        delete: operations["delete_payment_term_api_v1_admin_payment_terms__payment_term_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Payment Term
+         * @description Update a payment term (partial). Deactivating it (``is_active`` false)
+         *     makes pay-on-account unavailable for any company assigned it. Validates the
+         *     merged (type, parameter) shape.
+         */
+        patch: operations["update_payment_term_api_v1_admin_payment_terms__payment_term_id__patch"];
+        trace?: never;
+    };
     "/api/v1/admin/draft-orders/": {
         parameters: {
             query?: never;
@@ -6316,8 +6372,10 @@ export interface components {
              * @default false
              */
             net_terms_enabled: boolean;
-            /** Net Terms Days */
-            net_terms_days?: number | null;
+            /** Payment Term Id */
+            payment_term_id?: number | null;
+            /** Net Terms Allowed Roles */
+            net_terms_allowed_roles?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER")[];
             /** Credit Limit */
             credit_limit?: number | null;
         };
@@ -6328,14 +6386,13 @@ export interface components {
          *     ``credit_limit`` / ``available`` are ``null`` when the company has no limit
          *     (unlimited credit). ``outstanding`` is the sum of the company's unpaid,
          *     non-cancelled net-terms orders in ``currency`` (the company's billing
-         *     currency; ``null`` when unset). ``net_terms_enabled`` / ``net_terms_days``
+         *     currency; ``null`` when unset). ``net_terms_enabled`` / ``payment_term``
          *     echo the company config so a single fetch drives the checkout/portal display.
          */
         CompanyCreditResponse: {
             /** Net Terms Enabled */
             net_terms_enabled: boolean;
-            /** Net Terms Days */
-            net_terms_days?: number | null;
+            payment_term?: components["schemas"]["PaymentTermResponse"] | null;
             /** Currency */
             currency?: string | null;
             /** Credit Limit */
@@ -6428,12 +6485,15 @@ export interface components {
              * @default false
              */
             net_terms_enabled: boolean;
-            /** Net Terms Days */
-            net_terms_days?: number | null;
+            /** Payment Term Id */
+            payment_term_id?: number | null;
+            /** Net Terms Allowed Roles */
+            net_terms_allowed_roles?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER")[];
             /** Credit Limit */
             credit_limit?: number | null;
             /** Primary User Email */
             primary_user_email?: string | null;
+            payment_term?: components["schemas"]["PaymentTermResponse"] | null;
             /**
              * Role
              * @enum {string}
@@ -6561,7 +6621,9 @@ export interface components {
          *     Includes at least ``{ id, name, status }`` (id + timestamps come from
          *     ``TimestampSchema``) — the stable contract the quotes vertical FKs against.
          *     ``primary_user_email`` is a read-only denormalised display value (the
-         *     designated contact's email, or ``null`` when none is set).
+         *     designated contact's email, or ``null`` when none is set). ``payment_term``
+         *     is the resolved assigned net-terms template (``null`` when none), so the
+         *     admin directory can show the term without a second fetch.
          */
         CompanyResponse: {
             /** Id */
@@ -6617,12 +6679,15 @@ export interface components {
              * @default false
              */
             net_terms_enabled: boolean;
-            /** Net Terms Days */
-            net_terms_days?: number | null;
+            /** Payment Term Id */
+            payment_term_id?: number | null;
+            /** Net Terms Allowed Roles */
+            net_terms_allowed_roles?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER")[];
             /** Credit Limit */
             credit_limit?: number | null;
             /** Primary User Email */
             primary_user_email?: string | null;
+            payment_term?: components["schemas"]["PaymentTermResponse"] | null;
         };
         /**
          * CompanyUpdate
@@ -6652,8 +6717,10 @@ export interface components {
             price_list_id?: number | null;
             /** Net Terms Enabled */
             net_terms_enabled?: boolean | null;
-            /** Net Terms Days */
-            net_terms_days?: number | null;
+            /** Payment Term Id */
+            payment_term_id?: number | null;
+            /** Net Terms Allowed Roles */
+            net_terms_allowed_roles?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER")[] | null;
             /** Credit Limit */
             credit_limit?: number | null;
         };
@@ -9276,6 +9343,104 @@ export interface components {
         PayUCheckoutResponse: {
             /** Redirect Uri */
             redirect_uri: string;
+        };
+        /**
+         * PaymentTermCreate
+         * @description Create body (all shared fields; server assigns id/timestamps).
+         */
+        PaymentTermCreate: {
+            /** Name */
+            name: string;
+            term_type: components["schemas"]["PaymentTermType"];
+            /** Net Days */
+            net_days?: number | null;
+            /** Due Date */
+            due_date?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * PaymentTermListResponse
+         * @description Paginated payment terms.
+         */
+        PaymentTermListResponse: {
+            /** Items */
+            items: components["schemas"]["PaymentTermResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+        };
+        /**
+         * PaymentTermResponse
+         * @description Payment term with id + timestamps.
+         */
+        PaymentTermResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Name */
+            name: string;
+            term_type: components["schemas"]["PaymentTermType"];
+            /** Net Days */
+            net_days?: number | null;
+            /** Due Date */
+            due_date?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * PaymentTermType
+         * @description How a payment term derives its due date.
+         *
+         *     Stored as the lowercase value in a ``String(20)`` column (mirrors
+         *     ``CompanyStatus``). ``NET_DAYS`` = order date + ``net_days``;
+         *     ``DUE_ON_RECEIPT`` = the order date itself; ``FIXED_DATE`` = the template's
+         *     explicit ``due_date`` calendar deadline.
+         * @enum {string}
+         */
+        PaymentTermType: "net_days" | "due_on_receipt" | "fixed_date";
+        /**
+         * PaymentTermUpdate
+         * @description Partial update. ``term_type`` may be changed; when it is, the matching
+         *     parameter (``net_days`` / ``due_date``) must be supplied — validated in the
+         *     route against the merged row, not here (a PATCH need not resend everything).
+         */
+        PaymentTermUpdate: {
+            /** Name */
+            name?: string | null;
+            term_type?: components["schemas"]["PaymentTermType"] | null;
+            /** Net Days */
+            net_days?: number | null;
+            /** Due Date */
+            due_date?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Notes */
+            notes?: string | null;
         };
         /**
          * PreferencesResponse
@@ -20092,6 +20257,168 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PriceListEntryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_payment_terms_api_v1_admin_payment_terms__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Case-insensitive substring on name */
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentTermListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_payment_term_api_v1_admin_payment_terms__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentTermCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentTermResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_payment_term_api_v1_admin_payment_terms__payment_term_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_term_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentTermResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_payment_term_api_v1_admin_payment_terms__payment_term_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_term_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_payment_term_api_v1_admin_payment_terms__payment_term_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payment_term_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentTermUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentTermResponse"];
                 };
             };
             /** @description Validation Error */

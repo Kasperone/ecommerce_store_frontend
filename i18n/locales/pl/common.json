@@ -107,7 +107,8 @@
         "settings": "Ustawienia",
         "staff": "Personel i role",
         "segments": "Segmenty",
-        "translations": "Tłumaczenia"
+        "translations": "Tłumaczenia",
+        "paymentTerms": "Terminy płatności (B2B)"
       }
     },
     "pages": {
@@ -749,15 +750,25 @@
       "netTerms": {
         "enable": "Zezwól na płatność z odroczonym terminem (net terms)",
         "enableHint": "Aktywni członkowie mogą składać zamówienia z odroczoną płatnością — faktura przy zamówieniu, zapłata później przelewem.",
-        "days": "Termin płatności",
-        "netN": "Net {days} dni",
         "currency": "Waluta rozliczeniowa",
         "currencyHint": "Limit kredytowy jest w tej walucie; płatność z odroczonym terminem musi ją zachować.",
         "creditLimit": "Limit kredytowy",
         "creditLimitHint": "W walucie rozliczeniowej firmy. Pozostaw puste dla nielimitowanego kredytu.",
         "creditLimitUnlimited": "Bez limitu",
         "outstanding": "Do zapłaty: {outstanding} {currency}",
-        "available": "Dostępne: {available} {currency}"
+        "available": "Dostępne: {available} {currency}",
+        "term": "Termin płatności",
+        "termHint": "Nazwany termin ustalający datę płatności każdej faktury na konto.",
+        "termNone": "— Brak —",
+        "termInactive": "{name} (nieaktywny)",
+        "allowedRoles": "Role uprawnione do płatności na konto",
+        "allowedRolesHint": "Tylko członkowie z tymi rolami widzą opcję płatności na konto.",
+        "roles": {
+          "COMPANY_ADMIN": "Administrator firmy",
+          "APPROVER": "Zatwierdzający",
+          "BUYER": "Kupujący",
+          "VIEWER": "Przeglądający"
+        }
       }
     },
     "priceLists": {
@@ -2798,6 +2809,57 @@
       "filterOutdated": "Do przeglądu",
       "needsReview": "Do przeglądu",
       "sourceChanged": "Źródło zmienione"
+    },
+    "paymentTerms": {
+      "title": "Terminy płatności",
+      "subtitle": "Nazwane szablony terminów (Net N, płatne przy odbiorze, stała data), które możesz przypisać firmom B2B.",
+      "empty": "Brak terminów płatności. Utwórz termin, aby oferować płatność na konto z datą płatności.",
+      "actions": {
+        "create": "Nowy termin",
+        "edit": "Edytuj",
+        "delete": "Usuń"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "type": "Typ",
+        "due": "Płatność",
+        "status": "Status"
+      },
+      "types": {
+        "net_days": "Liczba dni",
+        "due_on_receipt": "Płatne przy odbiorze",
+        "fixed_date": "Stała data"
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "confirmDelete": "Usunąć termin płatności „{name}”? Firmy, które go używają, stracą warunki płatności odroczonej.",
+      "flashes": {
+        "created": "Utworzono termin płatności",
+        "updated": "Zaktualizowano termin płatności",
+        "deleted": "Usunięto termin płatności",
+        "deleteError": "Nie udało się usunąć terminu płatności"
+      },
+      "errors": {
+        "nameRequired": "Nazwa jest wymagana",
+        "netDaysRequired": "Podaj liczbę dni",
+        "dueDateRequired": "Wybierz datę płatności"
+      },
+      "form": {
+        "createTitle": "Nowy termin płatności",
+        "editTitle": "Edycja terminu płatności",
+        "save": "Zapisz",
+        "cancel": "Anuluj",
+        "name": "Nazwa",
+        "type": "Typ terminu",
+        "netDays": "Dni do zapłaty",
+        "netDaysHint": "Faktura jest płatna tyle dni po złożeniu zamówienia (Net N).",
+        "dueDate": "Data płatności",
+        "active": "Aktywny",
+        "activeHint": "Nieaktywne terminy nie są dostępne przy kasie.",
+        "notes": "Notatki"
+      }
     }
   },
   "account": {
@@ -3538,5 +3600,12 @@
     },
     "goHome": "Wróć na stronę główną",
     "browseProducts": "Przeglądaj produkty"
+  },
+  "paymentTerms": {
+    "due": {
+      "netDays": "w ciągu {days} dni",
+      "onReceipt": "przy odbiorze",
+      "fixedDate": "do {date}"
+    }
   }
 }
