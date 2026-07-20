@@ -4913,6 +4913,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/companies/me/auto-charge/setup-intent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Auto Charge Setup Intent
+         * @description Start vaulting a card for net-terms auto-pay — **COMPANY_ADMIN only**.
+         *
+         *     Ensures a Stripe Customer for the company, then returns a SetupIntent client
+         *     secret the portal confirms with the Payment Element (setup mode). 503 when
+         *     Stripe is unconfigured. The card is stored only after ``/confirm``.
+         */
+        post: operations["create_auto_charge_setup_intent_api_v1_companies_me_auto_charge_setup_intent_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/companies/me/auto-charge/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Auto Charge Card
+         * @description Store the vaulted PaymentMethod from a confirmed SetupIntent — COMPANY_ADMIN.
+         *
+         *     Only a ``succeeded`` SetupIntent whose customer matches the company's is
+         *     accepted (400 otherwise), so a client can't point us at an unrelated card.
+         */
+        post: operations["confirm_auto_charge_card_api_v1_companies_me_auto_charge_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/companies/me/auto-charge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Auto Charge Card
+         * @description Remove the vaulted card — COMPANY_ADMIN. Auto-pay stops; net terms falls
+         *     back to manual bank transfer. Idempotent (no card set → still ``false``).
+         */
+        delete: operations["remove_auto_charge_card_api_v1_companies_me_auto_charge_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/companies/me/users": {
         parameters: {
             query?: never;
@@ -5264,6 +5332,30 @@ export interface components {
             page_size: number;
             /** Pages */
             pages: number;
+        };
+        /**
+         * AutoChargeConfirmRequest
+         * @description Confirm a completed SetupIntent so its PaymentMethod is stored for auto-pay.
+         */
+        AutoChargeConfirmRequest: {
+            /** Setup Intent Id */
+            setup_intent_id: string;
+        };
+        /**
+         * AutoChargeSetupIntentResponse
+         * @description The client secret for confirming a card-vaulting SetupIntent (portal).
+         */
+        AutoChargeSetupIntentResponse: {
+            /** Client Secret */
+            client_secret: string;
+        };
+        /**
+         * AutoChargeStatusResponse
+         * @description Whether a card is currently vaulted for the company's auto-pay.
+         */
+        AutoChargeStatusResponse: {
+            /** Auto Charge Card Set */
+            auto_charge_card_set: boolean;
         };
         /**
          * BannerCreate
@@ -6378,6 +6470,11 @@ export interface components {
             net_terms_allowed_roles?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER")[];
             /** Credit Limit */
             credit_limit?: number | null;
+            /**
+             * Auto Charge Enabled
+             * @default false
+             */
+            auto_charge_enabled: boolean;
         };
         /**
          * CompanyCreditResponse
@@ -6404,6 +6501,16 @@ export interface components {
             outstanding: number;
             /** Available */
             available?: number | null;
+            /**
+             * Auto Charge Enabled
+             * @default false
+             */
+            auto_charge_enabled: boolean;
+            /**
+             * Auto Charge Card Set
+             * @default false
+             */
+            auto_charge_card_set: boolean;
         };
         /**
          * CompanyListResponse
@@ -6491,6 +6598,11 @@ export interface components {
             net_terms_allowed_roles?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER")[];
             /** Credit Limit */
             credit_limit?: number | null;
+            /**
+             * Auto Charge Enabled
+             * @default false
+             */
+            auto_charge_enabled: boolean;
             /** Primary User Email */
             primary_user_email?: string | null;
             payment_term?: components["schemas"]["PaymentTermResponse"] | null;
@@ -6685,6 +6797,11 @@ export interface components {
             net_terms_allowed_roles?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER")[];
             /** Credit Limit */
             credit_limit?: number | null;
+            /**
+             * Auto Charge Enabled
+             * @default false
+             */
+            auto_charge_enabled: boolean;
             /** Primary User Email */
             primary_user_email?: string | null;
             payment_term?: components["schemas"]["PaymentTermResponse"] | null;
@@ -6723,6 +6840,8 @@ export interface components {
             net_terms_allowed_roles?: ("COMPANY_ADMIN" | "BUYER" | "APPROVER" | "VIEWER")[] | null;
             /** Credit Limit */
             credit_limit?: number | null;
+            /** Auto Charge Enabled */
+            auto_charge_enabled?: boolean | null;
         };
         /**
          * ContactRequest
@@ -12561,6 +12680,10 @@ export interface components {
              * @default false
              */
             store_credit_enabled: boolean;
+            /** Fx Rates */
+            fx_rates?: {
+                [key: string]: number;
+            };
         };
         /**
          * StoreConfigUpdate
@@ -12624,6 +12747,10 @@ export interface components {
             gift_cards_enabled?: boolean | null;
             /** Store Credit Enabled */
             store_credit_enabled?: boolean | null;
+            /** Fx Rates */
+            fx_rates?: {
+                [key: string]: number;
+            } | null;
         };
         /**
          * StoreCreditAccountResponse
@@ -22207,6 +22334,79 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CompanyCreditResponse"];
+                };
+            };
+        };
+    };
+    create_auto_charge_setup_intent_api_v1_companies_me_auto_charge_setup_intent_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoChargeSetupIntentResponse"];
+                };
+            };
+        };
+    };
+    confirm_auto_charge_card_api_v1_companies_me_auto_charge_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutoChargeConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoChargeStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_auto_charge_card_api_v1_companies_me_auto_charge_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoChargeStatusResponse"];
                 };
             };
         };

@@ -85,7 +85,7 @@
       "available": "Dostępny limit kredytowy: {amount}",
       "errors": {
         "creditLimit": "To zamówienie przekroczyłoby limit kredytowy Twojej firmy. Ureguluj zaległe faktury lub wybierz inną metodę płatności.",
-        "currency": "Płatność z odroczonym terminem jest dostępna tylko w walucie rozliczeniowej Twojej firmy. Zmień walutę lub wybierz inną metodę płatności.",
+        "currency": "W tej walucie nie możemy teraz zaoferować płatności z odroczonym terminem. Przełącz na walutę rozliczeniową firmy lub wybierz inną metodę płatności.",
         "unavailable": "Płatność z odroczonym terminem nie jest dostępna dla Twojego konta."
       }
     },

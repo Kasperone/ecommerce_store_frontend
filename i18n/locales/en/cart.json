@@ -85,7 +85,7 @@
       "available": "Available credit: {amount}",
       "errors": {
         "creditLimit": "This order would exceed your company's credit limit. Pay down outstanding invoices or choose another payment method.",
-        "currency": "Pay on account is only available in your company's billing currency. Switch currency or choose another payment method.",
+        "currency": "We can't offer pay on account in this currency right now. Switch to your company's billing currency or choose another payment method.",
         "unavailable": "Pay on account isn't available for your account."
       }
     },

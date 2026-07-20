@@ -47,6 +47,10 @@ interface FormState {
   abandoned_cart_threshold_hours: number | undefined
   gift_cards_enabled: boolean
   store_credit_enabled: boolean
+  // Admin-configured FX rates for B2B cross-currency net-terms credit, keyed by
+  // ISO-4217 code. Each value = worth of 1 unit of that currency in a common
+  // pivot (e.g. vs USD: USD=1, EUR=1.08, PLN=0.25). undefined = not convertible.
+  fx_rates: Record<string, number | undefined>
 }
 
 const state = reactive<FormState>({
@@ -77,6 +81,9 @@ const state = reactive<FormState>({
   abandoned_cart_threshold_hours: undefined,
   gift_cards_enabled: false,
   store_credit_enabled: false,
+  fx_rates: Object.fromEntries(
+    CURRENCIES.map(c => [c.code, undefined]),
+  ) as Record<string, number | undefined>,
 })
 
 watch(
@@ -110,6 +117,9 @@ watch(
     state.abandoned_cart_threshold_hours = config.abandoned_cart_threshold_hours
     state.gift_cards_enabled = config.gift_cards_enabled ?? false
     state.store_credit_enabled = config.store_credit_enabled ?? false
+    for (const { code } of CURRENCIES) {
+      state.fx_rates[code] = config.fx_rates?.[code] ?? undefined
+    }
   },
   // immediate so a config already resolved at mount prefills the fields.
   { immediate: true },
@@ -198,11 +208,21 @@ function validate(values: FormState): FormError[] {
     returns_window_days: values.returns_window_days ?? null,
     low_stock_default_threshold: values.low_stock_default_threshold ?? null,
   })
-  if (result.success) return []
-  return result.error.issues.map(issue => ({
-    name: String(issue.path[0] ?? ''),
-    message: issue.message,
-  }))
+  const errors = result.success
+    ? []
+    : result.error.issues.map(issue => ({
+        name: String(issue.path[0] ?? ''),
+        message: issue.message,
+      }))
+  // FX rates live outside the flat zod schema (a per-currency map). Each entered
+  // rate must be positive; blank means "not convertible" and is allowed.
+  for (const { code } of CURRENCIES) {
+    const v = values.fx_rates[code]
+    if (v != null && v <= 0) {
+      errors.push({ name: `fx_rate_${code}`, message: t('admin.settings.errors.fxRate') })
+    }
+  }
+  return errors
 }
 
 function onSubmit(_event: FormSubmitEvent<FormState>) {
@@ -235,6 +255,14 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
     abandoned_cart_threshold_hours: state.abandoned_cart_threshold_hours ?? undefined,
     gift_cards_enabled: state.gift_cards_enabled,
     store_credit_enabled: state.store_credit_enabled,
+    // Assemble the sparse FX map: only positive entries are sent. An empty map
+    // ({}) turns cross-currency net-terms credit off (every currency becomes
+    // incomparable), matching the backend's "missing rate → reject" contract.
+    fx_rates: CURRENCIES.reduce<Record<string, number>>((acc, { code }) => {
+      const v = state.fx_rates[code]
+      if (v != null && v > 0) acc[code] = v
+      return acc
+    }, {}),
   }
   emit('submit', patch)
 }
@@ -724,6 +752,37 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
           data-testid="settings-store-credit-enabled"
         />
       </UFormField>
+    </section>
+
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold">
+          {{ t('admin.settings.sections.fxRates') }}
+        </h2>
+        <p class="text-xs text-muted mt-1">
+          {{ t('admin.settings.hints.fxRates') }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <UFormField
+          v-for="c in CURRENCIES"
+          :key="c.code"
+          :label="t('admin.settings.fields.fxRate', { currency: c.code })"
+          :name="`fx_rate_${c.code}`"
+        >
+          <UInputNumber
+            v-model="state.fx_rates[c.code]"
+            :min="0"
+            :step="0.01"
+            :format-options="{ minimumFractionDigits: 0, maximumFractionDigits: 6 }"
+            :disabled="loading"
+            :placeholder="t('admin.settings.fields.fxRatePlaceholder')"
+            class="w-full"
+            :data-testid="`settings-fx-rate-${c.code}`"
+          />
+        </UFormField>
+      </div>
     </section>
 
     <div class="flex justify-end gap-2 pt-4 border-t border-default">

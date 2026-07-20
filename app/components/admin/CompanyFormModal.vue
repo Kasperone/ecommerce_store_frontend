@@ -124,6 +124,10 @@ const netTermsEnabled = ref(false)
 const paymentTermId = ref<number | null>(null)
 const allowedRoles = ref<string[]>([...DEFAULT_ROLES])
 const creditLimit = ref<number | null>(null)
+// Opt this company into auto-charge (tail Program C): when on, a COMPANY_ADMIN can
+// vault a card in the portal and the cron off-session-charges due net-terms orders.
+// Manual bank transfer stays the default (off). Only meaningful with net terms on.
+const autoChargeEnabled = ref(false)
 // The company's billing currency — the credit limit is denominated in it, and
 // pay-on-account is only allowed when the checkout currency matches. Required
 // whenever net terms is enabled (defaults to USD for a new company).
@@ -178,6 +182,7 @@ watch(
     allowedRoles.value = c?.net_terms_allowed_roles ?? [...DEFAULT_ROLES]
     creditLimit.value = c?.credit_limit ?? null
     billingCurrency.value = c?.default_currency ?? 'USD'
+    autoChargeEnabled.value = c?.auto_charge_enabled ?? false
     contactSearch.value = ''
   },
   // immediate so an already-open mount (and re-opens) prefill from the company prop.
@@ -213,6 +218,9 @@ function buildCreateBody(): CompanyCreate {
     // The billing currency the credit limit is denominated in. Only sent when
     // net terms is enabled, so a non-net-terms company's currency is untouched.
     ...(netTermsEnabled.value ? { default_currency: billingCurrency.value } : {}),
+    // Opt-in auto-charge. Force off when net terms is disabled — auto-charging a
+    // company that can't pay on account is meaningless.
+    auto_charge_enabled: netTermsEnabled.value && autoChargeEnabled.value,
   }
 }
 
@@ -460,6 +468,17 @@ async function onSubmit() {
               data-testid="company-allowed-roles"
             />
           </UFormField>
+
+          <div v-if="netTermsEnabled">
+            <UCheckbox
+              v-model="autoChargeEnabled"
+              :label="t('admin.companies.netTerms.autoCharge')"
+              data-testid="company-auto-charge-enabled"
+            />
+            <p class="mt-1 text-xs text-muted">
+              {{ t('admin.companies.netTerms.autoChargeHint') }}
+            </p>
+          </div>
 
           <p
             v-if="isEdit && netTermsEnabled && companyCredit"
