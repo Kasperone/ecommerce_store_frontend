@@ -593,6 +593,29 @@ export class ApiClient {
     return await res.json() as { net_terms_paid_at: string | null }
   }
 
+  /**
+   * The caller's B2B net-terms credit summary (`GET /companies/me/credit`).
+   * `outstanding` / `available` are reported in the company's billing
+   * `currency` — cross-currency AR is converted via admin FX rates (tail
+   * Program D), which the cross-currency money-path spec asserts on.
+   */
+  async getMyCompanyCredit(accessToken: string): Promise<{
+    net_terms_enabled: boolean
+    currency: string | null
+    credit_limit: number | null
+    outstanding: number
+    available: number | null
+    payment_term: { name: string } | null
+  }> {
+    const res = await this.http.get('/api/v1/companies/me/credit', {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`getMyCompanyCredit failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
   async deleteCompany(accessToken: string, companyId: number): Promise<void> {
     const res = await this.http.delete(`/api/v1/admin/companies/${companyId}`, {
       headers: { authorization: `Bearer ${accessToken}` },
