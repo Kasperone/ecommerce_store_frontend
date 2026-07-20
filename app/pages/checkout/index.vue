@@ -108,16 +108,13 @@ watch(payOnAccount, (on) => {
 watch(payOnDelivery, (on) => {
   if (on) payOnAccount.value = false
 })
-// The remaining credit is measured in the company's billing currency; a
-// checkout in a different currency can't use net terms (the backend 409s
-// net_terms_currency_mismatch). Surface it as an eligibility gate so the option
-// only shows when it can actually succeed.
-const netTermsCurrencyOk = computed(
-  () =>
-    companyCredit.value?.credit_limit == null
-    || companyCredit.value?.currency === currency.value,
-)
-const showNetTerms = computed(() => netTermsEligible.value && netTermsCurrencyOk.value)
+// The remaining credit is denominated in the company's billing currency, but a
+// member may check out in another currency: the backend converts the order into
+// the billing currency via admin-configured FX rates (store_config.fx_rates).
+// So we no longer hard-gate on a currency match — the option shows whenever the
+// member is eligible, and a missing FX rate surfaces as net_terms_currency_mismatch
+// in netTermsError below rather than silently hiding the option.
+const showNetTerms = computed(() => netTermsEligible.value)
 
 // Map the backend's net-terms machine codes (409) to a friendly message shown
 // inside the pay-on-account card, so an over-limit / currency / eligibility
@@ -484,11 +481,13 @@ async function placeOrder(shipping: ShippingInput) {
             >
               <UCheckbox
                 v-model="payOnAccount"
-                :label="t('checkout.netTerms.toggle', { days: companyCredit?.net_terms_days })"
+                :label="t('checkout.netTerms.toggle', { term: companyCredit?.payment_term?.name })"
                 data-testid="net-terms-toggle"
               />
               <p class="mt-1 text-xs text-muted">
-                {{ t('checkout.netTerms.hint', { days: companyCredit?.net_terms_days }) }}
+                {{ t('checkout.netTerms.hint', {
+                  due: describeTermDue(companyCredit?.payment_term, t, locale),
+                }) }}
               </p>
               <p
                 v-if="companyCredit?.available != null"

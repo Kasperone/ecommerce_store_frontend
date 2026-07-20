@@ -27,7 +27,7 @@ definePageMeta({
   middleware: 'user',
 })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
 
 useHead({
@@ -40,7 +40,7 @@ const { mutateAsync: updateProfile } = useUpdateCompanyProfile()
 // B2B net-terms credit summary (Program 2). Surfaced as a read-only card when
 // the company has pay-on-account enabled, so a buyer can see their term, credit
 // limit, outstanding balance and remaining credit alongside the profile.
-const { credit: netTermsCredit, netTermsEligible } = useCompanyCredit()
+const { credit: netTermsCredit, netTermsEligible, refetch: refetchCredit } = useCompanyCredit()
 
 const isAdmin = computed(() => company.value?.role === 'COMPANY_ADMIN')
 // "Not a B2B member" resolves two ways: the endpoint returns 200 + a null body
@@ -179,8 +179,15 @@ async function onSubmit(values: CompanyProfileInput) {
                 <dt class="text-gray-500 dark:text-gray-400">
                   {{ t('account.settings.company.netTerms.term') }}
                 </dt>
-                <dd class="font-medium">
-                  {{ t('account.settings.company.netTerms.netN', { days: netTermsCredit.net_terms_days }) }}
+                <dd
+                  class="font-medium"
+                  data-testid="company-net-terms-term"
+                >
+                  {{ netTermsCredit.payment_term?.name }}
+                  <span
+                    v-if="netTermsCredit.payment_term"
+                    class="text-gray-500 dark:text-gray-400"
+                  >· {{ describeTermDue(netTermsCredit.payment_term, t, locale) }}</span>
                 </dd>
               </div>
               <div v-if="netTermsCredit.credit_limit != null">
@@ -208,6 +215,18 @@ async function onSubmit(values: CompanyProfileInput) {
                 </dd>
               </div>
             </dl>
+
+            <!-- Auto-charge card vaulting: only when the admin has opted this
+                 company in, and only COMPANY_ADMIN may manage the card. -->
+            <div
+              v-if="netTermsCredit.auto_charge_enabled && isAdmin"
+              class="mt-4 border-t border-gray-100 pt-4 dark:border-gray-800"
+            >
+              <AccountAutoChargeCardSetup
+                :card-set="netTermsCredit.auto_charge_card_set"
+                @changed="refetchCredit"
+              />
+            </div>
           </UCard>
 
           <UCard>

@@ -107,7 +107,8 @@
         "settings": "Settings",
         "staff": "Staff & Roles",
         "segments": "Segments",
-        "translations": "Translations"
+        "translations": "Translations",
+        "paymentTerms": "Payment terms (B2B)"
       }
     },
     "pages": {
@@ -396,7 +397,8 @@
         "returns": "Returns",
         "inventory": "Inventory",
         "abandonedCart": "Abandoned cart recovery",
-        "giftCards": "Gift cards & store credit"
+        "giftCards": "Gift cards & store credit",
+        "fxRates": "Currency exchange rates"
       },
       "fields": {
         "storeName": "Store name",
@@ -426,7 +428,9 @@
         "abandonedCartEnabled": "Send recovery emails",
         "abandonedCartThresholdHours": "Abandonment threshold (hours)",
         "giftCardsEnabled": "Enable gift cards",
-        "storeCreditEnabled": "Enable store credit"
+        "storeCreditEnabled": "Enable store credit",
+        "fxRate": "Value of 1 {currency}",
+        "fxRatePlaceholder": "Not convertible"
       },
       "hints": {
         "email": "Shown on invoices and used as the sender for store emails.",
@@ -450,7 +454,8 @@
         "abandonedCartThresholdHours": "How many hours a cart must sit unchanged before it counts as abandoned (1–720).",
         "giftCards": "Both ship disabled — turn them on when checkout should accept them.",
         "giftCardsEnabled": "When on, customers can redeem gift-card codes at checkout.",
-        "storeCreditEnabled": "When on, signed-in customers can pay with their store-credit balance at checkout."
+        "storeCreditEnabled": "When on, signed-in customers can pay with their store-credit balance at checkout.",
+        "fxRates": "Used only for B2B pay-on-account credit when a company buys in a currency other than its billing currency. Enter each rate as the value of one unit against a shared reference (e.g. USD=1, EUR=1.08, PLN=0.25). Leave a currency blank to disallow pay-on-account in it."
       },
       "actions": {
         "save": "Save changes"
@@ -462,7 +467,8 @@
         "vatRange": "VAT rate must be between 0 and 100.",
         "returnsWindow": "Returns window must be a whole number of days (0 or more).",
         "lowStockThreshold": "Threshold must be a whole number of units (0 or more).",
-        "abandonedCartThreshold": "Threshold must be a whole number of hours between 1 and 720."
+        "abandonedCartThreshold": "Threshold must be a whole number of hours between 1 and 720.",
+        "fxRate": "Rate must be greater than zero."
       },
       "flashes": {
         "saved": "Settings saved."
@@ -749,15 +755,27 @@
       "netTerms": {
         "enable": "Allow pay on account (net terms)",
         "enableHint": "Active members can place orders on account — invoiced at checkout, paid later by bank transfer.",
-        "days": "Payment term",
-        "netN": "Net {days} days",
         "currency": "Billing currency",
         "currencyHint": "The credit limit is set in this currency; on-account checkout must match it.",
         "creditLimit": "Credit limit",
         "creditLimitHint": "In the company's billing currency. Leave blank for unlimited credit.",
         "creditLimitUnlimited": "Unlimited",
         "outstanding": "Outstanding: {outstanding} {currency}",
-        "available": "Available: {available} {currency}"
+        "available": "Available: {available} {currency}",
+        "term": "Payment term",
+        "termHint": "The named term that sets each on-account invoice's due date.",
+        "termNone": "— None —",
+        "termInactive": "{name} (inactive)",
+        "allowedRoles": "Roles allowed to pay on account",
+        "allowedRolesHint": "Only members with these roles see the pay-on-account option.",
+        "autoCharge": "Auto-charge on the due date",
+        "autoChargeHint": "When on, the company can save a card in its portal and net-terms invoices are charged automatically on the due date. Manual bank transfer stays available.",
+        "roles": {
+          "COMPANY_ADMIN": "Company admin",
+          "APPROVER": "Approver",
+          "BUYER": "Buyer",
+          "VIEWER": "Viewer"
+        }
       }
     },
     "priceLists": {
@@ -2798,6 +2816,57 @@
       "filterOutdated": "Needs review",
       "needsReview": "Needs review",
       "sourceChanged": "Source changed"
+    },
+    "paymentTerms": {
+      "title": "Payment terms",
+      "subtitle": "Named net-terms templates (Net N, due on receipt, fixed date) you can assign to B2B companies.",
+      "empty": "No payment terms yet. Create one to offer pay-on-account with a due date.",
+      "actions": {
+        "create": "New term",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "fields": {
+        "name": "Name",
+        "type": "Type",
+        "due": "Due",
+        "status": "Status"
+      },
+      "types": {
+        "net_days": "Net days",
+        "due_on_receipt": "Due on receipt",
+        "fixed_date": "Fixed date"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "confirmDelete": "Delete payment term \"{name}\"? Companies using it will fall back to no net terms.",
+      "flashes": {
+        "created": "Payment term created",
+        "updated": "Payment term updated",
+        "deleted": "Payment term deleted",
+        "deleteError": "Couldn't delete the payment term"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "netDaysRequired": "Enter the number of days",
+        "dueDateRequired": "Pick a due date"
+      },
+      "form": {
+        "createTitle": "New payment term",
+        "editTitle": "Edit payment term",
+        "save": "Save",
+        "cancel": "Cancel",
+        "name": "Name",
+        "type": "Term type",
+        "netDays": "Days until due",
+        "netDaysHint": "Invoice is due this many days after the order (Net N).",
+        "dueDate": "Due date",
+        "active": "Active",
+        "activeHint": "Inactive terms can't be chosen at checkout.",
+        "notes": "Notes"
+      }
     }
   },
   "account": {
@@ -3125,6 +3194,21 @@
           "creditLimit": "Credit limit",
           "outstanding": "Outstanding balance",
           "available": "Available credit"
+        },
+        "autoCharge": {
+          "title": "Automatic payment",
+          "hint": "Save a card to have net-terms invoices charged automatically on their due date. You can remove it at any time.",
+          "cardOnFile": "Card on file",
+          "noCard": "No card saved",
+          "setUp": "Set up automatic payment",
+          "replace": "Replace card",
+          "remove": "Remove",
+          "save": "Save card",
+          "cancel": "Cancel",
+          "saved": "Card saved for automatic payment.",
+          "removed": "Automatic payment card removed.",
+          "error": "We couldn't save the card. Please try again.",
+          "stripeUnavailable": "Card payments aren't available right now."
         },
         "pendingTitle": "Company pending approval",
         "pendingBody": "Your company is awaiting approval. You can update its details in the meantime.",
@@ -3538,5 +3622,12 @@
     },
     "goHome": "Back to homepage",
     "browseProducts": "Browse products"
+  },
+  "paymentTerms": {
+    "due": {
+      "netDays": "within {days} days",
+      "onReceipt": "on receipt",
+      "fixedDate": "by {date}"
+    }
   }
 }

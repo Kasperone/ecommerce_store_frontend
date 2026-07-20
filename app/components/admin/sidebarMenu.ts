@@ -46,6 +46,7 @@ const GROUPS: MenuGroupConfig[] = [
       { key: 'customers', to: '/admin/customers', icon: 'i-lucide-users', cap: 'customers:write' },
       { key: 'companies', to: '/admin/companies', icon: 'i-lucide-building-2', cap: 'customers:write' },
       { key: 'priceLists', to: '/admin/price-lists', icon: 'i-lucide-tag', cap: 'customers:write' },
+      { key: 'paymentTerms', to: '/admin/payment-terms', icon: 'i-lucide-calendar-clock', cap: 'customers:write' },
       { key: 'quotes', to: '/admin/quotes', icon: 'i-lucide-file-text', cap: 'orders:write' },
     ],
   },

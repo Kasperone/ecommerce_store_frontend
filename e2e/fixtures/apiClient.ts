@@ -518,17 +518,41 @@ export class ApiClient {
    * contact. The membership fallback resolves them as COMPANY_ADMIN — no
    * explicit company_users row needed.
    */
+  /** Admin: create a Net-N payment term (net-terms tail Program A). Returns its id. */
+  async createNetDaysPaymentTerm(accessToken: string, days: number): Promise<{ id: number, name: string }> {
+    const name = `Net ${days}`
+    const res = await this.http.post('/api/v1/admin/payment-terms/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: { name, term_type: 'net_days', net_days: days },
+    })
+    if (!res.ok()) {
+      throw new Error(`createPaymentTerm failed: ${res.status()} ${await res.text()}`)
+    }
+    const term = await res.json() as { id: number }
+    return { id: term.id, name }
+  }
+
   async createCompanyWithPrimaryUser(
     accessToken: string,
     input: {
       name: string
       primaryUserId: number
-      // B2B net terms (Program 2): when set, the company allows pay-on-account
-      // with the given term length; `creditLimit` (in `defaultCurrency`) hard-
-      // blocks the option once outstanding + a new order would exceed it.
-      netTerms?: { days: number, creditLimit?: number, defaultCurrency?: string }
+      // B2B net terms: when set, the company allows pay-on-account. A named
+      // payment term (Program A) decides the due date; `creditLimit` (in
+      // `defaultCurrency`) hard-blocks the option over the limit. Pass either a
+      // pre-created `paymentTermId` or `days` (a Net-N term is created for you).
+      netTerms?: {
+        days?: number
+        paymentTermId?: number
+        creditLimit?: number
+        defaultCurrency?: string
+      }
     },
   ): Promise<{ id: number }> {
+    let paymentTermId = input.netTerms?.paymentTermId
+    if (input.netTerms && paymentTermId === undefined) {
+      paymentTermId = (await this.createNetDaysPaymentTerm(accessToken, input.netTerms.days ?? 30)).id
+    }
     const res = await this.http.post('/api/v1/admin/companies/', {
       headers: { authorization: `Bearer ${accessToken}` },
       data: {
@@ -538,7 +562,7 @@ export class ApiClient {
         ...(input.netTerms
           ? {
               net_terms_enabled: true,
-              net_terms_days: input.netTerms.days,
+              payment_term_id: paymentTermId,
               credit_limit: input.netTerms.creditLimit ?? null,
               default_currency: input.netTerms.defaultCurrency ?? 'USD',
             }
