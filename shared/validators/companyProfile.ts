@@ -29,6 +29,9 @@ const _optionalText = (max: number, tooLongKey: string, tooLongDef: string, t: T
 export const createCompanyProfileSchema = (t: TranslateFunction) =>
   z.object({
     tax_id: _optionalText(64, 'account.settings.company.errors.taxIdTooLong', 'Tax ID must be 64 characters or fewer', t),
+    // EU VAT-ID (country-prefixed). Lenient here — the backend normalises spaces
+    // and format-checks it (422 surfaced via the gold flow); empty clears it.
+    vat_id: _optionalText(20, 'account.settings.company.errors.vatIdTooLong', 'VAT ID must be 20 characters or fewer', t),
     regon: _optionalText(64, 'account.settings.company.errors.regonTooLong', 'REGON must be 64 characters or fewer', t),
     // Email: validate the format only when something is typed; empty clears it.
     email: z.union([

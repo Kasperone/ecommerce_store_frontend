@@ -3292,6 +3292,8 @@
         },
         "fields": {
           "taxId": "NIP",
+          "vatId": "VAT UE",
+          "vatIdHelp": "Numer VAT UE z prefiksem kraju (np. PL5252445724). Po weryfikacji umożliwia odwrotne obciążenie na wewnątrzunijnych zamówieniach B2B.",
           "regon": "REGON",
           "email": "E-mail do rozliczeń",
           "phone": "Telefon",
@@ -3304,8 +3306,23 @@
           "defaultCurrencyHint": "Trzyliterowy kod waluty, np. USD, EUR lub PLN.",
           "defaultCurrencyPlaceholder": "PLN"
         },
+        "vies": {
+          "title": "VAT UE i odwrotne obciążenie",
+          "subtitle": "Zweryfikowany numer VAT UE pozwala zastosować odwrotne obciążenie (VAT nie jest naliczany) w kwalifikujących się wewnątrzunijnych zamówieniach firmowych.",
+          "statusVerified": "Zweryfikowany",
+          "statusUnverified": "Niezweryfikowany",
+          "noVatId": "Dodaj numer VAT UE powyżej, aby umożliwić weryfikację.",
+          "confirmedName": "Nazwa w rejestrze",
+          "confirmedAt": "Zweryfikowano dnia",
+          "lastChecked": "Ostatnie sprawdzenie",
+          "verify": "Zweryfikuj w VIES",
+          "verified": "Numer VAT zweryfikowany w VIES.",
+          "notValid": "VIES nie rozpoznał tego numeru VAT.",
+          "verifyError": "Nie udało się teraz zweryfikować numeru VAT."
+        },
         "errors": {
           "taxIdTooLong": "NIP może mieć maksymalnie 64 znaki",
+          "vatIdTooLong": "VAT UE może mieć maksymalnie 20 znaków",
           "regonTooLong": "REGON może mieć maksymalnie 64 znaki",
           "emailInvalid": "Podaj prawidłowy adres e-mail",
           "emailTooLong": "E-mail może mieć maksymalnie 255 znaków",

@@ -300,6 +300,13 @@ useHead({
             >
               <span>{{ t('orders.detail.total') }}</span><span>{{ money(order.total) }}</span>
             </div>
+            <p
+              v-if="order.tax_treatment === 'reverse_charge'"
+              class="mt-2 text-xs text-muted"
+              data-testid="order-reverse-charge"
+            >
+              {{ t('orders.detail.reverseCharge') }}
+            </p>
             <template v-if="hasTenders">
               <div
                 v-if="(order.gift_card_amount ?? 0) > 0"

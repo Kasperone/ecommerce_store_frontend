@@ -81,3 +81,20 @@ describe('useUpdateCompanyProfile', () => {
     expect(result).toMatchObject({ regon: '123456789' })
   })
 })
+
+describe('useVerifyMyCompanyVies', () => {
+  it('POSTs /api/v1/companies/me/vies-check and returns the refreshed company', async () => {
+    const verified = { id: 7, name: 'Acme', role: 'COMPANY_ADMIN', vies_valid: true }
+    apiFetch.mockResolvedValue(verified)
+    const { useVerifyMyCompanyVies } = await import('./useCompany')
+
+    const m = (await runInComponent(() => useVerifyMyCompanyVies())) as any
+    const result = await m.mutateAsync()
+
+    expect(apiFetch).toHaveBeenCalledWith(
+      '/api/v1/companies/me/vies-check',
+      expect.objectContaining({ method: 'POST' }),
+    )
+    expect(result).toMatchObject({ vies_valid: true })
+  })
+})

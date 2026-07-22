@@ -3480,6 +3480,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/companies/{company_id}/vies-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check Company Vies
+         * @description Validate the company's EU VAT-ID against VIES and cache the result on the row.
+         *
+         *     An explicit admin action — never the checkout path (Phase-0 tax U3). 503 when
+         *     VIES is disabled (``VIES_ENABLED`` off); 422 when the company has no VAT-ID;
+         *     502 when VIES is temporarily unreachable (the attempt timestamp is still
+         *     recorded so the admin sees it was tried). Otherwise returns the company with
+         *     the refreshed ``vies_*`` status.
+         */
+        post: operations["check_company_vies_api_v1_admin_companies__company_id__vies_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/coupons/": {
         parameters: {
             query?: never;
@@ -5089,6 +5115,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/companies/me/vies-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check My Company Vies
+         * @description Validate the caller's company VAT-ID against VIES — **COMPANY_ADMIN only**.
+         *
+         *     The self-service counterpart to the admin ``/admin/companies/{id}/vies-check``
+         *     (Phase-0 tax U3): a company validates its own EU VAT-ID during onboarding, off
+         *     the checkout path. 503 when VIES is disabled; 422 when no VAT-ID is set; 502
+         *     when VIES is temporarily unreachable (the attempt is still recorded).
+         */
+        post: operations["check_my_company_vies_api_v1_companies_me_vies_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/companies/me/users": {
         parameters: {
             query?: never;
@@ -6535,6 +6586,8 @@ export interface components {
             name: string;
             /** Tax Id */
             tax_id?: string | null;
+            /** Vat Id */
+            vat_id?: string | null;
             /** Email */
             email?: string | null;
             /** Phone */
@@ -6663,6 +6716,8 @@ export interface components {
             name: string;
             /** Tax Id */
             tax_id?: string | null;
+            /** Vat Id */
+            vat_id?: string | null;
             /** Email */
             email?: string | null;
             /** Phone */
@@ -6714,6 +6769,17 @@ export interface components {
             /** Primary User Email */
             primary_user_email?: string | null;
             payment_term?: components["schemas"]["PaymentTermResponse"] | null;
+            /**
+             * Vies Valid
+             * @default false
+             */
+            vies_valid: boolean;
+            /** Vies Confirmed At */
+            vies_confirmed_at?: string | null;
+            /** Vies Confirmed Name */
+            vies_confirmed_name?: string | null;
+            /** Vies Last Checked At */
+            vies_last_checked_at?: string | null;
             /**
              * Role
              * @enum {string}
@@ -6815,6 +6881,8 @@ export interface components {
         CompanyProfileUpdate: {
             /** Tax Id */
             tax_id?: string | null;
+            /** Vat Id */
+            vat_id?: string | null;
             /** Regon */
             regon?: string | null;
             /** Email */
@@ -6862,6 +6930,8 @@ export interface components {
             name: string;
             /** Tax Id */
             tax_id?: string | null;
+            /** Vat Id */
+            vat_id?: string | null;
             /** Email */
             email?: string | null;
             /** Phone */
@@ -6913,6 +6983,17 @@ export interface components {
             /** Primary User Email */
             primary_user_email?: string | null;
             payment_term?: components["schemas"]["PaymentTermResponse"] | null;
+            /**
+             * Vies Valid
+             * @default false
+             */
+            vies_valid: boolean;
+            /** Vies Confirmed At */
+            vies_confirmed_at?: string | null;
+            /** Vies Confirmed Name */
+            vies_confirmed_name?: string | null;
+            /** Vies Last Checked At */
+            vies_last_checked_at?: string | null;
         };
         /**
          * CompanyUpdate
@@ -6926,6 +7007,8 @@ export interface components {
             name?: string | null;
             /** Tax Id */
             tax_id?: string | null;
+            /** Vat Id */
+            vat_id?: string | null;
             /** Email */
             email?: string | null;
             /** Phone */
@@ -9066,6 +9149,13 @@ export interface components {
             payment_method: string | null;
             /** Payment Intent Id */
             payment_intent_id: string | null;
+            /**
+             * Tax Treatment
+             * @default domestic
+             */
+            tax_treatment: string;
+            /** Buyer Vat Id */
+            buyer_vat_id?: string | null;
             /** Company Id */
             company_id?: number | null;
             /** Payment Due At */
@@ -9267,6 +9357,13 @@ export interface components {
             payment_method: string | null;
             /** Payment Intent Id */
             payment_intent_id: string | null;
+            /**
+             * Tax Treatment
+             * @default domestic
+             */
+            tax_treatment: string;
+            /** Buyer Vat Id */
+            buyer_vat_id?: string | null;
             /** Company Id */
             company_id?: number | null;
             /** Payment Due At */
@@ -19745,6 +19842,37 @@ export interface operations {
             };
         };
     };
+    check_company_vies_api_v1_admin_companies__company_id__vies_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                company_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_coupons_api_v1_admin_coupons__get: {
         parameters: {
             query?: {
@@ -22892,6 +23020,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AutoChargeStatusResponse"];
+                };
+            };
+        };
+    };
+    check_my_company_vies_api_v1_companies_me_vies_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyMeResponse"];
                 };
             };
         };

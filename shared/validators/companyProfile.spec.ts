@@ -68,6 +68,15 @@ describe('createCompanyProfileSchema', () => {
     expect(schema.safeParse({ tax_id: 'x'.repeat(65) }).success).toBe(false)
   })
 
+  it('accepts an EU VAT id (backend format-checks) and an empty one (clears it)', () => {
+    expect(schema.safeParse({ vat_id: 'DE811907980' }).success).toBe(true)
+    expect(schema.safeParse({ vat_id: '' }).success).toBe(true)
+  })
+
+  it('rejects a vat id over 20 characters', () => {
+    expect(schema.safeParse({ vat_id: 'X'.repeat(21) }).success).toBe(false)
+  })
+
   it('rejects a phone with letters', () => {
     expect(schema.safeParse({ phone: 'call-me' }).success).toBe(false)
   })
