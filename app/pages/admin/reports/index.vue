@@ -64,6 +64,8 @@ const { data: sales, error: salesError } = useSalesReport(salesParams)
 const { data: topProducts, error: topError } = useTopProductsReport(topProductsParams)
 const { data: byCategory, error: categoryError } = useCategoryRevenueReport(rangeParams)
 const { data: refunds, error: refundError } = useRefundSummaryReport(rangeParams)
+// EU distance-selling threshold — a calendar-year compliance figure, not range-filtered.
+const { data: euThreshold } = useEuDistanceSellingStatus()
 
 // Surface the first error across the four aggregates (a 403 hits them all).
 const firstError = computed(
@@ -161,6 +163,11 @@ function onGranularityChange(value: Granularity) {
         <AdminReportRefundSummary
           :refund-count="refunds?.refund_count ?? 0"
           :rows="refunds?.rows ?? []"
+        />
+
+        <AdminReportEuThreshold
+          v-if="euThreshold"
+          :status="euThreshold"
         />
       </template>
     </div>

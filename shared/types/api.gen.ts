@@ -2473,6 +2473,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/eu-distance-selling": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Eu Distance Selling Status
+         * @description EU distance-selling €10 000 threshold status for the year + preceding year.
+         *
+         *     Sums cross-border B2C net-of-VAT sales (EU destinations ≠ the home country) in
+         *     EUR and returns a Shopify-style tiered status so the OSS crossing is detected
+         *     on data, not discovered on an audit. Reverse-charge (B2B) and domestic sales
+         *     are excluded; see ``app/services/tax_threshold.py``.
+         */
+        get: operations["get_eu_distance_selling_status_api_v1_admin_reports_eu_distance_selling_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports/sales.csv": {
         parameters: {
             query?: never;
@@ -7666,6 +7691,7 @@ export interface components {
             low_stock_count: number;
             /** Low Stock */
             low_stock: components["schemas"]["LowStockItem"][];
+            eu_tax_liability: components["schemas"]["EuTaxLiability"];
         };
         /**
          * DataExportResponse
@@ -7988,6 +8014,77 @@ export interface components {
         EmailVerification: {
             /** Token */
             token: string;
+        };
+        /**
+         * EuDistanceSellingStatus
+         * @description EU distance-selling threshold status across the current + preceding year.
+         *
+         *     ``liable`` is true when the threshold is met in either year (the EU rule);
+         *     ``effective_status`` is the worse of the two, i.e. what a proactive nudge
+         *     should reflect.
+         */
+        EuDistanceSellingStatus: {
+            /** Threshold Eur */
+            threshold_eur: number;
+            current: components["schemas"]["EuThresholdYear"];
+            prior: components["schemas"]["EuThresholdYear"];
+            /** Liable */
+            liable: boolean;
+            /**
+             * Effective Status
+             * @enum {string}
+             */
+            effective_status: "not_approaching" | "approaching" | "threshold_met";
+        };
+        /**
+         * EuTaxLiability
+         * @description Compact EU distance-selling threshold status for the dashboard nudge.
+         *
+         *     ``status`` is the worse of the current + preceding year (so a prior-year
+         *     crossing still shows); ``pct`` + ``year`` are the current year's. The frontend
+         *     surfaces the badge only when ``status`` is not ``not_approaching``. Full detail
+         *     lives at ``GET /api/v1/admin/reports/eu-distance-selling``.
+         */
+        EuTaxLiability: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "not_approaching" | "approaching" | "threshold_met";
+            /** Pct */
+            pct: number;
+            /** Year */
+            year: number;
+            /** Liable */
+            liable: boolean;
+        };
+        /**
+         * EuThresholdYear
+         * @description One calendar year's qualifying total against the €10 000 threshold.
+         *
+         *     ``total_eur`` is the sum of cross-border B2C net-of-VAT sales (EU destinations
+         *     other than the home country) converted to EUR; ``pct`` is that over the
+         *     threshold; ``remaining_eur`` is what is left before the crossing (0 once met).
+         *     ``status`` is the Shopify-style band (not_approaching / approaching /
+         *     threshold_met). ``unconvertible_count`` flags qualifying orders whose currency
+         *     had no configured EUR rate, so under-counting is visible, not silent.
+         */
+        EuThresholdYear: {
+            /** Year */
+            year: number;
+            /** Total Eur */
+            total_eur: number;
+            /** Pct */
+            pct: number;
+            /** Remaining Eur */
+            remaining_eur: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "not_approaching" | "approaching" | "threshold_met";
+            /** Unconvertible Count */
+            unconvertible_count: number;
         };
         /**
          * FacetBucket
@@ -17749,6 +17846,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RefundSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_eu_distance_selling_status_api_v1_admin_reports_eu_distance_selling_get: {
+        parameters: {
+            query?: {
+                /** @description Calendar year (defaults to the current year) */
+                year?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EuDistanceSellingStatus"];
                 };
             };
             /** @description Validation Error */

@@ -68,6 +68,13 @@
         "more": "+{count} more",
         "viewAll": "View inventory",
         "empty": "Everything is well stocked."
+      },
+      "euTax": {
+        "approachingTitle": "Approaching the EU distance-selling threshold",
+        "approachingBody": "Your {year} cross-border B2C sales to the EU are nearing the €10,000 One-Stop-Shop threshold. Past it, you must charge destination VAT.",
+        "metTitle": "EU distance-selling threshold reached",
+        "metBody": "Your {year} cross-border B2C sales to the EU have reached €10,000. Destination VAT via the One-Stop-Shop is likely owed — consider registering.",
+        "viewReport": "View report"
       }
     },
     "signedInAs": "Signed in as",
@@ -885,6 +892,20 @@
         "button": "Export CSV",
         "exporting": "Exporting…",
         "error": "Export failed"
+      },
+      "euThreshold": {
+        "title": "EU distance-selling threshold",
+        "subtitle": "Cross-border B2C sales to the EU · {year}",
+        "status": {
+          "not_approaching": "Below threshold",
+          "approaching": "Approaching",
+          "threshold_met": "Threshold reached"
+        },
+        "ofThreshold": "of {threshold}",
+        "remaining": "{amount} remaining before you may owe destination VAT (register for OSS).",
+        "metNote": "You have reached the €10,000 threshold — destination VAT via the One-Stop-Shop is likely owed. Consider registering.",
+        "priorYear": "Preceding year ({year})",
+        "unconvertible": "{count} order excluded — no EUR exchange rate configured for its currency. | {count} orders excluded — no EUR exchange rate configured for their currency."
       }
     },
     "auditLog": {

@@ -33,6 +33,9 @@ export type CategoryRevenueReport = components['schemas']['CategoryRevenueReport
 export type CategoryRevenueRow = components['schemas']['CategoryRevenueRow']
 export type RefundSummary = components['schemas']['RefundSummary']
 export type RefundSummaryRow = components['schemas']['RefundSummaryRow']
+export type EuDistanceSellingStatus = components['schemas']['EuDistanceSellingStatus']
+export type EuThresholdYear = components['schemas']['EuThresholdYear']
+export type EuTaxStatus = EuThresholdYear['status']
 
 const REPORTS_NAMESPACE = ['reports'] as const
 
@@ -104,6 +107,25 @@ export function useCategoryRevenueReport(params: MaybeRefOrGetter<RangeParams> =
     },
     enabled: () => import.meta.client,
     // Heavy read-only aggregates; identical filter re-runs within 5min reuse the cache.
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+/**
+ * `GET /reports/eu-distance-selling` — EU One-Stop-Shop €10k threshold status for
+ * the given year (default current) + the preceding year. Not range-filtered: it's
+ * a calendar-year compliance figure, not a windowed aggregate.
+ */
+export function useEuDistanceSellingStatus(year?: MaybeRefOrGetter<number | undefined>) {
+  const { apiFetch } = useApi()
+  return useQuery({
+    key: () => [...REPORTS_NAMESPACE, 'eu-distance-selling', toValue(year) ?? 'current'],
+    query: () =>
+      apiFetch<EuDistanceSellingStatus>('/api/v1/admin/reports/eu-distance-selling', {
+        query: { year: toValue(year) },
+      }),
+    enabled: () => import.meta.client,
+    // Threshold moves only as orders land; 5min matches the other report caches.
     staleTime: 1000 * 60 * 5,
   })
 }
