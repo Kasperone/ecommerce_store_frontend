@@ -4,6 +4,7 @@ import type { FormError, FormSubmitEvent } from '@nuxt/ui'
 import type {
   CategoryResponse,
   ProductWithCategory,
+  TaxCategoryResponse,
 } from '#shared/types/api'
 import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 import {
@@ -34,7 +35,8 @@ export interface ProductFormPayload {
   price_usd: number | null
   price_pln: number | null
   price_eur: number | null
-  vat_rate: number
+  // Tax category (the *kind* of goods); null → backend applies the store default.
+  tax_category_id: number | null
   stock: number
   weight_kg: number | null
   // Physical dimensions in cm; nullable so legacy products and admins
@@ -57,6 +59,8 @@ const props = defineProps<{
   /** Existing product to edit; omit for create mode. */
   product?: ProductWithCategory | null
   categories: CategoryResponse[]
+  /** Tax categories for the picker; each labelled with its home-country rate. */
+  taxCategories: TaxCategoryResponse[]
   loading?: boolean
   /** Raw caught submit error, surfaced via the gold-standard flow. */
   error?: unknown
@@ -68,7 +72,7 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
 const mode = computed<'create' | 'edit'>(() => (props.product ? 'edit' : 'create'))
 
@@ -91,7 +95,7 @@ interface FormState {
   price_usd: number | undefined
   price_pln: number | undefined
   price_eur: number | undefined
-  vat_rate: number
+  tax_category_id: number | undefined
   stock: number
   weight_kg: number | undefined
   length_cm: number | undefined
@@ -122,7 +126,7 @@ const state = reactive<FormState>({
   price_usd: undefined,
   price_pln: undefined,
   price_eur: undefined,
-  vat_rate: 23,
+  tax_category_id: undefined,
   stock: 0,
   weight_kg: undefined,
   length_cm: undefined,
@@ -188,7 +192,7 @@ watch(
       state.price_usd = product.price_usd ?? undefined
       state.price_pln = product.price_pln ?? undefined
       state.price_eur = product.price_eur ?? undefined
-      state.vat_rate = product.vat_rate ?? 23
+      state.tax_category_id = product.tax_category_id ?? undefined
       state.stock = product.stock
       state.weight_kg = product.weight_kg ?? undefined
       state.length_cm = product.length_cm ?? undefined
@@ -220,7 +224,7 @@ watch(
       state.price_usd = undefined
       state.price_pln = undefined
       state.price_eur = undefined
-      state.vat_rate = 23
+      state.tax_category_id = undefined
       state.stock = 0
       state.weight_kg = undefined
       state.length_cm = undefined
@@ -273,6 +277,7 @@ async function validate(values: FormState): Promise<FormError[]> {
     meta_title_pl: values.meta_title_pl.trim() || null,
     meta_description_pl: values.meta_description_pl.trim() || null,
     category_id: values.category_id ?? null,
+    tax_category_id: values.tax_category_id ?? null,
     price_usd: values.price_usd ?? null,
     price_pln: values.price_pln ?? null,
     price_eur: values.price_eur ?? null,
@@ -309,7 +314,7 @@ function buildPayload(): ProductFormPayload {
     price_usd: state.price_usd ?? null,
     price_pln: state.price_pln ?? null,
     price_eur: state.price_eur ?? null,
-    vat_rate: state.vat_rate,
+    tax_category_id: state.tax_category_id ?? null,
     stock: state.stock,
     weight_kg: state.weight_kg ?? null,
     length_cm: state.length_cm ?? null,
@@ -344,6 +349,37 @@ const categoryValue = computed({
   get: () => state.category_id ?? NO_CATEGORY,
   set: (v: number) => {
     state.category_id = v === NO_CATEGORY ? undefined : v
+  },
+})
+
+// Tax category picker. Every product must have one (the column is NOT NULL);
+// there is no "none" option. Each category is labelled with its in-force
+// home-country (PL) rate so the admin picks by meaning ("Reduced 8%"), not code.
+const TAX_HOME_COUNTRY = 'PL'
+
+function taxCategoryLabel(category: TaxCategoryResponse): string {
+  const homeRate = category.rates.find(
+    r => r.country_code === TAX_HOME_COUNTRY && r.valid_to == null,
+  )
+  const name = category.name_pl && locale.value === 'pl' ? category.name_pl : category.name
+  return homeRate ? `${name} (${Number(homeRate.rate_pct)}%)` : name
+}
+
+const defaultTaxCategoryId = computed(
+  () => props.taxCategories.find(c => c.is_default)?.id,
+)
+
+const taxCategoryItems = computed(() =>
+  props.taxCategories.map(c => ({ label: taxCategoryLabel(c), value: c.id })),
+)
+
+// Falls back to the store default so the field shows a sensible value before
+// the admin touches it; leaving it untouched sends null and the backend applies
+// that same default.
+const taxCategoryValue = computed({
+  get: () => state.tax_category_id ?? defaultTaxCategoryId.value,
+  set: (v: number | undefined) => {
+    state.tax_category_id = v
   },
 })
 
@@ -700,17 +736,17 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
       </div>
 
       <UFormField
-        :label="t('admin.products.fields.vatRate')"
-        name="vat_rate"
-        :help="t('admin.products.fields.vatRateHelp')"
+        :label="t('admin.products.fields.taxCategory')"
+        name="tax_category_id"
+        :help="t('admin.products.fields.taxCategoryHelp')"
       >
-        <UInputNumber
-          v-model="state.vat_rate"
-          :min="0"
-          :max="100"
-          :step="1"
+        <USelectMenu
+          v-model="taxCategoryValue"
+          :items="taxCategoryItems"
+          value-key="value"
+          searchable
           :disabled="loading"
-          class="w-full sm:w-48"
+          class="w-full sm:w-72"
         />
       </UFormField>
 

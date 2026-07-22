@@ -108,7 +108,8 @@
         "staff": "Personel i role",
         "segments": "Segmenty",
         "translations": "Tłumaczenia",
-        "paymentTerms": "Terminy płatności (B2B)"
+        "paymentTerms": "Terminy płatności (B2B)",
+        "tax": "Podatki"
       }
     },
     "pages": {
@@ -1333,8 +1334,8 @@
         "priceUsd": "USD",
         "pricePln": "PLN",
         "priceEur": "EUR",
-        "vatRate": "Stawka VAT (%)",
-        "vatRateHelp": "Polski VAT: 23 podstawowa, 8 / 5 / 0 dla towarów objętych stawką obniżoną.",
+        "taxCategory": "Kategoria podatkowa",
+        "taxCategoryHelp": "Rodzaj towaru dla celów podatkowych; stawka jest ustalana na jej podstawie dla danego kraju. Zostaw domyślną, chyba że obowiązuje stawka obniżona.",
         "stock": "Stan",
         "weightKg": "Waga (kg)",
         "lengthCm": "Długość (cm)",
@@ -2816,6 +2817,74 @@
       "filterOutdated": "Do przeglądu",
       "needsReview": "Do przeglądu",
       "sourceChanged": "Źródło zmienione"
+    },
+    "tax": {
+      "title": "Podatki",
+      "subtitle": "Kategorie podatkowe klasyfikują produkty; każda kategoria ma stawkę dla danego kraju i okno obowiązywania. Produkty są opodatkowane według kategorii, a stawka jest ustalana dla kraju docelowego przy zamówieniu.",
+      "empty": "Brak kategorii podatkowych.",
+      "confirmDeleteCategory": "Usunąć kategorię podatkową „{name}”? Produkty trzeba najpierw przeklasyfikować.",
+      "confirmDeleteRate": "Usunąć stawkę dla {country}?",
+      "actions": {
+        "createCategory": "Nowa kategoria",
+        "editCategory": "Edytuj kategorię",
+        "deleteCategory": "Usuń kategorię",
+        "createRate": "Dodaj stawkę",
+        "editRate": "Edytuj stawkę",
+        "deleteRate": "Usuń stawkę"
+      },
+      "form": {
+        "save": "Zapisz",
+        "cancel": "Anuluj"
+      },
+      "errors": {
+        "codeRequired": "Kod jest wymagany",
+        "nameRequired": "Nazwa jest wymagana",
+        "countryFormat": "Użyj 2-literowego kodu kraju (np. PL)",
+        "validFromRequired": "Data „ważne od” jest wymagana",
+        "windowOrder": "„Ważne do” musi być późniejsze niż „ważne od”"
+      },
+      "flashes": {
+        "categoryCreated": "Utworzono kategorię",
+        "categoryUpdated": "Zaktualizowano kategorię",
+        "categoryDeleted": "Usunięto kategorię",
+        "rateCreated": "Dodano stawkę",
+        "rateUpdated": "Zaktualizowano stawkę",
+        "rateDeleted": "Usunięto stawkę",
+        "deleteError": "Nie udało się usunąć"
+      },
+      "category": {
+        "sectionTitle": "Kategorie",
+        "createTitle": "Nowa kategoria podatkowa",
+        "editTitle": "Edytuj kategorię podatkową",
+        "defaultBadge": "Domyślna",
+        "viewingBadge": "Podgląd stawek",
+        "homeRate": "Stawka ({country})",
+        "codeHint": "Stały identyfikator (np. STANDARD, REDUCED_8). Nie można go później zmienić.",
+        "codeImmutable": "Kodu nie można zmienić po utworzeniu.",
+        "isDefaultHint": "Kategoria przypisywana produktom, które jej nie wybiorą. Dokładnie jedna kategoria jest domyślna.",
+        "fields": {
+          "code": "Kod",
+          "name": "Nazwa",
+          "namePl": "Nazwa (polski)",
+          "isDefault": "Kategoria domyślna"
+        }
+      },
+      "rate": {
+        "sectionTitle": "Stawki — {name}",
+        "createTitle": "Dodaj stawkę podatkową",
+        "editTitle": "Edytuj stawkę podatkową",
+        "help": "Okna są półotwarte: „ważne od” włącznie, „ważne do” wyłącznie. Zostaw „ważne do” puste dla stawki obowiązującej.",
+        "empty": "Brak stawek w tej kategorii. Kraj docelowy bez stawki zgłasza błąd przy zamówieniu, zamiast zaniżać podatek.",
+        "inForce": "Obowiązuje",
+        "countryHint": "ISO 3166-1 alpha-2 (np. PL, DE).",
+        "validToHint": "Puste = nadal obowiązuje.",
+        "fields": {
+          "country": "Kraj",
+          "ratePct": "Stawka (%)",
+          "validFrom": "Ważne od",
+          "validTo": "Ważne do"
+        }
+      }
     },
     "paymentTerms": {
       "title": "Terminy płatności",
