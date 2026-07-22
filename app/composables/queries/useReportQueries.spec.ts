@@ -124,3 +124,26 @@ describe('useRefundSummaryReport', () => {
     expect(options.query).toMatchObject({ start: '2026-05-01', end: '2026-05-31' })
   })
 })
+
+describe('useEuDistanceSellingStatus', () => {
+  it('fetches /reports/eu-distance-selling with no year by default', async () => {
+    apiFetch.mockResolvedValue({ threshold_eur: 10000 })
+    const { useEuDistanceSellingStatus } = await import('./useReportQueries')
+
+    await runInComponent(() => useEuDistanceSellingStatus())
+
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/admin/reports/eu-distance-selling')
+    expect(options.query).toMatchObject({ year: undefined })
+  })
+
+  it('forwards an explicit year', async () => {
+    apiFetch.mockResolvedValue({ threshold_eur: 10000 })
+    const { useEuDistanceSellingStatus } = await import('./useReportQueries')
+
+    await runInComponent(() => useEuDistanceSellingStatus(2024))
+
+    const [, options] = apiFetch.mock.calls[0]
+    expect(options.query).toMatchObject({ year: 2024 })
+  })
+})

@@ -175,6 +175,7 @@ export type AdminReviewListResponse = components['schemas']['AdminReviewListResp
 
 // Dashboard-related types
 export type DashboardKpis = components['schemas']['DashboardKpis']
+export type EuTaxLiability = components['schemas']['EuTaxLiability']
 export type SalesTrendPoint = components['schemas']['SalesTrendPoint']
 export type TopProductItem = components['schemas']['TopProductItem']
 export type LowStockItem = components['schemas']['LowStockItem']
