@@ -15,6 +15,28 @@ const baseCategories = [
   },
 ]
 
+const baseTaxCategories = [
+  {
+    id: 1,
+    code: 'STANDARD',
+    name: 'Standard',
+    name_pl: null,
+    is_default: true,
+    rates: [
+      {
+        id: 1,
+        tax_category_id: 1,
+        country_code: 'PL',
+        rate_pct: '23.00',
+        valid_from: '2011-01-01',
+        valid_to: null,
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+    ],
+  },
+]
+
 const baseProduct = {
   id: 7,
   name: 'Encyclopedia',
@@ -28,6 +50,7 @@ const baseProduct = {
   is_active: true,
   is_featured: false,
   category_id: 1,
+  tax_category_id: 1,
   in_stock: true,
   images: [],
   category: baseCategories[0],
@@ -38,7 +61,7 @@ const baseProduct = {
 describe('ProductForm', () => {
   it('renders the basics and pricing section headings', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     const html = wrapper.html()
     expect(html).toContain('Basics')
@@ -48,7 +71,7 @@ describe('ProductForm', () => {
 
   it('auto-slugifies the name on blur when the slug is untouched', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     const nameInput = wrapper.find('input[name="name"]').element as HTMLInputElement
     const slugInput = wrapper.find('input[name="slug"]').element as HTMLInputElement
@@ -61,7 +84,7 @@ describe('ProductForm', () => {
 
   it('does not overwrite a manually edited slug on subsequent name blur', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     const slugInput = wrapper.find('input[name="slug"]').element as HTMLInputElement
     slugInput.value = 'hand-typed-slug'
@@ -79,7 +102,7 @@ describe('ProductForm', () => {
 
   it('hydrates state from an existing product (name, slug, sku prefilled)', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories, product: baseProduct },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories, product: baseProduct },
     })
     expect((wrapper.find('input[name="name"]').element as HTMLInputElement).value).toBe('Encyclopedia')
     expect((wrapper.find('input[name="slug"]').element as HTMLInputElement).value).toBe('encyclopedia')
@@ -88,7 +111,7 @@ describe('ProductForm', () => {
 
   it('keeps the slug stable on subsequent name edits when editing an existing product', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories, product: baseProduct },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories, product: baseProduct },
     })
     const nameInput = wrapper.find('input[name="name"]').element as HTMLInputElement
     nameInput.value = 'Renamed product'
@@ -103,7 +126,7 @@ describe('ProductForm', () => {
 
   it('renders save and cancel buttons with the supplied submitLabel', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories, submitLabel: 'Save & continue' },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories, submitLabel: 'Save & continue' },
     })
     const labels = wrapper.findAll('button').map(b => b.text().trim())
     expect(labels.some(l => l.includes('Save & continue'))).toBe(true)
@@ -112,7 +135,7 @@ describe('ProductForm', () => {
 
   it('defaults the submit label to "Save" when none is supplied', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     const labels = wrapper.findAll('button').map(b => b.text().trim())
     expect(labels).toContain('Save')
@@ -120,7 +143,7 @@ describe('ProductForm', () => {
 
   it('renders the EN/PL locale tabs', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     const html = wrapper.html()
     expect(html).toContain('English')
@@ -130,7 +153,7 @@ describe('ProductForm', () => {
   it('hydrates the Polish fields from an existing product', async () => {
     const wrapper = await mountSuspended(ProductForm, {
       props: {
-        categories: baseCategories,
+        categories: baseCategories, taxCategories: baseTaxCategories,
         product: { ...baseProduct, name_pl: 'Encyklopedia', description_pl: 'Dzieło' },
       },
     })
@@ -142,7 +165,7 @@ describe('ProductForm', () => {
   it('emits the Polish fields in the submit payload', async () => {
     const wrapper = await mountSuspended(ProductForm, {
       props: {
-        categories: baseCategories,
+        categories: baseCategories, taxCategories: baseTaxCategories,
         product: { ...baseProduct, name_pl: 'Encyklopedia', description_pl: 'Dzieło' },
       },
     })
@@ -159,7 +182,7 @@ describe('ProductForm', () => {
   it('hydrates and emits the merchant + SEO meta fields (SEO blueprint D11)', async () => {
     const wrapper = await mountSuspended(ProductForm, {
       props: {
-        categories: baseCategories,
+        categories: baseCategories, taxCategories: baseTaxCategories,
         product: {
           ...baseProduct,
           brand: 'Acme',
@@ -187,7 +210,7 @@ describe('ProductForm', () => {
 
   it('defaults merchant fields to null + condition "new" in the create payload', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories, product: baseProduct },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories, product: baseProduct },
     })
     await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
@@ -202,7 +225,7 @@ describe('ProductForm', () => {
 
   it('renders three currency input fields (USD, PLN, EUR)', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     const html = wrapper.html()
     expect(html).toContain('USD')
@@ -212,7 +235,7 @@ describe('ProductForm', () => {
 
   it('does not surface validation errors before the first submit', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     const nameInput = wrapper.find('input[name="name"]').element as HTMLInputElement
     nameInput.value = ''
@@ -227,7 +250,7 @@ describe('ProductForm', () => {
 
   it('surfaces both name-required and at-least-one-currency errors only on submit', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     await wrapper.find('form').trigger('submit')
     await new Promise(r => setTimeout(r, 0))
@@ -240,7 +263,7 @@ describe('ProductForm', () => {
 
   it('renders length / width / height inputs in the inventory section', async () => {
     const wrapper = await mountSuspended(ProductForm, {
-      props: { categories: baseCategories },
+      props: { categories: baseCategories, taxCategories: baseTaxCategories },
     })
     const html = wrapper.html()
     expect(html).toContain('Length (cm)')
@@ -251,7 +274,7 @@ describe('ProductForm', () => {
   it('hydrates dimensions from an existing product', async () => {
     const wrapper = await mountSuspended(ProductForm, {
       props: {
-        categories: baseCategories,
+        categories: baseCategories, taxCategories: baseTaxCategories,
         product: { ...baseProduct, length_cm: 60, width_cm: 60, height_cm: 30 },
       },
     })
@@ -264,7 +287,7 @@ describe('ProductForm', () => {
   it('emits null for unset dimensions on submit (legacy product path)', async () => {
     const wrapper = await mountSuspended(ProductForm, {
       props: {
-        categories: baseCategories,
+        categories: baseCategories, taxCategories: baseTaxCategories,
         product: { ...baseProduct }, // no dims set
       },
     })
@@ -282,7 +305,7 @@ describe('ProductForm', () => {
   it('emits set dimensions on submit', async () => {
     const wrapper = await mountSuspended(ProductForm, {
       props: {
-        categories: baseCategories,
+        categories: baseCategories, taxCategories: baseTaxCategories,
         product: { ...baseProduct, length_cm: 60, width_cm: 60, height_cm: 30 },
       },
     })

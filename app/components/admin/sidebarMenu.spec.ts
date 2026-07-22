@@ -13,9 +13,9 @@ describe('adminMenuGroups (constant)', () => {
     ])
   })
 
-  it('exposes 27 routes total across all groups', () => {
+  it('exposes 28 routes total across all groups', () => {
     const items = adminMenuGroups.flatMap(g => g.items)
-    expect(items).toHaveLength(27)
+    expect(items).toHaveLength(28)
   })
 
   it('includes the gift-cards route under marketing', () => {
@@ -90,7 +90,7 @@ describe('visibleAdminMenuGroups (capability filtering)', () => {
 
   it('shows everything to an owner (can() always true)', () => {
     const groups = visibleAdminMenuGroups(() => true)
-    expect(allTos(groups)).toHaveLength(27)
+    expect(allTos(groups)).toHaveLength(28)
     expect(groups.map(g => g.key)).toEqual([
       'overview', 'catalog', 'sales', 'marketing', 'operations', 'configuration',
     ])

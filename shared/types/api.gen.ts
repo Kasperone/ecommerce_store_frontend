@@ -2831,6 +2831,114 @@ export interface paths {
         patch: operations["update_tag_api_v1_admin_tags__tag_id__patch"];
         trace?: never;
     };
+    "/api/v1/admin/tax/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Tax Categories
+         * @description All tax categories (default first), each with its rates nested — enough
+         *     for the admin picker to label a category with its home-country rate.
+         */
+        get: operations["list_tax_categories_api_v1_admin_tax_categories_get"];
+        put?: never;
+        /**
+         * Create Tax Category
+         * @description Create a tax category. A duplicate ``code`` is rejected. Setting
+         *     ``is_default`` demotes the previous default in the same transaction.
+         */
+        post: operations["create_tax_category_api_v1_admin_tax_categories_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tax/categories/{category_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Tax Category
+         * @description One tax category with its rates.
+         */
+        get: operations["get_tax_category_api_v1_admin_tax_categories__category_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Tax Category
+         * @description Delete a tax category. Refused if any product is still classified under it
+         *     (reclassify those products first) or if it is the store default — both would
+         *     otherwise leave products un-taxable.
+         */
+        delete: operations["delete_tax_category_api_v1_admin_tax_categories__category_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Tax Category
+         * @description Update a tax category (partial). ``code`` is immutable. Promoting one to
+         *     default demotes the incumbent. Demoting the only default (``is_default``
+         *     false on the current default) is refused — a store must always have one.
+         */
+        patch: operations["update_tax_category_api_v1_admin_tax_categories__category_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/admin/tax/categories/{category_id}/rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Tax Rate
+         * @description Add a rate to a category. A second rate for the same country and
+         *     ``valid_from`` is a 409 (close the earlier window with a ``valid_to``
+         *     instead of stacking duplicates).
+         */
+        post: operations["create_tax_rate_api_v1_admin_tax_categories__category_id__rates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tax/rates/{rate_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Tax Rate
+         * @description Delete a rate. A category left with no rate for a destination country will
+         *     make orders to that country fail loudly at checkout (``TaxRateNotFoundError``)
+         *     rather than under-charge — that is the intended safety, not a regression.
+         */
+        delete: operations["delete_tax_rate_api_v1_admin_tax_rates__rate_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Tax Rate
+         * @description Update a rate (partial). The merged validity window and the
+         *     ``(country, valid_from)`` uniqueness are checked against the stored row —
+         *     neither is expressible on a partial schema alone.
+         */
+        patch: operations["update_tax_rate_api_v1_admin_tax_rates__rate_id__patch"];
+        trace?: never;
+    };
     "/api/v1/admin/product-tags/": {
         parameters: {
             query?: never;
@@ -8237,7 +8345,7 @@ export interface components {
             /** Shipping City */
             shipping_city: string;
             /** Shipping Country */
-            shipping_country: string;
+            shipping_country: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -8637,10 +8745,14 @@ export interface components {
             shipping_city: string;
             /** Shipping Postal Code */
             shipping_postal_code: string;
-            /** Shipping Country */
-            shipping_country: string;
             /** Notes */
             notes?: string | null;
+            /**
+             * Shipping Country
+             * @description ISO 3166-1 alpha-2 country code, e.g. 'PL'.
+             * @example PL
+             */
+            shipping_country: string;
             /** Items */
             items: components["schemas"]["OrderItemCreate"][];
             /**
@@ -8902,10 +9014,10 @@ export interface components {
             shipping_city: string;
             /** Shipping Postal Code */
             shipping_postal_code: string;
-            /** Shipping Country */
-            shipping_country: string;
             /** Notes */
             notes?: string | null;
+            /** Shipping Country */
+            shipping_country?: string | null;
             /** User Id */
             user_id?: number | null;
             /** Guest Email */
@@ -9103,10 +9215,10 @@ export interface components {
             shipping_city: string;
             /** Shipping Postal Code */
             shipping_postal_code: string;
-            /** Shipping Country */
-            shipping_country: string;
             /** Notes */
             notes?: string | null;
+            /** Shipping Country */
+            shipping_country?: string | null;
             /** User Id */
             user_id?: number | null;
             /** Guest Email */
@@ -9923,11 +10035,8 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
-            /**
-             * Vat Rate
-             * @default 23
-             */
-            vat_rate: number;
+            /** Tax Category Id */
+            tax_category_id?: number | null;
             /**
              * Stock
              * @default 0
@@ -10267,11 +10376,8 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
-            /**
-             * Vat Rate
-             * @default 23
-             */
-            vat_rate: number;
+            /** Tax Category Id */
+            tax_category_id?: number | null;
             /**
              * Stock
              * @default 0
@@ -10439,8 +10545,8 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
-            /** Vat Rate */
-            vat_rate?: number | null;
+            /** Tax Category Id */
+            tax_category_id?: number | null;
             /** Low Stock Threshold */
             low_stock_threshold?: number | null;
             /** Allow Backorder */
@@ -10673,11 +10779,8 @@ export interface components {
             price_pln?: number | null;
             /** Price Eur */
             price_eur?: number | null;
-            /**
-             * Vat Rate
-             * @default 23
-             */
-            vat_rate: number;
+            /** Tax Category Id */
+            tax_category_id?: number | null;
             /**
              * Stock
              * @default 0
@@ -12956,6 +13059,141 @@ export interface components {
             name?: string | null;
             /** Color */
             color?: string | null;
+        };
+        /**
+         * TaxCategoryCreate
+         * @description Create body. Setting ``is_default`` unsets the previous default.
+         */
+        TaxCategoryCreate: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Name Pl */
+            name_pl?: string | null;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+        };
+        /**
+         * TaxCategoryResponse
+         * @description A category with its id, timestamps, and its rates nested.
+         *
+         *     The rates ride along so the admin picker can label each category with its
+         *     home-country rate in a single fetch.
+         */
+        TaxCategoryResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Name Pl */
+            name_pl?: string | null;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+            /** Rates */
+            rates?: components["schemas"]["TaxRateResponse"][];
+        };
+        /**
+         * TaxCategoryUpdate
+         * @description Partial category update. ``code`` is immutable once set — imports,
+         *     exports, and the migration backfill reference it by value.
+         */
+        TaxCategoryUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Name Pl */
+            name_pl?: string | null;
+            /** Is Default */
+            is_default?: boolean | null;
+        };
+        /**
+         * TaxRateCreate
+         * @description Create body for a rate. The category is taken from the path, not here.
+         */
+        TaxRateCreate: {
+            /**
+             * Country Code
+             * @description ISO 3166-1 alpha-2 country code, e.g. 'PL'.
+             * @example PL
+             */
+            country_code: string;
+            /** Rate Pct */
+            rate_pct: number | string;
+            /**
+             * Valid From
+             * Format: date
+             */
+            valid_from: string;
+            /** Valid To */
+            valid_to?: string | null;
+        };
+        /**
+         * TaxRateResponse
+         * @description A rate with its id, parent category, and timestamps.
+         */
+        TaxRateResponse: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Country Code
+             * @description ISO 3166-1 alpha-2 country code, e.g. 'PL'.
+             * @example PL
+             */
+            country_code: string;
+            /** Rate Pct */
+            rate_pct: string;
+            /**
+             * Valid From
+             * Format: date
+             */
+            valid_from: string;
+            /** Valid To */
+            valid_to?: string | null;
+            /** Tax Category Id */
+            tax_category_id: number;
+        };
+        /**
+         * TaxRateUpdate
+         * @description Partial rate update. The parent category is immutable — move a rate by
+         *     deleting and recreating it under another category.
+         */
+        TaxRateUpdate: {
+            /** Country Code */
+            country_code?: string | null;
+            /** Rate Pct */
+            rate_pct?: number | string | null;
+            /** Valid From */
+            valid_from?: string | null;
+            /** Valid To */
+            valid_to?: string | null;
         };
         /**
          * Token
@@ -18140,6 +18378,253 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tax_categories_api_v1_admin_tax_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxCategoryResponse"][];
+                };
+            };
+        };
+    };
+    create_tax_category_api_v1_admin_tax_categories_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxCategoryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxCategoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tax_category_api_v1_admin_tax_categories__category_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxCategoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_tax_category_api_v1_admin_tax_categories__category_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_tax_category_api_v1_admin_tax_categories__category_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxCategoryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxCategoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_tax_rate_api_v1_admin_tax_categories__category_id__rates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxRateCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxRateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_tax_rate_api_v1_admin_tax_rates__rate_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rate_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_tax_rate_api_v1_admin_tax_rates__rate_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rate_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxRateUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxRateResponse"];
                 };
             };
             /** @description Validation Error */
