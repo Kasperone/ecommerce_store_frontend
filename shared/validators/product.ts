@@ -101,6 +101,8 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
     is_active: z.boolean().default(true),
     is_featured: z.boolean().default(false),
     category_id: z.number().int().positive().optional().nullable(),
+    // Optional: null/omitted → backend applies the store's default tax category.
+    tax_category_id: z.number().int().positive().optional().nullable(),
   }).superRefine((data, ctx) => {
     // At-least-one currency is the backend contract (CHECK constraint
     // ck_products_at_least_one_price). `== null` covers both null and
@@ -168,6 +170,8 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
     is_active: z.boolean().optional(),
     is_featured: z.boolean().optional(),
     category_id: z.number().int().positive().optional().nullable(),
+    // Optional: null/omitted → backend applies the store's default tax category.
+    tax_category_id: z.number().int().positive().optional().nullable(),
   }).superRefine((data, ctx) => {
     // On update, distinguish "explicitly clear" from "leave alone": only
     // fail when ALL THREE are explicitly null (admin tried to wipe pricing).

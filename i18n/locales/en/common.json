@@ -108,7 +108,8 @@
         "staff": "Staff & Roles",
         "segments": "Segments",
         "translations": "Translations",
-        "paymentTerms": "Payment terms (B2B)"
+        "paymentTerms": "Payment terms (B2B)",
+        "tax": "Tax"
       }
     },
     "pages": {
@@ -1333,8 +1334,8 @@
         "priceUsd": "USD",
         "pricePln": "PLN",
         "priceEur": "EUR",
-        "vatRate": "VAT rate (%)",
-        "vatRateHelp": "Polish VAT: 23 standard, 8 / 5 / 0 for reduced-rate goods.",
+        "taxCategory": "Tax category",
+        "taxCategoryHelp": "The kind of goods for tax; the rate is resolved from it per country. Leave as the default unless this is reduced-rate.",
         "stock": "Stock",
         "weightKg": "Weight (kg)",
         "lengthCm": "Length (cm)",
@@ -2816,6 +2817,74 @@
       "filterOutdated": "Needs review",
       "needsReview": "Needs review",
       "sourceChanged": "Source changed"
+    },
+    "tax": {
+      "title": "Tax",
+      "subtitle": "Tax categories classify products; each category has a rate per country and validity window. Products are taxed by category, resolved to the destination country's rate at checkout.",
+      "empty": "No tax categories yet.",
+      "confirmDeleteCategory": "Delete tax category \"{name}\"? Products must be reclassified first.",
+      "confirmDeleteRate": "Delete the {country} rate?",
+      "actions": {
+        "createCategory": "New category",
+        "editCategory": "Edit category",
+        "deleteCategory": "Delete category",
+        "createRate": "Add rate",
+        "editRate": "Edit rate",
+        "deleteRate": "Delete rate"
+      },
+      "form": {
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "codeRequired": "Code is required",
+        "nameRequired": "Name is required",
+        "countryFormat": "Use a 2-letter country code (e.g. PL)",
+        "validFromRequired": "Valid-from date is required",
+        "windowOrder": "Valid-to must be after valid-from"
+      },
+      "flashes": {
+        "categoryCreated": "Category created",
+        "categoryUpdated": "Category updated",
+        "categoryDeleted": "Category deleted",
+        "rateCreated": "Rate added",
+        "rateUpdated": "Rate updated",
+        "rateDeleted": "Rate deleted",
+        "deleteError": "Could not delete"
+      },
+      "category": {
+        "sectionTitle": "Categories",
+        "createTitle": "New tax category",
+        "editTitle": "Edit tax category",
+        "defaultBadge": "Default",
+        "viewingBadge": "Viewing rates",
+        "homeRate": "Rate ({country})",
+        "codeHint": "A stable identifier (e.g. STANDARD, REDUCED_8). Cannot be changed later.",
+        "codeImmutable": "Code cannot be changed after creation.",
+        "isDefaultHint": "The category assigned to products that don't pick one. Exactly one category is the default.",
+        "fields": {
+          "code": "Code",
+          "name": "Name",
+          "namePl": "Name (Polish)",
+          "isDefault": "Default category"
+        }
+      },
+      "rate": {
+        "sectionTitle": "Rates — {name}",
+        "createTitle": "Add tax rate",
+        "editTitle": "Edit tax rate",
+        "help": "Windows are half-open: valid-from inclusive, valid-to exclusive. Leave valid-to blank for the rate in force.",
+        "empty": "No rates in this category yet. A destination with no rate fails loudly at checkout rather than under-charging.",
+        "inForce": "In force",
+        "countryHint": "ISO 3166-1 alpha-2 (e.g. PL, DE).",
+        "validToHint": "Blank = still in force.",
+        "fields": {
+          "country": "Country",
+          "ratePct": "Rate (%)",
+          "validFrom": "Valid from",
+          "validTo": "Valid to"
+        }
+      }
     },
     "paymentTerms": {
       "title": "Payment terms",

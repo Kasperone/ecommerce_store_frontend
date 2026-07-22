@@ -13,6 +13,9 @@ useHead({ title: () => t('admin.products.titleNew') })
 const { data: categoriesData } = useCategoriesQuery({ isActive: true, limit: 100 })
 const categories = computed(() => categoriesData.value ?? [])
 
+const { data: taxCategoriesData } = useTaxCategoriesQuery()
+const taxCategories = computed(() => taxCategoriesData.value ?? [])
+
 const createMutation = useCreateProduct()
 const uploadMutation = useUploadProductImage()
 const setPrimaryMutation = useUpdateProductImage()
@@ -94,6 +97,7 @@ async function onSubmit(payload: ProductFormPayload) {
 
       <AdminProductForm
         :categories="categories"
+        :tax-categories="taxCategories"
         :loading="isSubmitting"
         :error="formError"
         :submit-label="$t('admin.products.actions.saveAndContinue')"

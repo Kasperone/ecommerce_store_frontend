@@ -40,12 +40,20 @@ vi.mock('~/composables/queries/useCategoryQueries', () => ({
   }),
 }))
 
+vi.mock('~/composables/queries/useTaxQueries', () => ({
+  useTaxCategoriesQuery: () => ({
+    data: { value: [] },
+    error: { value: null },
+    isLoading: { value: false },
+  }),
+}))
+
 // Stubs for the two child components. The form stub renders its extra-sections
 // slot and exposes a button that emits 'submit' with a fixed payload; the
 // staging stub exposes a button that emits 'update:files' with two fixed Files
 // so we can drive the orchestration deterministically without happy-dom's
 // File/Drop quirks.
-const FORM_PAYLOAD = { name: 'P', slug: 'p', description: null, sku: null, price_usd: 1, price_pln: 1, price_eur: 1, stock: 0, is_active: true, is_featured: false, category_id: null }
+const FORM_PAYLOAD = { name: 'P', slug: 'p', description: null, sku: null, price_usd: 1, price_pln: 1, price_eur: 1, tax_category_id: null, stock: 0, is_active: true, is_featured: false, category_id: null }
 const STAGED_FILES = [
   new File(['a'], 'a.jpg', { type: 'image/jpeg' }),
   new File(['b'], 'b.jpg', { type: 'image/jpeg' }),

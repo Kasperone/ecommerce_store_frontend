@@ -73,6 +73,7 @@ const GROUPS: MenuGroupConfig[] = [
     key: 'configuration',
     items: [
       { key: 'settings', to: '/admin/settings', icon: 'i-lucide-settings', cap: 'settings:write' },
+      { key: 'tax', to: '/admin/tax', icon: 'i-lucide-percent', cap: 'settings:write' },
       { key: 'translations', to: '/admin/translations', icon: 'i-lucide-languages', cap: 'settings:write' },
       { key: 'staff', to: '/admin/staff', icon: 'i-lucide-shield-check', cap: 'staff:write' },
     ],

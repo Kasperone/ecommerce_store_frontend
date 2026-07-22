@@ -26,6 +26,9 @@ const { data: product, error: loadError } = useProductQuery(productId)
 const { data: categoriesData } = useCategoriesQuery({ isActive: true, limit: 100 })
 const categories = computed(() => categoriesData.value ?? [])
 
+const { data: taxCategoriesData } = useTaxCategoriesQuery()
+const taxCategories = computed(() => taxCategoriesData.value ?? [])
+
 useHead({
   title: () => product.value
     ? t('admin.products.titleEdit') + ' - ' + product.value.name
@@ -191,6 +194,7 @@ async function saveVariants() {
       <template v-else-if="product">
         <AdminProductForm
           :categories="categories"
+          :tax-categories="taxCategories"
           :product="product"
           :loading="updateMutation.isLoading.value"
           :error="formError"
