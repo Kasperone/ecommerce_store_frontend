@@ -180,6 +180,7 @@
       "tax": "Tax",
       "shippingCost": "Shipping",
       "total": "Total",
+      "reverseCharge": "Reverse charge applied — VAT not charged; accounted for by the customer.",
       "notes": "Notes",
       "discount": "Discount",
       "giftCard": "Gift card",

@@ -180,6 +180,7 @@
       "tax": "Podatek",
       "shippingCost": "Wysyłka",
       "total": "Razem",
+      "reverseCharge": "Zastosowano odwrotne obciążenie — VAT nie został naliczony; rozlicza go nabywca.",
       "notes": "Uwagi",
       "discount": "Rabat",
       "giftCard": "Karta podarunkowa",

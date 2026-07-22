@@ -18,11 +18,13 @@ const companyData = ref<any>(undefined)
 const isLoading = ref(false)
 const error = ref<unknown>(null)
 const mutateAsync = vi.fn()
+const viesVerify = vi.fn()
 const toastAdd = vi.fn()
 
 vi.mock('~/composables/queries/useCompany', () => ({
   useCompanyProfileQuery: () => ({ data: companyData, isLoading, error }),
   useUpdateCompanyProfile: () => ({ mutateAsync }),
+  useVerifyMyCompanyVies: () => ({ mutateAsync: viesVerify }),
 }))
 
 const { mockUseToast } = vi.hoisted(() => ({ mockUseToast: vi.fn() }))
@@ -68,6 +70,7 @@ beforeEach(() => {
   isLoading.value = false
   error.value = null
   mutateAsync.mockReset().mockResolvedValue(adminCompany())
+  viesVerify.mockReset().mockResolvedValue(adminCompany())
   toastAdd.mockReset()
   mockUseToast.mockReturnValue({ add: toastAdd })
 })
@@ -102,6 +105,21 @@ describe('account/settings/company', () => {
     const wrapper = await mountPage()
     await tick()
     expect(wrapper.findComponent({ name: 'AccountCompanyProfileView' }).exists()).toBe(true)
+  })
+
+  it('verifies the EU VAT id via VIES and toasts success', async () => {
+    companyData.value = adminCompany({ vat_id: 'DE811907980', vies_valid: false })
+    viesVerify.mockResolvedValue(
+      adminCompany({ vat_id: 'DE811907980', vies_valid: true, vies_confirmed_name: 'ACME' }),
+    )
+    const wrapper = await mountPage()
+    await tick()
+    const btn = wrapper.find('[data-testid="company-vies-verify"]')
+    expect(btn.exists()).toBe(true)
+    await btn.trigger('click')
+    await tick()
+    expect(viesVerify).toHaveBeenCalled()
+    expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ color: 'success' }))
   })
 
   it('PATCHes only the changed fields and toasts success', async () => {

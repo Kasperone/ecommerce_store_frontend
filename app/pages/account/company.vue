@@ -2,9 +2,11 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CompanyProfileInput } from '#shared/validators/companyProfile'
+import { parseProblem } from '#shared/utils/problemDetails'
 import {
   useCompanyProfileQuery,
   useUpdateCompanyProfile,
+  useVerifyMyCompanyVies,
   type CompanyProfileUpdate,
 } from '~/composables/queries/useCompany'
 
@@ -67,6 +69,7 @@ function buildPatch(values: CompanyProfileInput): CompanyProfileUpdate {
   const patch: CompanyProfileUpdate = {}
   const fields: { form: keyof CompanyProfileInput, api: keyof CompanyProfileUpdate }[] = [
     { form: 'tax_id', api: 'tax_id' },
+    { form: 'vat_id', api: 'vat_id' },
     { form: 'regon', api: 'regon' },
     { form: 'email', api: 'email' },
     { form: 'phone', api: 'phone' },
@@ -83,6 +86,38 @@ function buildPatch(values: CompanyProfileInput): CompanyProfileUpdate {
     if (next !== prev) patch[api] = next
   }
   return patch
+}
+
+// VIES verification (Phase-0 tax U5). COMPANY_ADMIN validates the company's EU
+// VAT-ID against VIES; the result caches onto the company row. Ships behind the
+// backend's kill-switch, so 503 (disabled) is surfaced as a plain message.
+const { mutateAsync: verifyVies } = useVerifyMyCompanyVies()
+const verifying = ref(false)
+
+function fmtDate(iso: string | null | undefined): string {
+  return iso ? new Date(iso).toLocaleDateString(locale.value) : '—'
+}
+
+async function onVerifyVies() {
+  verifying.value = true
+  try {
+    const result = await verifyVies()
+    if (result.vies_valid) {
+      toast.add({ title: t('account.settings.company.vies.verified'), color: 'success' })
+    }
+    else {
+      toast.add({ title: t('account.settings.company.vies.notValid'), color: 'warning' })
+    }
+  }
+  catch (err) {
+    toast.add({
+      title: parseProblem(err).detail ?? t('account.settings.company.vies.verifyError'),
+      color: 'error',
+    })
+  }
+  finally {
+    verifying.value = false
+  }
 }
 
 async function onSubmit(values: CompanyProfileInput) {
@@ -243,6 +278,92 @@ async function onSubmit(values: CompanyProfileInput) {
               </p>
               <AccountCompanyProfileView :company="company" />
             </template>
+          </UCard>
+
+          <!-- EU VAT-ID / VIES confirmation (Phase-0 tax U5). Drives reverse
+               charge on intra-community B2B orders. -->
+          <UCard data-testid="company-vies">
+            <template #header>
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="font-semibold">
+                  {{ t('account.settings.company.vies.title') }}
+                </h3>
+                <UBadge
+                  v-if="company.vat_id"
+                  :color="company.vies_valid ? 'success' : 'neutral'"
+                  variant="subtle"
+                >
+                  {{ company.vies_valid
+                    ? t('account.settings.company.vies.statusVerified')
+                    : t('account.settings.company.vies.statusUnverified') }}
+                </UBadge>
+              </div>
+            </template>
+
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              {{ t('account.settings.company.vies.subtitle') }}
+            </p>
+
+            <div
+              v-if="!company.vat_id"
+              class="text-sm text-gray-500 dark:text-gray-400"
+            >
+              {{ t('account.settings.company.vies.noVatId') }}
+            </div>
+            <dl
+              v-else
+              class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"
+            >
+              <div>
+                <dt class="text-gray-500 dark:text-gray-400">
+                  {{ t('account.settings.company.fields.vatId') }}
+                </dt>
+                <dd class="font-medium">
+                  {{ company.vat_id }}
+                </dd>
+              </div>
+              <div v-if="company.vies_valid && company.vies_confirmed_name">
+                <dt class="text-gray-500 dark:text-gray-400">
+                  {{ t('account.settings.company.vies.confirmedName') }}
+                </dt>
+                <dd class="font-medium">
+                  {{ company.vies_confirmed_name }}
+                </dd>
+              </div>
+              <div v-if="company.vies_valid">
+                <dt class="text-gray-500 dark:text-gray-400">
+                  {{ t('account.settings.company.vies.confirmedAt') }}
+                </dt>
+                <dd class="font-medium">
+                  {{ fmtDate(company.vies_confirmed_at) }}
+                </dd>
+              </div>
+              <div v-if="company.vies_last_checked_at">
+                <dt class="text-gray-500 dark:text-gray-400">
+                  {{ t('account.settings.company.vies.lastChecked') }}
+                </dt>
+                <dd class="font-medium">
+                  {{ fmtDate(company.vies_last_checked_at) }}
+                </dd>
+              </div>
+            </dl>
+
+            <div
+              v-if="isAdmin"
+              class="mt-4 border-t border-gray-100 pt-4 dark:border-gray-800"
+            >
+              <UButton
+                :loading="verifying"
+                :disabled="!company.vat_id"
+                color="primary"
+                variant="soft"
+                icon="i-lucide-badge-check"
+                data-testid="company-vies-verify"
+                @click="onVerifyVies"
+              >
+                {{ t('account.settings.company.vies.verify') }}
+              </UButton>
+            </div>
           </UCard>
         </template>
 

@@ -3292,6 +3292,8 @@
         },
         "fields": {
           "taxId": "Tax ID",
+          "vatId": "EU VAT ID",
+          "vatIdHelp": "Country-prefixed EU VAT number (e.g. PL5252445724). Enables reverse charge on intra-EU B2B orders once verified.",
           "regon": "REGON",
           "email": "Billing email",
           "phone": "Phone",
@@ -3304,8 +3306,23 @@
           "defaultCurrencyHint": "A 3-letter currency code, e.g. USD, EUR or PLN.",
           "defaultCurrencyPlaceholder": "USD"
         },
+        "vies": {
+          "title": "EU VAT & reverse charge",
+          "subtitle": "A verified EU VAT ID lets us apply reverse charge (VAT not charged) on qualifying intra-EU business orders.",
+          "statusVerified": "Verified",
+          "statusUnverified": "Not verified",
+          "noVatId": "Add an EU VAT ID above to enable verification.",
+          "confirmedName": "Registered name",
+          "confirmedAt": "Verified on",
+          "lastChecked": "Last checked",
+          "verify": "Verify with VIES",
+          "verified": "VAT ID verified against VIES.",
+          "notValid": "VIES did not recognise this VAT ID.",
+          "verifyError": "Could not verify the VAT ID right now."
+        },
         "errors": {
           "taxIdTooLong": "Tax ID must be 64 characters or fewer",
+          "vatIdTooLong": "VAT ID must be 20 characters or fewer",
           "regonTooLong": "REGON must be 64 characters or fewer",
           "emailInvalid": "Enter a valid email address",
           "emailTooLong": "Email must be 255 characters or fewer",
