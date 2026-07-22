@@ -35,6 +35,7 @@ const schema = computed(() => createCompanyProfileSchema(t))
 
 const state = reactive<CompanyProfileInput>({
   tax_id: props.company.tax_id ?? '',
+  vat_id: props.company.vat_id ?? '',
   regon: props.company.regon ?? '',
   email: props.company.email ?? '',
   phone: props.company.phone ?? '',
@@ -98,6 +99,18 @@ defineExpose({ state })
         <UInput
           v-model="state.tax_id"
           :disabled="loading"
+          class="w-full"
+        />
+      </UFormField>
+      <UFormField
+        :label="t('account.settings.company.fields.vatId')"
+        :help="t('account.settings.company.fields.vatIdHelp')"
+        name="vat_id"
+      >
+        <UInput
+          v-model="state.vat_id"
+          :disabled="loading"
+          placeholder="PL5252445724"
           class="w-full"
         />
       </UFormField>

@@ -63,3 +63,23 @@ export function useUpdateCompanyProfile() {
     },
   })
 }
+
+/**
+ * `POST /api/v1/companies/me/vies-check` — validate the company's EU VAT-ID
+ * against VIES (COMPANY_ADMIN-only). Returns the refreshed company with the
+ * `vies_*` status. 503 when VIES is disabled server-side, 422 when no VAT-ID is
+ * set, 502 when VIES is temporarily unreachable — the page surfaces these.
+ */
+export function useVerifyMyCompanyVies() {
+  const { apiFetch } = useApi()
+  const queryCache = useQueryCache()
+  return useMutation({
+    mutation: () => apiFetch<CompanyMe>('/api/v1/companies/me/vies-check', { method: 'POST' }),
+    onSuccess: (data) => {
+      queryCache.setQueryData([...COMPANY_PROFILE_NAMESPACE], data)
+      queryCache.setQueryData(['company', 'me'], data)
+      void queryCache.invalidateQueries({ key: [...COMPANY_PROFILE_NAMESPACE] })
+      void queryCache.invalidateQueries({ key: ['company', 'me'] })
+    },
+  })
+}
