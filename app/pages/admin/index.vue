@@ -249,6 +249,9 @@ const primaryCurrency = computed<CurrencyCode>(
         :class="refreshing ? 'opacity-50' : 'opacity-100'"
         :aria-busy="refreshing"
       >
+        <!-- Proactive EU distance-selling nudge (self-hides below the warn band) -->
+        <AdminDashboardEuTaxAlert :liability="kpis.eu_tax_liability" />
+
         <!-- KPI cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <AdminDashboardKpiCard

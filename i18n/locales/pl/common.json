@@ -68,6 +68,13 @@
         "more": "+{count} więcej",
         "viewAll": "Zobacz magazyn",
         "empty": "Wszystko dobrze zatowarowane."
+      },
+      "euTax": {
+        "approachingTitle": "Zbliżasz się do progu sprzedaży wysyłkowej do UE",
+        "approachingBody": "Transgraniczna sprzedaż B2C do UE w {year} zbliża się do progu 10 000 € (One-Stop-Shop). Po jego przekroczeniu trzeba naliczać VAT kraju odbiorcy.",
+        "metTitle": "Osiągnięto próg sprzedaży wysyłkowej do UE",
+        "metBody": "Transgraniczna sprzedaż B2C do UE w {year} osiągnęła 10 000 €. Prawdopodobnie należny jest VAT kraju odbiorcy przez One-Stop-Shop — rozważ rejestrację.",
+        "viewReport": "Zobacz raport"
       }
     },
     "signedInAs": "Zalogowano jako",
@@ -885,6 +892,20 @@
         "button": "Eksportuj CSV",
         "exporting": "Eksportowanie…",
         "error": "Eksport nie powiódł się"
+      },
+      "euThreshold": {
+        "title": "Próg sprzedaży wysyłkowej do UE",
+        "subtitle": "Transgraniczna sprzedaż B2C do UE · {year}",
+        "status": {
+          "not_approaching": "Poniżej progu",
+          "approaching": "Zbliża się do progu",
+          "threshold_met": "Próg osiągnięty"
+        },
+        "ofThreshold": "z {threshold}",
+        "remaining": "Pozostało {amount} do momentu, w którym może powstać obowiązek VAT w kraju odbiorcy (rejestracja w OSS).",
+        "metNote": "Osiągnięto próg 10 000 € — prawdopodobnie należny jest VAT kraju odbiorcy przez One-Stop-Shop. Rozważ rejestrację.",
+        "priorYear": "Rok poprzedni ({year})",
+        "unconvertible": "Pominięto {count} zamówienie — brak skonfigurowanego kursu EUR dla jego waluty. | Pominięto {count} zamówienia — brak skonfigurowanego kursu EUR dla ich waluty. | Pominięto {count} zamówień — brak skonfigurowanego kursu EUR dla ich waluty."
       }
     },
     "auditLog": {
