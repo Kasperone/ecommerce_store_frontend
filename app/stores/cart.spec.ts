@@ -306,6 +306,72 @@ describe('useCartStore — variants', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Gift cards v2 — purchasable gift-card products carry per-line delivery fields.
+// ---------------------------------------------------------------------------
+
+describe('useCartStore — gift cards', () => {
+  it('snapshots isGiftCard + recipient/message on a gift-card line', () => {
+    const cart = useCartStore()
+    cart.add(
+      product({ is_gift_card: true }),
+      1,
+      variant({ id: 50, price_usd: 50 }),
+      { recipientEmail: 'friend@example.com', message: 'Happy birthday!' },
+    )
+    expect(cart.items[0]).toMatchObject({
+      isGiftCard: true,
+      giftCardRecipientEmail: 'friend@example.com',
+      giftCardMessage: 'Happy birthday!',
+    })
+  })
+
+  it('trims and null-collapses a blank recipient/message', () => {
+    const cart = useCartStore()
+    cart.add(
+      product({ is_gift_card: true }),
+      1,
+      variant({ id: 50 }),
+      { recipientEmail: '  ', message: '' },
+    )
+    expect(cart.items[0]).toMatchObject({
+      isGiftCard: true,
+      giftCardRecipientEmail: null,
+      giftCardMessage: null,
+    })
+  })
+
+  it('ignores gift-card fields on a non-gift product', () => {
+    const cart = useCartStore()
+    // A non-gift product with gift fields accidentally passed must not persist them.
+    cart.add(product(), 1, null, { recipientEmail: 'x@example.com', message: 'hi' })
+    expect(cart.items[0]).toMatchObject({
+      isGiftCard: false,
+      giftCardRecipientEmail: null,
+      giftCardMessage: null,
+    })
+  })
+
+  it('legacy products with no is_gift_card flag snapshot isGiftCard false', () => {
+    const cart = useCartStore()
+    cart.add(product()) // no is_gift_card in fixture
+    expect(cart.items[0]!.isGiftCard).toBe(false)
+  })
+
+  it('re-adding a denomination overwrites recipient/message and bumps quantity', () => {
+    const cart = useCartStore()
+    const giftProduct = product({ is_gift_card: true, stock: 99 })
+    cart.add(giftProduct, 1, variant({ id: 50 }), { recipientEmail: 'a@example.com', message: 'first' })
+    cart.add(giftProduct, 1, variant({ id: 50 }), { recipientEmail: 'b@example.com', message: 'second' })
+    expect(cart.items).toHaveLength(1)
+    expect(cart.items[0]).toMatchObject({
+      quantity: 2,
+      giftCardRecipientEmail: 'b@example.com',
+      giftCardMessage: 'second',
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
 // mergeRecovered — abandoned-cart recovery (additive; existing lines win, D6).
 // ---------------------------------------------------------------------------
 

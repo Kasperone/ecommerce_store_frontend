@@ -65,6 +65,11 @@
       "savedHint": "Wybierz zapisany adres, aby wypełnić formularz, lub wpisz nowy.",
       "enterNew": "Wpisz nowy adres"
     },
+    "delivery": {
+      "heading": "Dostawa",
+      "giftCardNotice": "Karty podarunkowe dostarczamy e-mailem — bez wysyłki. Każdą kartę wyślemy do jej odbiorcy po potwierdzeniu płatności.",
+      "emailPlaceholder": "ty{'@'}example.com"
+    },
     "faktura": {
       "toggle": "Chcę otrzymać fakturę VAT",
       "nipLabel": "NIP",
@@ -108,7 +113,10 @@
     "success": {
       "title": "Zamówienie złożone!",
       "message": "Dziękujemy za zamówienie — otrzymaliśmy je i wkrótce je przetworzymy.",
-      "orderNumber": "Numer zamówienia"
+      "orderNumber": "Numer zamówienia",
+      "giftCardTitle": "Karta podarunkowa w drodze",
+      "giftCardEmailed": "Karta podarunkowa zostanie wysłana na adres {email} po potwierdzeniu płatności.",
+      "giftCardEmailedToYou": "Karta podarunkowa zostanie wysłana do Ciebie po potwierdzeniu płatności."
     },
     "errors": {
       "addressRequired": "Adres jest wymagany",

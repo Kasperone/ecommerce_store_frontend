@@ -105,6 +105,14 @@
   "variants": {
     "selectOptions": "Wybierz opcje"
   },
+  "giftCard": {
+    "recipientLabel": "E-mail odbiorcy",
+    "recipientHint": "Pozostaw puste, aby wysłać kartę podarunkową do siebie.",
+    "recipientPlaceholder": "znajomy{'@'}example.com",
+    "recipientInvalid": "Podaj prawidłowy adres e-mail.",
+    "messageLabel": "Wiadomość podarunkowa (opcjonalnie)",
+    "messagePlaceholder": "Dodaj osobistą notatkę dołączoną do karty podarunkowej."
+  },
   "currency": {
     "select": "Wybierz walutę"
   },

@@ -13,6 +13,18 @@ const props = defineProps<{
    */
   variant?: ProductVariantPublic | null
   block?: boolean
+  /**
+   * Gift cards v2: when the product is a gift card, the PDP passes the shopper's
+   * per-line delivery fields (blank recipient ⇒ backend defaults to the buyer
+   * email). Threaded onto the cart line → order-create payload.
+   */
+  giftCardRecipientEmail?: string | null
+  giftCardMessage?: string | null
+  /**
+   * External gate (e.g. an invalid gift-card recipient email on the PDP) that
+   * disables the button on top of the stock/selection rules.
+   */
+  blocked?: boolean
 }>()
 
 const { t } = useI18n()
@@ -31,12 +43,17 @@ const isBackorder = computed(
   () => !needsSelection.value && stock.value <= 0 && props.product.allow_backorder,
 )
 // Impersonation is view-only — don't let an admin build the customer's cart.
-const disabled = computed(() => needsSelection.value || outOfStock.value || auth.isImpersonating)
+const disabled = computed(
+  () => needsSelection.value || outOfStock.value || auth.isImpersonating || props.blocked === true,
+)
 
 function addToCart() {
-  if (auth.isImpersonating || needsSelection.value) return
+  if (auth.isImpersonating || needsSelection.value || props.blocked) return
   const variant = props.variant ?? null
-  cart.add(props.product, 1, variant)
+  const giftCard = props.product.is_gift_card
+    ? { recipientEmail: props.giftCardRecipientEmail, message: props.giftCardMessage }
+    : null
+  cart.add(props.product, 1, variant, giftCard)
   // GA4 add_to_cart — report a single-unit add of the resulting cart line so
   // the analytics value matches the line's effective per-currency price.
   const line = cart.items.find(

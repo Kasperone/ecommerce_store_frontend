@@ -155,6 +155,24 @@ watch(selectedAddress, (addr) => {
   if (addr) selectedCountry.value = addr.country
 })
 
+// Gift cards v2: an all-gift-card cart (every line a gift-card product) is a
+// digital order — no address, no shipping method, no VAT. The whole shipping
+// section is skipped and the create payload omits shipping_* (the backend
+// accepts a shipping-less order iff no physical line is present). A mixed cart
+// still ships the physical goods, so it keeps the full shipping flow.
+const allGiftCard = computed(
+  () => cart.items.length > 0 && cart.items.every(item => item.isGiftCard === true),
+)
+// Guest contact email for an all-gift-card checkout (the shipping form — which
+// normally carries the guest email — isn't rendered). Required + validated the
+// same way (backend 422s a guest order without it).
+const giftGuestEmail = ref('')
+const giftGuestEmailInvalid = computed(() => {
+  if (!allGiftCard.value || !isGuest.value) return false
+  const value = giftGuestEmail.value.trim()
+  return value.length === 0 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+})
+
 const subtotalAmount = computed(() =>
   cart.items.reduce((sum, item) => {
     const picked = selectPrice(item, currency.value)
@@ -271,25 +289,33 @@ watch(selectedMethodId, (id, prev) => {
   }
 })
 
-async function placeOrder(shipping: ShippingInput) {
+async function placeOrder(shipping: ShippingInput | null) {
   // Defense-in-depth: the form isn't rendered while impersonating, and the
   // backend guard 403s the POST anyway — but never attempt the write.
   if (authStore.isImpersonating) return
-  // Belt-and-braces: the form button is also disabled when this is null.
-  if (selectedMethodId.value == null) return
+  // Belt-and-braces: the form button is also disabled when this is null. An
+  // all-gift-card order carries no shipping method, so the guard is skipped.
+  if (!allGiftCard.value && selectedMethodId.value == null) return
   // A faktura request must carry a valid NIP (the button is also disabled).
   if (invoiceBlocksSubmit.value) return
   // An InPost-locker method must have a picked Paczkomat.
   if (inpostBlocksSubmit.value) return
+  // All-gift-card guest checkout still needs a valid contact email.
+  if (giftGuestEmailInvalid.value) return
   error.value = null
   try {
     const order = await createOrder.mutateAsync({
-      shipping_address: shipping.address,
-      shipping_city: shipping.city,
-      shipping_postal_code: shipping.postalCode,
-      shipping_country: shipping.country,
-      shipping_method_id: selectedMethodId.value,
-      notes: shipping.notes?.trim() || undefined,
+      // Shipping is omitted entirely for an all-gift-card (digital) order.
+      ...(shipping
+        ? {
+            shipping_address: shipping.address,
+            shipping_city: shipping.city,
+            shipping_postal_code: shipping.postalCode,
+            shipping_country: shipping.country,
+            shipping_method_id: selectedMethodId.value,
+            notes: shipping.notes?.trim() || undefined,
+          }
+        : {}),
       currency: currency.value,
       // Deferred-payment methods chosen at create: cash-on-delivery (pobranie)
       // or B2B net terms (pay on account). Mutually exclusive; online methods
@@ -328,13 +354,26 @@ async function placeOrder(shipping: ShippingInput) {
       use_store_credit: useStoreCredit.value,
       // Anonymous only: contact email + UI locale (order emails + invoice
       // language). An authed request must NOT send guest_email (backend 422s).
+      // For an all-gift-card order the shipping form isn't rendered, so the
+      // contact email comes from the dedicated gift-card field instead.
       ...(isGuest.value
-        ? { guest_email: shipping.email, locale: locale.value as 'en' | 'pl' }
+        ? {
+            guest_email: shipping ? shipping.email : giftGuestEmail.value.trim(),
+            locale: locale.value as 'en' | 'pl',
+          }
         : {}),
       items: cart.items.map(item => ({
         product_id: item.productId,
         variant_id: item.variantId ?? undefined,
         quantity: item.quantity,
+        // Gift-card lines carry their per-line delivery fields (blank recipient
+        // ⇒ the backend emails the card to the buyer).
+        ...(item.isGiftCard
+          ? {
+              gift_card_recipient_email: item.giftCardRecipientEmail ?? undefined,
+              gift_card_message: item.giftCardMessage ?? undefined,
+            }
+          : {}),
       })),
     })
     lastOrder.value = order
@@ -390,121 +429,174 @@ async function placeOrder(shipping: ShippingInput) {
         >
           <section class="space-y-4">
             <h2 class="mb-4 text-lg font-semibold">
-              {{ t('checkout.shipping.heading') }}
+              {{ allGiftCard ? t('checkout.delivery.heading') : t('checkout.shipping.heading') }}
             </h2>
-            <AccountAddressesAddressPicker
-              v-if="(savedAddresses?.length ?? 0) > 0"
-              :addresses="savedAddresses ?? []"
-              :model-value="selectedAddressId"
-              @update:model-value="onPickAddress"
-            />
-            <CheckoutShippingForm
-              :key="shippingFormKey"
-              :initial="initialShipping"
-              :loading="createOrder.isLoading.value"
-              :error="error"
-              :submit-disabled="selectedMethodId === null || invoiceBlocksSubmit || inpostBlocksSubmit"
-              :guest="isGuest"
-              @submit="placeOrder"
-              @update:country="selectedCountry = $event"
-            />
-            <CheckoutShippingMethodSelector
-              v-model="selectedMethodId"
-              :country="selectedCountry"
-              :currency="currency"
-              :subtotal="subtotalAmount"
-              :weight-kg="cartWeightKg"
-              :cart-volume-cm3="cartVolumeCm3"
-              @update:method-amount="shippingAmount = $event"
-              @update:method-code="(c) => { selectedMethodCode = c; inpostPoint = null }"
-            />
 
-            <!-- InPost Paczkomat picker — only for an InPost-locker method. -->
-            <ClientOnly v-if="isInpostLocker">
-              <CheckoutInpostPointPicker @select="inpostPoint = $event" />
-            </ClientOnly>
-
-            <!-- B2C faktura request (na firmę). Optional; when checked, a valid
-                 NIP is required (button stays disabled until it validates). -->
-            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-              <UCheckbox
-                v-model="wantsInvoice"
-                :label="t('checkout.faktura.toggle')"
-              />
-              <div
-                v-if="wantsInvoice"
-                class="mt-3 space-y-3"
-              >
-                <UFormField
-                  :label="t('checkout.faktura.nipLabel')"
-                  :error="nipInvalid ? t('checkout.faktura.nipInvalid') : undefined"
-                >
-                  <UInput
-                    v-model="invoiceNip"
-                    :placeholder="t('checkout.faktura.nipPlaceholder')"
-                    class="w-full"
-                    inputmode="numeric"
-                  />
-                </UFormField>
-                <UFormField :label="t('checkout.faktura.nameLabel')">
-                  <UInput
-                    v-model="invoiceName"
-                    :placeholder="t('checkout.faktura.namePlaceholder')"
-                    class="w-full"
-                  />
-                </UFormField>
-                <p class="text-xs text-muted">
-                  {{ t('checkout.faktura.hint') }}
+            <!-- All-gift-card (digital) order: no shipping. Just a delivery
+                 notice, the guest contact email, and a place-order button. -->
+            <div
+              v-if="allGiftCard"
+              class="space-y-4"
+              data-testid="gift-card-checkout"
+            >
+              <div class="flex items-start gap-3 rounded-lg border border-gray-200 p-4 text-sm dark:border-gray-800">
+                <UIcon
+                  name="i-lucide-gift"
+                  class="mt-0.5 size-5 shrink-0 text-primary"
+                />
+                <p class="text-muted">
+                  {{ t('checkout.delivery.giftCardNotice') }}
                 </p>
               </div>
-            </div>
-
-            <!-- Payment choice: online (default, paid on the success page) vs
-                 cash-on-delivery / pobranie. -->
-            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-              <UCheckbox
-                v-model="payOnDelivery"
-                :label="t('checkout.cod.toggle')"
+              <UFormField
+                v-if="isGuest"
+                :label="t('checkout.guest.email')"
+                :error="giftGuestEmail.trim().length > 0 && giftGuestEmailInvalid
+                  ? t('checkout.errors.emailInvalid')
+                  : undefined"
+              >
+                <UInput
+                  v-model="giftGuestEmail"
+                  type="email"
+                  autocomplete="email"
+                  :placeholder="t('checkout.delivery.emailPlaceholder')"
+                  class="w-full"
+                  data-testid="gift-card-guest-email"
+                />
+              </UFormField>
+              <UAlert
+                v-if="error"
+                color="error"
+                variant="soft"
+                :title="normalizeApiError(error, t('checkout.error')).message"
               />
-              <p class="mt-1 text-xs text-muted">
-                {{ payOnDelivery ? t('checkout.cod.hint') : t('checkout.cod.onlineHint') }}
-              </p>
+              <UButton
+                color="primary"
+                block
+                :loading="createOrder.isLoading.value"
+                :disabled="giftGuestEmailInvalid"
+                data-testid="gift-card-place-order"
+                @click="placeOrder(null)"
+              >
+                {{ t('checkout.placeOrder') }}
+              </UButton>
             </div>
 
-            <!-- B2B net terms (pay on account) — only for an eligible member of a
+            <template v-else>
+              <AccountAddressesAddressPicker
+                v-if="(savedAddresses?.length ?? 0) > 0"
+                :addresses="savedAddresses ?? []"
+                :model-value="selectedAddressId"
+                @update:model-value="onPickAddress"
+              />
+              <CheckoutShippingForm
+                :key="shippingFormKey"
+                :initial="initialShipping"
+                :loading="createOrder.isLoading.value"
+                :error="error"
+                :submit-disabled="selectedMethodId === null || invoiceBlocksSubmit || inpostBlocksSubmit"
+                :guest="isGuest"
+                @submit="placeOrder"
+                @update:country="selectedCountry = $event"
+              />
+              <CheckoutShippingMethodSelector
+                v-model="selectedMethodId"
+                :country="selectedCountry"
+                :currency="currency"
+                :subtotal="subtotalAmount"
+                :weight-kg="cartWeightKg"
+                :cart-volume-cm3="cartVolumeCm3"
+                @update:method-amount="shippingAmount = $event"
+                @update:method-code="(c) => { selectedMethodCode = c; inpostPoint = null }"
+              />
+
+              <!-- InPost Paczkomat picker — only for an InPost-locker method. -->
+              <ClientOnly v-if="isInpostLocker">
+                <CheckoutInpostPointPicker @select="inpostPoint = $event" />
+              </ClientOnly>
+
+              <!-- B2C faktura request (na firmę). Optional; when checked, a valid
+                 NIP is required (button stays disabled until it validates). -->
+              <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+                <UCheckbox
+                  v-model="wantsInvoice"
+                  :label="t('checkout.faktura.toggle')"
+                />
+                <div
+                  v-if="wantsInvoice"
+                  class="mt-3 space-y-3"
+                >
+                  <UFormField
+                    :label="t('checkout.faktura.nipLabel')"
+                    :error="nipInvalid ? t('checkout.faktura.nipInvalid') : undefined"
+                  >
+                    <UInput
+                      v-model="invoiceNip"
+                      :placeholder="t('checkout.faktura.nipPlaceholder')"
+                      class="w-full"
+                      inputmode="numeric"
+                    />
+                  </UFormField>
+                  <UFormField :label="t('checkout.faktura.nameLabel')">
+                    <UInput
+                      v-model="invoiceName"
+                      :placeholder="t('checkout.faktura.namePlaceholder')"
+                      class="w-full"
+                    />
+                  </UFormField>
+                  <p class="text-xs text-muted">
+                    {{ t('checkout.faktura.hint') }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Payment choice: online (default, paid on the success page) vs
+                 cash-on-delivery / pobranie. -->
+              <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+                <UCheckbox
+                  v-model="payOnDelivery"
+                  :label="t('checkout.cod.toggle')"
+                />
+                <p class="mt-1 text-xs text-muted">
+                  {{ payOnDelivery ? t('checkout.cod.hint') : t('checkout.cod.onlineHint') }}
+                </p>
+              </div>
+
+              <!-- B2B net terms (pay on account) — only for an eligible member of a
                  net-terms company. Placed unpaid with a printed due date; the
                  faktura is issued at placement. -->
-            <div
-              v-if="showNetTerms"
-              class="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
-              data-testid="net-terms-card"
-            >
-              <UCheckbox
-                v-model="payOnAccount"
-                :label="t('checkout.netTerms.toggle', { term: companyCredit?.payment_term?.name })"
-                data-testid="net-terms-toggle"
-              />
-              <p class="mt-1 text-xs text-muted">
-                {{ t('checkout.netTerms.hint', {
-                  due: describeTermDue(companyCredit?.payment_term, t, locale),
-                }) }}
-              </p>
-              <p
-                v-if="companyCredit?.available != null"
-                class="mt-1 text-xs text-muted"
+              <div
+                v-if="showNetTerms"
+                class="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
+                data-testid="net-terms-card"
               >
-                {{ t('checkout.netTerms.available', {
-                  amount: formatMoney(companyCredit.available, companyCredit.currency ?? currency, locale),
-                }) }}
-              </p>
-              <p
-                v-if="netTermsError"
-                class="mt-2 text-xs text-error"
-                data-testid="net-terms-error"
-              >
-                {{ netTermsError }}
-              </p>
-            </div>
+                <UCheckbox
+                  v-model="payOnAccount"
+                  :label="t('checkout.netTerms.toggle', { term: companyCredit?.payment_term?.name })"
+                  data-testid="net-terms-toggle"
+                />
+                <p class="mt-1 text-xs text-muted">
+                  {{ t('checkout.netTerms.hint', {
+                    due: describeTermDue(companyCredit?.payment_term, t, locale),
+                  }) }}
+                </p>
+                <p
+                  v-if="companyCredit?.available != null"
+                  class="mt-1 text-xs text-muted"
+                >
+                  {{ t('checkout.netTerms.available', {
+                    amount: formatMoney(companyCredit.available, companyCredit.currency ?? currency, locale),
+                  }) }}
+                </p>
+                <p
+                  v-if="netTermsError"
+                  class="mt-2 text-xs text-error"
+                  data-testid="net-terms-error"
+                >
+                  {{ netTermsError }}
+                </p>
+              </div>
+            </template>
           </section>
 
           <aside class="h-fit rounded-lg border border-gray-200 p-4 dark:border-gray-800">

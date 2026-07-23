@@ -51,6 +51,23 @@ const hasTenders = computed(
     && ((order.value.gift_card_amount ?? 0) > 0 || (order.value.store_credit_amount ?? 0) > 0),
 )
 const isPaidInFull = computed(() => order.value != null && order.value.amount_due === 0)
+
+// Gift cards v2: an order with gift-card lines issues one card per unit when
+// paid, emailed to the recipient (or the buyer when the recipient was left
+// blank). Surface that here. Distinct recipients; a blank recipient collapses
+// into a single "emailed to you" line.
+const giftCardLines = computed(() => (order.value?.items ?? []).filter(i => i.is_gift_card))
+const hasGiftCards = computed(() => giftCardLines.value.length > 0)
+const giftCardRecipients = computed(() => {
+  const emails = new Set<string>()
+  let toBuyer = false
+  for (const line of giftCardLines.value) {
+    const email = line.gift_card_recipient_email?.trim()
+    if (email) emails.add(email)
+    else toBuyer = true
+  }
+  return { emails: [...emails], toBuyer }
+})
 </script>
 
 <template>
@@ -119,6 +136,32 @@ const isPaidInFull = computed(() => order.value != null && order.value.amount_du
               <span>{{ money(order.amount_due) }}</span>
             </div>
           </template>
+        </div>
+
+        <!-- Gift cards v2: the purchased card(s) are emailed on payment. -->
+        <div
+          v-if="order && hasGiftCards"
+          class="mx-auto mt-6 max-w-sm rounded-lg border border-primary/30 bg-primary/5 p-4 text-left text-sm"
+          data-testid="gift-card-emailed"
+        >
+          <p class="flex items-center gap-2 font-medium text-primary">
+            <UIcon
+              name="i-lucide-gift"
+              class="size-4"
+            />
+            {{ t('checkout.success.giftCardTitle') }}
+          </p>
+          <ul class="mt-2 space-y-1 text-muted">
+            <li
+              v-for="email in giftCardRecipients.emails"
+              :key="email"
+            >
+              {{ t('checkout.success.giftCardEmailed', { email }) }}
+            </li>
+            <li v-if="giftCardRecipients.toBuyer">
+              {{ t('checkout.success.giftCardEmailedToYou') }}
+            </li>
+          </ul>
         </div>
 
         <!-- Fully covered by gift card / store credit (amount_due === 0): the
