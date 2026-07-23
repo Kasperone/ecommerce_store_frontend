@@ -577,6 +577,28 @@ export class ApiClient {
   }
 
   /**
+   * Stamp a company's EU VAT-ID as VIES-confirmed — a DB seam (same posture as
+   * markVerified / lockUser / mintGiftCard). Real confirmation goes through the
+   * VIES service, which is dark-gated (`VIES_ENABLED` off ⇒ 503) and would hit an
+   * external, flaky SOAP/REST endpoint; the `vies_*` fields are read-only on the
+   * API by design (U3). Setting them directly is the only deterministic way to
+   * make a company reverse-charge-eligible (U4 reads `vies_valid` + a fresh
+   * `vies_confirmed_at`). Times are naive UTC to match the column convention.
+   */
+  async confirmCompanyVies(companyId: number, vatId: string): Promise<void> {
+    await this.pg.query(
+      `UPDATE companies
+         SET vat_id = $2,
+             vies_valid = true,
+             vies_confirmed_at = (NOW() AT TIME ZONE 'UTC'),
+             vies_confirmed_name = 'E2E Verified GmbH',
+             vies_last_checked_at = (NOW() AT TIME ZONE 'UTC')
+       WHERE id = $1`,
+      [companyId, vatId],
+    )
+  }
+
+  /**
    * Admin-records the bank transfer settling a net-terms (pay-on-account) order.
    * Stamps `net_terms_paid_at` server-side (Program 2). Returns the updated order.
    */
@@ -816,6 +838,11 @@ export class ApiClient {
     company_id?: number | null
     payment_due_at?: string | null
     net_terms_paid_at?: string | null
+    // EU reverse charge (optional — only the reverse-charge money-path spec asserts
+    // them). `tax_treatment` is `domestic` | `reverse_charge`; `buyer_vat_id` is the
+    // snapshotted EU VAT-ID the faktura printed (U4/U5).
+    tax_treatment?: string
+    buyer_vat_id?: string | null
     invoice_nip?: string | null
     invoice_name?: string | null
     inpost_point_id?: string | null
