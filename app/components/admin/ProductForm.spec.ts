@@ -49,6 +49,7 @@ const baseProduct = {
   stock: 5,
   is_active: true,
   is_featured: false,
+  is_gift_card: false,
   category_id: 1,
   tax_category_id: 1,
   in_stock: true,
@@ -221,6 +222,37 @@ describe('ProductForm', () => {
     expect(payload.mpn).toBeNull()
     expect(payload.condition).toBe('new')
     expect(payload.meta_title).toBeNull()
+  })
+
+  it('hydrates is_gift_card and emits it in the payload', async () => {
+    const wrapper = await mountSuspended(ProductForm, {
+      props: {
+        categories: baseCategories,
+        taxCategories: baseTaxCategories,
+        product: { ...baseProduct, is_gift_card: true },
+      },
+    })
+    await wrapper.find('form').trigger('submit')
+    await new Promise(r => setTimeout(r, 0))
+    await wrapper.vm.$nextTick()
+    const payload = wrapper.emitted('submit')![0]![0] as Record<string, unknown>
+    expect(payload.is_gift_card).toBe(true)
+  })
+
+  it('hides the weight field for a gift-card product', async () => {
+    const giftCard = await mountSuspended(ProductForm, {
+      props: {
+        categories: baseCategories,
+        taxCategories: baseTaxCategories,
+        product: { ...baseProduct, is_gift_card: true },
+      },
+    })
+    expect(giftCard.find('[name="weight_kg"]').exists()).toBe(false)
+
+    const physical = await mountSuspended(ProductForm, {
+      props: { categories: baseCategories, taxCategories: baseTaxCategories, product: baseProduct },
+    })
+    expect(physical.find('[name="weight_kg"]').exists()).toBe(true)
   })
 
   it('renders three currency input fields (USD, PLN, EUR)', async () => {
