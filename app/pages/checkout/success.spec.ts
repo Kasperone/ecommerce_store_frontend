@@ -125,3 +125,29 @@ describe('checkout success — tender summary lines', () => {
     expect(wrapper.find('[data-testid="success-amount-due"]').exists()).toBe(false)
   })
 })
+
+describe('checkout success — gift-card delivery notice (v2)', () => {
+  it('lists each distinct recipient and a single "to you" line for blank recipients', async () => {
+    orderRef.value = baseOrder({
+      items: [
+        { is_gift_card: true, gift_card_recipient_email: 'friend@example.com' },
+        // Duplicate recipient collapses to one line.
+        { is_gift_card: true, gift_card_recipient_email: 'friend@example.com' },
+        // Blank recipient ⇒ emailed to the buyer.
+        { is_gift_card: true, gift_card_recipient_email: null },
+      ],
+    })
+    const wrapper = await mountPage()
+    const notice = wrapper.find('[data-testid="gift-card-emailed"]')
+    expect(notice.exists()).toBe(true)
+    expect(notice.text()).toContain('friend@example.com')
+    // One recipient line + one "to you" line (deduped).
+    expect(notice.findAll('li')).toHaveLength(2)
+  })
+
+  it('renders no notice when the order has no gift-card lines', async () => {
+    orderRef.value = baseOrder({ items: [{ is_gift_card: false }] })
+    const wrapper = await mountPage()
+    expect(wrapper.find('[data-testid="gift-card-emailed"]').exists()).toBe(false)
+  })
+})

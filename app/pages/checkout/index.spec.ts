@@ -55,13 +55,44 @@ const ADDRESSES: Address[] = [
 
 const addressesData = ref<Address[]>(ADDRESSES)
 
-const { mutateAsync, mockNavigate, authState } = vi.hoisted(() => ({
+const { mutateAsync, mockNavigate, authState, cartState } = vi.hoisted(() => ({
   mutateAsync: vi.fn(),
   mockNavigate: vi.fn(),
   // Mutable auth stand-in: set `isAuthenticated` per test BEFORE mounting (the
   // page reads it at render — auth state is settled pre-mount in the real app).
   authState: { isAuthenticated: true },
+  // Mutable cart stand-in: the default is a mixed physical cart; the
+  // all-gift-card tests swap `cartState.items` before mounting.
+  cartState: { items: [] as Array<Record<string, unknown>> },
 }))
+
+// Default mixed physical cart (one variant + one variantless line) so the order
+// grid + shipping form render and the payload test covers both line shapes.
+const PHYSICAL_LINES: Array<Record<string, unknown>> = [
+  {
+    productId: 10, variantId: 7, variantTitle: 'Red / XL', variantTitlePl: null,
+    slug: 'widget', name: 'Widget', imageUrl: null,
+    price_usd: 10, price_pln: 40, price_eur: 9, stock: 5, allowBackorder: false,
+    quantity: 1, weightKg: 0, lengthCm: 0, widthCm: 0, heightCm: 0,
+  },
+  {
+    productId: 11, slug: 'gadget', name: 'Gadget', imageUrl: null,
+    price_usd: 5, price_pln: 20, price_eur: 4, stock: 5, allowBackorder: false,
+    quantity: 2, weightKg: 0, lengthCm: 0, widthCm: 0, heightCm: 0,
+  },
+]
+
+// An all-gift-card (digital) cart — every line is a gift-card product with its
+// per-line delivery fields.
+const GIFT_LINES: Array<Record<string, unknown>> = [
+  {
+    productId: 20, variantId: 50, variantTitle: '$50', variantTitlePl: null,
+    slug: 'gift-card', name: 'Gift Card', imageUrl: null,
+    price_usd: 50, price_pln: 200, price_eur: 45, stock: 999, allowBackorder: false,
+    quantity: 1, weightKg: 0, lengthCm: 0, widthCm: 0, heightCm: 0,
+    isGiftCard: true, giftCardRecipientEmail: 'friend@example.com', giftCardMessage: 'Enjoy!',
+  },
+]
 
 vi.mock('~/composables/queries/useAddresses', () => ({
   useAddressesQuery: () => ({ data: addressesData, isLoading: ref(false) }),
@@ -73,23 +104,14 @@ vi.mock('~/composables/queries/useOrderQueries', () => ({
 
 mockNuxtImport('navigateTo', () => mockNavigate)
 
-// Cart with one variant + one variantless line so the order grid (and the
-// shipping form) renders and the payload test covers both line shapes.
+// Cart reads from the mutable `cartState` (default: the mixed physical cart).
 mockNuxtImport('useCartStore', () => () => ({
-  items: [
-    {
-      productId: 10, variantId: 7, variantTitle: 'Red / XL', variantTitlePl: null,
-      slug: 'widget', name: 'Widget', imageUrl: null,
-      price_usd: 10, price_pln: 40, price_eur: 9, stock: 5, allowBackorder: false,
-      quantity: 1, weightKg: 0, lengthCm: 0, widthCm: 0, heightCm: 0,
-    },
-    {
-      productId: 11, slug: 'gadget', name: 'Gadget', imageUrl: null,
-      price_usd: 5, price_pln: 20, price_eur: 4, stock: 5, allowBackorder: false,
-      quantity: 2, weightKg: 0, lengthCm: 0, widthCm: 0, heightCm: 0,
-    },
-  ],
-  isEmpty: false,
+  get items() {
+    return cartState.items
+  },
+  get isEmpty() {
+    return cartState.items.length === 0
+  },
   clear: vi.fn(),
 }))
 
@@ -159,6 +181,7 @@ async function mountPage() {
 beforeEach(() => {
   addressesData.value = ADDRESSES
   authState.isAuthenticated = true
+  cartState.items = [...PHYSICAL_LINES]
   mutateAsync.mockReset()
   mockNavigate.mockReset()
 })
@@ -534,5 +557,76 @@ describe('checkout — guest checkout', () => {
     const payload = mutateAsync.mock.calls[0]![0]
     expect('guest_email' in payload).toBe(false)
     expect('locale' in payload).toBe(false)
+  })
+})
+
+describe('checkout — all-gift-card (digital) order', () => {
+  it('skips the shipping flow and renders the gift-card checkout block', async () => {
+    cartState.items = [...GIFT_LINES]
+    const wrapper = await mountPage()
+    await tick()
+    // No shipping form / method selector for a digital order.
+    expect(wrapper.findComponent({ name: 'CheckoutShippingForm' }).exists()).toBe(false)
+    expect(wrapper.find('[data-testid="gift-card-checkout"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="gift-card-place-order"]').exists()).toBe(true)
+  })
+
+  it('omits shipping_* and carries per-line gift fields on the payload (authed)', async () => {
+    cartState.items = [...GIFT_LINES]
+    mutateAsync.mockResolvedValue({
+      id: 30, order_number: 'ORD-30', status: 'pending', currency: 'USD',
+      total: 50, amount_due: 50, items: [],
+    })
+    const wrapper = await mountPage()
+    await tick()
+
+    await wrapper.find('[data-testid="gift-card-place-order"]').trigger('click')
+    await tick()
+
+    expect(mutateAsync).toHaveBeenCalledTimes(1)
+    const payload = mutateAsync.mock.calls[0]![0]
+    expect('shipping_method_id' in payload).toBe(false)
+    expect('shipping_address' in payload).toBe(false)
+    expect('shipping_country' in payload).toBe(false)
+    expect(payload.items).toEqual([
+      {
+        product_id: 20,
+        variant_id: 50,
+        quantity: 1,
+        gift_card_recipient_email: 'friend@example.com',
+        gift_card_message: 'Enjoy!',
+      },
+    ])
+  })
+
+  it('requires a valid guest email before placing an all-gift-card order', async () => {
+    authState.isAuthenticated = false
+    addressesData.value = []
+    cartState.items = [...GIFT_LINES]
+    mutateAsync.mockResolvedValue({
+      id: 31, order_number: 'ORD-31', status: 'pending', currency: 'USD',
+      total: 50, amount_due: 50, guest_token: 'tok-gc', items: [],
+    })
+    const wrapper = await mountPage()
+    await tick()
+
+    // The dedicated gift-card guest-email field is shown (not the shipping form's).
+    const emailInput = wrapper.find('[data-testid="gift-card-checkout"] input[type="email"]')
+    expect(emailInput.exists()).toBe(true)
+    // Empty email → the place-order button is disabled.
+    expect(wrapper.find('[data-testid="gift-card-place-order"]').attributes('disabled')).toBeDefined()
+
+    await emailInput.setValue('guest@example.com')
+    await tick()
+    expect(wrapper.find('[data-testid="gift-card-place-order"]').attributes('disabled')).toBeUndefined()
+
+    await wrapper.find('[data-testid="gift-card-place-order"]').trigger('click')
+    await tick()
+
+    expect(mutateAsync).toHaveBeenCalledTimes(1)
+    const payload = mutateAsync.mock.calls[0]![0]
+    expect(payload.guest_email).toBe('guest@example.com')
+    expect(payload.locale).toBe('en')
+    expect('shipping_method_id' in payload).toBe(false)
   })
 })

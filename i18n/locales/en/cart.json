@@ -65,6 +65,11 @@
       "savedHint": "Pick a saved address to prefill the form, or enter a new one.",
       "enterNew": "Enter a new address"
     },
+    "delivery": {
+      "heading": "Delivery",
+      "giftCardNotice": "Your gift cards are delivered by email — no shipping needed. We'll send each card to its recipient once your payment is confirmed.",
+      "emailPlaceholder": "you{'@'}example.com"
+    },
     "faktura": {
       "toggle": "I'd like a VAT invoice (faktura)",
       "nipLabel": "NIP (tax ID)",
@@ -108,7 +113,10 @@
     "success": {
       "title": "Order placed!",
       "message": "Thanks for your order — we've received it and will process it shortly.",
-      "orderNumber": "Order number"
+      "orderNumber": "Order number",
+      "giftCardTitle": "Gift card on the way",
+      "giftCardEmailed": "A gift card will be emailed to {email} once your payment is confirmed.",
+      "giftCardEmailedToYou": "A gift card will be emailed to you once your payment is confirmed."
     },
     "errors": {
       "addressRequired": "Address is required",
