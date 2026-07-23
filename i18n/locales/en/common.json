@@ -1365,6 +1365,8 @@
         "allowBackorder": "Allow backorder",
         "isActive": "Active",
         "isFeatured": "Featured",
+        "isGiftCard": "Gift card",
+        "isGiftCardHint": "Sold as a gift card — it ships nothing and issues a stored-value card to the recipient when the order is paid. Add each denomination (e.g. $25, $50) as a variant.",
         "status": "Status",
         "brand": "Brand",
         "gtin": "GTIN",

@@ -49,6 +49,9 @@ export interface ProductFormPayload {
   allow_backorder: boolean
   is_active: boolean
   is_featured: boolean
+  // Gift-card product (v2): sold as stored-value; skips shipping + issues a card
+  // on payment. When true the shipping/inventory-physical fields are hidden.
+  is_gift_card: boolean
   category_id: number | null
   // Free-form product tags (names). The backend get-or-creates each name and
   // reconciles the join; `[]` clears, names are case-insensitively deduped.
@@ -104,6 +107,7 @@ interface FormState {
   allow_backorder: boolean
   is_active: boolean
   is_featured: boolean
+  is_gift_card: boolean
   category_id: number | undefined
 }
 
@@ -135,6 +139,7 @@ const state = reactive<FormState>({
   allow_backorder: false,
   is_active: true,
   is_featured: false,
+  is_gift_card: false,
   category_id: undefined,
 })
 
@@ -201,6 +206,7 @@ watch(
       state.allow_backorder = product.allow_backorder
       state.is_active = product.is_active
       state.is_featured = product.is_featured
+      state.is_gift_card = product.is_gift_card
       state.category_id = product.category_id ?? undefined
       tags.value = (product.tags ?? []).map(tag => tag.name)
       slugManuallyEdited.value = true
@@ -233,6 +239,7 @@ watch(
       state.allow_backorder = false
       state.is_active = true
       state.is_featured = false
+      state.is_gift_card = false
       state.category_id = undefined
       tags.value = []
       slugManuallyEdited.value = false
@@ -323,6 +330,7 @@ function buildPayload(): ProductFormPayload {
     allow_backorder: state.allow_backorder,
     is_active: state.is_active,
     is_featured: state.is_featured,
+    is_gift_card: state.is_gift_card,
     category_id: state.category_id ?? null,
     tags: [...tags.value],
   }
@@ -665,7 +673,20 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
             :disabled="loading"
           />
         </UFormField>
+        <UFormField name="is_gift_card">
+          <UCheckbox
+            v-model="state.is_gift_card"
+            :label="t('admin.products.fields.isGiftCard')"
+            :disabled="loading"
+          />
+        </UFormField>
       </div>
+      <p
+        v-if="state.is_gift_card"
+        class="text-xs text-muted"
+      >
+        {{ t('admin.products.fields.isGiftCardHint') }}
+      </p>
     </section>
 
     <section class="space-y-4">
@@ -772,68 +793,75 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         {{ t('admin.products.hints.stockEditViaInventory') }}
       </p>
 
-      <UFormField
-        :label="t('admin.products.fields.weightKg')"
-        :hint="t('admin.products.hints.weightKg')"
-        name="weight_kg"
-        class="max-w-xs"
-      >
-        <UInputNumber
-          v-model="state.weight_kg"
-          :min="0"
-          :step="0.1"
-          :disabled="loading"
-          class="w-full"
-        />
-      </UFormField>
-
       <!--
-        Dimensions — three nullable cm fields driving volumetric shipping
-        pricing (alongside the zone's dim_divisor on the backend). Convention
-        is "all three set or none"; the backend resolver treats any-NULL as
-        "no volumetric contribution" so a half-populated row is harmless.
+        Physical shipping attributes (weight + volumetric dimensions) are hidden
+        for a gift-card product — it ships nothing, so an all-gift-card cart
+        skips shipping entirely on the backend (mirrors Shopify).
       -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <template v-if="!state.is_gift_card">
         <UFormField
-          :label="t('admin.products.fields.lengthCm')"
-          :hint="t('admin.products.hints.lengthCm')"
-          name="length_cm"
+          :label="t('admin.products.fields.weightKg')"
+          :hint="t('admin.products.hints.weightKg')"
+          name="weight_kg"
+          class="max-w-xs"
         >
           <UInputNumber
-            v-model="state.length_cm"
+            v-model="state.weight_kg"
             :min="0"
-            :step="1"
+            :step="0.1"
             :disabled="loading"
             class="w-full"
           />
         </UFormField>
-        <UFormField
-          :label="t('admin.products.fields.widthCm')"
-          :hint="t('admin.products.hints.widthCm')"
-          name="width_cm"
-        >
-          <UInputNumber
-            v-model="state.width_cm"
-            :min="0"
-            :step="1"
-            :disabled="loading"
-            class="w-full"
-          />
-        </UFormField>
-        <UFormField
-          :label="t('admin.products.fields.heightCm')"
-          :hint="t('admin.products.hints.heightCm')"
-          name="height_cm"
-        >
-          <UInputNumber
-            v-model="state.height_cm"
-            :min="0"
-            :step="1"
-            :disabled="loading"
-            class="w-full"
-          />
-        </UFormField>
-      </div>
+
+        <!--
+          Dimensions — three nullable cm fields driving volumetric shipping
+          pricing (alongside the zone's dim_divisor on the backend). Convention
+          is "all three set or none"; the backend resolver treats any-NULL as
+          "no volumetric contribution" so a half-populated row is harmless.
+        -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <UFormField
+            :label="t('admin.products.fields.lengthCm')"
+            :hint="t('admin.products.hints.lengthCm')"
+            name="length_cm"
+          >
+            <UInputNumber
+              v-model="state.length_cm"
+              :min="0"
+              :step="1"
+              :disabled="loading"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField
+            :label="t('admin.products.fields.widthCm')"
+            :hint="t('admin.products.hints.widthCm')"
+            name="width_cm"
+          >
+            <UInputNumber
+              v-model="state.width_cm"
+              :min="0"
+              :step="1"
+              :disabled="loading"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField
+            :label="t('admin.products.fields.heightCm')"
+            :hint="t('admin.products.hints.heightCm')"
+            name="height_cm"
+          >
+            <UInputNumber
+              v-model="state.height_cm"
+              :min="0"
+              :step="1"
+              :disabled="loading"
+              class="w-full"
+            />
+          </UFormField>
+        </div>
+      </template>
 
       <UFormField
         name="allow_backorder"

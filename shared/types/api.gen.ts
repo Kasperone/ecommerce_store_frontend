@@ -8920,19 +8920,15 @@ export interface components {
          */
         OrderCreate: {
             /** Shipping Address */
-            shipping_address: string;
+            shipping_address?: string | null;
             /** Shipping City */
-            shipping_city: string;
+            shipping_city?: string | null;
             /** Shipping Postal Code */
-            shipping_postal_code: string;
+            shipping_postal_code?: string | null;
             /** Notes */
             notes?: string | null;
-            /**
-             * Shipping Country
-             * @description ISO 3166-1 alpha-2 country code, e.g. 'PL'.
-             * @example PL
-             */
-            shipping_country: string;
+            /** Shipping Country */
+            shipping_country?: string | null;
             /** Items */
             items: components["schemas"]["OrderItemCreate"][];
             /**
@@ -8941,7 +8937,7 @@ export interface components {
              */
             currency: string;
             /** Shipping Method Id */
-            shipping_method_id: number;
+            shipping_method_id?: number | null;
             /** Coupon Code */
             coupon_code?: string | null;
             /** Guest Email */
@@ -9068,6 +9064,10 @@ export interface components {
             variant_id?: number | null;
             /** Quantity */
             quantity: number;
+            /** Gift Card Recipient Email */
+            gift_card_recipient_email?: string | null;
+            /** Gift Card Message */
+            gift_card_message?: string | null;
         };
         /**
          * OrderItemResponse
@@ -9104,6 +9104,15 @@ export interface components {
             unit_price: number;
             /** Total Price */
             total_price: number;
+            /**
+             * Is Gift Card
+             * @default false
+             */
+            is_gift_card: boolean;
+            /** Gift Card Recipient Email */
+            gift_card_recipient_email?: string | null;
+            /** Gift Card Message */
+            gift_card_message?: string | null;
         };
         /**
          * OrderListItem
@@ -9189,11 +9198,11 @@ export interface components {
              */
             updated_at: string;
             /** Shipping Address */
-            shipping_address: string;
+            shipping_address?: string | null;
             /** Shipping City */
-            shipping_city: string;
+            shipping_city?: string | null;
             /** Shipping Postal Code */
-            shipping_postal_code: string;
+            shipping_postal_code?: string | null;
             /** Notes */
             notes?: string | null;
             /** Shipping Country */
@@ -9397,11 +9406,11 @@ export interface components {
              */
             updated_at: string;
             /** Shipping Address */
-            shipping_address: string;
+            shipping_address?: string | null;
             /** Shipping City */
-            shipping_city: string;
+            shipping_city?: string | null;
             /** Shipping Postal Code */
-            shipping_postal_code: string;
+            shipping_postal_code?: string | null;
             /** Notes */
             notes?: string | null;
             /** Shipping Country */
@@ -10261,6 +10270,11 @@ export interface components {
              * @default false
              */
             is_featured: boolean;
+            /**
+             * Is Gift Card
+             * @default false
+             */
+            is_gift_card: boolean;
             /** Category Id */
             category_id?: number | null;
             /** Tags */
@@ -10602,6 +10616,11 @@ export interface components {
              * @default false
              */
             is_featured: boolean;
+            /**
+             * Is Gift Card
+             * @default false
+             */
+            is_gift_card: boolean;
             /** Category Id */
             category_id?: number | null;
             /** Images */
@@ -10757,6 +10776,8 @@ export interface components {
             is_active?: boolean | null;
             /** Is Featured */
             is_featured?: boolean | null;
+            /** Is Gift Card */
+            is_gift_card?: boolean | null;
             /** Category Id */
             category_id?: number | null;
             /** Tags */
@@ -11005,6 +11026,11 @@ export interface components {
              * @default false
              */
             is_featured: boolean;
+            /**
+             * Is Gift Card
+             * @default false
+             */
+            is_gift_card: boolean;
             /** Category Id */
             category_id?: number | null;
             /** Images */

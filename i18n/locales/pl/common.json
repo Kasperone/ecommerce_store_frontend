@@ -1365,6 +1365,8 @@
         "allowBackorder": "Zezwól na zamówienia oczekujące",
         "isActive": "Aktywny",
         "isFeatured": "Wyróżniony",
+        "isGiftCard": "Karta podarunkowa",
+        "isGiftCardHint": "Sprzedawany jako karta podarunkowa — nie jest wysyłany, a po opłaceniu zamówienia odbiorca otrzymuje kartę o określonej wartości. Każdy nominał (np. 100 zł, 200 zł) dodaj jako wariant.",
         "status": "Status",
         "brand": "Marka",
         "gtin": "GTIN",
