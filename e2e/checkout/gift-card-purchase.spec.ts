@@ -83,13 +83,29 @@ test.describe('Gift-card purchase money path', () => {
       const funding = await api.mintGiftCard({ balance: 50, currency: 'USD' })
 
       // --- PDP: a gift-card product shows the recipient field; add to cart.
+      // The recipient field is SSR'd (not client-only, unlike the checkout form),
+      // so a `fill()` before Vue hydrates the v-model listener is silently lost
+      // and the recipient never reaches the cart line (it falls back to the buyer
+      // email). Gate on hydration first: the header's <CartTrigger> is client-only
+      // ("Open cart"), so its appearance means the app has mounted and the fill
+      // will be captured — a fill-independent signal (probing via the field itself
+      // would hit the very race we're avoiding).
       await page.goto(`/products/${giftSlug}`)
       await expect(page.getByRole('heading', { name: 'E2E Gift Card 50' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Open cart' })).toBeVisible({ timeout: 15_000 })
       await page.getByTestId('gift-card-recipient').fill('recipient@example.com')
-      await expect(async () => {
-        await page.getByRole('button', { name: 'Add to Cart' }).first().click()
-        await expect(page.getByRole('dialog').getByText('E2E Gift Card 50')).toBeVisible({ timeout: 2_000 })
-      }).toPass({ timeout: 20_000 })
+      await page.getByRole('button', { name: 'Add to Cart' }).first().click()
+      await expect(page.getByRole('dialog').getByText('E2E Gift Card 50')).toBeVisible({ timeout: 5_000 })
+      // Sanity: the recipient reached the (persisted) cart line as a single unit —
+      // fails fast + clearly if the hydration gate above was insufficient.
+      const cartLine = await page.evaluate(
+        () => JSON.parse(localStorage.getItem('cart') ?? '[]')[0] as {
+          giftCardRecipientEmail?: string
+          quantity?: number
+        } | undefined,
+      )
+      expect(cartLine?.giftCardRecipientEmail).toBe('recipient@example.com')
+      expect(cartLine?.quantity).toBe(1)
 
       // --- Checkout: the all-gift-card cart SKIPS shipping (no address field).
       await page.goto('/checkout')
