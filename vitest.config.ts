@@ -20,6 +20,15 @@ export default defineVitestConfig({
       },
     },
     globals: true,
+    // Heavy `mountSuspended` specs (full-app mount, repeated per test) run ~8s
+    // under v8 coverage locally and tip past Vitest's default 5s test / 10s hook
+    // timeouts on slower CI runners under parallel load — an otherwise-green suite
+    // then fails on a timeout, not a real assertion (hit on FE #312: the checkout
+    // spec timed out at 10007ms, passed on re-run). Generous headroom keeps that
+    // CI-only flake class out without masking a genuine hang (a truly stuck test
+    // still fails — just later).
+    testTimeout: 15000,
+    hookTimeout: 20000,
     setupFiles: ['./test/setup.ts'],
     include: [
       'shared/**/*.spec.ts',
