@@ -58,6 +58,16 @@ export interface CartItem {
   lengthCm?: number | null
   widthCm?: number | null
   heightCm?: number | null
+  // Gift cards v2: a gift-card product's line is a purchasable card. Snapshotted
+  // from `product.is_gift_card` so checkout can detect an all-gift-card cart
+  // (skips shipping) without re-fetching. Older persisted carts lack it → false.
+  isGiftCard?: boolean
+  // Per-line gift-card delivery: recipient email (blank ⇒ backend defaults to the
+  // buyer/guest email) + an optional gift message. Threaded onto the order-create
+  // payload's `OrderItemCreate`. One recipient per (product, denomination) line —
+  // re-adding a denomination overwrites these (multi-recipient is a v2.1 concern).
+  giftCardRecipientEmail?: string | null
+  giftCardMessage?: string | null
   quantity: number
 }
 
@@ -77,6 +87,7 @@ export type AddableProduct = Pick<
   | 'length_cm'
   | 'width_cm'
   | 'height_cm'
+  | 'is_gift_card'
 >
 
 /**
@@ -115,7 +126,12 @@ export const useCartStore = defineStore('cart', () => {
     items.value = items.value.filter(item => !lineMatches(item, productId, variantId))
   }
 
-  function add(product: AddableProduct, quantity = 1, variant: ProductVariantPublic | null = null) {
+  function add(
+    product: AddableProduct,
+    quantity = 1,
+    variant: ProductVariantPublic | null = null,
+    giftCard: { recipientEmail?: string | null, message?: string | null } | null = null,
+  ) {
     // Per-line stock grain: the variant's stock when present, else the product's.
     const stock = variant ? variant.stock : product.stock
     // Out of stock blocks adding only when backorder isn't allowed (backorder
@@ -125,6 +141,12 @@ export const useCartStore = defineStore('cart', () => {
     if (existing) {
       const next = existing.quantity + quantity
       existing.quantity = product.allow_backorder ? next : Math.min(next, stock)
+      // Re-adding a gift-card denomination refreshes its recipient/message
+      // (last-write-wins — one recipient per denomination line for v1).
+      if (product.is_gift_card && giftCard) {
+        existing.giftCardRecipientEmail = giftCard.recipientEmail?.trim() || null
+        existing.giftCardMessage = giftCard.message?.trim() || null
+      }
       return
     }
     items.value.push({
@@ -149,6 +171,9 @@ export const useCartStore = defineStore('cart', () => {
       lengthCm: product.length_cm ?? null,
       widthCm: product.width_cm ?? null,
       heightCm: product.height_cm ?? null,
+      isGiftCard: product.is_gift_card ?? false,
+      giftCardRecipientEmail: product.is_gift_card ? (giftCard?.recipientEmail?.trim() || null) : null,
+      giftCardMessage: product.is_gift_card ? (giftCard?.message?.trim() || null) : null,
       quantity: product.allow_backorder
         ? Math.max(quantity, 1)
         : Math.min(Math.max(quantity, 1), stock),

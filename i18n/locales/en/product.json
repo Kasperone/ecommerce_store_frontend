@@ -105,6 +105,14 @@
   "variants": {
     "selectOptions": "Select options"
   },
+  "giftCard": {
+    "recipientLabel": "Recipient email",
+    "recipientHint": "Leave blank to send the gift card to yourself.",
+    "recipientPlaceholder": "friend{'@'}example.com",
+    "recipientInvalid": "Enter a valid email address.",
+    "messageLabel": "Gift message (optional)",
+    "messagePlaceholder": "Add a personal note to include with the gift card."
+  },
   "currency": {
     "select": "Select currency"
   },

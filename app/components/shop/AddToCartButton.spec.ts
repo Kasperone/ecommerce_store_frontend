@@ -153,4 +153,57 @@ describe('ShopAddToCartButton', () => {
       expect(wrapper.text()).toContain('backorder')
     })
   })
+
+  describe('gift cards (v2)', () => {
+    const denomination = {
+      id: 50,
+      title: '$50',
+      title_pl: null,
+      sku: 'GC-50',
+      price_usd: 50,
+      price_pln: 200,
+      price_eur: 45,
+      image_id: null,
+      image_url: null,
+      stock: 999,
+      in_stock: true,
+      option_value_ids: [5],
+    }
+
+    it('forwards recipient email + message to cart.add for a gift-card product', async () => {
+      const wrapper = await mountSuspended(AddToCartButton, {
+        props: {
+          product: product({ is_gift_card: true, has_variants: true }),
+          variant: denomination,
+          giftCardRecipientEmail: 'friend@example.com',
+          giftCardMessage: 'Enjoy!',
+        },
+      })
+      await wrapper.find('button').trigger('click')
+      expect(add).toHaveBeenCalledTimes(1)
+      expect(add.mock.calls[0]![3]).toEqual({
+        recipientEmail: 'friend@example.com',
+        message: 'Enjoy!',
+      })
+    })
+
+    it('passes no gift-card payload for a non-gift product', async () => {
+      const wrapper = await mountSuspended(AddToCartButton, { props: { product: product() } })
+      await wrapper.find('button').trigger('click')
+      expect(add.mock.calls[0]![3]).toBeNull()
+    })
+
+    it('is disabled and does not add when blocked (invalid recipient email)', async () => {
+      const wrapper = await mountSuspended(AddToCartButton, {
+        props: {
+          product: product({ is_gift_card: true, has_variants: true }),
+          variant: denomination,
+          blocked: true,
+        },
+      })
+      expect(wrapper.find('button').attributes('disabled')).toBeDefined()
+      await wrapper.find('button').trigger('click')
+      expect(add).not.toHaveBeenCalled()
+    })
+  })
 })

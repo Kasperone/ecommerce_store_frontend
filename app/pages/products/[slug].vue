@@ -125,6 +125,22 @@ const lowStock = computed(() => {
 // Variant SKU wins once resolved; falls back to the product SKU.
 const displaySku = computed(() => selectedVariant.value?.sku ?? product.value?.sku ?? null)
 
+// ---------------------------------------------------------------------------
+// Gift cards v2. A gift-card product's denominations ARE its variants (card
+// value = variant price), so the variant selector above already renders the
+// denomination picker unchanged. Here we add the per-line delivery fields: an
+// optional recipient email (blank ⇒ backend emails the buyer) + a gift message.
+// ---------------------------------------------------------------------------
+const isGiftCard = computed(() => product.value?.is_gift_card === true)
+const giftRecipientEmail = ref('')
+const giftMessage = ref('')
+// Light client-side check: only a non-empty, malformed address blocks the add
+// (the backend re-validates). Empty is valid — it falls back to the buyer email.
+const giftEmailInvalid = computed(() => {
+  const value = giftRecipientEmail.value.trim()
+  return value.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+})
+
 const category = computed(() => product.value?.category ?? null)
 // Merchandising tag chips → faceted search by tag name (P2). Hidden when empty.
 const tags = computed(() => product.value?.tags ?? [])
@@ -364,14 +380,51 @@ useSchemaOrg([
             >{{ t('details.sku') }}: {{ displaySku }}</span>
           </div>
 
+          <!-- Gift-card delivery fields (denomination = the variant selected
+               above). Recipient email is optional — blank emails the buyer. -->
+          <div
+            v-if="isGiftCard"
+            class="max-w-md space-y-3"
+            data-testid="gift-card-fields"
+          >
+            <UFormField
+              :label="t('giftCard.recipientLabel')"
+              :error="giftEmailInvalid ? t('giftCard.recipientInvalid') : undefined"
+              :description="t('giftCard.recipientHint')"
+            >
+              <UInput
+                v-model="giftRecipientEmail"
+                type="email"
+                autocomplete="off"
+                :placeholder="t('giftCard.recipientPlaceholder')"
+                class="w-full"
+                data-testid="gift-card-recipient"
+              />
+            </UFormField>
+            <UFormField :label="t('giftCard.messageLabel')">
+              <UTextarea
+                v-model="giftMessage"
+                :rows="3"
+                :maxlength="500"
+                :placeholder="t('giftCard.messagePlaceholder')"
+                class="w-full"
+                data-testid="gift-card-message"
+              />
+            </UFormField>
+          </div>
+
           <div class="flex max-w-md items-stretch gap-2">
             <ShopAddToCartButton
               :product="product"
               :variant="selectedVariant"
+              :gift-card-recipient-email="isGiftCard ? giftRecipientEmail : null"
+              :gift-card-message="isGiftCard ? giftMessage : null"
+              :blocked="isGiftCard && giftEmailInvalid"
               block
               class="flex-1"
             />
             <ShopWishlistButton
+              v-if="!isGiftCard"
               :product="product"
               :variant="selectedVariant"
               icon-only
