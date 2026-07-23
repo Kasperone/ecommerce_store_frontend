@@ -155,6 +155,9 @@ export class ApiClient {
       price_eur: number
       stock?: number
       category_id?: number | null
+      // Gift cards v2: a purchasable gift-card product (digital line — no
+      // shipping, non-taxable; issues a stored-value card on payment).
+      is_gift_card?: boolean
     },
   ): Promise<{ id: number }> {
     const body = {
@@ -387,6 +390,9 @@ export class ApiClient {
       quantity: number
       shippingMethodId: number
       currency?: 'USD' | 'PLN' | 'EUR'
+      // Redeem a gift card as a TENDER against this order (gift cards v2 money
+      // path). The backend re-validates + debits it authoritatively.
+      giftCardCode?: string
     },
   ): Promise<{ id: number, order_number: string, status: string }> {
     const res = await this.http.post('/api/v1/orders/', {
@@ -399,6 +405,7 @@ export class ApiClient {
         shipping_country: 'US',
         shipping_method_id: input.shippingMethodId,
         currency: input.currency ?? 'USD',
+        ...(input.giftCardCode ? { gift_card_code: input.giftCardCode } : {}),
       },
     })
     if (!res.ok()) {
@@ -501,6 +508,56 @@ export class ApiClient {
     const raw = res.rows[0]?.balance
     if (raw === undefined) throw new Error(`getGiftCardBalance: no card ${giftCardId}`)
     return Number(raw)
+  }
+
+  /**
+   * DB: the gift cards issued by a paid order (gift cards v2 — `order_id`
+   * provenance). Asserts `mark_paid` minted one stored-value card per gift-card
+   * unit. Plaintext is never stored (bearer money — sha256 hash + last4 only),
+   * so this returns the balance/last4 for assertions, not the code.
+   */
+  async getGiftCardsByOrder(orderId: number): Promise<Array<{
+    id: number
+    balance: number
+    last4: string
+    currency: string
+  }>> {
+    const res = await this.pg.query<{
+      id: number
+      balance: string
+      last4: string
+      currency: string
+    }>(
+      'SELECT id, balance, last4, currency FROM gift_cards WHERE order_id = $1 ORDER BY id',
+      [orderId],
+    )
+    return res.rows.map(r => ({
+      id: r.id,
+      balance: Number(r.balance),
+      last4: r.last4,
+      currency: r.currency,
+    }))
+  }
+
+  /**
+   * DB: re-key an existing gift card to a KNOWN plaintext so a test can redeem
+   * it. An order-issued card's plaintext is generated server-side and only ever
+   * emailed — it can't be read back (hash + last4 storage). This test-only seam
+   * swaps the card's `code_hash`/`last4` (same sha256 posture as mintGiftCard),
+   * returning the new plaintext the storefront/API redeems.
+   */
+  async rekeyGiftCard(giftCardId: number): Promise<{ code: string, last4: string }> {
+    const code = `E2EREKEY${randomBytes(6).toString('hex').toUpperCase()}`
+    const codeHash = createHash('sha256').update(code).digest('hex')
+    const last4 = code.slice(-4)
+    const res = await this.pg.query(
+      `UPDATE gift_cards
+         SET code_hash = $1, last4 = $2, updated_at = (NOW() AT TIME ZONE 'UTC')
+       WHERE id = $3`,
+      [codeHash, last4, giftCardId],
+    )
+    if (res.rowCount !== 1) throw new Error(`rekeyGiftCard: no card ${giftCardId}`)
+    return { code, last4 }
   }
 
   async getUserId(email: string): Promise<number> {
