@@ -100,6 +100,7 @@ export const createProductCreateSchema = (t: TranslateFunction) =>
     allow_backorder: z.boolean().default(false),
     is_active: z.boolean().default(true),
     is_featured: z.boolean().default(false),
+    is_gift_card: z.boolean().default(false),
     category_id: z.number().int().positive().optional().nullable(),
     // Optional: null/omitted → backend applies the store's default tax category.
     tax_category_id: z.number().int().positive().optional().nullable(),
@@ -169,6 +170,7 @@ export const createProductUpdateSchema = (t: TranslateFunction) =>
     allow_backorder: z.boolean().optional(),
     is_active: z.boolean().optional(),
     is_featured: z.boolean().optional(),
+    is_gift_card: z.boolean().optional(),
     category_id: z.number().int().positive().optional().nullable(),
     // Optional: null/omitted → backend applies the store's default tax category.
     tax_category_id: z.number().int().positive().optional().nullable(),
