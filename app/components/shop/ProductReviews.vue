@@ -72,9 +72,25 @@ async function loadMyVotes() {
   }
 }
 
+// The PDP mounts this section with `hydrate-on-visible`, so `onMounted` (and
+// thus the own-review + votes fetch) doesn't run until the reviews scroll into
+// view. Until then the write area shows its SSR state — `v-else` loading rather
+// than a silent blank (see template).
 onMounted(() => {
   void loadOwn()
   void loadMyVotes()
+})
+
+// If the session restores AFTER this section has hydrated (SSR restore missed
+// the cookie, client restore then flips `isAuthed` false→true), re-run the
+// fetches so the write area isn't stuck on the login prompt. `isAuthenticated`
+// is `!!accessToken && !!user`, so on this edge a token is guaranteed present.
+watch(isAuthed, (authed, wasAuthed) => {
+  if (authed && !wasAuthed) {
+    ownLoaded.value = false
+    void loadOwn()
+    void loadMyVotes()
+  }
 })
 
 function displayedCount(review: ReviewResponse): number {
@@ -427,6 +443,16 @@ function starsLabel(rating: number) {
           </UButton>
         </div>
       </template>
+
+      <!-- Authed but the own-review fetch hasn't settled yet: show a loading
+           placeholder rather than a silent blank (the write area used to render
+           nothing while `isAuthed && !ownLoaded`). -->
+      <p
+        v-else
+        class="text-sm text-muted"
+      >
+        {{ t('reviews.loadingOwn') }}
+      </p>
     </div>
 
     <!-- Approved review list -->

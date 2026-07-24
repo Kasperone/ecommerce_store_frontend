@@ -57,6 +57,7 @@
     "starsLabel": "{rating} out of 5 stars",
     "empty": "No reviews yet. Be the first to review this product.",
     "loginToWrite": "Log in to write a review",
+    "loadingOwn": "Loading your review…",
     "writeReview": "Write a review",
     "yourReview": "Your review",
     "edit": "Edit",
