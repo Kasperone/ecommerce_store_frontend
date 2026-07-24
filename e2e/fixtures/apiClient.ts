@@ -155,6 +155,10 @@ export class ApiClient {
       price_eur: number
       stock?: number
       category_id?: number | null
+      // Assign a specific tax category (e.g. a REDUCED_5 / REDUCED_8 id from
+      // taxCategoryIdByCode) to exercise the mixed-rate faktura decomposition.
+      // Omit → the backend assigns the default (STANDARD, 23% in PL).
+      tax_category_id?: number
       // Gift cards v2: a purchasable gift-card product (digital line — no
       // shipping, non-taxable; issues a stored-value card on payment).
       is_gift_card?: boolean
@@ -880,6 +884,11 @@ export class ApiClient {
     shipping: number
     discount: number
     total: number
+    // Derived VAT total — always 0 here: prices are stored VAT-inclusive
+    // (gross), so VAT is decomposed on the faktura at print time, never stored
+    // on the order. The vat-decomposition spec asserts this and reads the
+    // per-line rate snapshots via getOrderItemVatRates instead.
+    tax: number
     currency: string
     coupon_code: string | null
     // Stored-value tenders (gift cards + store credit). `amount_due = total −
@@ -914,6 +923,7 @@ export class ApiClient {
       variant_title: string | null
       quantity: number
       unit_price: number
+      total_price: number
     }>
   }> {
     const res = await this.http.get(`/api/v1/orders/${orderId}`, {
@@ -984,6 +994,34 @@ export class ApiClient {
       [orderId],
     )
     return res.rows.map(r => r.id)
+  }
+
+  /**
+   * Resolve a tax category's id by its stable `code` (STANDARD / REDUCED_8 /
+   * REDUCED_5 / ZERO — all seeded by migration 1156c88e49a4). Used to build a
+   * mixed-VAT-rate cart without hard-coding auto-increment ids.
+   */
+  async taxCategoryIdByCode(code: string): Promise<number> {
+    const res = await this.pg.query<{ id: number }>(
+      'SELECT id FROM tax_categories WHERE code = $1',
+      [code],
+    )
+    if (res.rows.length === 0) throw new Error(`tax category not found: ${code}`)
+    return res.rows[0]!.id
+  }
+
+  /**
+   * The per-line VAT-rate snapshots on an order, keyed by product_id. VAT is
+   * never stored on the order (prices are gross; order.tax is always 0) — the
+   * per-line `vat_rate` snapshot is the input the faktura decomposition groups
+   * by, so it's the observable truth of the mixed-rate wiring.
+   */
+  async getOrderItemVatRates(orderId: number): Promise<Map<number, number>> {
+    const res = await this.pg.query<{ product_id: number, vat_rate: number }>(
+      'SELECT product_id, vat_rate FROM order_items WHERE order_id = $1 ORDER BY id',
+      [orderId],
+    )
+    return new Map(res.rows.map(r => [r.product_id, r.vat_rate]))
   }
 
   /** Admin: patch store config (partial update). */
