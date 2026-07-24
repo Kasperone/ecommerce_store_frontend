@@ -1024,6 +1024,47 @@ export class ApiClient {
     return new Map(res.rows.map(r => [r.product_id, r.vat_rate]))
   }
 
+  /**
+   * Refund + faktura-korygująca truth for an order, straight from pg. Reads the
+   * authoritative financial record — the refund amount, the KOR number the
+   * corrective invoice allocated, and the resulting order status — independent
+   * of the order response schema. `amount` is Numeric(12,2) (pg returns it as a
+   * string) → coerced to number; `korNumber` is null when the order had no
+   * faktura to correct.
+   */
+  async getOrderRefundSummary(orderId: number): Promise<{
+    status: string
+    refunds: Array<{ amount: number, reason: string, korNumber: string | null }>
+  }> {
+    // The raw column stores the enum name uppercase (PARTIALLY_REFUNDED); the
+    // API lowercases on serialization, so lower() here to match how status
+    // reads everywhere else in the suite.
+    const statusRes = await this.pg.query<{ status: string }>(
+      'SELECT lower(status::text) AS status FROM orders WHERE id = $1',
+      [orderId],
+    )
+    const refundsRes = await this.pg.query<{
+      amount: string
+      reason: string
+      kor_number: string | null
+    }>(
+      `SELECT r.amount, r.reason, c.kor_number
+         FROM refunds r
+         LEFT JOIN corrective_invoices c ON c.refund_id = r.id
+        WHERE r.order_id = $1
+        ORDER BY r.id`,
+      [orderId],
+    )
+    return {
+      status: statusRes.rows[0]?.status ?? '',
+      refunds: refundsRes.rows.map(r => ({
+        amount: Number(r.amount),
+        reason: r.reason,
+        korNumber: r.kor_number,
+      })),
+    }
+  }
+
   /** Admin: patch store config (partial update). */
   async updateStoreConfig(adminToken: string, patch: Record<string, unknown>): Promise<void> {
     const res = await this.http.patch('/api/v1/admin/settings/', {
