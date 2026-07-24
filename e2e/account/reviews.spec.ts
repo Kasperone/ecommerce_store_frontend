@@ -14,19 +14,12 @@ test.use({ storageState: { cookies: [], origins: [] } })
 test.setTimeout(180_000)
 
 test.describe('Product reviews', () => {
-  // PARKED (test.fixme) — blocked on a ProductReviews.vue timing fragility, NOT
-  // a test defect. The PDP write area renders only when `ownLoaded` is true, and
-  // `loadOwn()` runs in `onMounted`. On a hard page load as an authed customer
-  // (refresh-cookie session restore), `onMounted`'s `fetchMine` races the auth
-  // restoration: the write area (`v-else-if="ownLoaded"` with no `v-else`) then
-  // renders nothing and the "Write a review" button never appears — even after
-  // the header shows Logout (isAuthed=true). A real user who logs in via the
-  // form and navigates client-side to a PDP keeps the session in the Pinia store
-  // and doesn't hit this, but a logged-in hard-refresh of a PDP can. Fix the
-  // component (add a `v-else` loading state / re-run loadOwn on isAuthed change /
-  // don't gate the write button on `ownLoaded`), then unpark. Backend verified
-  // fine: GET /products/{id}/reviews/me returns null in ~0.25s.
-  test.fixme('customer submits a review → admin approves → it becomes public on the PDP', async ({ page }) => {
+  // The PDP mounts the reviews section with `hydrate-on-visible`, so its client
+  // code (own-review fetch → write form) only runs once it scrolls into view;
+  // this spec scrolls it in before engaging the widget. `ProductReviews` also
+  // shows a loading state (not a silent blank) while the fetch settles and
+  // re-runs it if the session restores after hydration. Fixed 2026-07-24.
+  test('customer submits a review → admin approves → it becomes public on the PDP', async ({ page }) => {
     const api = await ApiClient.create()
     const runId = Date.now()
     const user = randomEphemeralUser()
@@ -57,11 +50,13 @@ test.describe('Product reviews', () => {
       // --- 1) customer submits a review from the PDP → pending, not public
       await page.context().addCookies([customerCookie])
       await page.goto(`/products/${slug}`)
-      // The review write area only renders once the session is RESTORED from the
-      // refresh cookie (isAuthed=true) — not merely once the page hydrates. Gate
-      // on the authed header (Logout) so isAuthed has flipped before we look for
-      // the "Write a review" button.
+      // Gate on the authed header (Logout) so the session has restored from the
+      // refresh cookie before we engage the review widget.
       await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible({ timeout: 60_000 })
+      // The reviews section mounts with `hydrate-on-visible` — its client code
+      // (which loads the customer's own review and reveals the write form) does
+      // not run until it scrolls into view. Scroll it in, then the button appears.
+      await page.getByRole('heading', { name: 'Customer reviews' }).scrollIntoViewIfNeeded()
       await page.getByRole('button', { name: 'Write a review' }).click()
       await page.getByRole('button', { name: 'Rate 5 stars' }).click()
       await page.getByLabel('Your review').fill(body)
