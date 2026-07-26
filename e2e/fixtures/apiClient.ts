@@ -201,6 +201,48 @@ export class ApiClient {
     }
   }
 
+  /** Admin: create a manual collection. Returns its id (needed to set
+   * membership + to clean up in `finally`). */
+  async createCollection(
+    accessToken: string,
+    input: { name: string, slug: string, description?: string },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post('/api/v1/admin/collections/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: input,
+    })
+    if (!res.ok()) {
+      throw new Error(`createCollection failed: ${res.status()} ${await res.text()}`)
+    }
+    const collection = await res.json() as { id: number }
+    return { id: collection.id }
+  }
+
+  /** Admin: replace a collection's membership in display order. */
+  async setCollectionProducts(
+    accessToken: string,
+    collectionId: number,
+    productIds: number[],
+  ): Promise<void> {
+    const res = await this.http.put(`/api/v1/admin/collections/${collectionId}/products`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: { product_ids: productIds },
+    })
+    if (!res.ok()) {
+      throw new Error(`setCollectionProducts failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** Admin: delete a collection (cleanup). 404 is fine — already gone. */
+  async deleteCollection(accessToken: string, collectionId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/collections/${collectionId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteCollection failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
   /**
    * Ensures the minimal shipping setup a checkout needs to quote: one zone
    * covering the given countries, one method (stable name), and one flat
