@@ -79,6 +79,21 @@ export class ApiClient {
     )
   }
 
+  /**
+   * Make a *scoped* staffer: role=ADMIN (coarse "any staff" gate) but
+   * is_owner=false with an explicit capability subset. Unlike an owner (implicit
+   * every capability), `can(cap)` for such a user is exactly `caps.includes(cap)`
+   * — which is what filters the admin sidebar (`sidebarMenu.ts`). Seeding via pg
+   * because the PATCH /admin/staff route requires the *acting* admin to be an
+   * owner to grant capabilities.
+   */
+  async makeScopedStaff(email: string, capabilities: string[]): Promise<void> {
+    await this.pg.query(
+      `UPDATE users SET role = 'ADMIN', is_owner = false, capabilities = $2 WHERE email = $1`,
+      [email, capabilities],
+    )
+  }
+
   async getMe(accessToken: string): Promise<{
     first_name: string
     last_name: string
