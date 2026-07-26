@@ -1065,6 +1065,27 @@ export class ApiClient {
     }
   }
 
+  /**
+   * DB: a draft order's conversion outcome — its lifecycle `status` and the
+   * `converted_order_id` the convert route stamps. Unlike `orders.status`
+   * (enum NAME, uppercase), `draft_orders.status` is stored as the lowercase
+   * enum VALUE in a plain String column (`open` / `completed`, mirrors
+   * QuoteStatus), so no `lower()` is needed. This is the observable truth that
+   * a draft was consumed into exactly one real order.
+   */
+  async getDraftOrderRow(draftId: number): Promise<{
+    status: string
+    convertedOrderId: number | null
+  }> {
+    const res = await this.pg.query<{ status: string, converted_order_id: number | null }>(
+      'SELECT status, converted_order_id FROM draft_orders WHERE id = $1',
+      [draftId],
+    )
+    const row = res.rows[0]
+    if (!row) throw new Error(`getDraftOrderRow: no draft ${draftId}`)
+    return { status: row.status, convertedOrderId: row.converted_order_id }
+  }
+
   /** Admin: patch store config (partial update). */
   async updateStoreConfig(adminToken: string, patch: Record<string, unknown>): Promise<void> {
     const res = await this.http.patch('/api/v1/admin/settings/', {
