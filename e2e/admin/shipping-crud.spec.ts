@@ -143,11 +143,13 @@ test.describe('Admin shipping CRUD', () => {
       expect(zone!.isActive).toBe(true)
 
       // --------------------------------------------------------------- method
-      // Tab state is a URL deep-link (`?tab=…`), which the page documents as
-      // supported. Clicking the tab races its own re-render — the click focuses
-      // the tab but the panel behind it is swapped before selection lands — so
-      // navigate instead.
-      await page.goto('/admin/shipping?tab=methods')
+      // Clicking a tab must work: SSR-rendered, this UTabs used to never hydrate
+      // its interactivity, so the trigger emitted nothing and clicks were inert
+      // while the markup looked correct. This is the regression guard for that
+      // (<ClientOnly> around the tab bar).
+      await page.getByRole('tab', { name: 'Methods' }).click()
+      await expect(page).toHaveURL(/[?&]tab=methods/, { timeout: 10_000 })
+      await expect(page.getByRole('button', { name: 'New method' })).toBeVisible()
       await openDialog(page, 'New method')
       const methodDialog = page.getByRole('dialog')
       await methodDialog.getByLabel('Name', { exact: true }).fill(methodName)

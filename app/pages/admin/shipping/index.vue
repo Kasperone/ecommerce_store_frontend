@@ -45,15 +45,23 @@ const defaults = {
 }
 const { filters, set } = useUrlFilters(filterSchema, defaults)
 
-// NOTE: clicking a tab does not currently switch tabs on this page — the
-// trigger never emits, so neither this setter nor the URL ever runs. That is a
-// separate, still-unexplained bug (a plain-ref v-model, the pattern
-// admin/translations documents as "proven", does not fix it either); the
-// `?tab=` deep-link below works and is the reliable way in. Tracked in
-// notes/plans/test/to-fix/2026-07-28-admin-shipping-tab-click-inert.md
-const tabModel = computed({
-  get: () => filters.value.tab ?? 'zones',
-  set: (value: string) => set({ tab: value as 'zones' | 'methods' | 'rates' }),
+// Plain ref bound straight to `<UTabs v-model>`, mirrored to/from `?tab=` — the
+// pattern admin/translations documents as proven (a computed setter would
+// round-trip through the async URL push, so the tab snaps back on click).
+// The tab bar is wrapped in <ClientOnly> in the template: SSR-rendered, this
+// UTabs never hydrates its interactivity — the trigger emits nothing at all, so
+// clicks and even keyboard arrows did nothing while the markup looked correct.
+// admin/translations only escapes this because its items arrive from a query, so
+// its <UTabs v-if="tabItems.length"> mounts client-side. Panels render as
+// siblings (`:content="false"`), matching every other UTabs in the codebase.
+type ShippingTab = 'zones' | 'methods' | 'rates'
+const activeTab = computed<ShippingTab>(() => filters.value.tab ?? 'zones')
+const tabModel = ref<ShippingTab>(activeTab.value)
+watch(activeTab, (tab) => {
+  if (tab !== tabModel.value) tabModel.value = tab
+})
+watch(tabModel, (tab) => {
+  if (tab !== activeTab.value) set({ tab })
 })
 const tabItems = computed(() => [
   { label: t('admin.shipping.tabs.zones'), value: 'zones' },
@@ -250,197 +258,198 @@ defineExpose({ localizedCountries })
         </p>
       </header>
 
-      <UTabs
-        v-model="tabModel"
-        :items="tabItems"
-        :ui="{ list: 'max-w-md' }"
+      <ClientOnly>
+        <UTabs
+          v-model="tabModel"
+          :items="tabItems"
+          :content="false"
+          :ui="{ list: 'max-w-md' }"
+        />
+      </ClientOnly>
+
+      <!-- Zones tab -->
+      <section
+        v-if="tabModel === 'zones'"
+        class="space-y-3"
       >
-        <template #content="{ item }">
-          <!-- Zones tab -->
-          <section
-            v-if="item.value === 'zones'"
-            class="space-y-3"
+        <div class="flex justify-end">
+          <UButton
+            color="primary"
+            icon="i-lucide-plus"
+            @click="openCreateZone"
           >
-            <div class="flex justify-end">
+            {{ t('admin.shipping.zones.new') }}
+          </UButton>
+        </div>
+        <UTable
+          :data="zones"
+          :columns="zoneColumns"
+          :empty="t('admin.shipping.zones.empty')"
+        >
+          <template #is_active-cell="{ row }">
+            <UBadge :color="row.original.is_active ? 'success' : 'neutral'">
+              {{ row.original.is_active
+                ? t('admin.shipping.zones.fields.activeOn')
+                : t('admin.shipping.zones.fields.activeOff') }}
+            </UBadge>
+          </template>
+          <template #actions-cell="{ row }">
+            <div class="flex justify-end gap-2">
               <UButton
-                color="primary"
-                icon="i-lucide-plus"
-                @click="openCreateZone"
-              >
-                {{ t('admin.shipping.zones.new') }}
-              </UButton>
-            </div>
-            <UTable
-              :data="zones"
-              :columns="zoneColumns"
-              :empty="t('admin.shipping.zones.empty')"
-            >
-              <template #is_active-cell="{ row }">
-                <UBadge :color="row.original.is_active ? 'success' : 'neutral'">
-                  {{ row.original.is_active
-                    ? t('admin.shipping.zones.fields.activeOn')
-                    : t('admin.shipping.zones.fields.activeOff') }}
-                </UBadge>
-              </template>
-              <template #actions-cell="{ row }">
-                <div class="flex justify-end gap-2">
-                  <UButton
-                    variant="ghost"
-                    size="sm"
-                    icon="i-lucide-pencil"
-                    :aria-label="t('actions.edit')"
-                    @click="openEditZone(row.original)"
-                  />
-                  <UButton
-                    variant="ghost"
-                    size="sm"
-                    color="error"
-                    icon="i-lucide-trash-2"
-                    :aria-label="t('actions.delete')"
-                    @click="zoneToDelete = row.original"
-                  />
-                </div>
-              </template>
-            </UTable>
-          </section>
-
-          <!-- Methods tab -->
-          <section
-            v-else-if="item.value === 'methods'"
-            class="space-y-3"
-          >
-            <div class="flex justify-end">
+                variant="ghost"
+                size="sm"
+                icon="i-lucide-pencil"
+                :aria-label="t('actions.edit')"
+                @click="openEditZone(row.original)"
+              />
               <UButton
-                color="primary"
-                icon="i-lucide-plus"
-                @click="openCreateMethod"
-              >
-                {{ t('admin.shipping.methods.new') }}
-              </UButton>
+                variant="ghost"
+                size="sm"
+                color="error"
+                icon="i-lucide-trash-2"
+                :aria-label="t('actions.delete')"
+                @click="zoneToDelete = row.original"
+              />
             </div>
-            <UTable
-              :data="methods"
-              :columns="methodColumns"
-              :empty="t('admin.shipping.methods.empty')"
-            >
-              <template #is_active-cell="{ row }">
-                <UBadge :color="row.original.is_active ? 'success' : 'neutral'">
-                  {{ row.original.is_active
-                    ? t('admin.shipping.methods.fields.activeOn')
-                    : t('admin.shipping.methods.fields.activeOff') }}
-                </UBadge>
-              </template>
-              <template #actions-cell="{ row }">
-                <div class="flex justify-end gap-2">
-                  <UButton
-                    variant="ghost"
-                    size="sm"
-                    icon="i-lucide-pencil"
-                    :aria-label="t('actions.edit')"
-                    @click="openEditMethod(row.original)"
-                  />
-                  <UButton
-                    variant="ghost"
-                    size="sm"
-                    color="error"
-                    icon="i-lucide-trash-2"
-                    :aria-label="t('actions.delete')"
-                    @click="methodToDelete = row.original"
-                  />
-                </div>
-              </template>
-            </UTable>
-          </section>
+          </template>
+        </UTable>
+      </section>
 
-          <!-- Rates tab -->
-          <section
-            v-else-if="item.value === 'rates'"
-            class="space-y-3"
+      <!-- Methods tab -->
+      <section
+        v-else-if="tabModel === 'methods'"
+        class="space-y-3"
+      >
+        <div class="flex justify-end">
+          <UButton
+            color="primary"
+            icon="i-lucide-plus"
+            @click="openCreateMethod"
           >
-            <div class="flex flex-wrap items-end gap-3">
-              <UFormField
-                :label="t('admin.shipping.rates.filters.zone')"
-                class="min-w-40"
-              >
-                <USelectMenu
-                  :model-value="filters.zoneId"
-                  :items="zoneFilterOptions"
-                  value-key="value"
-                  class="w-full"
-                  @update:model-value="(v: number | undefined) => set({ zoneId: v })"
-                />
-              </UFormField>
-              <UFormField
-                :label="t('admin.shipping.rates.filters.method')"
-                class="min-w-40"
-              >
-                <USelectMenu
-                  :model-value="filters.methodId"
-                  :items="methodFilterOptions"
-                  value-key="value"
-                  class="w-full"
-                  @update:model-value="(v: number | undefined) => set({ methodId: v })"
-                />
-              </UFormField>
-              <UFormField
-                :label="t('admin.shipping.rates.filters.currency')"
-                class="min-w-32"
-              >
-                <USelect
-                  :model-value="filters.currency"
-                  :items="currencyFilterOptions"
-                  value-key="value"
-                  class="w-full"
-                  @update:model-value="(v: ShippingCurrency | undefined) => set({ currency: v })"
-                />
-              </UFormField>
-              <div class="ml-auto">
-                <UButton
-                  color="primary"
-                  icon="i-lucide-plus"
-                  :disabled="zones.length === 0 || methods.length === 0"
-                  @click="openCreateRate"
-                >
-                  {{ t('admin.shipping.rates.new') }}
-                </UButton>
-              </div>
+            {{ t('admin.shipping.methods.new') }}
+          </UButton>
+        </div>
+        <UTable
+          :data="methods"
+          :columns="methodColumns"
+          :empty="t('admin.shipping.methods.empty')"
+        >
+          <template #is_active-cell="{ row }">
+            <UBadge :color="row.original.is_active ? 'success' : 'neutral'">
+              {{ row.original.is_active
+                ? t('admin.shipping.methods.fields.activeOn')
+                : t('admin.shipping.methods.fields.activeOff') }}
+            </UBadge>
+          </template>
+          <template #actions-cell="{ row }">
+            <div class="flex justify-end gap-2">
+              <UButton
+                variant="ghost"
+                size="sm"
+                icon="i-lucide-pencil"
+                :aria-label="t('actions.edit')"
+                @click="openEditMethod(row.original)"
+              />
+              <UButton
+                variant="ghost"
+                size="sm"
+                color="error"
+                icon="i-lucide-trash-2"
+                :aria-label="t('actions.delete')"
+                @click="methodToDelete = row.original"
+              />
             </div>
-            <UTable
-              :data="rates"
-              :columns="rateColumns"
-              :empty="t('admin.shipping.rates.empty')"
+          </template>
+        </UTable>
+      </section>
+
+      <!-- Rates tab -->
+      <section
+        v-else-if="tabModel === 'rates'"
+        class="space-y-3"
+      >
+        <div class="flex flex-wrap items-end gap-3">
+          <UFormField
+            :label="t('admin.shipping.rates.filters.zone')"
+            class="min-w-40"
+          >
+            <USelectMenu
+              :model-value="filters.zoneId"
+              :items="zoneFilterOptions"
+              value-key="value"
+              class="w-full"
+              @update:model-value="(v: number | undefined) => set({ zoneId: v })"
+            />
+          </UFormField>
+          <UFormField
+            :label="t('admin.shipping.rates.filters.method')"
+            class="min-w-40"
+          >
+            <USelectMenu
+              :model-value="filters.methodId"
+              :items="methodFilterOptions"
+              value-key="value"
+              class="w-full"
+              @update:model-value="(v: number | undefined) => set({ methodId: v })"
+            />
+          </UFormField>
+          <UFormField
+            :label="t('admin.shipping.rates.filters.currency')"
+            class="min-w-32"
+          >
+            <USelect
+              :model-value="filters.currency"
+              :items="currencyFilterOptions"
+              value-key="value"
+              class="w-full"
+              @update:model-value="(v: ShippingCurrency | undefined) => set({ currency: v })"
+            />
+          </UFormField>
+          <div class="ml-auto">
+            <UButton
+              color="primary"
+              icon="i-lucide-plus"
+              :disabled="zones.length === 0 || methods.length === 0"
+              @click="openCreateRate"
             >
-              <template #amount-cell="{ row }">
-                {{ row.original.amount.toFixed(2) }} {{ row.original.currency }}
-              </template>
-              <template #pricing_kind-cell="{ row }">
-                <UBadge :color="PRICING_KIND_COLOR[row.original.pricing_kind] ?? 'neutral'">
-                  {{ t(`admin.shipping.rates.pricingKind.${row.original.pricing_kind}`) }}
-                </UBadge>
-              </template>
-              <template #actions-cell="{ row }">
-                <div class="flex justify-end gap-2">
-                  <UButton
-                    variant="ghost"
-                    size="sm"
-                    icon="i-lucide-pencil"
-                    :aria-label="t('actions.edit')"
-                    @click="openEditRate(row.original)"
-                  />
-                  <UButton
-                    variant="ghost"
-                    size="sm"
-                    color="error"
-                    icon="i-lucide-trash-2"
-                    :aria-label="t('actions.delete')"
-                    @click="rateToDelete = row.original"
-                  />
-                </div>
-              </template>
-            </UTable>
-          </section>
-        </template>
-      </UTabs>
+              {{ t('admin.shipping.rates.new') }}
+            </UButton>
+          </div>
+        </div>
+        <UTable
+          :data="rates"
+          :columns="rateColumns"
+          :empty="t('admin.shipping.rates.empty')"
+        >
+          <template #amount-cell="{ row }">
+            {{ row.original.amount.toFixed(2) }} {{ row.original.currency }}
+          </template>
+          <template #pricing_kind-cell="{ row }">
+            <UBadge :color="PRICING_KIND_COLOR[row.original.pricing_kind] ?? 'neutral'">
+              {{ t(`admin.shipping.rates.pricingKind.${row.original.pricing_kind}`) }}
+            </UBadge>
+          </template>
+          <template #actions-cell="{ row }">
+            <div class="flex justify-end gap-2">
+              <UButton
+                variant="ghost"
+                size="sm"
+                icon="i-lucide-pencil"
+                :aria-label="t('actions.edit')"
+                @click="openEditRate(row.original)"
+              />
+              <UButton
+                variant="ghost"
+                size="sm"
+                color="error"
+                icon="i-lucide-trash-2"
+                :aria-label="t('actions.delete')"
+                @click="rateToDelete = row.original"
+              />
+            </div>
+          </template>
+        </UTable>
+      </section>
     </div>
 
     <!-- Dialogs -->
