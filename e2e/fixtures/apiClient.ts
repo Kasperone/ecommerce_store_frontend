@@ -1123,6 +1123,49 @@ export class ApiClient {
   }
 
   /**
+   * DB: the faktura issued for an order, straight from pg. `invoices` holds one
+   * row per order (`order_id` UNIQUE — issuing is idempotent) and the
+   * `year`/`seq` pair backs the gap-free legal series. Null when no faktura was
+   * ever issued (an unpaid order only ever gets a *proforma*, which is derived
+   * at print time and never persisted).
+   */
+  async getOrderInvoiceRow(orderId: number): Promise<
+    { invoiceNumber: string, year: number, seq: number } | null
+  > {
+    const res = await this.pg.query<{ invoice_number: string, year: number, seq: number }>(
+      'SELECT invoice_number, year, seq FROM invoices WHERE order_id = $1',
+      [orderId],
+    )
+    const row = res.rows[0]
+    return row ? { invoiceNumber: row.invoice_number, year: row.year, seq: row.seq } : null
+  }
+
+  /**
+   * The invoice PDF endpoint, called directly with a bearer token. The browser
+   * path (`useDownloadInvoice`) fetches this same route as a Blob and renames it
+   * client-side, so the transport-level truth — media type and the
+   * `Content-Disposition` filename the backend derives from the faktura number —
+   * is only observable here.
+   */
+  async fetchOrderInvoicePdf(
+    accessToken: string,
+    orderId: number,
+    lang?: string,
+  ): Promise<{ status: number, contentType: string, disposition: string, bytes: Buffer }> {
+    const res = await this.http.get(`/api/v1/orders/${orderId}/invoice`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      params: lang ? { lang } : {},
+    })
+    const headers = res.headers()
+    return {
+      status: res.status(),
+      contentType: headers['content-type'] ?? '',
+      disposition: headers['content-disposition'] ?? '',
+      bytes: await res.body(),
+    }
+  }
+
+  /**
    * DB: a draft order's conversion outcome — its lifecycle `status` and the
    * `converted_order_id` the convert route stamps. Unlike `orders.status`
    * (enum NAME, uppercase), `draft_orders.status` is stored as the lowercase
