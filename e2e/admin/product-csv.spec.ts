@@ -97,14 +97,14 @@ test.describe('Admin product CSV', () => {
         download = await pending
       }).toPass({ timeout: 45_000 })
       if (!download) throw new Error('export never produced a download')
-      // What the *user* actually gets. The backend computes a dated/filtered
-      // name via `_export_filename`, but the browser cannot read
-      // `Content-Disposition` — the API sets no CORS `expose_headers` — so
-      // `useExportProducts` always falls back to this generic name.
-      // Tracked in notes/plans/test/to-fix/2026-07-28-cors-content-disposition-not-exposed.md
-      expect(download.suggestedFilename()).toBe('products.csv')
+      // The server-computed name now survives the trip: the API exposes
+      // `Content-Disposition` via CORS (BE #226), so `useExportProducts` parses
+      // it instead of falling back to its generic `products.csv`. This assertion
+      // is the regression guard for that fix — without `expose_headers` the
+      // browser reads `null` here and the fallback silently returns.
+      expect(download.suggestedFilename()).toMatch(/^products-export-\d{8}\.csv$/)
 
-      // …so the backend's filename + media type are only observable off-browser.
+      // The same name at the transport level, plus the media type.
       const direct = await api.fetchProductExportCsv(adminToken)
       expect(direct.status).toBe(200)
       expect(direct.contentType).toContain('text/csv')
