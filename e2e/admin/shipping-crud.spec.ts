@@ -4,9 +4,9 @@
 // This is the highest-leverage untested admin surface: a regression here does
 // not throw, it silently misprices every order. The spec walks the full
 // lifecycle through the three tabs — create a zone, a method and a rate, edit
-// the rate's amount, then delete all three — cross-checking `shipping_zones` /
-// `shipping_methods` / `shipping_rates` in pg at every step. (The rates filters
-// are excluded on purpose; see the NOTE at the filter step.)
+// the rate's amount, prove the rates filter slices the matrix, then delete all
+// three — cross-checking `shipping_zones` / `shipping_methods` /
+// `shipping_rates` in pg at every step.
 //
 // ⚠️ Fixture isolation: the storefront auto-selects the *cheapest* method in a
 // zone, and the e2e DB's US zone is shared by every checkout spec — adding a
@@ -97,7 +97,7 @@ async function setRateAmount(dialog: Locator, value: number): Promise<void> {
 }
 
 test.describe('Admin shipping CRUD', () => {
-  test('zone → method → rate: create, edit and delete, with pg as the source of truth', async ({ page }) => {
+  test('zone → method → rate: create, edit, filter and delete, with pg as the source of truth', async ({ page }) => {
     // The full three-tab lifecycle is long; the default 30s is not enough.
     test.setTimeout(180_000)
     const api = await ApiClient.create()
@@ -193,12 +193,19 @@ test.describe('Admin shipping CRUD', () => {
         expect(edited!.amount).toBe(55)
       }).toPass({ timeout: 10_000 })
 
-      // NOTE: the rates zone/method/currency filters are deliberately NOT
-      // asserted here — they are broken on `main` in both directions (the
-      // control never writes `zoneId` to the URL, and the `?zoneId=` deep-link
-      // renders "No rates match the current filters" for a zone that has one).
-      // Encoding that would bake the bug in. Tracked in
-      // notes/plans/test/to-fix/2026-07-28-admin-shipping-rates-filter-broken.md
+      // --- filter: narrowing to our zone must hide every other zone's rates.
+      // This leg is the regression guard for the `set(key, value)` bug: the page
+      // was calling `useUrlFilters`' `set` with two args instead of one patch
+      // object, so the merge was a no-op and the filter silently never applied.
+      await openSelect(page, 'Zone')
+      await page.getByRole('option', { name: zoneName, exact: true }).click()
+      await expect(page).toHaveURL(/[?&]zoneId=\d+/, { timeout: 10_000 })
+      await expect(rateRow).toBeVisible()
+      // toHaveCount (not toBeHidden): the shared US zone owns several rate rows,
+      // so the locator is deliberately non-strict, and the count retries while
+      // the filtered query refetches.
+      await expect(page.getByRole('row').filter({ hasText: 'E2E Standard zone' }))
+        .toHaveCount(0, { timeout: 15_000 })
 
       // --------------------------------------------------------------- delete
       await rateRow.getByRole('button', { name: 'Delete' }).click()

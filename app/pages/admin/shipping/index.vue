@@ -45,9 +45,15 @@ const defaults = {
 }
 const { filters, set } = useUrlFilters(filterSchema, defaults)
 
+// NOTE: clicking a tab does not currently switch tabs on this page — the
+// trigger never emits, so neither this setter nor the URL ever runs. That is a
+// separate, still-unexplained bug (a plain-ref v-model, the pattern
+// admin/translations documents as "proven", does not fix it either); the
+// `?tab=` deep-link below works and is the reliable way in. Tracked in
+// notes/plans/test/to-fix/2026-07-28-admin-shipping-tab-click-inert.md
 const tabModel = computed({
   get: () => filters.value.tab ?? 'zones',
-  set: (value: string) => set('tab', value as 'zones' | 'methods' | 'rates'),
+  set: (value: string) => set({ tab: value as 'zones' | 'methods' | 'rates' }),
 })
 const tabItems = computed(() => [
   { label: t('admin.shipping.tabs.zones'), value: 'zones' },
@@ -361,7 +367,7 @@ defineExpose({ localizedCountries })
                   :items="zoneFilterOptions"
                   value-key="value"
                   class="w-full"
-                  @update:model-value="(v: number | undefined) => set('zoneId', v)"
+                  @update:model-value="(v: number | undefined) => set({ zoneId: v })"
                 />
               </UFormField>
               <UFormField
@@ -373,7 +379,7 @@ defineExpose({ localizedCountries })
                   :items="methodFilterOptions"
                   value-key="value"
                   class="w-full"
-                  @update:model-value="(v: number | undefined) => set('methodId', v)"
+                  @update:model-value="(v: number | undefined) => set({ methodId: v })"
                 />
               </UFormField>
               <UFormField
@@ -385,7 +391,7 @@ defineExpose({ localizedCountries })
                   :items="currencyFilterOptions"
                   value-key="value"
                   class="w-full"
-                  @update:model-value="(v: ShippingCurrency | undefined) => set('currency', v)"
+                  @update:model-value="(v: ShippingCurrency | undefined) => set({ currency: v })"
                 />
               </UFormField>
               <div class="ml-auto">
