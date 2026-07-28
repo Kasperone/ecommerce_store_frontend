@@ -1044,6 +1044,54 @@ export class ApiClient {
     return await res.json()
   }
 
+  /**
+   * Customer: raise a return request against a delivered order. The customer
+   * modal leg is covered by `account/rma.spec.ts`; specs about the *admin*
+   * decision leg start from an already-filed request, so they open it here
+   * rather than re-driving that UI.
+   */
+  async createReturnRequest(
+    accessToken: string,
+    orderId: number,
+    input: {
+      items: Array<{ order_item_id: number, quantity: number, reason: string }>
+      comment?: string
+    },
+  ): Promise<{ id: number, status: string }> {
+    const res = await this.http.post(`/api/v1/orders/${orderId}/returns`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: input,
+    })
+    if (!res.ok()) {
+      throw new Error(`createReturnRequest failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
+  /**
+   * DB: a return request's authoritative row. `status` is a plain lowercase
+   * String(16) column (deliberately not a PG enum — see models/return_request.py),
+   * so no cast is needed, unlike `orders.status`. `refund_id` is UNIQUE: one
+   * refund per return, and it is the proof the RMA actually moved money.
+   */
+  async getReturnRow(returnId: number): Promise<{
+    status: string
+    refundId: number | null
+    adminNote: string | null
+  }> {
+    const res = await this.pg.query<{
+      status: string
+      refund_id: number | null
+      admin_note: string | null
+    }>(
+      'SELECT status, refund_id, admin_note FROM return_requests WHERE id = $1',
+      [returnId],
+    )
+    const row = res.rows[0]
+    if (!row) throw new Error(`getReturnRow: no return ${returnId}`)
+    return { status: row.status, refundId: row.refund_id, adminNote: row.admin_note }
+  }
+
   /** DB: order item IDs for a given order (used to build testids in the return modal). */
   async getOrderItemIds(orderId: number): Promise<number[]> {
     const res = await this.pg.query<{ id: number }>(
