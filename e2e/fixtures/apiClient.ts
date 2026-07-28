@@ -355,6 +355,119 @@ export class ApiClient {
   }
 
   /**
+   * DB: a shipping zone by its (UNIQUE) name, with the country codes attached
+   * to it. Countries live in `shipping_zone_countries`, whose `country_code` is
+   * globally UNIQUE — a country belongs to exactly one zone, which is why a
+   * shipping-CRUD spec must claim a country no other fixture uses.
+   */
+  async getShippingZoneByName(name: string): Promise<
+    { id: number, countryCodes: string[], isActive: boolean } | null
+  > {
+    const res = await this.pg.query<{
+      id: number
+      is_active: boolean
+      country_codes: string[] | null
+    }>(
+      `SELECT z.id,
+              z.is_active,
+              array_remove(array_agg(c.country_code ORDER BY c.country_code), NULL)
+                AS country_codes
+         FROM shipping_zones z
+         LEFT JOIN shipping_zone_countries c ON c.zone_id = z.id
+        WHERE z.name = $1
+        GROUP BY z.id, z.is_active`,
+      [name],
+    )
+    const row = res.rows[0]
+    return row
+      ? { id: row.id, countryCodes: row.country_codes ?? [], isActive: row.is_active }
+      : null
+  }
+
+  /**
+   * DB: whichever zone currently claims a country code, if any. `country_code`
+   * is globally UNIQUE, so this answers "is this country free to claim?" — the
+   * question a shipping-CRUD spec must ask before it builds its own zone, since
+   * a run killed by the test timeout never finishes its cleanup.
+   */
+  async getShippingZoneByCountry(countryCode: string): Promise<
+    { id: number, name: string } | null
+  > {
+    const res = await this.pg.query<{ id: number, name: string }>(
+      `SELECT z.id, z.name
+         FROM shipping_zones z
+         JOIN shipping_zone_countries c ON c.zone_id = z.id
+        WHERE c.country_code = $1`,
+      [countryCode],
+    )
+    const row = res.rows[0]
+    return row ? { id: row.id, name: row.name } : null
+  }
+
+  /** DB: a shipping method by its (UNIQUE) name. */
+  async getShippingMethodByName(name: string): Promise<
+    { id: number, code: string | null, isActive: boolean } | null
+  > {
+    const res = await this.pg.query<{ id: number, code: string | null, is_active: boolean }>(
+      'SELECT id, code, is_active FROM shipping_methods WHERE name = $1',
+      [name],
+    )
+    const row = res.rows[0]
+    return row ? { id: row.id, code: row.code, isActive: row.is_active } : null
+  }
+
+  /**
+   * DB: the rate at a (zone, method, currency) coordinate — the UNIQUE key of
+   * `shipping_rates`, and the row that literally sets what checkout charges.
+   * `amount` is Numeric(12,2) (pg returns a string) → coerced. A null
+   * `free_above_subtotal` with no tiers is what the UI labels "flat".
+   */
+  async getShippingRateRow(
+    zoneId: number,
+    methodId: number,
+    currency: string,
+  ): Promise<{ id: number, amount: number, freeAbove: number | null } | null> {
+    const res = await this.pg.query<{
+      id: number
+      amount: string
+      free_above_subtotal: string | null
+    }>(
+      `SELECT id, amount, free_above_subtotal
+         FROM shipping_rates
+        WHERE zone_id = $1 AND method_id = $2 AND currency = $3`,
+      [zoneId, methodId, currency],
+    )
+    const row = res.rows[0]
+    return row
+      ? {
+          id: row.id,
+          amount: Number(row.amount),
+          freeAbove: row.free_above_subtotal === null ? null : Number(row.free_above_subtotal),
+        }
+      : null
+  }
+
+  /** Admin: drop a shipping zone (cascades its rates). Cleanup seam. */
+  async deleteShippingZone(accessToken: string, zoneId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/shipping/zones/${zoneId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteShippingZone failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** Admin: drop a shipping method (cascades its rates). Cleanup seam. */
+  async deleteShippingMethod(accessToken: string, methodId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/shipping/methods/${methodId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteShippingMethod failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
    * Admin: reconcile the product's option/variant matrix in one call.
    * Returns the created options (with value IDs) and variant IDs so the
    * caller can look them up by title.
