@@ -179,8 +179,10 @@ jobs:
 
   e2e:
     name: E2E (Playwright + backend image)
-    # Self-hosted on hive (native — icc:false; browsers + libs provisioned with
-    # passwordless sudo; Nuxt dev server on :3100 since hive's :3000 is taken).
+    # Self-hosted on hive (native — icc:false; browsers copied out of the
+    # version-matched Playwright image, OS libs pre-baked on the host and only
+    # verified here — the runner user has no sudo; Nuxt dev server on :3100
+    # since hive's :3000 is taken).
     # Serialize E2E across ALL refs (PRs + main) on the shared hive host so only
     # one E2E job runs at a time. Concurrent E2E runs starved the cold Nuxt dev
     # server (the root cause of the account-panel flake — failed ~every
@@ -310,12 +312,39 @@ jobs:
           mkdir -p "$HOME/.cache/ms-playwright"
           docker cp "$cid:/ms-playwright/." "$HOME/.cache/ms-playwright/"
           docker rm "$cid"
-          sudo chown -R "$USER" "$HOME/.cache/ms-playwright"
           ls "$HOME/.cache/ms-playwright"
 
-      # OS libs the browsers need (apt only — no browser download, so it can't hang).
-      - name: Install Playwright system deps
-        run: npx playwright install-deps chromium
+      # The OS libs the browsers need are baked into the hive host. They can NOT
+      # be installed from here: `playwright install-deps` shells out to `sudo
+      # apt-get`, and the runner user has no sudo rights — deliberately, because
+      # this runner executes PR code, so passwordless root here would be an RCE
+      # primitive. (`docker cp` above already lands the cache owned by the runner
+      # user, so the old `sudo chown` was redundant too.)
+      #
+      # Verify instead of install, so a genuinely missing lib fails HERE with a
+      # readable message rather than as a cryptic browser-launch crash mid-suite.
+      - name: Verify Playwright system deps
+        run: |
+          set -euo pipefail
+          mapfile -t bins < <(find "$HOME/.cache/ms-playwright" -maxdepth 3 -type f \
+            \( -name chrome -o -name chrome-headless-shell -o -name headless_shell \) -perm -u+x)
+          if [ "${#bins[@]}" -eq 0 ]; then
+            echo "::error::no chromium binaries found in the Playwright cache"
+            exit 1
+          fi
+          missing=0
+          for bin in "${bins[@]}"; do
+            if ldd "$bin" | grep -q "not found"; then
+              echo "::error::$bin is missing shared libraries:"
+              ldd "$bin" | grep "not found"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Install them on the hive host as root (npx playwright install-deps chromium), then re-run."
+            exit 1
+          fi
+          printf 'dependencies present for %d browser binaries\n' "${#bins[@]}"
 
       - name: Run Playwright
         env:
