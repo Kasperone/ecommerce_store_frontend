@@ -873,6 +873,111 @@ export class ApiClient {
     return await res.json()
   }
 
+  /**
+   * Admin: author a quote for a company. The *customer request* leg is covered
+   * by `account/quote-request.spec.ts`; specs about the admin negotiation and
+   * conversion legs need a quote that already exists, with a deliberately
+   * negotiated `unit_price` that differs from the product's list price (that
+   * gap is what proves conversion honours the quote instead of re-pricing).
+   * Status defaults to `draft` server-side.
+   */
+  async createQuote(
+    adminToken: string,
+    input: {
+      companyId: number
+      currency?: string
+      items: Array<{
+        description: string
+        quantity: number
+        unitPrice: number
+        productId?: number
+      }>
+    },
+  ): Promise<{ id: number, status: string, total: number }> {
+    const res = await this.http.post('/api/v1/admin/quotes/', {
+      headers: { authorization: `Bearer ${adminToken}` },
+      data: {
+        company_id: input.companyId,
+        currency: input.currency ?? 'USD',
+        items: input.items.map(i => ({
+          description: i.description,
+          quantity: i.quantity,
+          unit_price: i.unitPrice,
+          product_id: i.productId ?? null,
+        })),
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createQuote failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
+  /**
+   * DB: a quote's status + its conversion marker. `converted_order_id` is the
+   * one-way latch that makes a second convert a 409, so it is the authoritative
+   * answer to "did this quote actually mint an order".
+   */
+  async getQuoteRow(quoteId: number): Promise<{
+    status: string
+    convertedOrderId: number | null
+  }> {
+    const res = await this.pg.query<{ status: string, converted_order_id: number | null }>(
+      'SELECT status, converted_order_id FROM quotes WHERE id = $1',
+      [quoteId],
+    )
+    const row = res.rows[0]
+    if (!row) throw new Error(`getQuoteRow: no quote ${quoteId}`)
+    return { status: row.status, convertedOrderId: row.converted_order_id }
+  }
+
+  /**
+   * DB: an order's ownership + money truth with its line snapshots. Reads pg
+   * rather than the API because the interesting question for admin-minted
+   * orders is *who owns it* (`user_id`), which the order response never spells
+   * out. `orders.status` is an enum stored UPPERCASE → lowered here to match
+   * how status reads everywhere else in the suite; money columns are
+   * Numeric(12,2), which pg returns as strings.
+   */
+  async getOrderRow(orderId: number): Promise<{
+    userId: number | null
+    status: string
+    total: number
+    shipping: number
+    items: Array<{ productId: number | null, quantity: number, unitPrice: number }>
+  }> {
+    const orderRes = await this.pg.query<{
+      user_id: number | null
+      status: string
+      total: string
+      shipping: string
+    }>(
+      'SELECT user_id, lower(status::text) AS status, total, shipping FROM orders WHERE id = $1',
+      [orderId],
+    )
+    const order = orderRes.rows[0]
+    if (!order) throw new Error(`getOrderRow: no order ${orderId}`)
+    const itemsRes = await this.pg.query<{
+      product_id: number | null
+      quantity: number
+      unit_price: string
+    }>(
+      'SELECT product_id, quantity, unit_price FROM order_items WHERE order_id = $1 ORDER BY id',
+      [orderId],
+    )
+    return {
+      userId: order.user_id,
+      status: order.status,
+      total: Number(order.total),
+      shipping: Number(order.shipping),
+      items: itemsRes.rows.map(r => ({
+        productId: r.product_id,
+        quantity: r.quantity,
+        unitPrice: Number(r.unit_price),
+      })),
+    }
+  }
+
   /** Customer address book — server-side source of truth for address specs. */
   async listAddresses(accessToken: string): Promise<Array<{
     id: number
