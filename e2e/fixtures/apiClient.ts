@@ -1117,6 +1117,53 @@ export class ApiClient {
     return Array.isArray(body) ? body : body.items
   }
 
+  /**
+   * DB: a product's money + flag columns. `price_usd` is Numeric(12,2) (pg
+   * returns a string) → coerced. This is the authoritative answer to "did that
+   * CSV import / bulk edit actually write", which the list UI only shows
+   * formatted.
+   */
+  async getProductRow(productId: number): Promise<{
+    slug: string
+    priceUsd: number
+    isActive: boolean
+  }> {
+    const res = await this.pg.query<{
+      slug: string
+      price_usd: string
+      is_active: boolean
+    }>(
+      'SELECT slug, price_usd, is_active FROM products WHERE id = $1',
+      [productId],
+    )
+    const row = res.rows[0]
+    if (!row) throw new Error(`getProductRow: no product ${productId}`)
+    return { slug: row.slug, priceUsd: Number(row.price_usd), isActive: row.is_active }
+  }
+
+  /**
+   * The products CSV export called directly with a bearer token.
+   *
+   * The browser path cannot see `Content-Disposition` — the backend sets no CORS
+   * `expose_headers`, so `useExportProducts` always falls back to the generic
+   * `products.csv`. That makes this the *only* place the backend's
+   * `_export_filename` (and the media type) is observable at all.
+   */
+  async fetchProductExportCsv(
+    adminToken: string,
+  ): Promise<{ status: number, contentType: string, disposition: string, body: string }> {
+    const res = await this.http.get('/api/v1/admin/products/export', {
+      headers: { authorization: `Bearer ${adminToken}` },
+    })
+    const headers = res.headers()
+    return {
+      status: res.status(),
+      contentType: headers['content-type'] ?? '',
+      disposition: headers['content-disposition'] ?? '',
+      body: await res.text(),
+    }
+  }
+
   /** Current stock for a product — verifies cancel restores reserved stock. */
   async getProductStock(productId: number): Promise<number> {
     const res = await this.pg.query<{ stock: number }>(
