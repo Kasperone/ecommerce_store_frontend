@@ -14,6 +14,8 @@
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
     "e2e:ui": "playwright test --ui",
+    "typecheck": "nuxt typecheck",
+    "typecheck:ci": "node scripts/typecheck-ratchet.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "gen:types": "openapi-typescript http://localhost:8000/openapi.json -o shared/types/api.gen.ts",
@@ -70,8 +72,10 @@
     "pg": "^8.13.1",
     "playwright-core": "^1.59.1",
     "tsx": "^4.20.6",
+    "typescript": "~5.9.3",
     "vitest": "^4.1.5",
-    "vitest-axe": "^0.1.0"
+    "vitest-axe": "^0.1.0",
+    "vue-tsc": "^3.3.8"
   },
   "lint-staged": {
     "*.{vue,ts,js,mjs}": "eslint --fix",
