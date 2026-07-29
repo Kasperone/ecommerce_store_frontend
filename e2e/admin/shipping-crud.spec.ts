@@ -19,6 +19,7 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
 import { KNOWN_ADMIN } from '../fixtures/testUser'
+import { setUInputNumber } from '../helpers/uinputnumber'
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
@@ -77,22 +78,20 @@ async function openSelect(scope: Page | Locator, label: string): Promise<void> {
 }
 
 /**
- * Set the rate dialog's Amount without Tab-ing out of it.
+ * Set the rate dialog's Amount with the shared helper — which commits by
+ * pressing Tab, moving focus into the *optional* "Free above subtotal" field.
  *
- * The shared `setUInputNumber` helper commits by pressing Tab — which here
- * moves focus into the *optional* "Free above subtotal" field. Touching that
- * field makes it validate as `Invalid input: expected number, received
- * undefined`, and the form then refuses to submit with no page-level alert to
- * explain why. Blur onto the dialog heading instead. (The underlying validation
- * behaviour looks like a real bug in the rate form, not a test artefact.)
+ * That Tab is the point, not an accident: this used to blur onto the dialog
+ * heading instead, because merely focusing and leaving the optional field empty
+ * made it validate as `Invalid input: expected number, received undefined` and
+ * silently blocked submit with no page-level alert — a real defect any admin
+ * tabbing through the form in natural order would hit. The schema now accepts
+ * `nullish` there, so keeping the Tab in the path makes every rate save in this
+ * spec a regression guard for it.
  */
 async function setRateAmount(dialog: Locator, value: number): Promise<void> {
   const input = dialog.getByRole('spinbutton', { name: /^Amount/ })
-  await input.click()
-  await input.press('ControlOrMeta+a')
-  await input.press('Delete')
-  await input.pressSequentially(String(value))
-  await dialog.getByRole('heading').first().click()
+  await setUInputNumber(input, value)
   await expect(input).toHaveValue(String(value))
 }
 
