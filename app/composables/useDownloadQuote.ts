@@ -7,9 +7,13 @@
  * through `useApi` (which keeps the bearer + 401-retry) and trigger a browser
  * download via an object URL. Returns a `ProblemDetails` on failure (null on
  * success) so the caller can surface it (e.g. a toast).
+ *
+ * The server names the file after the derived *quote number*; we honour that
+ * and fall back to the raw row id only if the header is missing.
  */
 
 import { ref } from 'vue'
+import { filenameFromDisposition } from '#shared/utils/contentDisposition'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 
@@ -22,15 +26,20 @@ export function useDownloadQuote() {
     lang: string,
   ): Promise<ProblemDetails | null> {
     isDownloading.value = true
+    let filename = `quote-QT-${quoteId}.pdf`
     try {
       const blob = await apiFetch<Blob>(`/api/v1/quotes/${quoteId}/quote.pdf`, {
         query: { lang },
         responseType: 'blob',
+        onResponse({ response }) {
+          const fromHeader = filenameFromDisposition(response.headers.get('content-disposition'))
+          if (fromHeader) filename = fromHeader
+        },
       })
       const url = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = url
-      anchor.download = `quote-QT-${quoteId}.pdf`
+      anchor.download = filename
       document.body.appendChild(anchor)
       anchor.click()
       anchor.remove()

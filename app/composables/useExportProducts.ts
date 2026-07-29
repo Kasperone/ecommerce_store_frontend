@@ -11,6 +11,7 @@
  */
 
 import { ref } from 'vue'
+import { filenameFromDisposition } from '#shared/utils/contentDisposition'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 
@@ -18,13 +19,6 @@ export interface ExportProductsParams {
   categoryId?: number
   isActive?: boolean
   search?: string
-}
-
-function filenameFromDisposition(header: string | null): string | null {
-  if (!header) return null
-  const match = /filename="?([^";]+)"?/i.exec(header)
-  if (!match || !match[1]) return null
-  return match[1]
 }
 
 export function useExportProducts() {
