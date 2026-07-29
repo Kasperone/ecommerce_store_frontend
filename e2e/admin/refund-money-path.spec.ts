@@ -70,7 +70,9 @@ test.describe('Admin refund', () => {
       const adminCookie = await api.loginViaApi(KNOWN_ADMIN.email, KNOWN_ADMIN.password)
       await page.context().addCookies([adminCookie.refreshCookie])
       await page.goto(`/admin/orders/${order.id}`)
-      await expect(page.getByRole('heading', { name: order.order_number })).toBeVisible()
+      // The admin order-detail route cold-compiles on first hit → generous timeout.
+      await expect(page.getByRole('heading', { name: order.order_number }))
+        .toBeVisible({ timeout: 20_000 })
 
       // Open the refund dialog (the page-level "Issue refund" action; the dialog
       // reuses the same label on its submit button, so scope submit to the dialog).
