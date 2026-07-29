@@ -36,10 +36,10 @@ describe('useDownloadInvoice', () => {
     const result = await useDownloadInvoice().download(7, 'ORD-20260527-ABC123', 'en')
 
     expect(result).toBeNull()
-    expect(apiFetch).toHaveBeenCalledWith('/api/v1/orders/7/invoice', {
-      query: { lang: 'en' },
-      responseType: 'blob',
-    })
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/orders/7/invoice')
+    expect(options.responseType).toBe('blob')
+    expect(options.query).toEqual({ lang: 'en' })
     expect(createObjectURL).toHaveBeenCalledOnce()
     expect(clickSpy).toHaveBeenCalledOnce()
     expect((clickSpy.mock.instances[0] as HTMLAnchorElement).download).toBe(
@@ -52,10 +52,64 @@ describe('useDownloadInvoice', () => {
     apiFetch.mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' }))
     const { useDownloadInvoice } = await import('./useDownloadInvoice')
     await useDownloadInvoice().download(3, 'ORD-X', 'pl')
-    expect(apiFetch).toHaveBeenCalledWith('/api/v1/orders/3/invoice', {
-      query: { lang: 'pl' },
-      responseType: 'blob',
+    const [url, options] = apiFetch.mock.calls[0]
+    expect(url).toBe('/api/v1/orders/3/invoice')
+    expect(options.query).toEqual({ lang: 'pl' })
+  })
+
+  // The server names this file deliberately and the name is legally load-bearing:
+  // an issued faktura is named after its *invoice number*, not the order number,
+  // and an unpaid order comes back as a `proforma-…`, which is not an invoice at
+  // all. Both were being thrown away in favour of a client-built name.
+  it('names the download from Content-Disposition — the faktura number, not the order number', async () => {
+    apiFetch.mockImplementation((_url: string, options: any) => {
+      options?.onResponse?.({
+        response: {
+          headers: new Headers({
+            'content-disposition': 'attachment; filename="invoice-2026-07-0042.pdf"',
+          }),
+        },
+      })
+      return Promise.resolve(new Blob(['%PDF'], { type: 'application/pdf' }))
     })
+    const { useDownloadInvoice } = await import('./useDownloadInvoice')
+
+    await useDownloadInvoice().download(7, 'ORD-20260527-ABC123', 'en')
+
+    expect((clickSpy.mock.instances[0] as HTMLAnchorElement).download).toBe(
+      'invoice-2026-07-0042.pdf',
+    )
+  })
+
+  it('keeps a proforma labelled as a proforma', async () => {
+    apiFetch.mockImplementation((_url: string, options: any) => {
+      options?.onResponse?.({
+        response: {
+          headers: new Headers({
+            'content-disposition': 'attachment; filename="proforma-2026-07-0007.pdf"',
+          }),
+        },
+      })
+      return Promise.resolve(new Blob(['%PDF'], { type: 'application/pdf' }))
+    })
+    const { useDownloadInvoice } = await import('./useDownloadInvoice')
+
+    await useDownloadInvoice().download(9, 'ORD-Y', 'pl')
+
+    expect((clickSpy.mock.instances[0] as HTMLAnchorElement).download).toBe(
+      'proforma-2026-07-0007.pdf',
+    )
+  })
+
+  it('falls back to the order number when no Content-Disposition header', async () => {
+    apiFetch.mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' }))
+    const { useDownloadInvoice } = await import('./useDownloadInvoice')
+
+    await useDownloadInvoice().download(7, 'ORD-20260527-ABC123', 'en')
+
+    expect((clickSpy.mock.instances[0] as HTMLAnchorElement).download).toBe(
+      'invoice-ORD-20260527-ABC123.pdf',
+    )
   })
 
   it('reparses a Blob error body into ProblemDetails (no download)', async () => {
