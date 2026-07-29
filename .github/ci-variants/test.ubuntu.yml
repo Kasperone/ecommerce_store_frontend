@@ -32,6 +32,31 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+  typecheck:
+    name: Typecheck (vue-tsc ratchet)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Nuxt types
+        run: npx nuxi prepare
+
+      # Regression gate, not a clean-tree gate: the repo carries a pre-existing
+      # backlog recorded in typecheck-baseline.json, and this fails only when a
+      # file gets worse. See scripts/typecheck-ratchet.mjs.
+      - name: Run typecheck ratchet
+        run: npm run typecheck:ci
+
   unit:
     name: Unit (Vitest)
     runs-on: ubuntu-latest
