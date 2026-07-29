@@ -95,9 +95,13 @@ test.describe('Invoice PDF', () => {
         download = dl
       }).toPass({ timeout: 90_000 })
 
-      // The client renames the Blob after the *order* number (the faktura number
-      // isn't in the page payload) — that name is the customer-visible contract.
-      expect(download!.suggestedFilename()).toBe(`invoice-${order.order_number}.pdf`)
+      // The file that lands on disk carries the *faktura* number, not the order
+      // number — that is the identifier an accountant reconciles against, and it
+      // reaches the client only through Content-Disposition (which the browser
+      // can read only because CORS exposes that header, BE #226). The client
+      // used to overwrite it with an order-number name built locally.
+      expect(download!.suggestedFilename())
+        .toBe(`invoice-${invoice!.invoiceNumber.replace(/\//g, '-')}.pdf`)
 
       const path = await download!.path()
       const bytes = await readFile(path)
