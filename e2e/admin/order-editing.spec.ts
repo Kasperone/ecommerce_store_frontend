@@ -81,7 +81,10 @@ test.describe('Admin order editing (A2)', () => {
       const adminCookie = await api.loginViaApi(KNOWN_ADMIN.email, KNOWN_ADMIN.password)
       await page.context().addCookies([adminCookie.refreshCookie])
       await page.goto(`/admin/orders/${order.id}`)
-      await expect(page.getByRole('heading', { name: order.order_number })).toBeVisible()
+      // The admin order-detail route cold-compiles on first hit → generous timeout
+      // (the 5s default is marginal even on a warm dev server).
+      await expect(page.getByRole('heading', { name: order.order_number }))
+        .toBeVisible({ timeout: 20_000 })
 
       // --- enter edit mode (pending + orders:write → toggle present)
       await page.getByTestId('order-edit-items-toggle').click()
@@ -194,7 +197,10 @@ test.describe('Admin order editing (A2)', () => {
       const adminCookie = await api.loginViaApi(KNOWN_ADMIN.email, KNOWN_ADMIN.password)
       await page.context().addCookies([adminCookie.refreshCookie])
       await page.goto(`/admin/orders/${order.id}`)
-      await expect(page.getByRole('heading', { name: order.order_number })).toBeVisible()
+      // The admin order-detail route cold-compiles on first hit → generous timeout
+      // (the 5s default is marginal even on a warm dev server).
+      await expect(page.getByRole('heading', { name: order.order_number }))
+        .toBeVisible({ timeout: 20_000 })
 
       // The items card renders, but with no edit toggle for a non-pending order.
       await expect(page.getByRole('heading', { name: 'Items', exact: true })).toBeVisible()
