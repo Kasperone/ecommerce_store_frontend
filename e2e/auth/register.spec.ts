@@ -24,3 +24,22 @@ test('register happy path → redirects to /verify-email-sent', async ({ page })
   await expect(page).toHaveURL(/\/verify-email-sent\?email=/)
   expect(new URL(page.url()).searchParams.get('email')).toBe(user.email)
 })
+
+// Regression guard: the Personal/Business switch on /sign-up is the ONLY way
+// into B2B self-signup. Server-rendered, that `UTabs` never hydrated its
+// interactivity — correct markup, correct ARIA, no console error, but the
+// trigger emitted nothing, so the tab was completely dead and the business
+// form unreachable. The tab bar is now `<ClientOnly>`; this asserts a real
+// panel swap, not just that the tab is clickable.
+test('sign-up: the Business tab actually reveals the business form', async ({ page }) => {
+  await page.goto('/sign-up')
+
+  const businessTab = page.getByRole('tab', { name: /business/i })
+  await expect(businessTab).toBeVisible()
+  await expect(page.getByLabel(/company name/i)).toBeHidden()
+
+  await businessTab.click()
+
+  await expect(businessTab).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByLabel(/company name/i)).toBeVisible()
+})
