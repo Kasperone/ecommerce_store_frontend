@@ -1142,6 +1142,44 @@ export class ApiClient {
   }
 
   /**
+   * DB: a product's OMNIBUS price trail for one currency, newest first.
+   *
+   * The EU price-indication rule is why bulk edit is more than a mass column
+   * write — every price change has to leave a row here, or the storefront's
+   * "lowest price in 30 days" line silently starts lying. Nothing in the admin
+   * UI shows this, so pg is the only place to assert it.
+   */
+  async getProductPriceHistory(
+    productId: number,
+    currency: string,
+  ): Promise<Array<{ price: number, effectiveFrom: string }>> {
+    const res = await this.pg.query<{ price: string, effective_from: string }>(
+      `SELECT price, effective_from FROM price_history
+        WHERE product_id = $1 AND currency = $2 AND variant_id IS NULL
+        ORDER BY effective_from DESC, id DESC`,
+      [productId, currency],
+    )
+    return res.rows.map(r => ({ price: Number(r.price), effectiveFrom: r.effective_from }))
+  }
+
+  /**
+   * Admin bulk edit, called raw so a spec can send bodies the UI cannot build.
+   *
+   * Returns the status and parsed body instead of throwing: the negative paths
+   * (a forbidden `stock` key, an unknown id) ARE the contract under test.
+   */
+  async bulkUpdateProducts(
+    adminToken: string,
+    body: { product_ids: number[], set: Record<string, unknown> },
+  ): Promise<{ status: number, body: string }> {
+    const res = await this.http.patch('/api/v1/admin/products/bulk', {
+      headers: { authorization: `Bearer ${adminToken}` },
+      data: body,
+    })
+    return { status: res.status(), body: await res.text() }
+  }
+
+  /**
    * The products CSV export called directly with a bearer token.
    *
    * Historically this was the *only* place the server filename was observable at
