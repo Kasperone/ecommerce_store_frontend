@@ -1144,15 +1144,46 @@ export class ApiClient {
   /**
    * The products CSV export called directly with a bearer token.
    *
-   * The browser path cannot see `Content-Disposition` — the backend sets no CORS
-   * `expose_headers`, so `useExportProducts` always falls back to the generic
-   * `products.csv`. That makes this the *only* place the backend's
-   * `_export_filename` (and the media type) is observable at all.
+   * Historically this was the *only* place the server filename was observable at
+   * all: the API set no CORS `expose_headers`, so the browser could not read
+   * `Content-Disposition` and `useExportProducts` always fell back to the generic
+   * `products.csv`. BE #226 exposed the header, so the browser download now
+   * carries the real name too — this seam remains the place to assert the media
+   * type and the raw CSV bytes.
    */
   async fetchProductExportCsv(
     adminToken: string,
   ): Promise<{ status: number, contentType: string, disposition: string, body: string }> {
     const res = await this.http.get('/api/v1/admin/products/export', {
+      headers: { authorization: `Bearer ${adminToken}` },
+    })
+    const headers = res.headers()
+    return {
+      status: res.status(),
+      contentType: headers['content-type'] ?? '',
+      disposition: headers['content-disposition'] ?? '',
+      body: await res.text(),
+    }
+  }
+
+  /**
+   * The orders CSV export called directly with a bearer token.
+   *
+   * The browser download proves what the admin receives; this proves the
+   * transport the Blob path flattens — the `text/csv; charset=utf-8` media type
+   * and the exact bytes, including the UTF-8 BOM the backend writes so Excel
+   * opens the file without mangling non-ASCII customer names.
+   */
+  async fetchOrdersExportCsv(
+    adminToken: string,
+    params: { status?: string, dateFrom?: string, dateTo?: string } = {},
+  ): Promise<{ status: number, contentType: string, disposition: string, body: string }> {
+    const query = new URLSearchParams()
+    if (params.status) query.set('status', params.status)
+    if (params.dateFrom) query.set('date_from', params.dateFrom)
+    if (params.dateTo) query.set('date_to', params.dateTo)
+    const suffix = query.toString() ? `?${query}` : ''
+    const res = await this.http.get(`/api/v1/orders/export${suffix}`, {
       headers: { authorization: `Bearer ${adminToken}` },
     })
     const headers = res.headers()
