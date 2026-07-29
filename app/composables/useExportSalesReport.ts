@@ -13,6 +13,7 @@
  */
 
 import { ref } from 'vue'
+import { filenameFromDisposition } from '#shared/utils/contentDisposition'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProblemDetails } from '#shared/utils/problemDetails'
 
@@ -20,13 +21,6 @@ export interface ExportSalesParams {
   start?: string
   end?: string
   granularity?: 'day' | 'week' | 'month'
-}
-
-function filenameFromDisposition(header: string | null): string | null {
-  if (!header) return null
-  const match = /filename="?([^";]+)"?/i.exec(header)
-  if (!match || !match[1]) return null
-  return match[1]
 }
 
 export function useExportSalesReport() {
