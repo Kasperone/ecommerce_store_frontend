@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
+
+// Plain ref bound straight to `<UTabs v-model>` — the proven pattern.
+const activeTab = ref<'personal' | 'business'>('personal')
 
 const tabItems = computed(() => {
   // ensure computed re-runs when locale changes
@@ -12,12 +15,12 @@ const tabItems = computed(() => {
     {
       label: t('auth.personal'),
       icon: 'i-lucide-user',
-      slot: 'personal',
+      value: 'personal' as const,
     },
     {
       label: t('auth.business'),
       icon: 'i-lucide-building',
-      slot: 'business',
+      value: 'business' as const,
     },
   ]
 })
@@ -39,18 +42,30 @@ const tabItems = computed(() => {
           </p>
         </div>
 
-        <UTabs
-          :items="tabItems"
-          class="w-full"
-          variant="pill"
-        >
-          <template #personal>
-            <FormsPersonalSignUpForm />
-          </template>
-          <template #business>
-            <FormsBusinessSignUpForm />
-          </template>
-        </UTabs>
+        <!--
+          The tab bar is client-only on purpose: server-rendered, this `UTabs`
+          never hydrates its interactivity — the markup and ARIA come out
+          correct and no console error fires, but the trigger emits nothing, so
+          clicking "Business account" did nothing at all and business
+          self-signup was unreachable.
+
+          Panels render as siblings (`:content="false"`) rather than in the
+          component's own slots, so the default Personal form still
+          server-renders instead of the whole signup surface going blank
+          until hydration.
+        -->
+        <ClientOnly>
+          <UTabs
+            v-model="activeTab"
+            :items="tabItems"
+            :content="false"
+            class="w-full"
+            variant="pill"
+          />
+        </ClientOnly>
+
+        <FormsPersonalSignUpForm v-if="activeTab === 'personal'" />
+        <FormsBusinessSignUpForm v-else />
       </div>
     </UPageCard>
   </div>
