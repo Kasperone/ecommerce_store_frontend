@@ -342,15 +342,25 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <UTabs
-            v-model="editMode"
-            :items="modeItems"
-            :content="false"
-            size="sm"
-            color="primary"
-            :aria-label="t('admin.cms.visual.modeLabel')"
-            data-testid="edit-mode-toggle"
-          />
+          <!--
+            Client-only on purpose: server-rendered, this `UTabs` never hydrates
+            its interactivity (correct markup, correct ARIA, no console error —
+            the trigger simply never emits), which left the Form/Visual switch
+            dead on a hard load. Unlike the panes below it, this toolbar renders
+            unconditionally rather than behind `v-if="page"`, so it *was* in the
+            SSR payload and hit the bug.
+          -->
+          <ClientOnly>
+            <UTabs
+              v-model="editMode"
+              :items="modeItems"
+              :content="false"
+              size="sm"
+              color="primary"
+              :aria-label="t('admin.cms.visual.modeLabel')"
+              data-testid="edit-mode-toggle"
+            />
+          </ClientOnly>
           <UButton
             v-if="page && page.status === 'published'"
             color="neutral"
