@@ -70,7 +70,9 @@ const state = reactive({
   method_id: null as number | null,
   currency: 'USD' as ShippingCurrency,
   amount: 0,
-  free_above_subtotal: null as number | null,
+  // `UInputNumber` writes `undefined` (not `null`) when the field is emptied,
+  // so every read has to treat both as "not set" — see the schema below.
+  free_above_subtotal: null as number | null | undefined,
   // Subtotal tiers are edited as a dynamic list; on submit `[]` collapses to `null`.
   tiers: [] as { min_subtotal: number, amount: number }[],
   // Weight tiers are edited as a dynamic list; on submit `[]` collapses to `null`.
@@ -87,7 +89,11 @@ const schema = computed(() =>
     method_id: z.number({ message: t('messages.fieldRequired') }),
     currency: z.enum(['USD', 'PLN', 'EUR']),
     amount: z.number().min(0),
-    free_above_subtotal: z.number().min(0).nullable(),
+    // `nullish`, not `nullable`: focusing this optional field and leaving it
+    // empty makes `UInputNumber` write `undefined`, which `nullable()` rejected
+    // ("expected number, received undefined") — silently blocking submit for
+    // anyone who simply tabbed through the form.
+    free_above_subtotal: z.number().min(0).nullish(),
     tiers: z.array(z.object({ min_subtotal: z.number(), amount: z.number() })),
     weight_tiers: z.array(z.object({ max_weight_kg: z.number(), amount: z.number() })),
   }),
@@ -219,7 +225,10 @@ async function onSubmit() {
         patch: {
           currency: state.currency,
           amount: state.amount,
-          free_above_subtotal: state.free_above_subtotal,
+          // `?? null` matters on the patch path: an `undefined` here would be
+          // dropped from the JSON body, which the backend reads as "leave
+          // unchanged" — so clearing the field would never actually clear it.
+          free_above_subtotal: state.free_above_subtotal ?? null,
           tiers: tiers.length > 0 ? tiers : null,
           weight_tiers: weightTiers.length > 0 ? weightTiers : null,
         },
@@ -232,7 +241,7 @@ async function onSubmit() {
         method_id: state.method_id!,
         currency: state.currency,
         amount: state.amount,
-        free_above_subtotal: state.free_above_subtotal,
+        free_above_subtotal: state.free_above_subtotal ?? null,
         tiers: tiers.length > 0 ? tiers : null,
         weight_tiers: weightTiers.length > 0 ? weightTiers : null,
       })
@@ -347,7 +356,7 @@ async function onSubmit() {
                 class="flex-1"
               />
               <UButton
-                v-if="state.free_above_subtotal !== null"
+                v-if="state.free_above_subtotal != null"
                 variant="ghost"
                 size="sm"
                 icon="i-lucide-x"
