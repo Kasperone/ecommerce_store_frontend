@@ -38,6 +38,14 @@ export async function openSelect(scope: Page | Locator, label: string): Promise<
  *
  * The listbox is portalled to the document body, so options are matched on
  * `page`, never inside `scope`.
+ *
+ * The open click is retried, because on an admin page authed by cookie
+ * injection the first click can land before Vue binds the trigger's handler:
+ * the control takes focus and nothing opens — no error, no console warning.
+ * Specs that happened to touch another control first (a search field, say) hid
+ * this by giving hydration time; one whose first interaction IS the select does
+ * not. The retry re-clicks only while the option is still hidden, so it can
+ * never toggle an already-open listbox shut.
  */
 export async function selectOption(
   page: Page,
@@ -45,8 +53,12 @@ export async function selectOption(
   label: string,
   optionName: string,
 ): Promise<void> {
-  await openSelect(scope, label)
   const option = page.getByRole('option', { name: optionName, exact: true })
-  await expect(option).toBeVisible({ timeout: 10_000 })
+  await expect(async () => {
+    if (!(await option.isVisible())) {
+      await openSelect(scope, label)
+    }
+    await expect(option).toBeVisible({ timeout: 2_000 })
+  }).toPass({ timeout: 30_000 })
   await option.click()
 }
