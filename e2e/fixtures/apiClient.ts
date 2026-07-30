@@ -1242,6 +1242,83 @@ export class ApiClient {
     return res.rows[0]?.stock ?? -1
   }
 
+  /**
+   * A product's stock-movement ledger rows, newest first — the same order the
+   * admin movements page renders.
+   *
+   * `resulting_stock` is the **warehouse level** after the delta, not
+   * `products.stock`; the two only agree while a product lives in one
+   * warehouse. Creating a product with a `stock` value writes NO movement (the
+   * initial figure lands straight on `products.stock`), so a fresh product's
+   * ledger starts empty and row counts here are exact.
+   */
+  async getProductMovements(productId: number): Promise<Array<{
+    reason: string
+    delta: number
+    resulting_stock: number
+    note: string | null
+    warehouse_id: number | null
+    order_id: number | null
+  }>> {
+    const res = await this.pg.query<{
+      reason: string
+      delta: number
+      resulting_stock: number
+      note: string | null
+      warehouse_id: number | null
+      order_id: number | null
+    }>(
+      `SELECT reason, delta, resulting_stock, note, warehouse_id, order_id
+         FROM inventory_movements
+        WHERE product_id = $1
+        ORDER BY id DESC`,
+      [productId],
+    )
+    return res.rows
+  }
+
+  /** A product's own low-stock threshold (NULL ⇒ the store-wide default applies). */
+  async getProductLowStockThreshold(productId: number): Promise<number | null> {
+    const res = await this.pg.query<{ low_stock_threshold: number | null }>(
+      'SELECT low_stock_threshold FROM products WHERE id = $1',
+      [productId],
+    )
+    return res.rows[0]?.low_stock_threshold ?? null
+  }
+
+  /**
+   * The store-wide default low-stock threshold. NULL in a stock e2e database,
+   * which is what makes a fresh product with no threshold reliably `in_stock`.
+   * Read it rather than assuming — a global default would silently invalidate
+   * that precondition. Never *write* it from a spec: it is one `store_config`
+   * row shared by every sibling.
+   */
+  async getStoreLowStockDefaultThreshold(): Promise<number | null> {
+    const res = await this.pg.query<{ low_stock_default_threshold: number | null }>(
+      'SELECT low_stock_default_threshold FROM store_config LIMIT 1',
+    )
+    return res.rows[0]?.low_stock_default_threshold ?? null
+  }
+
+  /** Admin low-stock badge counts — the dashboard's summary of the same filters. */
+  async getLowStockSummary(accessToken: string): Promise<{
+    low_stock_count: number
+    out_of_stock_count: number
+    backorder_count: number
+  }> {
+    const res = await this.http.get('/api/v1/admin/inventory/low-stock-summary', {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`getLowStockSummary failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json() as {
+      low_stock_count: number
+      out_of_stock_count: number
+      backorder_count: number
+    }
+  }
+
   /** Customer order list — newest first, used to verify checkout created an order. */
   async listOrders(accessToken: string): Promise<Array<{
     id: number
