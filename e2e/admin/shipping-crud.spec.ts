@@ -19,6 +19,11 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
 import { KNOWN_ADMIN } from '../fixtures/testUser'
+// `fieldControl` / `openSelect` were first derived here, then lifted to the
+// shared helper when the orders-export spec hit the same wall. Scope every call
+// to the dialog when one is open: the rates tab repeats Zone/Method/Currency as
+// filter labels on the page behind it.
+import { fieldControl, openSelect } from '../helpers/nuxtUiSelect'
 import { setUInputNumber } from '../helpers/uinputnumber'
 
 test.use({ storageState: { cookies: [], origins: [] } })
@@ -47,34 +52,6 @@ async function openDialog(page: Page, buttonName: string): Promise<void> {
     }
     await expect(dialog).toBeVisible({ timeout: 3_000 })
   }).toPass({ timeout: 25_000 })
-}
-
-/**
- * Open the `USelectMenu` / `USelect` in the `UFormField` with the given label.
- *
- * Neither of the obvious locators works. The trigger is a plain `<button>`, not
- * a `role="combobox"`, so `getByRole('combobox')` finds nothing; and although
- * `UFormField` does emit `<label for="…">` pointing at the trigger's `id`, the
- * button carries `aria-label="Show popup"`, which by ARIA precedence *overrides*
- * the label — so `getByLabel('Countries')` matches nothing either, and every
- * select on the page shares one useless accessible name.
- *
- * The `for`/`id` pair is the only thing that identifies which select is which,
- * so resolve it explicitly. Scope to the dialog when one is open: the rates tab
- * repeats Zone/Method/Currency as filter labels on the page behind it.
- */
-async function fieldControl(scope: Page | Locator, label: string): Promise<Locator> {
-  const labelEl = scope
-    .locator('label')
-    .filter({ hasText: new RegExp(`^\\s*${label}\\s*$`) })
-    .first()
-  const controlId = await labelEl.getAttribute('for')
-  if (!controlId) throw new Error(`no control bound to the "${label}" label`)
-  return scope.locator(`#${controlId}`)
-}
-
-async function openSelect(scope: Page | Locator, label: string): Promise<void> {
-  await (await fieldControl(scope, label)).click()
 }
 
 /**
