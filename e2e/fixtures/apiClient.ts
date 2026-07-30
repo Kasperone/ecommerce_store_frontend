@@ -1656,6 +1656,36 @@ export class ApiClient {
     }
   }
 
+  /**
+   * The admin audit trail for one entity, oldest first.
+   *
+   * Read straight from pg because the point of the spec is that the *backend*
+   * recorded it — going through the admin list endpoint would let a broken
+   * writer and a broken reader cancel out. Rows outlive the entity they
+   * describe: deleting a product does not cascade its audit history away.
+   *
+   * `payload` shape is asymmetric by design — `{after}` on create, `{before,
+   * after}` with only the CHANGED fields on update, `{before}` on delete.
+   */
+  async getAuditEvents(resourceType: string, resourceId: number): Promise<Array<{
+    action: string
+    actor_id: number | null
+    payload: { before?: Record<string, unknown>, after?: Record<string, unknown> } | null
+  }>> {
+    const res = await this.pg.query<{
+      action: string
+      actor_id: number | null
+      payload: { before?: Record<string, unknown>, after?: Record<string, unknown> } | null
+    }>(
+      `SELECT action, actor_id, payload
+         FROM admin_audit_events
+        WHERE resource_type = $1 AND resource_id = $2
+        ORDER BY id ASC`,
+      [resourceType, resourceId],
+    )
+    return res.rows
+  }
+
   async deleteProduct(accessToken: string, productId: number): Promise<void> {
     const res = await this.http.delete(`/api/v1/products/${productId}`, {
       headers: { authorization: `Bearer ${accessToken}` },
