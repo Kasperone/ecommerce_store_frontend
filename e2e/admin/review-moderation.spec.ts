@@ -64,19 +64,35 @@ test.describe('Admin review moderation', () => {
       })
       expect((await api.getReviewRow(review.id))?.status).toBe('pending')
 
-      await page.context().addCookies([admin.refreshCookie])
-      await page.goto('/admin/reviews')
-      await expect(page).toHaveURL(/\/admin\/reviews/, { timeout: 60_000 })
-
-      // Scope the table to this run's review. The search box is also the first
-      // interaction after a cookie-injection goto, so it absorbs the admin-chrome
-      // cold-compile hydration race: re-fill until the row actually lands.
-      const search = await fieldControl(page, 'Search')
       const row = page.getByRole('row').filter({ hasText: productName })
-      await expect(async () => {
-        await search.fill(productName)
-        await expect(row).toBeVisible({ timeout: 3_000 })
-      }).toPass({ timeout: 90_000 })
+      // Open the workspace as admin and scope the table to this run's review.
+      //
+      // ⚠️ A refresh cookie is SINGLE-USE (rotating): the first admin load
+      // exchanges it, and the browser then holds the replacement. So this takes
+      // a *fresh* login every time rather than re-injecting `admin.refreshCookie`
+      // — after the anonymous leg's `clearCookies()` the original is revoked
+      // (reuse is a hard 401, no grace window) and the rotated one is gone, so
+      // the boot refresh fails and the admin middleware redirects to /login.
+      // (`account/reviews` hides this: its admin cookie is first used *after*
+      // its clearCookies.) Local dev runs happened to survive the stale cookie;
+      // CI landed on /login 3 attempts out of 3 — trust the contract, not the
+      // local pass.
+      //
+      // The search box is also the first interaction after a cookie-injection
+      // goto, so the retry absorbs the admin-chrome cold-compile hydration race
+      // — and re-resolves the control each pass, since the `UFormField` id is
+      // only guaranteed stable within one render of the page.
+      const openWorkspaceScopedToProduct = async () => {
+        const session = await api.loginViaApi(KNOWN_ADMIN.email, KNOWN_ADMIN.password)
+        await page.context().addCookies([session.refreshCookie])
+        await page.goto('/admin/reviews')
+        await expect(page).toHaveURL(/\/admin\/reviews/, { timeout: 60_000 })
+        await expect(async () => {
+          await (await fieldControl(page, 'Search')).fill(productName)
+          await expect(row).toBeVisible({ timeout: 3_000 })
+        }).toPass({ timeout: 90_000 })
+      }
+      await openWorkspaceScopedToProduct()
 
       const dialog = page.getByRole('dialog')
       const openDialog = async () => {
@@ -124,13 +140,8 @@ test.describe('Admin review moderation', () => {
       await expect(page.getByText('Store response').first()).toBeVisible()
       await expect(page.getByText(replyText).first()).toBeVisible()
 
-      // ---- clear the reply → it leaves the PDP, the review stays ----
-      await page.context().addCookies([admin.refreshCookie])
-      await page.goto('/admin/reviews')
-      await expect(async () => {
-        await search.fill(productName)
-        await expect(row).toBeVisible({ timeout: 3_000 })
-      }).toPass({ timeout: 90_000 })
+      // ---- clear the reply → the review stays ----
+      await openWorkspaceScopedToProduct()
       await openDialog()
       await dialog.getByRole('button', { name: 'Remove reply' }).click()
       await expect.poll(
