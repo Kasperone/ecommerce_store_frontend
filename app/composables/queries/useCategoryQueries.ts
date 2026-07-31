@@ -10,6 +10,7 @@
 import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
+import { narrowFetchError } from '~/utils/apiError'
 import type {
   CategoryCreate,
   CategoryDeletePreview,
@@ -148,14 +149,28 @@ export function useCategoryDeletePreviewQuery(
   const { apiFetch } = useApi()
   return useQuery({
     key: () => [...CATEGORIES_NAMESPACE, 'delete-preview', toValue(id)],
-    query: () => {
+    query: async () => {
       const value = toValue(id)
       if (value === undefined) {
         return Promise.reject(new Error('Category id is required'))
       }
-      return apiFetch<CategoryDeletePreview>(
-        `/api/v1/categories/${value}/delete-preview`,
-      )
+      try {
+        return await apiFetch<CategoryDeletePreview>(
+          `/api/v1/categories/${value}/delete-preview`,
+        )
+      }
+      catch (error) {
+        // A delete invalidates the whole `categories` namespace and
+        // `mutateAsync` awaits that invalidation — which refetches THIS query
+        // for the very row that was just deleted, while the confirm dialog (and
+        // therefore this query) is still mounted. Letting the 404 through
+        // rejects the mutation itself: the dialog then sits open on a delete
+        // that actually succeeded, showing an empty error and with its Cancel
+        // button stuck disabled. A preview of a category that no longer exists
+        // is simply "nothing to preview" — which the dialog already renders.
+        if (narrowFetchError(error).status === 404) return null
+        throw error
+      }
     },
     // Client-only (+ id present) — see useOrderQueries.ts for the SSR rationale.
     enabled: () => import.meta.client && toValue(id) !== undefined,

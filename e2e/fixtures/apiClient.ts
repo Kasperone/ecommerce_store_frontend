@@ -160,6 +160,88 @@ export class ApiClient {
     return res.rows[0]?.password_reset_token_hash ?? null
   }
 
+  /**
+   * Admin: create a category. `parentId` nests it under an existing row; omit
+   * it for a root category (the admin UI's create modal never sends
+   * `parent_id` — nesting is a separate "Move under…" step, which is exactly
+   * what the category-crud spec drives).
+   */
+  async createCategory(
+    accessToken: string,
+    input: {
+      name: string
+      slug: string
+      parentId?: number | null
+      isActive?: boolean
+      namePl?: string | null
+      slugPl?: string | null
+    },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post('/api/v1/categories/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        name: input.name,
+        slug: input.slug,
+        parent_id: input.parentId ?? null,
+        is_active: input.isActive ?? true,
+        name_pl: input.namePl ?? null,
+        slug_pl: input.slugPl ?? null,
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createCategory failed: ${res.status()} ${await res.text()}`)
+    }
+    const category = await res.json() as { id: number }
+    return { id: category.id }
+  }
+
+  /**
+   * The `categories` row for a slug, straight from pg — `null` once the row is
+   * gone. Ground truth for the admin tree: asserting the list endpoint instead
+   * would let a broken writer and a broken reader cancel out.
+   */
+  async getCategoryRow(slug: string): Promise<{
+    id: number
+    name: string
+    slug: string
+    name_pl: string | null
+    slug_pl: string | null
+    is_active: boolean
+    parent_id: number | null
+  } | null> {
+    const res = await this.pg.query<{
+      id: number
+      name: string
+      slug: string
+      name_pl: string | null
+      slug_pl: string | null
+      is_active: boolean
+      parent_id: number | null
+    }>(
+      `SELECT id, name, slug, name_pl, slug_pl, is_active, parent_id
+         FROM categories WHERE slug = $1`,
+      [slug],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /**
+   * Delete every category whose slug starts with `slugPrefix` (the literal
+   * prefix — `%` and `_` in it would act as LIKE wildcards).
+   *
+   * Run it at the START of a category spec as well as in `finally`: a
+   * test-timeout kill never runs `finally`, and the e2e categories table is
+   * otherwise never truncated, so leftovers would collide on the unique slug.
+   * `parent_id` is `ON DELETE RESTRICT` and RESTRICT is checked per row (not
+   * deferred to statement end), so a single DELETE covering both a parent and
+   * its child still fails — detach the whole prefixed set first, then delete.
+   */
+  async purgeCategories(slugPrefix: string): Promise<void> {
+    const pattern = `${slugPrefix}%`
+    await this.pg.query('UPDATE categories SET parent_id = NULL WHERE slug LIKE $1', [pattern])
+    await this.pg.query('DELETE FROM categories WHERE slug LIKE $1', [pattern])
+  }
+
   async createProduct(
     accessToken: string,
     input: {
