@@ -267,4 +267,36 @@ describe('useCategoryDeletePreviewQuery', () => {
 
     expect(apiFetch).not.toHaveBeenCalled()
   })
+
+  // A delete invalidates the whole `categories` namespace and the mutation
+  // awaits that invalidation, which refetches this query for the row that was
+  // just deleted (the confirm dialog is still mounted). A rejecting 404 would
+  // therefore reject the *delete*, wedging the dialog open on a delete that
+  // succeeded — so a preview of a gone category resolves as "nothing".
+  it('resolves to null when the category is already gone (404)', async () => {
+    apiFetch.mockRejectedValue({ response: { status: 404 } })
+    const { useCategoryDeletePreviewQuery } = await import('./useCategoryQueries')
+
+    const query = await runInComponent(
+      () => useCategoryDeletePreviewQuery(5),
+    ) as { data: { value: unknown }, error: { value: unknown } }
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(query.error.value).toBeNull()
+    expect(query.data.value).toBeNull()
+  })
+
+  it('still surfaces a non-404 failure', async () => {
+    apiFetch.mockRejectedValue({ response: { status: 500 } })
+    const { useCategoryDeletePreviewQuery } = await import('./useCategoryQueries')
+
+    const query = await runInComponent(
+      () => useCategoryDeletePreviewQuery(5),
+    ) as { error: { value: unknown } }
+    await nextTick()
+    await new Promise(r => setTimeout(r, 0))
+
+    expect(query.error.value).not.toBeNull()
+  })
 })
