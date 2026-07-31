@@ -170,6 +170,10 @@ export class ApiClient {
       price_eur: number
       stock?: number
       category_id?: number | null
+      // A source-present description makes the product a two-field translatable
+      // resource in the admin Translations workspace (blank optional sources are
+      // not counted as applicable).
+      description?: string
       // Assign a specific tax category (e.g. a REDUCED_5 / REDUCED_8 id from
       // taxCategoryIdByCode) to exercise the mixed-rate faktura decomposition.
       // Omit → the backend assigns the default (STANDARD, 23% in PL).
@@ -1814,6 +1818,69 @@ export class ApiClient {
     })
     if (!res.ok() && res.status() !== 404) {
       throw new Error(`deleteSegment failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
+   * Translations: the stored source-digest per field, straight from the
+   * `translation_meta` sidecar — `{ field_key: source_digest }`.
+   *
+   * This is the ground truth for outdated detection. A digest is stamped from
+   * the *English* source at the moment a translation is saved; the workspace
+   * calls a field outdated when the stored digest no longer matches a rehash of
+   * the live source. Read the sidecar directly rather than the admin list
+   * endpoint: that endpoint is the reader, and a broken writer paired with a
+   * broken reader cancels out (the lesson from the segments spec).
+   *
+   * Compare digests across steps rather than recomputing SHA-256 here — the
+   * assertions that matter are "this digest moved" / "this digest did not",
+   * which stay true regardless of the hash the backend picks.
+   */
+  async getTranslationDigests(
+    resourceType: string,
+    resourceId: number,
+    locale = 'pl',
+  ): Promise<Record<string, string>> {
+    const res = await this.pg.query<{ field_key: string, source_digest: string }>(
+      `SELECT field_key, source_digest
+         FROM translation_meta
+        WHERE resource_type = $1 AND resource_id = $2 AND locale = $3`,
+      [resourceType, resourceId, locale],
+    )
+    return Object.fromEntries(res.rows.map(r => [r.field_key, r.source_digest]))
+  }
+
+  /** Translations: the per-locale translation columns of a product, from pg. */
+  async getProductTranslationColumns(productId: number): Promise<{
+    name_pl: string | null
+    description_pl: string | null
+  }> {
+    const res = await this.pg.query<{ name_pl: string | null, description_pl: string | null }>(
+      `SELECT name_pl, description_pl FROM products WHERE id = $1`,
+      [productId],
+    )
+    if (res.rows.length === 0) throw new Error(`no product row #${productId}`)
+    return res.rows[0]
+  }
+
+  /**
+   * Translations: PUT one resource's translations, the same call the editor
+   * modal makes. Used to *set up* a spec's starting state cheaply — the UI save
+   * path itself is covered by driving the real modal.
+   */
+  async setTranslations(
+    accessToken: string,
+    resourceType: string,
+    resourceId: number,
+    fields: Record<string, string>,
+    locale = 'pl',
+  ): Promise<void> {
+    const res = await this.http.put(
+      `/api/v1/admin/translations/${resourceType}/${resourceId}?locale=${locale}`,
+      { headers: { authorization: `Bearer ${accessToken}` }, data: { fields } },
+    )
+    if (!res.ok()) {
+      throw new Error(`setTranslations failed: ${res.status()} ${await res.text()}`)
     }
   }
 }
