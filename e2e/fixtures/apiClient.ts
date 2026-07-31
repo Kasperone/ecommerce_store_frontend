@@ -1965,6 +1965,66 @@ export class ApiClient {
       throw new Error(`setTranslations failed: ${res.status()} ${await res.text()}`)
     }
   }
+
+  /**
+   * Reviews: an authenticated customer submits a review (starts `pending`).
+   *
+   * One review per (product, user) — a second call for the same pair is a 409,
+   * so a spec that wants N reviews needs N products or N customers.
+   */
+  async createReview(
+    accessToken: string,
+    productId: number,
+    input: { rating: number, body: string, title?: string },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post(`/api/v1/products/${productId}/reviews`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: input,
+    })
+    if (!res.ok()) {
+      throw new Error(`createReview failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json() as { id: number }
+  }
+
+  /**
+   * Reviews: admin PATCH — seeds a status and/or reply without driving the
+   * moderation dialog. Both keys are independently optional (a body with
+   * neither is a 422); `admin_response: null` clears the reply.
+   */
+  async moderateReview(
+    accessToken: string,
+    reviewId: number,
+    patch: { status?: 'pending' | 'approved' | 'rejected', admin_response?: string | null },
+  ): Promise<void> {
+    const res = await this.http.patch(`/api/v1/admin/reviews/${reviewId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: patch,
+    })
+    if (!res.ok()) {
+      throw new Error(`moderateReview failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
+   * Reviews: the moderation columns straight from pg — the ground truth the
+   * dialog's toasts only hint at. `null` once the row is deleted.
+   */
+  async getReviewRow(reviewId: number): Promise<{
+    status: string
+    admin_response: string | null
+    admin_response_at: Date | null
+  } | null> {
+    const res = await this.pg.query<{
+      status: string
+      admin_response: string | null
+      admin_response_at: Date | null
+    }>(
+      'SELECT status, admin_response, admin_response_at FROM reviews WHERE id = $1',
+      [reviewId],
+    )
+    return res.rows[0] ?? null
+  }
 }
 
 function parseRefreshCookie(setCookie: string): {
