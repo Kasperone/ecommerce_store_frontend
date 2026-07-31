@@ -1730,6 +1730,92 @@ export class ApiClient {
     )
     return res.rows
   }
+
+  /**
+   * Attach a customer tag by NAME (get-or-create) and return its id.
+   *
+   * The admin route is idempotent and returns the customer's full tag list, so
+   * the id comes back from that list rather than a separate lookup. Names are
+   * normalized (trimmed) server-side, so the match is on the trimmed name.
+   */
+  async assignCustomerTag(
+    accessToken: string,
+    customerId: number,
+    name: string,
+  ): Promise<number> {
+    const res = await this.http.post(`/api/v1/admin/customers/${customerId}/tags`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: { name },
+    })
+    if (!res.ok()) {
+      throw new Error(`assignCustomerTag failed: ${res.status()} ${await res.text()}`)
+    }
+    const chips = await res.json() as Array<{ id: number, name: string }>
+    const chip = chips.find(c => c.name === name.trim())
+    if (!chip) throw new Error(`assignCustomerTag: "${name}" missing from ${JSON.stringify(chips)}`)
+    return chip.id
+  }
+
+  async deleteTag(accessToken: string, tagId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/tags/${tagId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteTag failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
+   * A saved segment's persisted row, looked up by its (per-run unique) name.
+   *
+   * `filters` is the typed predicate the form assembled — read from pg so the
+   * assertion is on what the backend STORED, not on what the list endpoint
+   * chooses to echo back.
+   */
+  async getSegmentRowByName(name: string): Promise<{
+    id: number
+    is_active: boolean
+    filters: Record<string, unknown>
+  } | null> {
+    const res = await this.pg.query<{
+      id: number
+      is_active: boolean
+      filters: Record<string, unknown>
+    }>(
+      'SELECT id, is_active, filters FROM segments WHERE name = $1',
+      [name],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /**
+   * Resolve a SAVED segment through the backend's set-based resolver.
+   *
+   * This is the assertion that matters: the modal's live counter proves the
+   * preview endpoint runs, but only `GET /{id}/preview` proves the *persisted*
+   * filter still resolves to the right people.
+   */
+  async previewSegment(accessToken: string, segmentId: number): Promise<{
+    count: number
+    sample: Array<{ id: number, email: string }>
+  }> {
+    const res = await this.http.get(`/api/v1/admin/segments/${segmentId}/preview`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`previewSegment failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json() as { count: number, sample: Array<{ id: number, email: string }> }
+  }
+
+  async deleteSegment(accessToken: string, segmentId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/segments/${segmentId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteSegment failed: ${res.status()} ${await res.text()}`)
+    }
+  }
 }
 
 function parseRefreshCookie(setCookie: string): {
