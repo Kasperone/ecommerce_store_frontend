@@ -1,7 +1,22 @@
 import path from 'node:path'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
 import { KNOWN_ADMIN } from '../fixtures/testUser'
+
+/**
+ * Wait for the Media section, the readiness signal for the admin product-edit
+ * route (and the precondition for `setInputFiles` targeting a stable DOM).
+ *
+ * The timeout has to be explicit and generous: that route cold-compiles on
+ * first hit and stays slow even warm, so the 5s default is a latent flake. It
+ * goes red whenever lint/unit/typecheck share the hive box with e2e — FE #344
+ * fixed exactly this pattern in the order specs, but this spec predates the
+ * rule and kept the default until a longer e2e run finally tipped it over.
+ */
+async function waitForMediaSection(page: Page): Promise<void> {
+  const heading = page.getByRole('heading', { name: 'Media', exact: true })
+  await expect(heading).toBeVisible({ timeout: 60_000 })
+}
 
 const FIXTURE_DIR = path.join(process.cwd(), 'e2e', 'fixtures', 'images')
 const RED_PNG = path.join(FIXTURE_DIR, 'gallery-red.png')
@@ -15,9 +30,11 @@ test.use({ storageState: { cookies: [], origins: [] } })
 // the delete-popover UI flows are documented inline as known E2E gaps and
 // stay covered by Vitest specs against the same Vue source.
 test('admin product image gallery lifecycle (real R2)', async ({ page }) => {
-  // Real-R2 round-trips dominate runtime — typical pass is ~4s but 60s
-  // leaves headroom for slow R2 days without masking hangs.
-  test.setTimeout(60_000)
+  // Real-R2 round-trips dominate runtime — a typical pass is ~4s. The budget is
+  // 120s (the admin-spec convention) rather than 60s so that the generous
+  // per-navigation waits above can actually spend their allowance on a
+  // contended runner instead of silently eating the whole test's timeout.
+  test.setTimeout(120_000)
 
   const api = await ApiClient.create()
   let productId = 0
@@ -66,7 +83,7 @@ test('admin product image gallery lifecycle (real R2)', async ({ page }) => {
     await page.goto(`/admin/products/${productId}/edit`)
     // Wait for useProductQuery to resolve so the uploader is mounted, then
     // let in-flight requests settle so setInputFiles targets a stable DOM.
-    await expect(page.getByRole('heading', { name: 'Media', exact: true })).toBeVisible()
+    await waitForMediaSection(page)
     await page.waitForLoadState('networkidle')
 
     // Scope to the Media <section> — the gallery <ul> is the only list there.
@@ -99,7 +116,7 @@ test('admin product image gallery lifecycle (real R2)', async ({ page }) => {
       await patchPromise
 
       await page.reload()
-      await expect(page.getByRole('heading', { name: 'Media', exact: true })).toBeVisible()
+      await waitForMediaSection(page)
       // The primary tile renders "Primary" twice (badge + label replacing the
       // "Set as primary" button) — take the first match.
       await expect(tiles.nth(1).getByText('Primary', { exact: true }).first()).toBeVisible()
@@ -141,7 +158,7 @@ test('admin product image gallery lifecycle (real R2)', async ({ page }) => {
       await api.deleteProductImage(adminToken, productId, deletedId)
 
       await page.reload()
-      await expect(page.getByRole('heading', { name: 'Media', exact: true })).toBeVisible()
+      await waitForMediaSection(page)
       await expect(tiles).toHaveCount(1)
 
       const after = await api.listProductImages(productId)
