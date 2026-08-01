@@ -16,6 +16,12 @@ jobs:
     outputs:
       redundant: ${{ steps.check.outputs.redundant }}
 
+    # `checks: read` is NOT in the token's default read set for this endpoint —
+    # the first real run 403'd with "Resource not accessible by integration".
+    permissions:
+      contents: read
+      checks: read
+
     steps:
       - uses: actions/checkout@v5
         with:
@@ -69,9 +75,16 @@ jobs:
             || run_everything "tree differs from PR #$pr head ($pushed vs $tested) — the squash produced code CI never saw"
 
           head_sha="$(git rev-parse "refs/remotes/pr/$pr")"
-          conclusions="$(gh api "repos/${{ github.repository }}/commits/$head_sha/check-runs" \
+          # Capture BEFORE sorting. In a pipeline the assignment takes the exit
+          # status of the LAST command (`sort`), so a failing `gh` sails past
+          # the `||` and its JSON error body lands in $conclusions. That is
+          # exactly what the first real run did: a 403 was reported as "checks
+          # were not all green". Fail-open still ran the full suite, but a
+          # misleading log is its own bug.
+          raw="$(gh api "repos/${{ github.repository }}/commits/$head_sha/check-runs" \
             --paginate -q '.check_runs[] | select(.name != "Redundant main-run gate") | .conclusion' \
-            2>/dev/null | sort -u)" || run_everything "cannot read PR #$pr check runs"
+            2>/dev/null)" || run_everything "cannot read PR #$pr check runs (API error)"
+          conclusions="$(printf '%s\n' "$raw" | sort -u)"
           [ -n "$conclusions" ] || run_everything "PR #$pr has no recorded check runs"
           [ "$conclusions" = "success" ] \
             || run_everything "PR #$pr checks were not all green ($(echo $conclusions | tr '\n' ' '))"
