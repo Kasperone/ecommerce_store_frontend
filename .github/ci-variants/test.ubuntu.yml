@@ -10,9 +10,80 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  tree-gate:
+    name: Redundant main-run gate
+    runs-on: ubuntu-latest
+    outputs:
+      redundant: ${{ steps.check.outputs.redundant }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # Every change lands as a squash-merge of a PR that CI already tested, so
+      # the push-to-main run usually re-tests a tree with an existing green
+      # verdict — ~30 minutes of runner time per merge for a foregone
+      # conclusion. It is NOT always redundant though: a branch merged while
+      # behind main produces a tree nobody tested, and git can textually
+      # auto-merge into semantically broken code with no conflict markers. So
+      # decide per push instead of blanket-skipping (or blanket-cancelling by
+      # hand, which was the previous habit and only worked when a human
+      # remembered).
+      #
+      # Skip only when BOTH hold:
+      #   1. the pushed tree is byte-identical to the merged PR's head tree, and
+      #   2. that head's own check runs were all green.
+      # Identity alone is not enough — merging a red PR would otherwise skip the
+      # run that would have caught it.
+      #
+      # FAIL-OPEN by construction: every unknown (no PR number, unreachable
+      # ref, missing `gh`/`jq` on a self-hosted runner, unreadable check runs)
+      # falls through to running the full suite. The worst case is the status
+      # quo, never a silent gap in coverage.
+      - name: Decide whether this push re-tests an already-green tree
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          run_everything() {
+            echo "redundant=false" >> "$GITHUB_OUTPUT"
+            echo "→ running the full suite: $1"
+            exit 0
+          }
+
+          [ "${{ github.event_name }}" = "push" ] || run_everything "not a push to main"
+
+          subject="$(git log -1 --pretty=%s)"
+          pr="$(printf '%s\n' "$subject" | sed -n 's/.*(#\([0-9][0-9]*\))$/\1/p')"
+          [ -n "$pr" ] || run_everything "no (#NNN) in \"$subject\" — treat as a direct push"
+
+          git fetch --no-tags origin "refs/pull/$pr/head:refs/remotes/pr/$pr" \
+            || run_everything "PR #$pr head is unreachable"
+
+          pushed="$(git rev-parse 'HEAD^{tree}')"
+          tested="$(git rev-parse "refs/remotes/pr/$pr^{tree}")" \
+            || run_everything "cannot resolve PR #$pr head tree"
+          [ "$pushed" = "$tested" ] \
+            || run_everything "tree differs from PR #$pr head ($pushed vs $tested) — the squash produced code CI never saw"
+
+          head_sha="$(git rev-parse "refs/remotes/pr/$pr")"
+          conclusions="$(gh api "repos/${{ github.repository }}/commits/$head_sha/check-runs" \
+            --paginate -q '.check_runs[] | select(.name != "Redundant main-run gate") | .conclusion' \
+            2>/dev/null | sort -u)" || run_everything "cannot read PR #$pr check runs"
+          [ -n "$conclusions" ] || run_everything "PR #$pr has no recorded check runs"
+          [ "$conclusions" = "success" ] \
+            || run_everything "PR #$pr checks were not all green ($(echo $conclusions | tr '\n' ' '))"
+
+          echo "redundant=true" >> "$GITHUB_OUTPUT"
+          echo "→ skipping: this tree is identical to PR #$pr head ($head_sha), which is fully green"
+
   lint:
     name: Lint (ESLint + Stylistic)
     runs-on: ubuntu-latest
+    needs: [tree-gate]
+    if: needs.tree-gate.outputs.redundant != 'true'
 
     steps:
       - uses: actions/checkout@v5
@@ -35,6 +106,8 @@ jobs:
   typecheck:
     name: Typecheck (vue-tsc ratchet)
     runs-on: ubuntu-latest
+    needs: [tree-gate]
+    if: needs.tree-gate.outputs.redundant != 'true'
 
     steps:
       - uses: actions/checkout@v5
@@ -60,6 +133,8 @@ jobs:
   unit:
     name: Unit (Vitest)
     runs-on: ubuntu-latest
+    needs: [tree-gate]
+    if: needs.tree-gate.outputs.redundant != 'true'
 
     steps:
       - uses: actions/checkout@v5
@@ -102,6 +177,8 @@ jobs:
   codegen-check:
     name: OpenAPI codegen drift
     runs-on: ubuntu-latest
+    needs: [tree-gate]
+    if: needs.tree-gate.outputs.redundant != 'true'
 
     services:
       postgres:
@@ -191,6 +268,8 @@ jobs:
   e2e:
     name: E2E (Playwright + backend image)
     runs-on: ubuntu-latest
+    needs: [tree-gate]
+    if: needs.tree-gate.outputs.redundant != 'true'
 
     services:
       postgres:
