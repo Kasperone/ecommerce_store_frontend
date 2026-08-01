@@ -105,6 +105,18 @@ async function onDeleteRate(r: TaxRateResponse) {
   }
 }
 
+/**
+ * Nuxt UI calls `onSelect(event, row)` — the EVENT is the first argument.
+ * Binding it as `(row) => selectedId = row.original.id` made every click throw
+ * `Cannot read properties of undefined (reading 'id')` *inside* the handler, so
+ * the selection never moved: the rates table stayed pinned to whichever
+ * category sorted first, and no other category's rates could be viewed, added,
+ * edited or deleted from the UI.
+ */
+function onSelectCategory(_event: Event, row: { original: TaxCategoryResponse }) {
+  selectedId.value = row.original.id
+}
+
 const categoryColumns: TableColumn<TaxCategoryResponse>[] = [
   { accessorKey: 'name', header: () => t('admin.tax.category.fields.name') },
   { accessorKey: 'code', header: () => t('admin.tax.category.fields.code') },
@@ -164,7 +176,7 @@ const rateColumns: TableColumn<TaxRateResponse>[] = [
             :data="categories"
             :columns="categoryColumns"
             :ui="{ td: 'align-middle', tr: 'cursor-pointer' }"
-            @select="(row: { original: TaxCategoryResponse }) => (selectedId = row.original.id)"
+            @select="onSelectCategory"
           >
             <template #name-cell="{ row }">
               <div class="flex items-center gap-2">
