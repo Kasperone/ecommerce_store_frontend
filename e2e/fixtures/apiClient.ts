@@ -955,6 +955,73 @@ export class ApiClient {
     return await res.json()
   }
 
+  /**
+   * Admin: create a bare company (no primary contact, no net terms) — the
+   * fixture shape the admin-directory filter spec needs, where the only
+   * interesting fields are the ones the list filters on.
+   */
+  async createCompanyAsAdmin(
+    accessToken: string,
+    input: { name: string, taxId?: string, status?: 'pending' | 'approved' | 'rejected' },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post('/api/v1/admin/companies/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        name: input.name,
+        tax_id: input.taxId ?? null,
+        status: input.status ?? 'pending',
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createCompanyAsAdmin failed: ${res.status()} ${await res.text()}`)
+    }
+    return { id: (await res.json() as { id: number }).id }
+  }
+
+  /**
+   * The `companies` row as stored — ground truth for the admin CRUD spec. The
+   * admin list endpoint is deliberately not used: a broken writer and a broken
+   * reader would cancel out.
+   */
+  async getCompanyRowByName(name: string): Promise<{
+    id: number
+    name: string
+    tax_id: string | null
+    email: string | null
+    phone: string | null
+    status: string
+    account_manager: string | null
+    notes: string | null
+    primary_user_id: number | null
+  } | null> {
+    const res = await this.pg.query<{
+      id: number
+      name: string
+      tax_id: string | null
+      email: string | null
+      phone: string | null
+      status: string
+      account_manager: string | null
+      notes: string | null
+      primary_user_id: number | null
+    }>(
+      `SELECT id, name, tax_id, email, phone, status, account_manager, notes, primary_user_id
+         FROM companies
+        WHERE name = $1`,
+      [name],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /** Every company whose name starts with `prefix` — used to clean up a run. */
+  async getCompanyIdsByNamePrefix(prefix: string): Promise<number[]> {
+    const res = await this.pg.query<{ id: number }>(
+      'SELECT id FROM companies WHERE name LIKE $1',
+      [`${prefix}%`],
+    )
+    return res.rows.map(r => r.id)
+  }
+
   async deleteCompany(accessToken: string, companyId: number): Promise<void> {
     const res = await this.http.delete(`/api/v1/admin/companies/${companyId}`, {
       headers: { authorization: `Bearer ${accessToken}` },
