@@ -12,13 +12,7 @@ concurrency:
 jobs:
   lint:
     name: Lint (ESLint + Stylistic)
-    # hive runs TWO frontend runners. `hive-aux` takes the jobs that touch
-    # nothing shared — no Postgres, no docker, no host ports — so they run in
-    # parallel with the DB-bound pair instead of queueing ahead of them.
-    # `hive` stays reserved for codegen-check + e2e (see those jobs).
-    # Rollback = point every job back at `[self-hosted, hive]`, or at
-    # `ubuntu-latest` via the ubuntu ci-variant.
-    runs-on: [self-hosted, hive-aux]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
@@ -40,8 +34,7 @@ jobs:
 
   typecheck:
     name: Typecheck (vue-tsc ratchet)
-    # DB-free — see lint job.
-    runs-on: [self-hosted, hive-aux]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
@@ -66,8 +59,7 @@ jobs:
 
   unit:
     name: Unit (Vitest)
-    # DB-free — see lint job.
-    runs-on: [self-hosted, hive-aux]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
@@ -109,13 +101,7 @@ jobs:
 
   codegen-check:
     name: OpenAPI codegen drift
-    # Stays on `hive`, NOT `hive-aux`: this job and e2e both bind host port 5498
-    # for Postgres, both run a container literally named `backend` on :8200, and
-    # both drive the same `ecommerce_e2e` database — so they must never run
-    # concurrently. One runner for the pair is what enforces that.
-    # Self-hosted on hive (native — icc:false rules out a container job reaching
-    # the backend; runs even while GitHub-hosted minutes are capped).
-    runs-on: [self-hosted, hive]
+    runs-on: ubuntu-latest
 
     services:
       postgres:
@@ -125,10 +111,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ecommerce_e2e
         ports:
-          # Host port the native job reaches at localhost:5498. Distinct from the
-          # backend repo's :5499 — both self-hosted runners share the hive host, so a
-          # shared Postgres host port collides when backend + frontend CI overlap.
-          - 5498:5432
+          - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s
@@ -137,7 +120,7 @@ jobs:
 
     env:
       BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
-      BACKEND_URL: http://localhost:8200
+      BACKEND_URL: http://localhost:8000
 
     steps:
       - uses: actions/checkout@v5
@@ -160,13 +143,11 @@ jobs:
 
       - name: Start backend container
         run: |
-          docker rm -f backend 2>/dev/null || true
           docker run -d --name backend \
             --network host \
             -e ENVIRONMENT=development \
             -e DEBUG=False \
-            -e PORT=8200 \
-            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5498/ecommerce_e2e" \
+            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/ecommerce_e2e" \
             -e SECRET_KEY="codegen-secret-not-for-prod--padding-x" \
             -e JWT_SECRET_KEY="codegen-jwt-secret-not-for-prod--pad-x" \
             -e RESEND_API_KEY="" \
@@ -207,28 +188,9 @@ jobs:
             backend.log
           if-no-files-found: ignore
 
-      - name: Stop backend container
-        if: always()
-        run: docker rm -f backend 2>/dev/null || true
-
   e2e:
     name: E2E (Playwright + backend image)
-    # Stays on `hive` for the same reason as codegen-check: shared :5498,
-    # the `backend` container name, and the `ecommerce_e2e` database.
-    # Self-hosted on hive (native — icc:false; browsers copied out of the
-    # version-matched Playwright image, OS libs pre-baked on the host and only
-    # verified here — the runner user has no sudo; Nuxt dev server on :3100
-    # since hive's :3000 is taken).
-    # Serialize E2E across ALL refs (PRs + main) on the shared hive host so only
-    # one E2E job runs at a time. Concurrent E2E runs starved the cold Nuxt dev
-    # server (the root cause of the account-panel flake — failed ~every
-    # post-merge run during a busy merge train) and collided on the :5498
-    # Postgres host port. Fixed group (not ref-scoped) + cancel-in-progress:false
-    # → a second E2E waits (pending), it is not cancelled.
-    concurrency:
-      group: frontend-e2e-hive
-      cancel-in-progress: false
-    runs-on: [self-hosted, hive]
+    runs-on: ubuntu-latest
 
     services:
       postgres:
@@ -238,10 +200,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ecommerce_e2e
         ports:
-          # Host port the native job reaches at localhost:5498. Distinct from the
-          # backend repo's :5499 — both self-hosted runners share the hive host, so a
-          # shared Postgres host port collides when backend + frontend CI overlap.
-          - 5498:5432
+          - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s
@@ -254,12 +213,9 @@ jobs:
       # owner casing. Hardcoded here because ${{ github.repository_owner }}
       # preserves the original case and docker pull rejects it.
       BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
-      E2E_BACKEND_URL: http://localhost:8200
-      E2E_DB_URL: postgresql://postgres:postgres@localhost:5498/ecommerce_e2e
-      NUXT_PUBLIC_API_BASE: http://localhost:8200
-      # Nuxt dev-server port (playwright.config reads E2E_WEB_PORT); hive's :3000
-      # is taken by another project's container.
-      E2E_WEB_PORT: "3100"
+      E2E_BACKEND_URL: http://localhost:8000
+      E2E_DB_URL: postgresql://postgres:postgres@localhost:5432/ecommerce_e2e
+      NUXT_PUBLIC_API_BASE: http://localhost:8000
 
     steps:
       - uses: actions/checkout@v5
@@ -282,21 +238,18 @@ jobs:
 
       - name: Start backend container
         run: |
-          docker rm -f backend 2>/dev/null || true
           docker run -d --name backend \
             --network host \
             -e ENVIRONMENT=development \
             -e DEBUG=False \
-            -e PORT=8200 \
-            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5498/ecommerce_e2e" \
+            -e DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/ecommerce_e2e" \
             -e SECRET_KEY="e2e-secret-not-for-prod--not-for-prod--padding" \
             -e JWT_SECRET_KEY="e2e-jwt-secret-not-for-prod--not-for-prod--padding" \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=2 \
             -e RESEND_API_KEY="" \
             -e EMAIL_FROM=e2e@example.com \
             -e EMAIL_FROM_NAME="E2E" \
-            -e FRONTEND_URL=http://localhost:3100 \
-            -e CORS_ORIGINS='["http://localhost:3100"]' \
+            -e FRONTEND_URL=http://localhost:3000 \
             -e RATE_LIMIT_STORAGE_URL=memory:// \
             -e E2E_DISABLE_RATE_LIMIT=true \
             -e R2_ACCOUNT_ID="${{ secrets.R2_ACCOUNT_ID }}" \
@@ -309,7 +262,7 @@ jobs:
       - name: Wait for backend /health
         run: |
           for i in $(seq 1 30); do
-            if curl -fsS http://localhost:8200/health >/dev/null; then
+            if curl -fsS http://localhost:8000/health >/dev/null; then
               echo "backend ready after ${i} attempts"
               exit 0
             fi
@@ -330,14 +283,19 @@ jobs:
         id: pw
         run: echo "version=$(npx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
 
-      # Provision the browsers from the official Playwright image every run. On a
-      # persistent self-hosted runner ~/.cache/ms-playwright survives between jobs,
-      # but actions/cache is intentionally NOT used: its key is shared across all
-      # Linux runners, so a stale cache saved by the old ubuntu jobs got restored
-      # here MISSING chrome-headless-shell. A direct cp from the version-matched
-      # mcr image is always complete (and avoids the CDN hang `npx playwright
-      # install` hits — see git history).
+      # Cache the seeded browsers so subsequent runs skip even the image pull.
+      # restore/save split with save gated on success() + miss → a failed provision
+      # never persists a partial browser dir. New key (`-mcr-`) so it doesn't reuse
+      # any cache from the old CDN approach.
+      - name: Restore Playwright browser cache
+        id: pw-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-mcr-${{ steps.pw.outputs.version }}
+
       - name: Provision Playwright browsers from the Playwright image
+        if: steps.pw-cache.outputs.cache-hit != 'true'
         timeout-minutes: 10
         run: |
           set -euo pipefail
@@ -348,39 +306,19 @@ jobs:
           mkdir -p "$HOME/.cache/ms-playwright"
           docker cp "$cid:/ms-playwright/." "$HOME/.cache/ms-playwright/"
           docker rm "$cid"
+          sudo chown -R "$USER" "$HOME/.cache/ms-playwright"
           ls "$HOME/.cache/ms-playwright"
 
-      # The OS libs the browsers need are baked into the hive host. They can NOT
-      # be installed from here: `playwright install-deps` shells out to `sudo
-      # apt-get`, and the runner user has no sudo rights — deliberately, because
-      # this runner executes PR code, so passwordless root here would be an RCE
-      # primitive. (`docker cp` above already lands the cache owned by the runner
-      # user, so the old `sudo chown` was redundant too.)
-      #
-      # Verify instead of install, so a genuinely missing lib fails HERE with a
-      # readable message rather than as a cryptic browser-launch crash mid-suite.
-      - name: Verify Playwright system deps
-        run: |
-          set -euo pipefail
-          mapfile -t bins < <(find "$HOME/.cache/ms-playwright" -maxdepth 3 -type f \
-            \( -name chrome -o -name chrome-headless-shell -o -name headless_shell \) -perm -u+x)
-          if [ "${#bins[@]}" -eq 0 ]; then
-            echo "::error::no chromium binaries found in the Playwright cache"
-            exit 1
-          fi
-          missing=0
-          for bin in "${bins[@]}"; do
-            if ldd "$bin" | grep -q "not found"; then
-              echo "::error::$bin is missing shared libraries:"
-              ldd "$bin" | grep "not found"
-              missing=1
-            fi
-          done
-          if [ "$missing" -ne 0 ]; then
-            echo "::error::Install them on the hive host as root (npx playwright install-deps chromium), then re-run."
-            exit 1
-          fi
-          printf 'dependencies present for %d browser binaries\n' "${#bins[@]}"
+      # OS libs the browsers need (apt only — no browser download, so it can't hang).
+      - name: Install Playwright system deps
+        run: npx playwright install-deps chromium
+
+      - name: Save Playwright browser cache
+        if: ${{ success() && steps.pw-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-mcr-${{ steps.pw.outputs.version }}
 
       - name: Run Playwright
         env:
@@ -407,13 +345,9 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
-      - name: Stop backend container
-        if: always()
-        run: docker rm -f backend 2>/dev/null || true
-
   variant-sync:
     name: CI variant in sync
-    runs-on: [self-hosted, hive-aux]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
