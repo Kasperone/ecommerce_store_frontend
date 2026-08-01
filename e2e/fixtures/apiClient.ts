@@ -836,6 +836,168 @@ export class ApiClient {
    * explicit company_users row needed.
    */
   /** Admin: create a Net-N payment term (net-terms tail Program A). Returns its id. */
+  /**
+   * The `payment_terms` row as stored — ground truth for the admin CRUD spec.
+   * `net_days` / `due_date` matter most: `ck_payment_terms_shape` ties them to
+   * `term_type`, and switching type clears the parameter that no longer
+   * applies, which nothing in the UI reveals.
+   */
+  async getPaymentTermRowByName(name: string): Promise<{
+    id: number
+    name: string
+    term_type: string
+    net_days: number | null
+    due_date: string | null
+    is_active: boolean
+    notes: string | null
+  } | null> {
+    const res = await this.pg.query<{
+      id: number
+      name: string
+      term_type: string
+      net_days: number | null
+      // `date` columns come back as a JS Date from `pg`; normalised to
+      // YYYY-MM-DD below so assertions read like the value that was typed.
+      due_date: Date | null
+      is_active: boolean
+      notes: string | null
+    }>(
+      `SELECT id, name, term_type, net_days, due_date, is_active, notes
+         FROM payment_terms
+        WHERE name = $1`,
+      [name],
+    )
+    const row = res.rows[0]
+    if (!row) return null
+    return {
+      ...row,
+      due_date: row.due_date === null ? null : toIsoDate(row.due_date),
+    }
+  }
+
+  /** Every payment term whose name starts with `prefix` — cleanup for a run. */
+  async getPaymentTermIdsByNamePrefix(prefix: string): Promise<number[]> {
+    const res = await this.pg.query<{ id: number }>(
+      'SELECT id FROM payment_terms WHERE name LIKE $1',
+      [`${prefix}%`],
+    )
+    return res.rows.map(r => r.id)
+  }
+
+  async deletePaymentTerm(accessToken: string, paymentTermId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/payment-terms/${paymentTermId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deletePaymentTerm failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** Admin: create a tax category (the UI create leg is the spec's subject). */
+  async createTaxCategory(
+    accessToken: string,
+    input: { code: string, name: string, namePl?: string },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post('/api/v1/admin/tax/categories', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        code: input.code,
+        name: input.name,
+        name_pl: input.namePl ?? null,
+        is_default: false,
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createTaxCategory failed: ${res.status()} ${await res.text()}`)
+    }
+    return { id: (await res.json() as { id: number }).id }
+  }
+
+  /** Admin: add a rate to a tax category. */
+  async createTaxRate(
+    accessToken: string,
+    categoryId: number,
+    input: { countryCode: string, ratePct: number, validFrom: string, validTo?: string },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post(`/api/v1/admin/tax/categories/${categoryId}/rates`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        country_code: input.countryCode,
+        rate_pct: input.ratePct,
+        valid_from: input.validFrom,
+        valid_to: input.validTo ?? null,
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createTaxRate failed: ${res.status()} ${await res.text()}`)
+    }
+    return { id: (await res.json() as { id: number }).id }
+  }
+
+  async deleteTaxCategory(accessToken: string, categoryId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/tax/categories/${categoryId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteTaxCategory failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** The `tax_categories` row as stored, looked up by its immutable code. */
+  async getTaxCategoryRowByCode(code: string): Promise<{
+    id: number
+    code: string
+    name: string
+    name_pl: string | null
+    is_default: boolean
+  } | null> {
+    const res = await this.pg.query<{
+      id: number
+      code: string
+      name: string
+      name_pl: string | null
+      is_default: boolean
+    }>(
+      'SELECT id, code, name, name_pl, is_default FROM tax_categories WHERE code = $1',
+      [code],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /**
+   * A category's `tax_rates` rows, country-ordered. `rate_pct` is
+   * `numeric(5,2)`, which `pg` returns as a STRING to preserve exactness —
+   * assert against `'19.00'`, not `19`.
+   */
+  async getTaxRateRows(categoryId: number): Promise<Array<{
+    id: number
+    country_code: string
+    rate_pct: string
+    valid_from: string
+    valid_to: string | null
+  }>> {
+    const res = await this.pg.query<{
+      id: number
+      country_code: string
+      rate_pct: string
+      valid_from: Date
+      valid_to: Date | null
+    }>(
+      `SELECT id, country_code, rate_pct, valid_from, valid_to
+         FROM tax_rates
+        WHERE tax_category_id = $1
+        ORDER BY country_code`,
+      [categoryId],
+    )
+    // Dates normalised here rather than at the call site: `pg` hands back a JS
+    // Date, and `String(date).slice(0, 10)` yields "Fri Jan 01".
+    return res.rows.map(r => ({
+      ...r,
+      valid_from: toIsoDate(r.valid_from),
+      valid_to: r.valid_to === null ? null : toIsoDate(r.valid_to),
+    }))
+  }
+
   async createNetDaysPaymentTerm(accessToken: string, days: number): Promise<{ id: number, name: string }> {
     const name = `Net ${days}`
     const res = await this.http.post('/api/v1/admin/payment-terms/', {
@@ -2231,6 +2393,19 @@ export class ApiClient {
     )
     return res.rows[0] ?? null
   }
+}
+
+/**
+ * A pg `date` column as YYYY-MM-DD.
+ *
+ * `pg` hands back a JS Date at LOCAL midnight for a `date`, so `toISOString()`
+ * shifts the day backwards for any timezone east of UTC — the same naive-UTC
+ * trap the e2e stack hits elsewhere. Read the local components instead.
+ */
+function toIsoDate(value: Date): string {
+  const month = `${value.getMonth() + 1}`.padStart(2, '0')
+  const day = `${value.getDate()}`.padStart(2, '0')
+  return `${value.getFullYear()}-${month}-${day}`
 }
 
 function parseRefreshCookie(setCookie: string): {
