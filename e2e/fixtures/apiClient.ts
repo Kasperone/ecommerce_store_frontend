@@ -1909,6 +1909,22 @@ export class ApiClient {
     return chip.id
   }
 
+  /**
+   * Admin: mint a tag in the shared vocabulary without attaching it to anyone —
+   * the cheap way to build a segment that resolves to ZERO customers (409s if
+   * the name already exists, so keep it per-run unique).
+   */
+  async createTag(accessToken: string, name: string): Promise<number> {
+    const res = await this.http.post('/api/v1/admin/tags/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: { name },
+    })
+    if (!res.ok()) {
+      throw new Error(`createTag failed: ${res.status()} ${await res.text()}`)
+    }
+    return (await res.json() as { id: number }).id
+  }
+
   async deleteTag(accessToken: string, tagId: number): Promise<void> {
     const res = await this.http.delete(`/api/v1/admin/tags/${tagId}`, {
       headers: { authorization: `Bearer ${accessToken}` },
@@ -1968,6 +1984,129 @@ export class ApiClient {
     if (!res.ok() && res.status() !== 404) {
       throw new Error(`deleteSegment failed: ${res.status()} ${await res.text()}`)
     }
+  }
+
+  /**
+   * Admin: save a tag-rule segment straight through the API (the *form* leg is
+   * `admin/customer-segments.spec.ts`'s job). A segment is how a campaign spec
+   * bounds its blast radius: `audience='segment'` resolves to exactly the users
+   * carrying the tag, so a send can be exercised against one ephemeral customer
+   * — or, with a tag nobody holds, against nobody at all.
+   */
+  async createSegmentWithTags(
+    accessToken: string,
+    input: { name: string, tagIds: number[] },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post('/api/v1/admin/segments/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        name: input.name,
+        is_active: true,
+        filters: { tag_ids: input.tagIds, tag_match: 'any' },
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createSegmentWithTags failed: ${res.status()} ${await res.text()}`)
+    }
+    return { id: (await res.json() as { id: number }).id }
+  }
+
+  /**
+   * Admin: create an email campaign. `scheduled` requires `scheduledAt` and a
+   * `segment` audience requires `segmentId` — both are schema-level 422s, so a
+   * bad combination fails here rather than silently seeding a wrong fixture.
+   */
+  async createCampaignAsAdmin(
+    accessToken: string,
+    input: {
+      name: string
+      subject: string
+      audience: 'all' | 'customers' | 'b2b' | 'segment'
+      status?: 'draft' | 'scheduled'
+      scheduledAt?: string
+      segmentId?: number
+      body?: string
+    },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post('/api/v1/admin/campaigns/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        name: input.name,
+        subject: input.subject,
+        audience: input.audience,
+        status: input.status ?? 'draft',
+        body: input.body ?? null,
+        scheduled_at: input.scheduledAt ?? null,
+        segment_id: input.segmentId ?? null,
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createCampaignAsAdmin failed: ${res.status()} ${await res.text()}`)
+    }
+    return { id: (await res.json() as { id: number }).id }
+  }
+
+  /**
+   * Admin: dispatch a campaign (the fixture leg — the *UI* send is the spec's
+   * subject). OUTWARD-FACING in production; only ever call this on a campaign
+   * whose audience resolves to nobody, or to addresses the run owns.
+   */
+  async sendCampaign(accessToken: string, campaignId: number): Promise<void> {
+    const res = await this.http.post(`/api/v1/admin/campaigns/${campaignId}/send`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`sendCampaign failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  async deleteCampaign(accessToken: string, campaignId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/campaigns/${campaignId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteCampaign failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** The `campaigns` row as stored — ground truth for the campaign spec. */
+  async getCampaignRowByName(name: string): Promise<{
+    id: number
+    name: string
+    subject: string
+    audience: string
+    status: string
+    body: string | null
+    scheduled_at: Date | null
+    sent_at: Date | null
+    segment_id: number | null
+  } | null> {
+    const res = await this.pg.query<{
+      id: number
+      name: string
+      subject: string
+      audience: string
+      status: string
+      body: string | null
+      scheduled_at: Date | null
+      sent_at: Date | null
+      segment_id: number | null
+    }>(
+      `SELECT id, name, subject, audience, status, body, scheduled_at, sent_at, segment_id
+         FROM campaigns
+        WHERE name = $1`,
+      [name],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /** Every campaign whose name starts with `prefix` — used to clean up a run. */
+  async getCampaignIdsByNamePrefix(prefix: string): Promise<number[]> {
+    const res = await this.pg.query<{ id: number }>(
+      'SELECT id FROM campaigns WHERE name LIKE $1',
+      [`${prefix}%`],
+    )
+    return res.rows.map(r => r.id)
   }
 
   /**
