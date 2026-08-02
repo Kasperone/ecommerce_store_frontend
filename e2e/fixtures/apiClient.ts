@@ -42,13 +42,28 @@ export class ApiClient {
     }
   }
 
-  async loginViaApi(email: string, password: string): Promise<{
+  /**
+   * Log in over the API, returning BOTH halves of a real session: the bearer
+   * and the refresh cookie (a live `refresh_tokens` row). Injecting the cookie
+   * into a browser context makes it the browser's session; holding the pair
+   * here makes it a *second* session, which is how the session-revoke spec
+   * gets two live sessions without a second browser context.
+   *
+   * `userAgent` is persisted onto the `refresh_tokens` row by the login route,
+   * and it is what the sessions table renders in the Device column — so a
+   * distinct one per session is what makes each row locatable by NAME rather
+   * than by position.
+   */
+  async loginViaApi(email: string, password: string, userAgent?: string): Promise<{
     accessToken: string
     refreshCookie: { name: string, value: string, domain: string, path: string, expires: number, httpOnly: boolean, secure: boolean, sameSite: 'Strict' | 'Lax' | 'None' }
   }> {
     const form = new URLSearchParams({ username: email, password })
     const res = await this.http.post('/api/v1/auth/login', {
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        ...(userAgent ? { 'user-agent': userAgent } : {}),
+      },
       data: form.toString(),
     })
     if (!res.ok()) {
@@ -168,6 +183,56 @@ export class ApiClient {
       [email],
     )
     return res.rows[0] ?? null
+  }
+
+  /**
+   * Every `refresh_tokens` row for a user, newest first — one row per login
+   * session, and the ground truth for what a revoke actually did. Asserted
+   * instead of `GET /auth/sessions` deliberately: that endpoint FILTERS revoked
+   * rows out, so a row vanishing from it is also what a deleted row would look
+   * like. `revoked_at` distinguishes "revoked" from "never existed".
+   */
+  async getRefreshTokenRows(userId: number): Promise<Array<{
+    id: number
+    user_agent: string | null
+    revoked_at: Date | null
+  }>> {
+    const res = await this.pg.query<{
+      id: number
+      user_agent: string | null
+      revoked_at: Date | null
+    }>(
+      `SELECT id, user_agent, revoked_at
+         FROM refresh_tokens
+        WHERE user_id = $1
+        ORDER BY id DESC`,
+      [userId],
+    )
+    return res.rows
+  }
+
+  /**
+   * Present a refresh cookie to `POST /auth/refresh` and report only the
+   * status. The counterpart to `apiProbe` (which carries a bearer): a
+   * per-session revoke kills the REFRESH row, not the already-issued access
+   * token, so telling those two apart needs a probe for each.
+   *
+   * Runs in its own throwaway request context so the cookie under test is the
+   * only one on the wire — the shared `this.http` context keeps a cookie jar
+   * that every prior `loginViaApi` has written to.
+   */
+  async probeRefresh(refreshCookieValue: string): Promise<number> {
+    const ctx = await playwrightRequest.newContext({
+      baseURL: BACKEND_URL,
+      extraHTTPHeaders: { cookie: `refresh_token=${refreshCookieValue}` },
+    })
+    try {
+      const res = await ctx.post('/api/v1/auth/refresh')
+      return res.status()
+    }
+    finally {
+      await ctx.dispose()
+    }
   }
 
   async userIdByEmail(email: string): Promise<number> {
