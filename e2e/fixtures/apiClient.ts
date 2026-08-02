@@ -10,6 +10,29 @@ if (!DB_URL) {
   throw new Error('E2E_DB_URL must be set (Postgres connection string for ecommerce_e2e)')
 }
 
+/** The `categories` columns the admin specs assert on. */
+export interface CategoryRow {
+  id: number
+  name: string
+  slug: string
+  name_pl: string | null
+  slug_pl: string | null
+  is_active: boolean
+  parent_id: number | null
+  meta_title: string | null
+  meta_description: string | null
+  meta_title_pl: string | null
+  meta_description_pl: string | null
+  hero_image_url: string | null
+  hero_image_alt: string | null
+}
+
+const CATEGORY_ROW_SELECT = `
+  SELECT id, name, slug, name_pl, slug_pl, is_active, parent_id,
+         meta_title, meta_description, meta_title_pl, meta_description_pl,
+         hero_image_url, hero_image_alt
+    FROM categories`
+
 export class ApiClient {
   private constructor(
     private http: APIRequestContext,
@@ -384,27 +407,23 @@ export class ApiClient {
    * gone. Ground truth for the admin tree: asserting the list endpoint instead
    * would let a broken writer and a broken reader cancel out.
    */
-  async getCategoryRow(slug: string): Promise<{
-    id: number
-    name: string
-    slug: string
-    name_pl: string | null
-    slug_pl: string | null
-    is_active: boolean
-    parent_id: number | null
-  } | null> {
-    const res = await this.pg.query<{
-      id: number
-      name: string
-      slug: string
-      name_pl: string | null
-      slug_pl: string | null
-      is_active: boolean
-      parent_id: number | null
-    }>(
-      `SELECT id, name, slug, name_pl, slug_pl, is_active, parent_id
-         FROM categories WHERE slug = $1`,
+  async getCategoryRow(slug: string): Promise<CategoryRow | null> {
+    const res = await this.pg.query<CategoryRow>(
+      `${CATEGORY_ROW_SELECT} WHERE slug = $1`,
       [slug],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /**
+   * Same row by id. Needed when the slug is not enough to tell "never created"
+   * from "created then rolled back" — the id comes from the observed POST
+   * response, so a `null` here is proof the row was actually deleted.
+   */
+  async getCategoryRowById(id: number): Promise<CategoryRow | null> {
+    const res = await this.pg.query<CategoryRow>(
+      `${CATEGORY_ROW_SELECT} WHERE id = $1`,
+      [id],
     )
     return res.rows[0] ?? null
   }
