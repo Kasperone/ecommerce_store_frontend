@@ -197,6 +197,65 @@ export class ApiClient {
     return res.rows[0]?.exists ?? false
   }
 
+  async setUserActive(email: string, active: boolean): Promise<void> {
+    await this.pg.query('UPDATE users SET is_active = $2 WHERE email = $1', [email, active])
+  }
+
+  /**
+   * Start an admin impersonation session — returned RAW (never throws on a
+   * non-2xx) because half this endpoint's contract is its refusals: 403 for an
+   * admin target, 400 for an inactive one.
+   *
+   * `setCookie` is part of the contract, not diagnostics: the response must set
+   * NO cookie. The impersonation token is memory-only and non-refreshable, which
+   * is precisely why the session cannot outlive the impersonation.
+   */
+  async impersonate(adminToken: string, customerId: number): Promise<{
+    status: number
+    token: string | null
+    customer: { id: number, email: string, first_name: string, last_name: string } | null
+    detail: string | null
+    setCookie: string
+  }> {
+    const res = await this.http.post(`/api/v1/admin/customers/${customerId}/impersonate`, {
+      headers: { authorization: `Bearer ${adminToken}` },
+    })
+    const body = await res.json().catch(() => null) as {
+      access_token?: string
+      customer?: { id: number, email: string, first_name: string, last_name: string }
+      detail?: string
+    } | null
+    return {
+      status: res.status(),
+      token: body?.access_token ?? null,
+      customer: body?.customer ?? null,
+      detail: body?.detail ?? null,
+      setCookie: res.headers()['set-cookie'] ?? '',
+    }
+  }
+
+  /**
+   * Fire one request with an arbitrary bearer token and report only status +
+   * detail. Exists for the impersonation write-guard, which is enforced by
+   * METHOD in middleware rather than per-route — the only way to show that is to
+   * present the token directly, since the UI disables the controls that would
+   * reach it (and a disabled button proves nothing about the server boundary).
+   */
+  async apiProbe(
+    token: string,
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+    path: string,
+    data?: Record<string, unknown>,
+  ): Promise<{ status: number, detail: string | null }> {
+    const res = await this.http.fetch(path, {
+      method,
+      headers: { 'authorization': `Bearer ${token}`, 'content-type': 'application/json' },
+      ...(data ? { data } : {}),
+    })
+    const body = await res.json().catch(() => null) as { detail?: string } | null
+    return { status: res.status(), detail: body?.detail ?? null }
+  }
+
   async lockUser(email: string): Promise<void> {
     // Direct SQL — bypassing /auth/login because slowapi caps that endpoint
     // at 5/15min per IP-and-email, so the API path can't reach the threshold
