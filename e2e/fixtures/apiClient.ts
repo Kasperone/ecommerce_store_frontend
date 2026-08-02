@@ -771,6 +771,134 @@ export class ApiClient {
   }
 
   /**
+   * Issue a gift card through the ADMIN API — unlike `mintGiftCard` (a raw
+   * INSERT for checkout fixtures) this writes the `issue` ledger entry and can
+   * carry a recipient email, which is what the admin list's `q` filter matches.
+   * The 201 body is the only place the plaintext code ever appears.
+   */
+  async issueGiftCardAsAdmin(
+    accessToken: string,
+    input: {
+      initialValue: number
+      currency: 'USD' | 'PLN' | 'EUR'
+      recipientEmail?: string
+      note?: string
+    },
+  ): Promise<{ id: number, code: string, last4: string }> {
+    const res = await this.http.post('/api/v1/admin/gift-cards/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        initial_value: input.initialValue,
+        currency: input.currency,
+        recipient_email: input.recipientEmail,
+        note: input.note,
+        locale: 'en',
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`issueGiftCardAsAdmin failed: ${res.status()} ${await res.text()}`)
+    }
+    const card = await res.json() as { id: number, code: string, last4: string }
+    return { id: card.id, code: card.code, last4: card.last4 }
+  }
+
+  /** Flip a gift card's management status (`active` / `disabled`). */
+  async setGiftCardStatus(
+    accessToken: string,
+    giftCardId: number,
+    status: 'active' | 'disabled',
+  ): Promise<void> {
+    const res = await this.http.patch(`/api/v1/admin/gift-cards/${giftCardId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: { status },
+    })
+    if (!res.ok()) {
+      throw new Error(`setGiftCardStatus failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
+   * The `gift_cards` row as stored. Money columns are `numeric(12,2)`, which
+   * `pg` returns as STRINGS to preserve exactness — assert `'125.00'`, not 125.
+   */
+  async getGiftCardRow(giftCardId: number): Promise<{
+    last4: string
+    code_hash: string
+    initial_value: string
+    balance: string
+    currency: string
+    status: string
+    recipient_email: string | null
+    note: string | null
+  } | null> {
+    const res = await this.pg.query<{
+      last4: string
+      code_hash: string
+      initial_value: string
+      balance: string
+      currency: string
+      status: string
+      recipient_email: string | null
+      note: string | null
+    }>(
+      `SELECT last4, code_hash, initial_value, balance, currency, status,
+              recipient_email, note
+         FROM gift_cards WHERE id = $1`,
+      [giftCardId],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /**
+   * A gift card's ledger, oldest first. The ledger is append-only and is the
+   * feature's audit trail: a movement that isn't here didn't happen, and a
+   * REJECTED movement must not appear at all.
+   */
+  async getGiftCardEntryRows(giftCardId: number): Promise<Array<{
+    kind: string
+    amount: string
+    balance_after: string
+    note: string | null
+  }>> {
+    const res = await this.pg.query<{
+      kind: string
+      amount: string
+      balance_after: string
+      note: string | null
+    }>(
+      `SELECT kind, amount, balance_after, note
+         FROM gift_card_entries
+        WHERE gift_card_id = $1
+        ORDER BY id`,
+      [giftCardId],
+    )
+    return res.rows
+  }
+
+  /** The id of the card issued to `email` — how a UI-issued card is found. */
+  async getGiftCardIdByRecipient(email: string): Promise<number | null> {
+    const res = await this.pg.query<{ id: number }>(
+      'SELECT id FROM gift_cards WHERE recipient_email = $1 ORDER BY id DESC LIMIT 1',
+      [email],
+    )
+    return res.rows[0]?.id ?? null
+  }
+
+  /**
+   * Delete every gift card whose recipient email starts with `prefix`, ledger
+   * first (there is no admin DELETE route — cards are permanent by design).
+   * Run at test START too: a test-timeout kill never reaches `finally`.
+   */
+  async purgeGiftCardsByRecipientPrefix(prefix: string): Promise<void> {
+    await this.pg.query(
+      `DELETE FROM gift_card_entries
+        WHERE gift_card_id IN (SELECT id FROM gift_cards WHERE recipient_email LIKE $1)`,
+      [`${prefix}%`],
+    )
+    await this.pg.query('DELETE FROM gift_cards WHERE recipient_email LIKE $1', [`${prefix}%`])
+  }
+
+  /**
    * DB: the gift cards issued by a paid order (gift cards v2 — `order_id`
    * provenance). Asserts `mark_paid` minted one stored-value card per gift-card
    * unit. Plaintext is never stored (bearer money — sha256 hash + last4 only),
