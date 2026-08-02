@@ -110,6 +110,66 @@ export class ApiClient {
 
   /** The integer user id for an email (via pg) — the price-list spec needs it to
    * set a company's primary contact. */
+  /**
+   * The pending email-verification token, straight from pg — this stands in for
+   * the inbox, since e2e runs with email disabled. Unlike the reset token, this
+   * one is stored in PLAINTEXT (`verification_tokens.token`), so it can simply
+   * be read. `null` once it has been consumed: verifying DELETES the row.
+   */
+  async getVerificationToken(email: string): Promise<string | null> {
+    const res = await this.pg.query<{ token: string }>(
+      `SELECT t.token
+         FROM verification_tokens t
+         JOIN users u ON u.id = t.user_id
+        WHERE u.email = $1
+        ORDER BY t.id DESC
+        LIMIT 1`,
+      [email],
+    )
+    return res.rows[0]?.token ?? null
+  }
+
+  /**
+   * Mint a password-reset token the way the backend does and return the
+   * plaintext half.
+   *
+   * The reset token is NOT recoverable from pg — `users.password_reset_token_hash`
+   * holds `sha256(token)` and only the email carries the plaintext. So the spec
+   * generates the pair itself (the `mintGiftCard` pattern) rather than trying to
+   * read one back. `password_reset_expires_at` is a naive-UTC column.
+   */
+  async mintPasswordResetToken(email: string): Promise<string> {
+    const token = randomBytes(32).toString('base64url')
+    const hash = createHash('sha256').update(token).digest('hex')
+    const res = await this.pg.query(
+      `UPDATE users
+          SET password_reset_token_hash = $2,
+              password_reset_expires_at = (NOW() AT TIME ZONE 'UTC') + INTERVAL '1 hour'
+        WHERE email = $1`,
+      [email, hash],
+    )
+    if (res.rowCount === 0) throw new Error(`mintPasswordResetToken: no user for ${email}`)
+    return token
+  }
+
+  /** The auth-relevant columns of a user row — verification + reset state. */
+  async getUserAuthRow(email: string): Promise<{
+    is_verified: boolean
+    password_reset_token_hash: string | null
+    password_changed_at: Date | null
+  } | null> {
+    const res = await this.pg.query<{
+      is_verified: boolean
+      password_reset_token_hash: string | null
+      password_changed_at: Date | null
+    }>(
+      `SELECT is_verified, password_reset_token_hash, password_changed_at
+         FROM users WHERE email = $1`,
+      [email],
+    )
+    return res.rows[0] ?? null
+  }
+
   async userIdByEmail(email: string): Promise<number> {
     const res = await this.pg.query<{ id: number }>(
       'SELECT id FROM users WHERE email = $1',
