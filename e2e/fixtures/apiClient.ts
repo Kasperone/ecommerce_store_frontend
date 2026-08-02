@@ -2393,6 +2393,131 @@ export class ApiClient {
     )
     return res.rows[0] ?? null
   }
+
+  // ------------------------------------------------------------------ CMS --
+  //
+  // The CMS page builder's whole contract is the draft/published split, and the
+  // API response normalises what it returns (every unset block setting comes
+  // back as an explicit `null`), so the seams below read the JSONB columns from
+  // pg. `sections` here is the *input* shape — what the editor PATCHes — while
+  // the stored layout is the sanitized, defaults-filled expansion of it.
+
+  /** Create a CMS page (draft, empty layout unless `sections` is given). */
+  async createPage(
+    accessToken: string,
+    opts: {
+      slug: string
+      type?: 'home' | 'standard' | 'landing'
+      locale?: 'en' | 'pl'
+      sections?: Array<{ type: string, settings: Record<string, unknown> }>
+    },
+  ): Promise<{ id: number }> {
+    const res = await this.http.post('/api/v1/admin/pages/', {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: {
+        slug: opts.slug,
+        type: opts.type ?? 'standard',
+        locale: opts.locale ?? 'en',
+        draft_layout: { sections: opts.sections ?? [] },
+      },
+    })
+    if (!res.ok()) {
+      throw new Error(`createPage failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json() as { id: number }
+  }
+
+  /** Overwrite a page's working draft. Does NOT touch `published_layout`. */
+  async savePageDraft(
+    accessToken: string,
+    pageId: number,
+    sections: Array<{ type: string, settings: Record<string, unknown> }>,
+  ): Promise<void> {
+    const res = await this.http.patch(`/api/v1/admin/pages/${pageId}/draft`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: { draft_layout: { sections } },
+    })
+    if (!res.ok()) {
+      throw new Error(`savePageDraft failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** Snapshot the current draft into a version and swap it live. */
+  async publishPage(accessToken: string, pageId: number, label?: string): Promise<void> {
+    const res = await this.http.post(`/api/v1/admin/pages/${pageId}/publish`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+      data: label === undefined ? {} : { label },
+    })
+    if (!res.ok()) {
+      throw new Error(`publishPage failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /** Delete a page (and, by cascade, its versions). 404 is tolerated. */
+  async deletePage(accessToken: string, pageId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/admin/pages/${pageId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deletePage failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
+  /**
+   * The `pages` row as stored. `draft_layout` / `published_layout` come back as
+   * parsed objects (`pg` deserialises JSONB), so a settings value reads as
+   * `row.draft_layout.sections[0].settings.heading`.
+   */
+  async getPageRow(slug: string, locale = 'en'): Promise<{
+    id: number
+    type: string
+    status: string
+    published_version_id: number | null
+    draft_layout: PageLayout
+    published_layout: PageLayout | null
+  } | null> {
+    const res = await this.pg.query<{
+      id: number
+      type: string
+      status: string
+      published_version_id: number | null
+      draft_layout: PageLayout
+      published_layout: PageLayout | null
+    }>(
+      `SELECT id, type, status, published_version_id, draft_layout, published_layout
+         FROM pages
+        WHERE slug = $1 AND locale = $2`,
+      [slug, locale],
+    )
+    return res.rows[0] ?? null
+  }
+
+  /** A page's immutable `page_versions` snapshots, oldest first. */
+  async getPageVersionRows(pageId: number): Promise<Array<{
+    id: number
+    version_no: number
+    label: string | null
+    layout: PageLayout
+  }>> {
+    const res = await this.pg.query<{
+      id: number
+      version_no: number
+      label: string | null
+      layout: PageLayout
+    }>(
+      `SELECT id, version_no, label, layout
+         FROM page_versions
+        WHERE page_id = $1
+        ORDER BY version_no`,
+      [pageId],
+    )
+    return res.rows
+  }
+}
+
+/** The stored shape of a CMS page layout (see `app/models/page.py`). */
+export interface PageLayout {
+  sections: Array<{ id: string | null, type: string, settings: Record<string, unknown> }>
 }
 
 /**
