@@ -50,12 +50,14 @@ const schema = computed(() => {
   return createResetPasswordSchema(t)
 })
 
-// Pre-populate the (hidden) token from the URL so the schema sees it.
-const initial = computed(() => ({
-  token: token.value,
-  password: '',
-  confirmPassword: '',
-}))
+// ⚠️ Do NOT pass `:state` to <UAuthForm>. It declares no `state` prop — it owns
+// an internal reactive object built from `fields[].defaultValue`, hands THAT to
+// the `#password-field` slot, and binds it to the inner <UForm>. A `:state`
+// passed here falls through `$attrs` onto that <UForm> *after* its own
+// `:state`, so it wins the binding: the slot's v-model writes to the internal
+// object while Zod validates ours. The form then reports "Must be at least 8
+// characters" under a full field and never submits (fixed 2026-08-02).
+// The token is not part of the schema — `submit` reads it from the route.
 
 const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
   if (!token.value) {
@@ -152,7 +154,6 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
           ref="authFormRef"
           :schema="schema"
           :fields="fields"
-          :state="initial"
           :submit="{ label: t('auth.passwordReset.confirmSubmit'), loading: isLoading }"
           :validate-on="['submit']"
           @submit="submit"
