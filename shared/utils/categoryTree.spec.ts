@@ -82,6 +82,30 @@ describe('snapshotCategoryTree', () => {
     after[0]!.children!.find(c => c.id === 2)!.product_count = 5
     expect(snapshotCategoryTree(after)).not.toBe(before)
   })
+
+  // Fields the row does NOT display still have to move the fingerprint: the
+  // rendered node is what the edit modal seeds its form from, so a stale one
+  // makes the next save write the pre-edit values back. Regression for the
+  // hero upload that never showed up on reopening the form.
+  it.each([
+    ['a hero upload', (n: CategoryTreeNode) => (n.hero_image_url = 'https://r2/hero.png')],
+    ['a hero alt edit', (n: CategoryTreeNode) => (n.hero_image_alt = 'A blue mug')],
+    ['an SEO meta edit', (n: CategoryTreeNode) => (n.meta_title = 'Buy phones')],
+    ['a PL locale edit', (n: CategoryTreeNode) => (n.name_pl = 'Telefony')],
+    ['a description edit', (n: CategoryTreeNode) => (n.description = 'All phones')],
+  ])('changes on %s, which no row column displays', (_label, mutate) => {
+    const before = snapshotCategoryTree(fixture())
+    const after = fixture()
+    mutate(after[0]!.children!.find(c => c.id === 2)!)
+    expect(snapshotCategoryTree(after)).not.toBe(before)
+  })
+
+  // The guard's own job: an unchanged refetch must still compare equal, or the
+  // list would be clobbered on every poll (and mid-drag).
+  it('is stable across a refetch that returns the same data in a new object', () => {
+    const before = snapshotCategoryTree(fixture())
+    expect(snapshotCategoryTree(JSON.parse(JSON.stringify(fixture())))).toBe(before)
+  })
 })
 
 describe('filterCategoryTree', () => {
