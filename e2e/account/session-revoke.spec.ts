@@ -20,7 +20,16 @@
 // returns both halves of a real session, so B is a genuine second login, not a
 // simulation. Each login carries a distinct User-Agent, which the backend
 // persists onto `refresh_tokens.user_agent` and the table renders in the Device
-// column, so each row is locatable by name rather than by position.
+// column, so B's row is locatable by name rather than by position.
+//
+// ⚠️ Only B's. The BROWSER's row identity is not stable: an SSR-side
+// `/auth/refresh` rotates it, revoking the original row and inserting a
+// replacement whose user-agent is the Nuxt server's ("node"). Whether that
+// happens is environment-dependent — it does in CI, it did not against a local
+// dev server, which is exactly how a first cut of this spec passed locally and
+// failed on CI. The browser's row is therefore always addressed by its "This
+// device" badge, and pg claims about it are counted over LIVE rows rather than
+// pinned to a total.
 //
 // Ground truth is pg, never the response body or a toast (toasts are transient
 // and `GET /auth/sessions` filters revoked rows out, so a row's disappearance
@@ -68,40 +77,53 @@ test.describe('Account sessions', () => {
 
       const rows = page.locator('.c-sessions-table tbody tr')
       await expect(rows).toHaveCount(2, { timeout: 30_000 })
-      const rowA = rows.filter({ hasText: uaA })
+      // The browser's row is located by its "This device" badge, NOT by uaA.
+      // Session A's row identity is not stable: an SSR-side `/auth/refresh`
+      // ROTATES it — revoking the original row and inserting a replacement
+      // carrying the Nuxt server's own user-agent ("node"). That happens in CI
+      // but not against a local dev server, so `filter({ hasText: uaA })` is a
+      // locator that passes on one machine and finds nothing on another. The
+      // badge tracks whichever row the browser currently holds, by definition.
+      // Session B never rotates — it is held over the API and only ever read —
+      // so uaB stays a valid handle on it.
+      const rowCurrent = rows.filter({ hasText: 'This device' })
       const rowB = rows.filter({ hasText: uaB })
 
       // The asymmetry is free and falsifiable: the caller's own row is badged
       // and has no Revoke button, every other row has one. B's button being
-      // PRESENT is what makes A's being absent a real observation.
-      await expect(rowA).toContainText('This device')
+      // PRESENT is what makes the current row's lacking one a real observation.
+      await expect(rowCurrent).toHaveCount(1)
       await expect(rowB.getByRole('button', { name: 'Revoke this session' })).toBeVisible()
-      await expect(rowA.getByRole('button', { name: 'Revoke this session' })).toHaveCount(0)
+      await expect(rowCurrent.getByRole('button', { name: 'Revoke this session' })).toHaveCount(0)
 
       await rowB.getByRole('button', { name: 'Revoke this session' }).click()
       const dialog = page.getByRole('dialog')
       await expect(dialog).toContainText('Revoke this session?')
       await dialog.getByRole('button', { name: 'Revoke', exact: true }).click()
 
-      // The list refetches after the mutation. Pin the COUNT and keep A as a
-      // row that must be PRESENT — a bare "B is gone" would also pass if the
-      // table had simply failed to render.
+      // The list refetches after the mutation. Pin the COUNT and keep the
+      // browser's own row as one that must be PRESENT — "B is gone" on its own
+      // would also be true of a table that failed to render, and the count
+      // alone would not catch it either: the empty state is itself a single
+      // <tr> reading "No active sessions.", so `toHaveCount(1)` passes against
+      // an empty table. (Observed — this is what the over-revocation mutation
+      // did, and only the badge assertion caught it.)
       await expect(rows).toHaveCount(1, { timeout: 30_000 })
-      await expect(rows).toContainText(uaA)
+      await expect(rows).toContainText('This device')
 
-      // pg is the fact: B revoked, A untouched. Both sides — a revoke_all bug
-      // would satisfy the B half on its own.
+      // pg is the fact: B revoked, the browser's session untouched. Both sides
+      // — a revoke_all bug would satisfy the B half on its own.
       //
-      // Exactly two rows, and that is not incidental: the browser's boot
-      // restore goes through `POST /auth/refresh/ssr`, which VALIDATES without
-      // rotating. A plain `/auth/refresh` would revoke A's row and insert a
-      // replacement, so a third row here means something rotated the session
-      // mid-test — which would make the `find`-by-user-agent lookups below read
-      // the wrong row.
+      // Counted by LIVE rows rather than by total, because rotation leaves
+      // revoked ancestors behind (see the locator note above) and their number
+      // is environment-dependent. Exactly one live row must remain, and it must
+      // not be B's: that is "one session was revoked, the other survived",
+      // stated in a way rotation cannot perturb.
       const tokenRows = await api.getRefreshTokenRows(userId)
-      expect(tokenRows).toHaveLength(2)
       expect(tokenRows.find(r => r.user_agent === uaB)?.revoked_at).not.toBeNull()
-      expect(tokenRows.find(r => r.user_agent === uaA)?.revoked_at).toBeNull()
+      const live = tokenRows.filter(r => r.revoked_at === null)
+      expect(live).toHaveLength(1)
+      expect(live[0]!.user_agent).not.toBe(uaB)
 
       // What a per-session revoke actually costs B: the refresh dies…
       expect(await api.probeRefresh(b.refreshCookie.value)).toBe(401)
@@ -148,9 +170,12 @@ test.describe('Account sessions', () => {
       await expect(page).toHaveURL(/\/login/, { timeout: 30_000 })
       await expect(page.getByRole('button', { name: 'Login', exact: true })).toBeVisible()
 
-      // pg: the whole family is revoked, not just the caller's own row.
+      // pg: the whole family is revoked, not just the caller's own row. The
+      // total is a FLOOR, not a pin — an SSR-side refresh may have rotated the
+      // browser's row and left an extra (also-revoked) ancestor behind. The
+      // floor keeps "every row is revoked" from passing vacuously.
       const tokenRows = await api.getRefreshTokenRows(userId)
-      expect(tokenRows).toHaveLength(2)
+      expect(tokenRows.length).toBeGreaterThanOrEqual(2)
       expect(tokenRows.every(r => r.revoked_at !== null)).toBe(true)
 
       // The promise, asserted BEFORE its mechanism: B's already-issued access
