@@ -103,17 +103,14 @@ test.describe('Email-token completion', () => {
     }
   })
 
-  // ⚠️ FIXME — blocked on a real defect, not on this spec. The confirm form
-  // will not submit: the field visibly holds the password and the strength
-  // meter reads "Very strong", yet Zod reports "Must be at least 8 characters"
-  // and NO request is made. The form model is empty while the DOM is full.
-  // Measurements + the two hypotheses already ruled out (fill-vs-keystrokes,
-  // and `initial` being a computed bound as `:state`) are in
-  // `plans/test/to-fix/2026-08-02-password-reset-confirm-form-will-not-submit-frontend.md`.
-  // Everything below is verified working EXCEPT the submit: the backend
-  // rotates correctly over curl, and `mintPasswordResetToken` arms the token.
-  // Delete this `fixme` the moment the form submits.
-  test.fixme('reset link rotates the password: new one works, old one is dead', async ({ page }) => {
+  // This was `test.fixme` until 2026-08-02: the confirm form would not submit
+  // at all. The cause was a `:state` passed to <UAuthForm>, which declares no
+  // such prop — it fell through `$attrs` onto the inner <UForm> and beat that
+  // form's own state, so the `#password-field` slot's v-model wrote to
+  // AuthForm's internal object while Zod validated the page's. Fixed in
+  // `app/pages/password-reset/[token].vue`; this test is the regression guard,
+  // so it must fail if that `:state` ever comes back.
+  test('reset link rotates the password: new one works, old one is dead', async ({ page }) => {
     const api = await ApiClient.create()
     const user = randomEphemeralUser()
     const newPassword = 'RotatedPass!2'
@@ -134,19 +131,17 @@ test.describe('Email-token completion', () => {
       await page.goto(`/password-reset/${token}`)
       const newField = page.getByLabel('New password', { exact: true })
       await expect(newField).toBeVisible({ timeout: 60_000 })
-      // ⚠️ This form clears itself once, ~1 s after load, and everything about
-      // the resulting failure points at the wrong thing. Measured: type 3
-      // characters and the input holds 3; wait 1.2 s without touching it and it
-      // holds 0. Anything typed before that beat is gone from the form model
-      // while the DOM may still show it — Zod then validates an empty string,
-      // reports "Must be at least 8 characters" under a field containing 13,
-      // blocks the submit, and **no request is made at all**. It reads exactly
-      // like a dead button. (Same family as the documented SSR-fill-races-
-      // hydration gotcha; `fill()` is worse still, since it never dispatches
-      // the per-key events the model needs.)
+      // ⚠️ The page is server-rendered, so anything typed before Vue binds is
+      // dropped when hydration re-renders the inputs from an empty model —
+      // measured on the dev server as a one-shot clear ~1 s after load. Hence
+      // real keystrokes (`fill()` never dispatches the per-key events the model
+      // needs), then a beat, then assert the values SURVIVED before clicking;
+      // the retry re-types if they did not. Same family as the documented
+      // SSR-fill-races-hydration gotcha.
       //
-      // So: real keystrokes, then wait out the reset window, then assert the
-      // values SURVIVED before clicking. The retry re-types if they did not.
+      // The success HEADING is the assertion, not `getByText`: "Password
+      // updated" also appears in the toast and in its aria-live alert, so the
+      // loose matcher fails strict mode even on a fully successful submit.
       const confirmField = page.getByLabel('Confirm new password', { exact: true })
       await expect(async () => {
         await newField.fill('')
@@ -159,7 +154,8 @@ test.describe('Email-token completion', () => {
         await expect(confirmField).toHaveValue(newPassword)
 
         await page.getByRole('button', { name: 'Update password' }).click({ timeout: 5_000 })
-        await expect(page.getByText(/Password updated/)).toBeVisible({ timeout: 5_000 })
+        await expect(page.getByRole('heading', { name: /Password updated/ }))
+          .toBeVisible({ timeout: 5_000 })
       }).toPass({ timeout: 120_000 })
 
       // Consumed: the hash is cleared, so the same link cannot be replayed, and
