@@ -10,9 +10,25 @@ const { t } = useI18n()
 const toast = useToast()
 const { apiFetch } = useApi()
 
-// Prefer the admin-editable store_config contact details (owner-customisable in
-// Settings); fall back to the i18n placeholders when a field is unset.
+// Contact details come from the admin-editable store_config (Settings).
+//
+// Email and phone render ONLY when set. They used to fall back to i18n
+// placeholders — `support@example.com` and `+48 000 000 000` — which is worse
+// than showing nothing: both look like real contact details, so a customer
+// writes to an address nobody reads and concludes they were ignored. An absent
+// row at least sends them to the form beside it.
+//
+// The address falls back to generic copy ("see the store footer for full
+// company details"), which is true rather than fabricated, so it is safe to keep.
 const { data: storeConfig } = useStoreConfig()
+
+const postalAddress = computed(() => {
+  const config = storeConfig.value
+  if (!config?.address_line) return ''
+  return [config.address_line, config.address_line2, config.postal_city, config.country]
+    .filter(Boolean)
+    .join(', ')
+})
 
 useSeoMeta({
   title: () => t('legal.contact.meta.title'),
@@ -99,20 +115,20 @@ async function onSubmit(event: FormSubmitEvent<ContactFormData>) {
             {{ t('legal.contact.details.heading') }}
           </h2>
           <dl class="space-y-4 text-sm">
-            <div>
+            <div v-if="storeConfig?.email">
               <dt class="text-muted">
                 {{ t('legal.contact.details.emailLabel') }}
               </dt>
               <dd class="font-medium">
-                {{ storeConfig?.email || t('legal.contact.details.email') }}
+                {{ storeConfig.email }}
               </dd>
             </div>
-            <div>
+            <div v-if="storeConfig?.phone">
               <dt class="text-muted">
                 {{ t('legal.contact.details.phoneLabel') }}
               </dt>
               <dd class="font-medium">
-                {{ storeConfig?.phone || t('legal.contact.details.phone') }}
+                {{ storeConfig.phone }}
               </dd>
             </div>
             <div>
@@ -120,7 +136,7 @@ async function onSubmit(event: FormSubmitEvent<ContactFormData>) {
                 {{ t('legal.contact.details.addressLabel') }}
               </dt>
               <dd class="font-medium">
-                {{ t('legal.contact.details.address') }}
+                {{ postalAddress || t('legal.contact.details.address') }}
               </dd>
             </div>
             <div>
