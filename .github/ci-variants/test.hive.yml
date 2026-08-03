@@ -348,6 +348,11 @@ jobs:
       BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
       E2E_BACKEND_URL: http://localhost:8200
       E2E_DB_URL: postgresql://postgres:postgres@localhost:5498/ecommerce_e2e
+      # Must match the SECRET_KEY handed to the backend container below —
+      # `e2e/admin/page-preview-token.spec.ts` signs CMS preview tokens locally
+      # to reach the expired-token case (the mint route has no ttl knob). Not a
+      # secret: it is a throwaway literal for the ephemeral e2e stack.
+      E2E_SECRET_KEY: e2e-secret-not-for-prod--not-for-prod--padding
       NUXT_PUBLIC_API_BASE: http://localhost:8200
       # Nuxt dev-server port (playwright.config reads E2E_WEB_PORT); hive's :3000
       # is taken by another project's container.
