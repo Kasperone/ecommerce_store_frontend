@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from 'node:crypto'
+import { createHash, createHmac, randomBytes } from 'node:crypto'
 import { request as playwrightRequest, type APIRequestContext } from '@playwright/test'
 import { Client as PgClient } from 'pg'
 import type { TestUser } from './testUser'
@@ -2843,6 +2843,112 @@ export class ApiClient {
       [pageId],
     )
     return res.rows
+  }
+
+  // ---- preview tokens ----------------------------------------------------
+  // `POST /admin/pages/{id}/preview-token` mints a short-TTL HMAC token that
+  // `GET /pages/{slug}/preview?token=` trades for the page's DRAFT layout. The
+  // interesting assertions are the refusals, so these seams report status +
+  // detail rather than throwing.
+
+  /** Mint a real preview token through the admin API. */
+  async mintPreviewToken(
+    accessToken: string,
+    pageId: number,
+  ): Promise<{ token: string, expires_at: string }> {
+    const res = await this.http.post(`/api/v1/admin/pages/${pageId}/preview-token`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`mintPreviewToken failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json() as { token: string, expires_at: string }
+  }
+
+  /**
+   * Redeem a preview token as an ANONYMOUS visitor — which is the whole point of
+   * a shareable preview link, so the request must not carry the admin session.
+   *
+   * Uses a throwaway request context rather than `this.http`: the shared one
+   * accumulates a cookie jar from every prior login, and a probe that quietly
+   * authenticated would prove something weaker than intended. (The route itself
+   * declares no auth dependency — this keeps the *claim* honest, not the route.)
+   *
+   * `heading` is dug out of the first section so a caller can tell "served the
+   * draft" from "served the published layout" without re-parsing the body.
+   */
+  async previewPage(slug: string, token: string): Promise<{
+    status: number
+    detail: string | null
+    heading: string | null
+  }> {
+    const anon = await playwrightRequest.newContext({ baseURL: BACKEND_URL })
+    try {
+      const res = await anon.get(`/api/v1/pages/${encodeURIComponent(slug)}/preview`, {
+        params: { token },
+      })
+      const body = await res.json().catch(() => null) as {
+        detail?: string
+        layout?: PageLayout
+      } | null
+      return {
+        status: res.status(),
+        detail: body?.detail ?? null,
+        heading: (body?.layout?.sections?.[0]?.settings?.heading as string | undefined) ?? null,
+      }
+    }
+    finally {
+      await anon.dispose()
+    }
+  }
+
+  /** The plain public route, no token — 404s for anything unpublished. */
+  async fetchPublicPage(slug: string): Promise<{ status: number }> {
+    const anon = await playwrightRequest.newContext({ baseURL: BACKEND_URL })
+    try {
+      const res = await anon.get(`/api/v1/pages/${encodeURIComponent(slug)}`)
+      return { status: res.status() }
+    }
+    finally {
+      await anon.dispose()
+    }
+  }
+
+  /**
+   * Mint a preview token locally, so the spec can choose the expiry the admin
+   * API will not give it (`POST /preview-token` has no ttl knob and always
+   * hands back ~15 minutes).
+   *
+   * ⚠️ This re-implements `make_preview_token` from `app/crud/page.py`, and that
+   * duplication is a trap unless it is controlled: `verify_preview_token` checks
+   * the SIGNATURE FIRST, so if this ever drifts from the backend the "expired"
+   * token degrades into a merely *malformed* one — which still 404s, and the
+   * expiry test would keep passing while testing nothing. The spec therefore
+   * signs a FUTURE-dated token with this same function and asserts it 200s
+   * before trusting any past-dated one. Keep that control.
+   *
+   * Scheme: `base64url(json({pid,exp})) + "." + base64url(hmac_sha256(key, body))`,
+   * both unpadded. Key order and separators must match Python's
+   * `json.dumps(..., separators=(",", ":"))`.
+   */
+  signPreviewToken(pageId: number, opts: { expiresInSeconds: number }): string {
+    const secret = process.env.E2E_SECRET_KEY
+    if (!secret) {
+      throw new Error(
+        'E2E_SECRET_KEY must be set to sign preview tokens — it must match the '
+        + 'backend\'s SECRET_KEY (see the e2e job env in .github/workflows/test.yml)',
+      )
+    }
+    const b64url = (buf: Buffer): string => buf.toString('base64url').replace(/=+$/, '')
+    const exp = Math.floor(Date.now() / 1000) + opts.expiresInSeconds
+    const body = b64url(Buffer.from(JSON.stringify({ pid: pageId, exp }), 'utf-8'))
+    const sig = b64url(createHmac('sha256', secret).update(body, 'ascii').digest())
+    return `${body}.${sig}`
+  }
+
+  /** Delete every page whose slug starts with `prefix`. Cascades to versions. */
+  async purgePagesBySlugPrefix(prefix: string): Promise<void> {
+    await this.pg.query(`DELETE FROM pages WHERE slug LIKE $1 || '%'`, [prefix])
   }
 }
 
