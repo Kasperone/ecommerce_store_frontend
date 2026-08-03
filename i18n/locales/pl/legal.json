@@ -393,9 +393,7 @@
       "details": {
         "heading": "Dane kontaktowe",
         "emailLabel": "E-mail",
-        "email": "support{'@'}example.com",
         "phoneLabel": "Telefon",
-        "phone": "+48 000 000 000",
         "addressLabel": "Adres",
         "address": "Adres firmy — pełne dane firmy znajdziesz w stopce sklepu.",
         "hoursLabel": "Godziny pracy obsługi",

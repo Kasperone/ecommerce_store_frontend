@@ -22,7 +22,14 @@ mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
 // the only apiFetch call under test is the contact-form POST (the real composable
 // would otherwise fire its own GET /api/v1/store-config on mount). Declared
 // post-imports; the mock factory closes over it lazily (mockNuxtImport hoists).
-const storeConfig = ref<{ email?: string, phone?: string } | null>(null)
+const storeConfig = ref<{
+  email?: string
+  phone?: string
+  address_line?: string
+  address_line2?: string
+  postal_city?: string
+  country?: string
+} | null>(null)
 mockNuxtImport('useStoreConfig', () => () => ({ data: storeConfig }))
 
 const tick = () => new Promise(r => setTimeout(r, 0))
@@ -120,5 +127,52 @@ describe('contact page', () => {
     expect(toastAdd).toHaveBeenCalledWith(
       expect.objectContaining({ color: 'error' }),
     )
+  })
+})
+
+describe('contact details block', () => {
+  /**
+   * These rows used to fall back to i18n placeholders when store_config was
+   * blank — `support@example.com` and `+48 000 000 000`. Both look like real
+   * contact details, so a customer writes to an address nobody reads and
+   * concludes they were ignored. Showing nothing is strictly better, and the
+   * form beside it still works.
+   */
+  it('omits the email and phone rows entirely when store_config is blank', async () => {
+    storeConfig.value = null
+    const wrapper = await mountPage()
+    const text = wrapper.text()
+
+    expect(text).not.toContain('@example.com')
+    expect(text).not.toContain('+48 000 000 000')
+  })
+
+  it('renders the configured email and phone when set', async () => {
+    storeConfig.value = { email: 'hello@realstore.pl', phone: '+48 123 456 789' }
+    const wrapper = await mountPage()
+    const text = wrapper.text()
+
+    expect(text).toContain('hello@realstore.pl')
+    expect(text).toContain('+48 123 456 789')
+  })
+
+  it('builds the postal address from the store_config parts', async () => {
+    storeConfig.value = {
+      address_line: 'ul. Prosta 51',
+      postal_city: '00-838 Warszawa',
+      country: 'Polska',
+    }
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('ul. Prosta 51, 00-838 Warszawa, Polska')
+  })
+
+  it('falls back to generic address copy rather than inventing one', async () => {
+    /** The address fallback is honest ("see the store footer"), not fabricated,
+     * which is why it survives where the email/phone placeholders did not. */
+    storeConfig.value = { email: 'hello@realstore.pl' }
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('see the store footer')
   })
 })
