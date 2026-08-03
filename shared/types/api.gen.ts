@@ -33,9 +33,44 @@ export interface paths {
         };
         /**
          * Health
-         * @description Health check for monitoring
+         * @description **Readiness** probe — is this instance fit to serve traffic?
+         *
+         *     Checks the database, because an instance that cannot reach Postgres cannot
+         *     serve a single useful request. This endpoint previously returned a hardcoded
+         *     ``{"status": "ok"}``, which meant a replica with a dead connection, an
+         *     exhausted pool, or a half-applied ``alembic upgrade head`` still reported
+         *     healthy and kept receiving traffic — the platform had no signal to take it
+         *     out of rotation.
+         *
+         *     Returns **503** when the check fails, which is what load balancers and
+         *     orchestrators act on. Use ``/health/live`` for liveness: a *liveness* probe
+         *     that fails on database trouble causes a restart loop, which turns a
+         *     recoverable outage into a crash-looping deployment.
          */
         get: operations["health_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Liveness
+         * @description **Liveness** probe — is the process running at all?
+         *
+         *     Deliberately dependency-free (see ``/health`` for why). If this responds,
+         *     the event loop is alive and restarting the container would achieve nothing.
+         */
+        get: operations["liveness_health_live_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1455,6 +1490,36 @@ export interface paths {
          *     ``user_consents`` newsletter row is appended for the GDPR audit trail.
          */
         post: operations["subscribe_api_v1_newsletter_subscribe_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/newsletter/unsubscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unsubscribe One Click
+         * @description RFC 8058 One-Click target for the ``List-Unsubscribe-Post`` header.
+         *
+         *     Mailbox providers POST here with no user interaction when the recipient uses
+         *     the client's native unsubscribe button, so it takes no body and no auth —
+         *     the token in the query string is the whole credential. Deliberately **not**
+         *     rate-limited: throttling a provider's one-click call would strand the opt-out
+         *     and is precisely what the bulk-sender rules forbid.
+         *
+         *     Returns 200 even for a token we cannot read: the provider surfaces a failure
+         *     to the recipient as "unsubscribe didn't work", pushing them to the spam
+         *     button, and a bad token means nobody is subscribed under it anyway.
+         */
+        post: operations["unsubscribe_one_click_api_v1_newsletter_unsubscribe_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3415,6 +3480,13 @@ export interface paths {
          *     best-effort posture); failures are logged. On completion the campaign flips
          *     to ``sent`` with ``sent_at`` stamped, alongside an audit row, in one
          *     transaction.
+         *
+         *     Every send carries an unsubscribe footer in the body and the RFC 8058
+         *     ``List-Unsubscribe`` headers. Both are per-recipient (the token's subject is
+         *     the address), which is why they are built inside the loop rather than once.
+         *     The audience resolver has already dropped anyone without marketing consent,
+         *     anyone deactivated, and anyone on the suppression list — see
+         *     ``crud_campaign.resolve_recipient_emails``.
          *
          *     OUTWARD-FACING: this dispatches real email via Resend. Tests mock
          *     ``app.core.email.send_email`` — no live sends in pytest.
@@ -8915,6 +8987,19 @@ export interface components {
             status: string;
         };
         /**
+         * NewsletterUnsubscribeResponse
+         * @description One-click unsubscribe result.
+         *
+         *     Also state-independent, and for a stronger reason than anti-enumeration:
+         *     the caller is usually a mailbox provider acting on the recipient's behalf
+         *     (RFC 8058), and surfacing a failure to it would show the recipient
+         *     "unsubscribe didn't work" — sending them to the spam button instead.
+         */
+        NewsletterUnsubscribeResponse: {
+            /** Status */
+            status: string;
+        };
+        /**
          * OrderCreate
          * @description Schema for creating an order
          */
@@ -13966,6 +14051,26 @@ export interface operations {
             };
         };
     };
+    liveness_health_live_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
     register_api_v1_auth_register_post: {
         parameters: {
             query?: never;
@@ -16088,6 +16193,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NewsletterSubscribeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unsubscribe_one_click_api_v1_newsletter_unsubscribe_post: {
+        parameters: {
+            query: {
+                /** @description Signed unsubscribe token from the email footer */
+                token: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NewsletterUnsubscribeResponse"];
                 };
             };
             /** @description Validation Error */
