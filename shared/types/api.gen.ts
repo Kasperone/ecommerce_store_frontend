@@ -1095,7 +1095,8 @@ export interface paths {
          * @description Cancel an order and restore stock.
          *
          *     Customers may cancel only their own order while ``status=pending``. Admins
-         *     may cancel any order that is not already in a terminal state.
+         *     holding ``orders:write`` (or owners) may cancel any order that is not
+         *     already in a terminal state.
          */
         post: operations["cancel_order_api_v1_orders__order_id__cancel_post"];
         delete?: never;
