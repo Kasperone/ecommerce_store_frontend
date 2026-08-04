@@ -5182,8 +5182,12 @@ export interface paths {
          * Confirm Auto Charge Card
          * @description Store the vaulted PaymentMethod from a confirmed SetupIntent — COMPANY_ADMIN.
          *
-         *     Only a ``succeeded`` SetupIntent whose customer matches the company's is
-         *     accepted (400 otherwise), so a client can't point us at an unrelated card.
+         *     Only a ``succeeded`` SetupIntent whose customer **equals** the company's
+         *     ``stripe_customer_id`` is accepted (400 otherwise), so a client can't point us
+         *     at an unrelated card. The match is strict: a company with no
+         *     ``stripe_customer_id``, or an intent with no customer, is refused rather than
+         *     trusted. ``/setup-intent`` always ensures the customer first, so a NULL here
+         *     means that flow was skipped — exactly the case to refuse.
          */
         post: operations["confirm_auto_charge_card_api_v1_companies_me_auto_charge_confirm_post"];
         delete?: never;
