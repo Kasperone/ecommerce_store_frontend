@@ -228,6 +228,8 @@ jobs:
     env:
       BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
       BACKEND_URL: http://localhost:8200
+      # See the DOCKER_CONFIG note on the e2e job below — same reason, same fix.
+      DOCKER_CONFIG: ${{ runner.temp }}/.docker
 
     steps:
       - uses: actions/checkout@v5
@@ -240,6 +242,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # docker login would create this itself, but steps that run before the login
+      # (buildx setup / the pull-backend-image action) expect it to exist already.
+      - name: Isolate Docker CLI config
+        run: mkdir -p "$DOCKER_CONFIG"
 
       - name: Pull backend image
         uses: ./.github/actions/pull-backend-image
@@ -347,6 +354,16 @@ jobs:
       # preserves the original case and docker pull rejects it.
       BACKEND_IMAGE: ghcr.io/kasperone/ecommerce_store_backend:main
       E2E_BACKEND_URL: http://localhost:8200
+      # Isolate the Docker CLI config for this job. All three self-hosted runners execute
+      # as the same host user (`bee`), so the pull-backend-image action's GHCR login
+      # otherwise lands in the SHARED ~/.docker/config.json — and the daemon then replays
+      # that repo-scoped token on every ghcr.io request, including anonymous pulls of
+      # unrelated public images, which GHCR answers `denied` instead of falling back to
+      # anonymous. The credential outlives the job and sits on the host until
+      # `docker logout ghcr.io` is run by hand — one left behind by an earlier run broke
+      # a hive-side `docker compose pull` on 2026-08-05. runner.temp is emptied at the
+      # start of each job, so the credential dies with it.
+      DOCKER_CONFIG: ${{ runner.temp }}/.docker
       E2E_DB_URL: postgresql://postgres:postgres@localhost:5498/ecommerce_e2e
       # Must match the SECRET_KEY handed to the backend container below —
       # `e2e/admin/page-preview-token.spec.ts` signs CMS preview tokens locally
@@ -369,6 +386,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # docker login would create this itself, but steps that run before the login
+      # (buildx setup / the pull-backend-image action) expect it to exist already.
+      - name: Isolate Docker CLI config
+        run: mkdir -p "$DOCKER_CONFIG"
 
       - name: Pull backend image
         uses: ./.github/actions/pull-backend-image
