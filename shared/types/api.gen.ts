@@ -459,8 +459,9 @@ export interface paths {
          *     - **page**: Page number (starts from 1)
          *     - **page_size**: Number of items per page (1-100)
          *     - **category_id**: Filter by category
-         *     - **is_active**: Admin-only filter. Non-admins always get active products;
-         *       an admin may pass ``false`` (inactive only) or omit it for all
+         *     - **is_active**: needs the ``catalog:read`` capability. Everyone else always
+         *       gets active products; capable staff may pass ``false`` (inactive only) or
+         *       omit it for all
          *     - **is_featured**: Filter featured products
          *     - **min_price/max_price**: Price range filter (USD)
          *     - **in_stock**: Filter by stock availability
@@ -886,8 +887,10 @@ export interface paths {
          * List Orders
          * @description List orders, scoped to the caller.
          *
-         *     Customers see only their own orders; admins see all. Optional status filter
-         *     and ``created_at`` date range (``date_to`` inclusive, UTC calendar days).
+         *     Customers see only their own orders; staff holding ``orders:read`` see all.
+         *     A staffer without it degrades to customer scope (their own orders), not 403.
+         *     Optional status filter and ``created_at`` date range (``date_to`` inclusive,
+         *     UTC calendar days).
          */
         get: operations["list_orders_api_v1_orders__get"];
         put?: never;
@@ -1116,7 +1119,8 @@ export interface paths {
          * List Order Refunds
          * @description List refunds for an order, scoped to the caller (customer / admin).
          *
-         *     Customers see only their own orders' refunds; admins see any. A non-existent
+         *     Customers see only their own orders' refunds; staff holding ``orders:read``
+         *     see any (a staffer without it stays customer-scoped). A non-existent
          *     or not-owned order returns 404 (existence is not leaked). The customer
          *     surface is expected to drop ``note`` client-side — that field is internal,
          *     but the schema exposes it because the admin uses the same endpoint shape.
@@ -1223,7 +1227,8 @@ export interface paths {
          * List Order Returns
          * @description List return requests for an order, scoped to the caller (customer / admin).
          *
-         *     Customers see only their own orders' returns; admins see any. A
+         *     Customers see only their own orders' returns; staff holding ``orders:read``
+         *     see any (a staffer without it stays customer-scoped). A
          *     non-existent or not-owned order returns 404 (existence is not leaked). The
          *     customer surface drops ``admin_note`` client-side — same convention as the
          *     refund ``note``.
@@ -4329,6 +4334,9 @@ export interface paths {
          *       change ``capabilities``, or edit an account that is *currently* an owner.
          *       A scoped ``staff:write`` holder can only flip role/activation on
          *       non-owner accounts. (This endpoint is already gated ``staff:write``.)
+         *     - **Promotion to staff** — only an *owner* may promote a ``CUSTOMER`` to
+         *       ``ADMIN`` (SEC-022); minting an admin creates a foothold that outlives
+         *       the promoter. Demotion stays open to any ``staff:write`` holder.
          *     - **Self-lockout** — the acting admin can't demote/deactivate themselves.
          *     - **Last active admin** — can't drop the only remaining active admin.
          *     - **Last active owner** — can't remove the only remaining active owner
@@ -14544,7 +14552,7 @@ export interface operations {
                 page_size?: number;
                 /** @description Filter by category ID */
                 category_id?: number | null;
-                /** @description Filter by active status. Admin-only — non-admin callers always receive active products regardless of this value (omit = all, for admins). */
+                /** @description Filter by active status. Requires the ``catalog:read`` capability — every other caller receives active products regardless of this value (omit = all, for capable staff). */
                 is_active?: boolean | null;
                 /** @description Filter by featured status */
                 is_featured?: boolean | null;
