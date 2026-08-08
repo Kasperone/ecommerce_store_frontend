@@ -7601,6 +7601,25 @@ export interface components {
             metrics: components["schemas"]["CustomerOrderMetrics"];
             /** Tags */
             tags?: components["schemas"]["TagChip"][];
+            /**
+             * Effective Capabilities
+             * @description Everything ``capabilities`` actually authorises, expanded.
+             *
+             *     ``capabilities`` is the raw stored grant set; a *write* capability
+             *     additionally authorises reads (``IMPLIED_READS`` — see
+             *     ``app/core/capabilities.py``), and those implied reads are deliberately
+             *     never written to the column, so the stored array alone understates what
+             *     the staffer may do. The frontend gates admin UI on membership of this
+             *     set, so it must be expanded server-side: re-deriving the implication
+             *     table in TypeScript would let the two drift silently the first time a
+             *     cross-module read edge is added here.
+             *
+             *     Owners are **not** special-cased — they bypass capability checks
+             *     entirely (``require_read``), and the frontend's ``can()`` short-circuits
+             *     on ``is_owner`` the same way, so this stays "what the grants say".
+             *     Sorted for a stable payload.
+             */
+            readonly effective_capabilities: string[];
         };
         /**
          * CustomerListItem
@@ -9485,6 +9504,25 @@ export interface components {
             company_address_country?: string | null;
             /** Company Address State */
             company_address_state?: string | null;
+            /**
+             * Effective Capabilities
+             * @description Everything ``capabilities`` actually authorises, expanded.
+             *
+             *     ``capabilities`` is the raw stored grant set; a *write* capability
+             *     additionally authorises reads (``IMPLIED_READS`` — see
+             *     ``app/core/capabilities.py``), and those implied reads are deliberately
+             *     never written to the column, so the stored array alone understates what
+             *     the staffer may do. The frontend gates admin UI on membership of this
+             *     set, so it must be expanded server-side: re-deriving the implication
+             *     table in TypeScript would let the two drift silently the first time a
+             *     cross-module read edge is added here.
+             *
+             *     Owners are **not** special-cased — they bypass capability checks
+             *     entirely (``require_read``), and the frontend's ``can()`` short-circuits
+             *     on ``is_owner`` the same way, so this stays "what the grants say".
+             *     Sorted for a stable payload.
+             */
+            readonly effective_capabilities: string[];
         };
         /**
          * OrderWithUser
@@ -13827,6 +13865,25 @@ export interface components {
             company_address_country?: string | null;
             /** Company Address State */
             company_address_state?: string | null;
+            /**
+             * Effective Capabilities
+             * @description Everything ``capabilities`` actually authorises, expanded.
+             *
+             *     ``capabilities`` is the raw stored grant set; a *write* capability
+             *     additionally authorises reads (``IMPLIED_READS`` — see
+             *     ``app/core/capabilities.py``), and those implied reads are deliberately
+             *     never written to the column, so the stored array alone understates what
+             *     the staffer may do. The frontend gates admin UI on membership of this
+             *     set, so it must be expanded server-side: re-deriving the implication
+             *     table in TypeScript would let the two drift silently the first time a
+             *     cross-module read edge is added here.
+             *
+             *     Owners are **not** special-cased — they bypass capability checks
+             *     entirely (``require_read``), and the frontend's ``can()`` short-circuits
+             *     on ``is_owner`` the same way, so this stays "what the grants say".
+             *     Sorted for a stable payload.
+             */
+            readonly effective_capabilities: string[];
         };
         /**
          * UserRole
