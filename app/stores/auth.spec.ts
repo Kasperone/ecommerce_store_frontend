@@ -244,6 +244,37 @@ describe('useAuthStore', () => {
       expect(store.isOwner).toBe(false)
       expect(store.can('catalog:write')).toBe(false)
     })
+
+    it('can() tests the server-expanded set, not the raw grants', async () => {
+      // Write implies read backend-side (IMPLIED_READS) and the implied reads
+      // are never stored, so `capabilities` alone would make the UI stricter
+      // than the API — silently, as a missing nav item. The expansion arrives
+      // as effective_capabilities; the store must prefer it.
+      const store = await loginAs({
+        ...ADMIN_USER,
+        is_owner: false,
+        capabilities: ['catalog:write'],
+        effective_capabilities: ['catalog:write', 'catalog:read', 'tax:read'],
+      })
+      expect(store.can('catalog:read')).toBe(true)
+      expect(store.can('tax:read')).toBe(true) // cross-module: the VAT picker
+      // Still not granted — the expansion widens reads, it doesn't widen writes.
+      expect(store.can('tax:write')).toBe(false)
+      expect(store.can('reports:read')).toBe(false) // standalone, never implied
+    })
+
+    it('falls back to raw capabilities when the payload omits the expansion', async () => {
+      // A pre-#245 backend (or a fixture) — degrade to the old write-only
+      // behaviour rather than blanking the admin UI entirely.
+      const store = await loginAs({
+        ...ADMIN_USER,
+        is_owner: false,
+        capabilities: ['catalog:write'],
+        effective_capabilities: undefined,
+      })
+      expect(store.can('catalog:write')).toBe(true)
+      expect(store.can('catalog:read')).toBe(false)
+    })
   })
 
   describe('logout', () => {

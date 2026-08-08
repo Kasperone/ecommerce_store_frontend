@@ -2,16 +2,22 @@ import { computed, type ComputedRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { NavigationMenuItem } from '@nuxt/ui'
+import type { Capability } from '#shared/constants/capabilities'
 
 interface MenuItemConfig {
   key: string
   to: string
   icon: string
-  // Capability required to *use* this section (its primary write surface). A
-  // scoped staffer who lacks it doesn't see the entry — an owner (or a staffer
-  // holding the cap) does. Omit for read-only sections (dashboard/reports/audit)
-  // that stay visible to any staff.
-  cap?: string
+  // Capability required to use this section. A scoped staffer who lacks it
+  // doesn't see the entry — an owner (or a staffer holding the cap) does.
+  //
+  // Every item carries one since SEC-021: the dashboard, reports and audit log
+  // used to be omitted as "read-only sections visible to any staff", but admin
+  // reads are capability-scoped now, so leaving them ungated only showed links
+  // that 403. Their caps are the standalone reads (reports:read / audit:read),
+  // which no write capability implies. Typed to the taxonomy so a typo — which
+  // would hide the entry from everyone but an owner — fails the build.
+  cap?: Capability
 }
 
 interface MenuGroupConfig {
@@ -23,7 +29,10 @@ const GROUPS: MenuGroupConfig[] = [
   {
     key: 'overview',
     items: [
-      { key: 'dashboard', to: '/admin', icon: 'i-lucide-layout-dashboard' },
+      // The dashboard is a reports surface (revenue, top products) and has 403'd
+      // for a staffer without reports:read since BE #242 — it is standalone, so
+      // no write capability implies it.
+      { key: 'dashboard', to: '/admin', icon: 'i-lucide-layout-dashboard', cap: 'reports:read' },
     ],
   },
   {
@@ -65,8 +74,8 @@ const GROUPS: MenuGroupConfig[] = [
     key: 'operations',
     items: [
       { key: 'shipping', to: '/admin/shipping', icon: 'i-lucide-truck', cap: 'settings:write' },
-      { key: 'reports', to: '/admin/reports', icon: 'i-lucide-bar-chart-3' },
-      { key: 'auditLog', to: '/admin/audit-log', icon: 'i-lucide-scroll-text' },
+      { key: 'reports', to: '/admin/reports', icon: 'i-lucide-bar-chart-3', cap: 'reports:read' },
+      { key: 'auditLog', to: '/admin/audit-log', icon: 'i-lucide-scroll-text', cap: 'audit:read' },
     ],
   },
   {
@@ -81,10 +90,12 @@ const GROUPS: MenuGroupConfig[] = [
 ]
 
 /**
- * Filter the menu groups to what a staffer may use. An item with no `cap` is
- * always visible (read-only section); otherwise it needs `can(cap)`. Groups
+ * Filter the menu groups to what a staffer may use. An item needs `can(cap)`;
+ * one with no `cap` would be unconditionally visible, but none are left. Groups
  * left with no visible items are dropped. Pure (takes the `can` predicate) so
- * it's unit-testable without a Nuxt runtime.
+ * it's unit-testable without a Nuxt runtime — and `can` must be backed by the
+ * server's *effective* capabilities, or every `*:read` entry here hides itself
+ * from the staffer whose write grant implies it.
  */
 export function visibleAdminMenuGroups(
   can: (cap: string) => boolean,
