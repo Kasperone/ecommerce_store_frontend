@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/i18n',
     '@nuxtjs/seo',
+    'nuxt-security',
   ],
 
   // Components configuration
@@ -295,6 +296,97 @@ export default defineNuxtConfig({
       },
       { userAgent: ['Bytespider'], disallow: ['/'] },
     ],
+  },
+
+  // Content-Security-Policy for the storefront + admin.
+  //
+  // Until this shipped the Nuxt app emitted NO CSP at all — the backend's
+  // policy only ever attached to backend responses (`/docs`, JSON), never to a
+  // storefront page. So the surfaces that render store-authored HTML (CMS page
+  // builder, product/category descriptions, and reviews — the one
+  // customer-authored surface) had no script restrictions whatsoever.
+  //
+  // The module is here for ONE reason: Nuxt SSR inlines the hydration payload
+  // as an inline <script> on every page, so a real policy needs a per-request
+  // nonce. Hand-rolling that plumbing is the failure mode we avoided — a subtly
+  // wrong nonce degrades silently to no protection.
+  //
+  // Ships REPORT-ONLY (`contentSecurityPolicyReportOnly`), same discipline as
+  // the backend: watch for a clean window, then flip. Reports go to the
+  // collector added in BE #247 via an ABSOLUTE url — cross-origin is fine,
+  // the browser's reporting agent posts without CORS restrictions, so one
+  // collector serves both apps.
+  security: {
+    // Report-Only: observe first, enforce later. Flipping this to `false` is
+    // the whole of "phase 3" in the frontend-CSP plan.
+    contentSecurityPolicyReportOnly: true,
+    nonce: true,
+    headers: {
+      contentSecurityPolicy: {
+        'default-src': ['\'self\''],
+        // `'unsafe-inline'` is the CSP Level 3 backwards-compat fallback: any
+        // browser that understands the nonce IGNORES it. Do not "clean it up".
+        // `'strict-dynamic'` lets nonced Nuxt code load the payment/tracking
+        // SDKs it injects at runtime, which is how Stripe/InPost/GTM load.
+        'script-src': ['\'self\'', '\'nonce-{{nonce}}\'', '\'strict-dynamic\'', '\'unsafe-inline\''],
+        // Nuxt UI + Tailwind still need inline style. Far weaker a concession
+        // than for scripts; tightening it is the tracked follow-up.
+        'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://geowidget.inpost.pl'],
+        'img-src': ['\'self\'', 'data:', 'https:'],
+        'font-src': ['\'self\'', 'data:'],
+        'connect-src': ['\'self\'', 'https:'],
+        // Stripe Elements and the wallet buttons are iframes. PayU is a
+        // redirect, so it needs form-action, not frame-src.
+        'frame-src': ['https://js.stripe.com', 'https://m.stripe.network', 'https://hooks.stripe.com'],
+        'form-action': ['\'self\'', 'https://secure.payu.com', 'https://secure.snd.payu.com'],
+        'frame-ancestors': ['\'none\''],
+        'base-uri': ['\'self\''],
+        'object-src': ['\'none\''],
+        'upgrade-insecure-requests': true,
+        // Absolute URL to the backend collector (BE #247). Build-time env, not
+        // runtimeConfig — the module bakes the policy into the header rules, so
+        // a runtime-only value would never reach it. Unset ⇒ directive omitted,
+        // and Report-Only with nowhere to report is inert: set this before
+        // starting the watch window, or the window measures nothing.
+        ...(process.env.NUXT_PUBLIC_CSP_REPORT_URI
+          ? { 'report-uri': [process.env.NUXT_PUBLIC_CSP_REPORT_URI] }
+          : {}),
+      },
+      // Default is `credentialless` in production, which breaks cross-origin
+      // iframes that do not opt in — i.e. Stripe checkout. Payments outrank
+      // the isolation this would buy us.
+      crossOriginEmbedderPolicy: false,
+      // Stripe wallet flows open popups and post back to the opener.
+      crossOriginOpenerPolicy: 'same-origin-allow-popups',
+      // The module's default denies geolocation outright, which would silently
+      // kill the InPost Geowidget's "find points near me". That feature is
+      // env-gated on NUXT_PUBLIC_INPOST_GEOWIDGET_TOKEN and has never been
+      // live-verified, so no test would have caught it. `fullscreen` is
+      // reopened for the same reason — the point-picker map offers it.
+      permissionsPolicy: {
+        'camera': [],
+        'display-capture': [],
+        'microphone': [],
+        'fullscreen': ['self'],
+        // The origin is written WITH its quotes: the module joins these
+        // verbatim into `geolocation=(...)`, and Permissions-Policy requires
+        // origins to be quoted strings. Unquoted, the directive is invalid and
+        // the browser drops it — silently, which is the worst outcome here.
+        'geolocation': ['self', '"https://geowidget.inpost.pl"'],
+      },
+    },
+    // Everything below is the module's OTHER half, deliberately off. This
+    // module ships a small WAF as well as headers, and none of it is wanted:
+    // the backend already owns rate limiting (slowapi, with per-route budgets
+    // this could not see) and CORS. `xssValidator` would strip markup from the
+    // CMS page builder, which is admin-authored HTML by design.
+    rateLimiter: false,
+    xssValidator: false,
+    corsHandler: false,
+    requestSizeLimiter: false,
+    // Default `true` strips console.* from production builds — a real
+    // behaviour change unrelated to CSP. Out of scope for this PR.
+    removeLoggers: false,
   },
 
   // nuxt-seo-utils — canonical query whitelist. Overriding REPLACES the default
