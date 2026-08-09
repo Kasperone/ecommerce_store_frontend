@@ -12,9 +12,14 @@
 // (e2e/README.md §"Promotion ritual").
 import { test, expect } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
+import { restoreStoreConfigAfterAll } from '../fixtures/storeConfig'
 import { KNOWN_ADMIN, randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
+
+// This file pins the returns window on the shared store_config singleton
+// (below). Pinning is right — inheriting it is not — so hand it back.
+restoreStoreConfigAfterAll(['returns_window_days'])
 
 test.describe('RMA — customer return request', () => {
   test('customer requests a return for a delivered order and the request is created server-side', async ({ page }) => {
@@ -30,6 +35,8 @@ test.describe('RMA — customer return request', () => {
 
       // Ensure returns are open (default is 30 days; set explicitly so the
       // spec is deterministic regardless of what the dev DB has been set to).
+      // `restoreStoreConfigAfterAll` at the top of this file hands the prior
+      // value back, so a store running a different window keeps it.
       await api.updateStoreConfig(adminToken, { returns_window_days: 30 })
 
       const slug = `e2e-rma-${runId}`

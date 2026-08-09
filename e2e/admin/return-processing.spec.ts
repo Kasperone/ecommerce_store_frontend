@@ -21,9 +21,14 @@
 // not at receive, and the admin copy promises exactly that.
 import { test, expect } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
+import { restoreStoreConfigAfterAll } from '../fixtures/storeConfig'
 import { KNOWN_ADMIN, randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
+
+// This file pins the returns window on the shared store_config singleton
+// (below). Pinning is right — inheriting it is not — so hand it back.
+restoreStoreConfigAfterAll(['returns_window_days'])
 
 test.describe('Admin returns processing', () => {
   test('admin approves, receives and refunds an RMA — money, KOR and stock all move', async ({ page }) => {
@@ -40,6 +45,8 @@ test.describe('Admin returns processing', () => {
 
       // Returns must be open for the request to be creatable at all; set it
       // explicitly so the spec doesn't inherit whatever the e2e DB was left on.
+      // `restoreStoreConfigAfterAll` at the top of this file hands the prior
+      // value back, so the next spec doesn't inherit ours either.
       await api.updateStoreConfig(adminToken, { returns_window_days: 30 })
 
       const product = await api.createProduct(adminToken, {
