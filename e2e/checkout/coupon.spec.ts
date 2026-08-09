@@ -66,15 +66,19 @@ test.describe('Coupon redemption', () => {
       await expect(page.getByText('Order summary')).toBeVisible()
 
       // --- an unknown code surfaces the error and applies nothing
-      const couponInput = page.getByLabel('Discount code')
+      // Locate by testid, not role+name: CheckoutGiftCardField renders a second
+      // "Apply" button whenever store_config.gift_cards_enabled is on, and that
+      // toggle is global state other specs flip — a role locator here is
+      // order-dependent (strict-mode violation).
+      const couponInput = page.getByTestId('coupon-input')
       await couponInput.fill('E2E-NO-SUCH-CODE')
-      await page.getByRole('button', { name: 'Apply' }).click()
+      await page.getByTestId('coupon-apply').click()
       await expect(page.getByTestId('coupon-error')).toBeVisible()
       await expect(page.getByTestId('summary-discount')).toHaveCount(0)
 
       // --- the real code applies: badge + discount line in the summary
       await couponInput.fill(code)
-      await page.getByRole('button', { name: 'Apply' }).click()
+      await page.getByTestId('coupon-apply').click()
       await expect(page.getByTestId('coupon-applied')).toBeVisible()
       await expect(page.getByTestId('coupon-applied')).toContainText(code)
       // 10% of the $100 goods subtotal — shipping is not discounted.
