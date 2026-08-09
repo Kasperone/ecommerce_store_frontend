@@ -20,9 +20,15 @@
 // is rerunnable.
 import { test, expect } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
+import { restoreStoreConfigAfterAll } from '../fixtures/storeConfig'
 import { KNOWN_ADMIN, randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
+
+// Step 4 turns the public gift-card toggle on (below). It is a shared
+// singleton, so leaving it on rewrites checkout for every later spec — the
+// FE #373 bug. Put it back however we found it.
+restoreStoreConfigAfterAll(['gift_cards_enabled'])
 
 test.describe('Gift-card purchase money path', () => {
   test('buy an all-gift-card cart (no shipping) → pay → card issued → redeem', async ({ page }) => {
@@ -37,8 +43,9 @@ test.describe('Gift-card purchase money path', () => {
     try {
       const admin = await api.loginViaApi(KNOWN_ADMIN.email, KNOWN_ADMIN.password)
       adminToken = admin.accessToken
-      // Redemption (step 4) rides behind v1's public toggle — enable-only, shared
-      // singleton, never toggled off in teardown (like the shipping fixture).
+      // Redemption (step 4) rides behind v1's public toggle. It is a shared
+      // singleton, so `restoreStoreConfigAfterAll` at the top of this file puts
+      // it back; specs that run later must not inherit it.
       await api.updateStoreConfig(adminToken, { gift_cards_enabled: true })
 
       // A $50 gift-card product (variantless — denomination = its price).
