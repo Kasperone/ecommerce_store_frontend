@@ -346,9 +346,11 @@
         "cancel": "Anuluj",
         "owner": "Właściciel",
         "ownerHint": "Właściciele mają wszystkie uprawnienia i zarządzają personelem.",
-        "capabilities": "Uprawnienia",
-        "capabilitiesHint": "Wybierz obszary, które ten pracownik może edytować.",
-        "capabilitiesOwnerHint": "Właściciele mają wszystkie uprawnienia."
+        "capabilities": "Może edytować",
+        "capabilitiesHint": "Wybierz obszary, które ten pracownik może zmieniać.",
+        "capabilitiesOwnerHint": "Właściciele mają wszystkie uprawnienia.",
+        "capabilitiesRead": "Może przeglądać",
+        "capabilitiesReadHint": "Uprawnienie do edycji obejmuje już podgląd — te zaznacz tylko dla dostępu wyłącznie do odczytu. Pulpit, raporty i dziennik zdarzeń nigdy nie są dorozumiane i trzeba je nadać tutaj."
       },
       "flashes": {
         "updated": "Członek personelu zaktualizowany."
@@ -389,6 +391,58 @@
         "staff:write": {
           "label": "Personel",
           "hint": "Zarządzanie personelem i uprawnieniami"
+        },
+        "catalog:read": {
+          "label": "Katalog (podgląd)",
+          "hint": "Podgląd produktów, kategorii, kolekcji, tagów, recenzji"
+        },
+        "inventory:read": {
+          "label": "Magazyn (podgląd)",
+          "hint": "Podgląd stanów magazynowych, magazynów, alertów o niskim stanie"
+        },
+        "orders:read": {
+          "label": "Zamówienia (podgląd)",
+          "hint": "Podgląd zamówień, wersji roboczych, zwrotów, wycen, faktur"
+        },
+        "customers:read": {
+          "label": "Klienci (podgląd)",
+          "hint": "Podgląd danych klientów, notatek, tagów, segmentów — dane osobowe"
+        },
+        "companies:read": {
+          "label": "Firmy (podgląd)",
+          "hint": "Podgląd katalogu firm B2B, członków, cenników, terminów płatności"
+        },
+        "marketing:read": {
+          "label": "Marketing (podgląd)",
+          "hint": "Podgląd kuponów, banerów, kampanii"
+        },
+        "content:read": {
+          "label": "Treści (podgląd)",
+          "hint": "Podgląd stron i bloków CMS"
+        },
+        "settings:read": {
+          "label": "Ustawienia (podgląd)",
+          "hint": "Podgląd konfiguracji sklepu i tłumaczeń"
+        },
+        "shipping:read": {
+          "label": "Wysyłka (podgląd)",
+          "hint": "Podgląd stref, metod i stawek wysyłki"
+        },
+        "tax:read": {
+          "label": "Podatki (podgląd)",
+          "hint": "Podgląd stawek VAT i reguł podatkowych"
+        },
+        "staff:read": {
+          "label": "Zespół (podgląd)",
+          "hint": "Podgląd listy pracowników i ich uprawnień"
+        },
+        "reports:read": {
+          "label": "Pulpit i raporty",
+          "hint": "Pulpit administratora i raporty — żadne uprawnienie do edycji tego nie obejmuje"
+        },
+        "audit:read": {
+          "label": "Dziennik zdarzeń",
+          "hint": "Dziennik zdarzeń administratora — żadne uprawnienie do edycji tego nie obejmuje"
         }
       }
     },

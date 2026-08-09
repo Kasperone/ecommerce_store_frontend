@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { StaffResponse, StaffUpdate, UserRole } from '~/composables/queries/useStaffQueries'
-import { CAPABILITIES } from '#shared/constants/capabilities'
+import { READ_CAPABILITIES, WRITE_CAPABILITIES } from '#shared/constants/capabilities'
 
 const props = defineProps<{
   open: boolean
@@ -52,13 +52,23 @@ const roleOptions = computed(() => [
 // Capability checkbox rows (label + hint from i18n). An owner holds every
 // capability implicitly, so the explicit set is only editable when is_owner is
 // off and the target is an admin.
-const capabilityOptions = computed(() =>
-  CAPABILITIES.map(cap => ({
+//
+// Split into edit/view groups since SEC-021 added the read half of the
+// taxonomy. Granting a *write* capability already authorises the matching
+// reads server-side (IMPLIED_READS), so the view column is only needed for
+// view-only access and for the two standalone reads (reports/audit) that no
+// write implies — that's what `capabilitiesReadHint` tells the operator. The
+// implication itself is deliberately not modelled here: the expansion is
+// server-side, and a second copy would drift.
+const toOptions = (caps: readonly string[]) =>
+  caps.map(cap => ({
     value: cap,
     label: t(`admin.staff.capabilities.${cap}.label`),
     hint: t(`admin.staff.capabilities.${cap}.hint`),
-  })),
-)
+  }))
+
+const writeCapabilityOptions = computed(() => toOptions(WRITE_CAPABILITIES))
+const readCapabilityOptions = computed(() => toOptions(READ_CAPABILITIES))
 
 const capabilitiesDisabled = computed(() => state.is_owner || state.role !== 'ADMIN')
 const ownerToggleDisabled = computed(() => state.role !== 'ADMIN')
@@ -188,7 +198,27 @@ async function onSubmit() {
           >
             <div class="space-y-2">
               <UCheckbox
-                v-for="opt in capabilityOptions"
+                v-for="opt in writeCapabilityOptions"
+                :key="opt.value"
+                :model-value="state.is_owner || state.capabilities.includes(opt.value)"
+                :disabled="capabilitiesDisabled"
+                :label="opt.label"
+                :description="opt.hint"
+                @update:model-value="(v) => toggleCapability(opt.value, v === true)"
+              />
+            </div>
+          </UFormField>
+
+          <UFormField
+            :label="t('admin.staff.dialog.capabilitiesRead')"
+            :help="state.is_owner
+              ? t('admin.staff.dialog.capabilitiesOwnerHint')
+              : t('admin.staff.dialog.capabilitiesReadHint')"
+            name="read_capabilities"
+          >
+            <div class="space-y-2">
+              <UCheckbox
+                v-for="opt in readCapabilityOptions"
                 :key="opt.value"
                 :model-value="state.is_owner || state.capabilities.includes(opt.value)"
                 :disabled="capabilitiesDisabled"

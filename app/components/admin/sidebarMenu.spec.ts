@@ -96,12 +96,24 @@ describe('visibleAdminMenuGroups (capability filtering)', () => {
     ])
   })
 
-  it('a staffer with no capabilities sees only read-only sections', () => {
+  it('a staffer with no capabilities sees nothing at all', () => {
     const groups = visibleAdminMenuGroups(() => false)
-    // Only cap-less items survive: dashboard + reports + audit-log.
-    expect(allTos(groups).sort()).toEqual(['/admin', '/admin/audit-log', '/admin/reports'])
-    // overview + operations remain; catalog/sales/marketing/configuration vanish.
-    expect(groups.map(g => g.key)).toEqual(['overview', 'operations'])
+    // Every item carries a cap since SEC-021 — the dashboard, reports and
+    // audit log used to survive here as "read-only sections", but admin reads
+    // are capability-scoped now and those three 403 without reports:read /
+    // audit:read. Showing them was showing links that error.
+    expect(allTos(groups)).toEqual([])
+    expect(groups).toEqual([])
+  })
+
+  it('the standalone reads gate the dashboard, reports and audit log', () => {
+    // reports:read and audit:read are implied by NO write capability, so they
+    // are the only way those three surfaces appear.
+    const reports = visibleAdminMenuGroups(cap => cap === 'reports:read')
+    expect(allTos(reports).sort()).toEqual(['/admin', '/admin/reports'])
+
+    const audit = visibleAdminMenuGroups(cap => cap === 'audit:read')
+    expect(allTos(audit)).toEqual(['/admin/audit-log'])
   })
 
   it('a catalog:write staffer sees catalog write sections + read-only', () => {
@@ -114,8 +126,10 @@ describe('visibleAdminMenuGroups (capability filtering)', () => {
     expect(tos).not.toContain('/admin/inventory') // inventory:write
     expect(tos).not.toContain('/admin/orders') // orders:write
     expect(tos).not.toContain('/admin/staff') // staff:write
-    // Read-only still shown:
-    expect(tos).toContain('/admin/reports')
+    // The dashboard and reports are NOT thrown in: reports:read is standalone,
+    // so no write capability implies it. This is the SEC-021 tightening.
+    expect(tos).not.toContain('/admin/reports')
+    expect(tos).not.toContain('/admin')
   })
 
   it('orders:refund reveals gift-cards but not orders:write sections', () => {
