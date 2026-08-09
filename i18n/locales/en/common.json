@@ -346,9 +346,11 @@
         "cancel": "Cancel",
         "owner": "Owner",
         "ownerHint": "Owners have every permission and can manage staff.",
-        "capabilities": "Permissions",
-        "capabilitiesHint": "Choose which areas this staff member can edit.",
-        "capabilitiesOwnerHint": "Owners have every permission."
+        "capabilities": "Can edit",
+        "capabilitiesHint": "Choose which areas this staff member can change.",
+        "capabilitiesOwnerHint": "Owners have every permission.",
+        "capabilitiesRead": "Can view",
+        "capabilitiesReadHint": "Editing an area already includes viewing it — grant these only for view-only access. The dashboard, reports and audit log are never implied and must be granted here."
       },
       "flashes": {
         "updated": "Staff member updated."
@@ -389,6 +391,58 @@
         "staff:write": {
           "label": "Staff",
           "hint": "Manage other staff and their permissions"
+        },
+        "catalog:read": {
+          "label": "Catalog (view)",
+          "hint": "View products, categories, collections, tags, reviews"
+        },
+        "inventory:read": {
+          "label": "Inventory (view)",
+          "hint": "View stock levels, warehouses, low-stock alerts"
+        },
+        "orders:read": {
+          "label": "Orders (view)",
+          "hint": "View orders, drafts, returns, quotes, invoices"
+        },
+        "customers:read": {
+          "label": "Customers (view)",
+          "hint": "View customer records, notes, tags, segments — personal data"
+        },
+        "companies:read": {
+          "label": "Companies (view)",
+          "hint": "View the B2B company directory, members, price lists, net terms"
+        },
+        "marketing:read": {
+          "label": "Marketing (view)",
+          "hint": "View coupons, banners, campaigns"
+        },
+        "content:read": {
+          "label": "Content (view)",
+          "hint": "View CMS pages and blocks"
+        },
+        "settings:read": {
+          "label": "Settings (view)",
+          "hint": "View store configuration and translations"
+        },
+        "shipping:read": {
+          "label": "Shipping (view)",
+          "hint": "View shipping zones, methods, rates"
+        },
+        "tax:read": {
+          "label": "Tax (view)",
+          "hint": "View VAT rates and tax rules"
+        },
+        "staff:read": {
+          "label": "Staff (view)",
+          "hint": "View the staff roster and who holds what"
+        },
+        "reports:read": {
+          "label": "Dashboard & reports",
+          "hint": "The admin dashboard and reports — not implied by any edit permission"
+        },
+        "audit:read": {
+          "label": "Audit log",
+          "hint": "The admin audit log — not implied by any edit permission"
         }
       }
     },

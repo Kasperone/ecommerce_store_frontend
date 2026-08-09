@@ -65,12 +65,29 @@ export const useAuthStore = defineStore('auth', () => {
   // admin middleware uses; `isOwner` + `can()` gate individual admin surfaces.
   const isOwner = computed(() => user.value?.is_owner === true)
 
-  const capabilities = computed<string[]>(() => user.value?.capabilities ?? [])
+  /**
+   * What the staffer may actually do — the backend-expanded set.
+   *
+   * ⚠️ Reads the server's `effective_capabilities`, **not** the raw
+   * `capabilities` grant array. Write implies read (`catalog:write` authorises
+   * `catalog:read`, and some domains imply a cross-module read), and that
+   * expansion is deliberately never stored on the user row, so testing the raw
+   * array against a `*:read` capability makes the UI stricter than the API —
+   * silently, as a missing nav item rather than an error. The implication table
+   * stays backend-side; see `shared/constants/capabilities.ts`.
+   *
+   * Falls back to the raw grants so a payload from a pre-#245 backend (or a
+   * fixture that omits the field) degrades to the old write-only behaviour
+   * instead of blanking the admin UI.
+   */
+  const capabilities = computed<string[]>(
+    () => user.value?.effective_capabilities ?? user.value?.capabilities ?? [],
+  )
 
   /**
-   * Whether the current staffer may perform a capability-gated write. An owner
-   * implicitly holds every capability. UX-only — the backend `require_capability`
-   * dependency is the real boundary.
+   * Whether the current staffer may use a capability-gated surface. An owner
+   * implicitly holds every capability. UX-only — the backend
+   * `require_capability` / `require_read` dependencies are the real boundary.
    */
   function can(cap: string): boolean {
     return isOwner.value || capabilities.value.includes(cap)

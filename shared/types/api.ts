@@ -208,7 +208,14 @@ export interface UserResponse {
   // implicitly holds every capability. Present on every /auth/me response; the
   // admin UI gates off these via the auth store's `isOwner` / `can()`.
   is_owner: boolean
+  // The RAW stored grants — what the staff edit form round-trips.
   capabilities: string[]
+  // The same grants expanded through the backend's write-implies-read table
+  // (`IMPLIED_READS`), which is never stored on the row. This is what `can()`
+  // tests; gating on `capabilities` above would make the UI stricter than the
+  // API for every `*:read` capability. Optional so a fixture or an older
+  // backend degrades rather than blanking the admin UI.
+  effective_capabilities?: string[]
   created_at: string
   updated_at: string
 
