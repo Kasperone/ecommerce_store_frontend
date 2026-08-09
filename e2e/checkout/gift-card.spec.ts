@@ -22,9 +22,15 @@
 // Fixtures are per-run with unique slugs so the spec is rerunnable.
 import { test, expect } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
+import { restoreStoreConfigAfterAll } from '../fixtures/storeConfig'
 import { KNOWN_ADMIN, randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
+
+// This file turns the public gift-card toggle on (below). It is a shared
+// singleton, so leaving it on rewrites checkout for every later spec — the
+// FE #373 bug. Put it back however we found it.
+restoreStoreConfigAfterAll(['gift_cards_enabled'])
 
 /**
  * Drives an authed shopper from a fresh product through /checkout with a gift
@@ -46,8 +52,9 @@ async function placeOrderWithGiftCard(
   const admin = await api.loginViaApi(KNOWN_ADMIN.email, KNOWN_ADMIN.password)
   const adminToken = admin.accessToken
 
-  // D7: the feature ships dark — turn the public toggle on (enable-only, shared
-  // singleton, like the shipping fixture; never toggled off in teardown).
+  // D7: the feature ships dark — turn the public toggle on. It is a shared
+  // singleton, so `restoreStoreConfigAfterAll` at the top of this file puts it
+  // back; specs that run later must not inherit it.
   await api.updateStoreConfig(adminToken, { gift_cards_enabled: true })
 
   const slug = `e2e-gift-card-${opts.runId}`

@@ -2291,6 +2291,17 @@ export class ApiClient {
     return { status: row.status, convertedOrderId: row.converted_order_id }
   }
 
+  /** Admin: read the store config singleton (all fields). */
+  async getStoreConfig(adminToken: string): Promise<Record<string, unknown>> {
+    const res = await this.http.get('/api/v1/admin/settings/', {
+      headers: { authorization: `Bearer ${adminToken}` },
+    })
+    if (!res.ok()) {
+      throw new Error(`getStoreConfig failed: ${res.status()} ${await res.text()}`)
+    }
+    return await res.json()
+  }
+
   /** Admin: patch store config (partial update). */
   async updateStoreConfig(adminToken: string, patch: Record<string, unknown>): Promise<void> {
     const res = await this.http.patch('/api/v1/admin/settings/', {
