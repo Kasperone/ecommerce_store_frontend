@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
+import type { SortEvent } from '@formkit/drag-and-drop'
 import { parseProblem } from '#shared/utils/problemDetails'
 import type { ProductImageResponse } from '#shared/types/api'
 
@@ -34,7 +35,13 @@ const [galleryRef, localImages] = useDragAndDrop<ProductImageResponse>(
   {
     dragEffectAllowed: 'move',
     dragDropEffect: 'move',
-    onSort: handleSort,
+    // Upstream typing bug: `ParentConfig<T>` declares `onSort?: SortEvent`,
+    // where `SortEvent` is separately generic (`<U>(data: SortEventData<U>)`)
+    // and never bound to the parent's own `T`. So no concretely-typed handler
+    // can satisfy it. The cast asserts what `useDragAndDrop<ProductImageResponse>`
+    // already guarantees at runtime. (An async handler is fine — `SortEvent`
+    // returns void, which TS treats as "return value ignored".)
+    onSort: handleSort as SortEvent,
   },
 )
 
@@ -249,7 +256,7 @@ function formatBytes(bytes: number): string {
                       color="neutral"
                       variant="soft"
                       size="xs"
-                      @click="deletePopoverId = null"
+                      @click="() => { deletePopoverId = null }"
                     >
                       {{ t('admin.products.media.deleteConfirm.no') }}
                     </UButton>

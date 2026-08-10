@@ -102,7 +102,7 @@ export function useProductsQuery(params: MaybeRefOrGetter<ProductListParams> = {
 export function useProductQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...PRODUCTS_NAMESPACE, 'detail', toValue(id)],
+    key: () => [...PRODUCTS_NAMESPACE, 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {

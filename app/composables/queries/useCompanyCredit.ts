@@ -34,7 +34,6 @@ export function useCompanyCredit() {
     // 401s a guest, which would bounce them via useApi's refresh-then-redirect).
     enabled: () => import.meta.client && authStore.isAuthenticated,
     staleTime: 1000 * 60 * 2,
-    retry: false,
   })
 
   // Pay-on-account is offered only when the company has net terms enabled AND an

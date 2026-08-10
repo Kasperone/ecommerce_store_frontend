@@ -69,7 +69,6 @@ export function useCompanyCreditQuery(id: MaybeRefOrGetter<number | null>) {
       apiFetch<CompanyCreditResponse>(`/api/v1/admin/companies/${toValue(id)}/credit`),
     enabled: () => import.meta.client && toValue(id) != null,
     staleTime: 1000 * 30,
-    retry: false,
   })
 }
 

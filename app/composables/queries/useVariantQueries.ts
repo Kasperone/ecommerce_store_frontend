@@ -160,7 +160,7 @@ export function buildMatrixBody(
 export function useProductVariantsQuery(productId: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...PRODUCTS_NAMESPACE, 'variants', toValue(productId)],
+    key: () => [...PRODUCTS_NAMESPACE, 'variants', toValue(productId) ?? null],
     query: () => {
       const value = toValue(productId)
       if (value === undefined) {

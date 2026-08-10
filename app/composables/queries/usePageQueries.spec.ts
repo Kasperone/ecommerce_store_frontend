@@ -87,7 +87,7 @@ describe('usePageQuery', () => {
     await runInComponent(() => usePageQuery(7))
     await settle()
 
-    expect(apiFetch.mock.calls[0][0]).toBe('/api/v1/admin/pages/7')
+    expect(apiFetch.mock.calls[0]![0]).toBe('/api/v1/admin/pages/7')
   })
 
   it('does not fire when id is null (enabled gate)', async () => {
@@ -106,7 +106,7 @@ describe('usePageVersionsQuery', () => {
     await runInComponent(() => usePageVersionsQuery(4))
     await settle()
 
-    expect(apiFetch.mock.calls[0][0]).toBe('/api/v1/admin/pages/4/versions')
+    expect(apiFetch.mock.calls[0]![0]).toBe('/api/v1/admin/pages/4/versions')
   })
 })
 
@@ -118,7 +118,7 @@ describe('useBlockSchemasQuery', () => {
     await runInComponent(() => useBlockSchemasQuery())
     await settle()
 
-    expect(apiFetch.mock.calls[0][0]).toBe('/api/v1/blocks/schema')
+    expect(apiFetch.mock.calls[0]![0]).toBe('/api/v1/blocks/schema')
   })
 })
 
@@ -173,7 +173,7 @@ describe('usePublishPage', () => {
     const result = (await runInComponent(() => usePublishPage())) as any
     await result.mutateAsync({ id: 3 })
 
-    expect(apiFetch.mock.calls[0][1].body).toEqual({})
+    expect(apiFetch.mock.calls[0]![1].body).toEqual({})
   })
 })
 

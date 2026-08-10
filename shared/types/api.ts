@@ -26,6 +26,9 @@ export type ProductResponse = components['schemas']['ProductResponse']
 export type ProductWithCategory = components['schemas']['ProductWithCategory']
 export type ProductCreate = components['schemas']['ProductCreate']
 export type ProductUpdate = components['schemas']['ProductUpdate']
+// Product images (R2 pipeline) — consumed by useProductImageQueries.
+export type ProductImageResponse = components['schemas']['ProductImageResponse']
+export type ProductImageUpdate = components['schemas']['ProductImageUpdate']
 // Product CSV bulk-edit (CSV-BE3) — admin bulk-edit toolbar.
 export type ProductBulkSet = components['schemas']['ProductBulkSet']
 export type ProductBulkUpdate = components['schemas']['ProductBulkUpdate']

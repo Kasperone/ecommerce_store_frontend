@@ -40,8 +40,8 @@ export function useCompanyProfileQuery(enabled?: () => boolean) {
     // The B2B probe is near-static for a session; cache hard so it does not re-fire per page.
     staleTime: 1000 * 60 * 5,
     // Not-a-B2B-member is a 200 + null body (an expected outcome), not a
-    // transient error — nothing to retry.
-    retry: false,
+    // transient error — hence `CompanyMe | null`. Colada has no retry of its
+    // own (that lives in the uninstalled retry plugin), so nothing to disable.
   })
 }
 

@@ -60,7 +60,7 @@ export function useCategoriesQuery(params: MaybeRefOrGetter<CategoryListParams> 
 export function useCategoryQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...CATEGORIES_NAMESPACE, 'detail', toValue(id)],
+    key: () => [...CATEGORIES_NAMESPACE, 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {
@@ -148,7 +148,7 @@ export function useCategoryDeletePreviewQuery(
 ) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...CATEGORIES_NAMESPACE, 'delete-preview', toValue(id)],
+    key: () => [...CATEGORIES_NAMESPACE, 'delete-preview', toValue(id) ?? null],
     query: async () => {
       const value = toValue(id)
       if (value === undefined) {
