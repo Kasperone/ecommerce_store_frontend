@@ -22,7 +22,7 @@ const ORDER_EVENTS_NAMESPACE = ['order-events'] as const
 export function useOrderEventsQuery(orderId: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...ORDER_EVENTS_NAMESPACE, toValue(orderId)],
+    key: () => [...ORDER_EVENTS_NAMESPACE, toValue(orderId) ?? null],
     query: () => apiFetch<OrderEventResponse[]>(`/api/v1/orders/${toValue(orderId)}/events`),
     enabled: () => import.meta.client && toValue(orderId) != null,
     staleTime: 1000 * 30,

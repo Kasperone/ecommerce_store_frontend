@@ -73,7 +73,7 @@ export function useDraftOrdersQuery(params: MaybeRefOrGetter<DraftOrderListParam
 export function useDraftOrderQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...DRAFT_ORDERS_NAMESPACE, 'detail', toValue(id)],
+    key: () => [...DRAFT_ORDERS_NAMESPACE, 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {

@@ -60,7 +60,7 @@ export function useCustomersQuery(params: MaybeRefOrGetter<CustomerListParams> =
 export function useCustomerQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...CUSTOMERS_NAMESPACE, 'detail', toValue(id)],
+    key: () => [...CUSTOMERS_NAMESPACE, 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {

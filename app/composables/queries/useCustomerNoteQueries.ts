@@ -23,7 +23,7 @@ const CUSTOMERS_NAMESPACE = ['customers'] as const
 export function useCustomerNotesQuery(customerId: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...CUSTOMERS_NAMESPACE, 'notes', toValue(customerId)],
+    key: () => [...CUSTOMERS_NAMESPACE, 'notes', toValue(customerId) ?? null],
     query: () => {
       const id = toValue(customerId)
       if (id === undefined) {

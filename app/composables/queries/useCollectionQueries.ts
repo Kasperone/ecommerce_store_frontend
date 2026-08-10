@@ -43,7 +43,7 @@ export function useCollectionsQuery() {
 export function useCollectionQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...COLLECTIONS_NAMESPACE, 'detail', toValue(id)],
+    key: () => [...COLLECTIONS_NAMESPACE, 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {
@@ -64,7 +64,7 @@ export function useCollectionQuery(id: MaybeRefOrGetter<number | undefined>) {
 export function useCollectionProductsQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...COLLECTIONS_NAMESPACE, 'members', toValue(id)],
+    key: () => [...COLLECTIONS_NAMESPACE, 'members', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {

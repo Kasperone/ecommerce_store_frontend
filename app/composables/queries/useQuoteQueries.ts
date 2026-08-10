@@ -71,7 +71,7 @@ export function useQuotesQuery(params: MaybeRefOrGetter<QuoteListParams> = {}) {
 export function useQuoteQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...QUOTES_NAMESPACE, 'detail', toValue(id)],
+    key: () => [...QUOTES_NAMESPACE, 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {

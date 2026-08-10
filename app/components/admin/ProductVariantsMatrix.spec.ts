@@ -59,8 +59,11 @@ function image(id: number): ProductImageResponse {
     width: 100,
     height: 100,
     bytes: 1234,
-    content_type: 'image/jpeg',
-  } as ProductImageResponse
+    // The API field is `mime`, not `content_type`. The old name plus the
+    // `as ProductImageResponse` cast hid the mismatch: the import was broken,
+    // so the cast target was an error type and asserted nothing.
+    mime: 'image/jpeg',
+  }
 }
 
 function lastEmitted(wrapper: any): VariantRowDraft[] {

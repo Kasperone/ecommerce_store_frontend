@@ -58,7 +58,7 @@ export function usePriceListsQuery(params: MaybeRefOrGetter<PriceListListParams>
 export function usePriceListQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...PRICE_LISTS_NAMESPACE, 'detail', toValue(id)],
+    key: () => [...PRICE_LISTS_NAMESPACE, 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {

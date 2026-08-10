@@ -1,4 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+// `@nuxtjs/robots` augments Nitro's `NitroRouteConfig` with `robots`, but it
+// registers that template only for the app/nitro type programs: the generated
+// `.nuxt/nuxt.d.ts` references it and `.nuxt/nuxt.node.d.ts` does not. This file
+// is checked by `tsconfig.node.json`, i.e. the node program — so without this
+// reference every `robots:` route rule below is a TS2353 "does not exist"
+// (25 of them, the whole nuxt.config.ts typecheck-baseline entry). The rules
+// themselves are correct and work at runtime; only the node program was blind.
+// A type-only import pulls the augmentation in and is erased at build time.
+import type {} from './.nuxt/types/nuxt-robots-nitro'
+
 import { createResolver } from '@nuxt/kit'
 
 const { resolve } = createResolver(import.meta.url)

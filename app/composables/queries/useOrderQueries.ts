@@ -70,7 +70,7 @@ export function useOrdersQuery(params: MaybeRefOrGetter<OrderListParams> = {}) {
 export function useOrderQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...ORDERS_NAMESPACE, 'detail', toValue(id)],
+    key: () => [...ORDERS_NAMESPACE, 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {
@@ -210,7 +210,7 @@ export function useIssueRefund() {
 export function useOrderRefundsQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...ORDERS_NAMESPACE, 'refunds', toValue(id)],
+    key: () => [...ORDERS_NAMESPACE, 'refunds', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {

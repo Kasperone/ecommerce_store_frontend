@@ -46,7 +46,7 @@ export type ReturnTransitionAction = 'approve' | 'reject' | 'receive'
 export function useReturnEligibilityQuery(orderId: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...RETURNS_NAMESPACE, 'eligibility', toValue(orderId)],
+    key: () => [...RETURNS_NAMESPACE, 'eligibility', toValue(orderId) ?? null],
     query: () => {
       const value = toValue(orderId)
       if (value === undefined) {
@@ -65,7 +65,7 @@ export function useReturnEligibilityQuery(orderId: MaybeRefOrGetter<number | und
 export function useOrderReturnsQuery(orderId: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...RETURNS_NAMESPACE, 'order', toValue(orderId)],
+    key: () => [...RETURNS_NAMESPACE, 'order', toValue(orderId) ?? null],
     query: () => {
       const value = toValue(orderId)
       if (value === undefined) {
@@ -121,7 +121,7 @@ export function useAdminReturnsQuery(params: MaybeRefOrGetter<AdminReturnListPar
 export function useAdminReturnQuery(id: MaybeRefOrGetter<number | undefined>) {
   const { apiFetch } = useApi()
   return useQuery({
-    key: () => [...RETURNS_NAMESPACE, 'admin', 'detail', toValue(id)],
+    key: () => [...RETURNS_NAMESPACE, 'admin', 'detail', toValue(id) ?? null],
     query: () => {
       const value = toValue(id)
       if (value === undefined) {
