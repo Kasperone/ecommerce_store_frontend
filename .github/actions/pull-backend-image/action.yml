@@ -15,10 +15,32 @@ inputs:
   github_token:
     description: Token with packages:read scope, typically secrets.GITHUB_TOKEN.
     required: true
+  stagger_seconds:
+    description: >
+      Sleep before touching GHCR at all. Set this when several jobs in the same
+      workflow run pull concurrently, so they do not all hit the token endpoint
+      in the same instant. Defaults to 0 (no wait).
+    required: false
+    default: "0"
 
 runs:
   using: composite
   steps:
+    # Thundering-herd guard, added 2026-08-12 with the 3-way e2e shard.
+    # Sharding took the number of concurrent GHCR pullers in one run from 2 to
+    # 4 (codegen-check plus three shards), and on the very first sharded run
+    # shard 3 exhausted all 5 login retries — ~150s of sustained throttling —
+    # then failed every checkout spec for want of a backend. The retry loop
+    # below is the right tool for a regional GHCR incident but the wrong one
+    # for self-inflicted contention: all the retries are in lockstep, so they
+    # collide again on every attempt. Offsetting the start breaks the lockstep.
+    - name: Stagger GHCR access
+      if: inputs.stagger_seconds != '0'
+      shell: bash
+      run: |
+        echo "Waiting ${{ inputs.stagger_seconds }}s to de-synchronise concurrent GHCR pulls"
+        sleep "${{ inputs.stagger_seconds }}"
+
     - name: GHCR login (with retry)
       shell: bash
       env:

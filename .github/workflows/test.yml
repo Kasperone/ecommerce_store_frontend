@@ -355,6 +355,12 @@ jobs:
           image: ${{ env.BACKEND_IMAGE }}
           username: ${{ github.actor }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Shards 1/2/3 wait 0s/30s/60s. Without this the three shards plus
+          # codegen-check all hit GHCR's token endpoint at once and stay in
+          # lockstep through every retry; the first sharded run lost shard 3
+          # that way, exhausting all 5 attempts and then failing every checkout
+          # spec because no backend came up.
+          stagger_seconds: ${{ (matrix.shard - 1) * 30 }}
 
       - name: Start backend container
         run: |
