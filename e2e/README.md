@@ -58,6 +58,11 @@ E2E_DB_URL=... npm run e2e:ui
 
 ## Layout
 
+**67 committed specs** across 7 area directories plus the root seed spec. Keep
+this count honest — it is load-bearing for how a cold session reasons about
+coverage. The per-feature ledger is
+`<project-root>/.claude/notes/research/2026-07-24-e2e-coverage-matrix.md`.
+
 ```
 e2e/
 ├── seed.spec.ts          # agents' seed test: boot + auth conventions (also runs as a cheap smoke spec)
@@ -70,16 +75,13 @@ e2e/
 ├── seed/
 │   └── global-setup.ts   # truncates auth tables + seeds known users (runs once before all tests)
 ├── auth.setup.ts         # logs in KNOWN_USER via API, stashes refresh cookie to playwright/.auth/user.json
-├── auth/
-│   ├── login.spec.ts            # 3.1.c happy path (PR1) + 3.2.b lockout (PR2)
-│   ├── register.spec.ts         # 3.2.a (PR2)
-│   ├── password-reset.spec.ts   # 3.2.c (PR2)
-│   └── refresh.spec.ts          # 3.2.d (PR2)
-├── admin/
-│   ├── category-crud.spec.ts
-│   └── product-gallery.spec.ts  # real-R2 gallery lifecycle (opt-in via E2E_R2_ENABLED)
-└── search/
-    └── search.spec.ts
+├── account/     (12)     # profile, preferences, security/sessions, addresses, GDPR export, reorder
+├── admin/       (32)     # the back-office: catalog, orders, staff/RBAC, CMS, settings, reports ...
+├── auth/         (5)     # login, register, password-reset, refresh, lockout
+├── checkout/    (14)     # cart → single-page checkout, payments, coupons, VAT, PL money path
+├── collections/  (1)     # manual collections
+├── search/       (1)     # Meilisearch-backed storefront search
+└── seo/          (1)     # sitemap / JSON-LD / hreflang / robots artifacts
 
 specs/                    # human-readable test plans written by the planner agent
 .claude/agents/           # Playwright test agents: planner / generator / healer (committed)
@@ -106,9 +108,29 @@ await clearUInputNumber(pln)
 
 ## What's NOT here
 
+By *feature*, coverage is broad (see the coverage matrix). What is missing is
+whole **kinds** of test — track this list, not just the feature matrix:
+
 - Click-the-link email flows (covered by backend integration tests)
-- Polish-locale assertions (English `/login` only for bring-up)
-- Shopping flows (not in the 3.x checklist)
+- **Cross-browser** — Chromium only, no WebKit/Firefox project
+- **Mobile viewports** — no device project; the 375px overflow sweep is manual
+- **Visual regression** — no `toHaveScreenshot`; deliberate (high maintenance
+  against a Tailwind app), revisit only for the CMS block registry
+- **Performance / Core Web Vitals** — unmeasured, despite the shipped SEO program
+
+Partially covered, worth knowing the edges of:
+
+- **Polish locale** — 3 specs touch `/pl/` (`checkout/pl-money-path`,
+  `checkout/vat-decomposition`, `seo/seo-artifacts`), all money/SEO paths. No
+  spec asserts that a rendered `/pl/` page is free of English fallback copy —
+  the `app.scripts.audit_translations` pre-deploy gate checks the *data* layer
+  and structurally cannot see the fallback render path.
+- **Fault / error states** — `page.route` appears in exactly one spec
+  (`admin/category-hero-seo.spec.ts`). Payment 500s, order-POST failures,
+  Meilisearch 503 and offline are unexercised.
+- **Page-level a11y** — `axe-core` + `vitest-axe` cover 20+ components, but
+  never a composed page, so landmark structure, heading order, cross-component
+  duplicate ids and full-page focus order are unchecked.
 
 ## Flags / known issues
 
@@ -184,13 +206,36 @@ The env-flag skip is the contract until that decision lands.
 
 | Layer | Invocation | Use for |
 |---|---|---|
-| **Playwright MCP** (browser server) | project-root `.mcp.json` (`@playwright/mcp`, pinned) | Exploration, first-look at a new flow, multi-step discovery, payment-sandbox walkthroughs, visual CMS canvas, EN/PL parity, mobile-overflow audits |
+| **Playwright MCP** (browser server) | project-root `.mcp.json` (`@playwright/mcp`, pinned `0.0.79`) | Exploration, first-look at a new flow, multi-step discovery, payment-sandbox walkthroughs, visual CMS canvas, EN/PL parity, mobile-overflow audits |
 | **Test agents** (`.claude/agents/`) | planner / generator / healer subagents (need a Claude Code session **in this repo**; they speak to `npx playwright run-test-mcp-server` via this repo's `.mcp.json`) | Turning a flow into a durable runner spec; debugging/repairing failing specs |
-| **Agent CLI** (`npx @playwright/cli`) | `playwright-cli open/goto/snapshot/click/…` — artifacts to disk, ~4× cheaper than MCP | Routine "does this still render / does this button do X" verify passes |
+| **Agent CLI** (`npx @playwright/cli@0.1.18`) | `playwright-cli open/goto/snapshot/click/…` — artifacts to disk, ~4× cheaper than MCP | Routine "does this still render / does this button do X" verify passes |
 | **Runner** (`npm run e2e`) | deterministic suite | CI, regression — **the source of truth** |
 
 When any other layer and `npm run e2e` disagree (timing, isolation,
 storage state), trust the runner.
+
+**Pin both npx-invoked layers.** `@playwright/mcp` is pinned in `.mcp.json`;
+quote `@playwright/cli@0.1.18` explicitly rather than letting npx float to
+whatever the cache holds — an unpinned tool layer is the drift the MCP pin
+exists to prevent.
+
+### The two servers are not equivalent
+
+`playwright-test` (the agents' server) is a **strict superset** of the
+exploration server — 87 tools vs 46 on Playwright 1.62.1. Two consequences
+that the layer table above hides:
+
+- **The runner is drivable from a session.** `test_run` / `test_list` /
+  `test_debug` are MCP tools; the runner is not a Bash-only layer.
+- **Network mocking is already available**, with no extra capability flag:
+  `browser_route` / `browser_unroute` / `browser_route_list`, plus
+  `browser_network_state_set` for offline. Tracing and video capture too.
+
+Re-survey the tool list after any version bump — `npx playwright init-agents
+--loop=claude` regenerates the three agent definitions against the installed
+runner, and it **overwrites this repo's `.mcp.json`**, dropping the `env`
+block (`E2E_DB_URL`) and the `--headless -c playwright.config.ts` args. Restore
+them after every regen or the agents run against a config that cannot reach pg.
 
 ### Test agents (planner → generator → healer)
 
@@ -268,15 +313,30 @@ contract). `playwright/.auth/user.json` from a prior run may be stale
 
 ### Caveats
 
-- `.mcp.json` uses `--allowed-origins=http://localhost:3000;http://localhost:8000`
-  alone — allowlist mode means anything else is denied. **Do not pair
+- The **exploration** server (`playwright`) runs in allowlist mode: ~20
+  origins — `localhost:3000` / `:8000`, the PayU and Stripe sandbox hosts,
+  hCaptcha and the R2 dev bucket. Anything else is denied. **Do not pair
   with `--blocked-origins=*`**: per `npx @playwright/mcp@latest --help`,
   *"Blocklist is evaluated before allowlist"*, so the wildcard nukes the
-  allowlist and every navigate fails with `ERR_BLOCKED_BY_CLIENT`.
-- Page/console/network content surfaced through MCP flows to Anthropic's
-  API — the allowlist keeps that to local fixtures.
-- End every session with `browser_close`. `--isolated` profile is
-  in-memory but a hung Chromium can pin port 9222.
+  allowlist and every navigate fails with `ERR_BLOCKED_BY_CLIENT`. Note the
+  upstream caveat that the allowlist *"does not serve as a security boundary
+  and does not affect redirects"* — it is a scoping tool, not a sandbox.
+- ⚠️ **The allowlist does not apply to the agents' server.**
+  `npx playwright run-test-mcp-server` accepts only `--headless`, `-c/--config`,
+  `--host` and `--port` — there is **no `--allowed-origins` and no `--isolated`
+  flag to give it**, and Playwright config has no origin-allowlist equivalent.
+  So planner/generator/healer runs can navigate anywhere and keep a
+  profile on disk. This is a structural limitation, not an oversight to fix in
+  config: treat agent runs as unscoped and keep them pointed at the local
+  stack by discipline.
+- Page/console/network content surfaced through MCP flows to Anthropic's API.
+  On the exploration server the allowlist bounds that to local fixtures plus
+  the sandbox hosts above; **on the agents' server nothing bounds it.**
+- End every session with `browser_close`. The exploration server's
+  `--isolated` profile is in-memory but a hung Chromium can pin port 9222.
+- `--timeout-settle=1000` (default 500 ms) is set on the exploration server to
+  absorb this codebase's dominant flake class — a post-mutation re-render
+  eating the next interaction. Raise it further before blaming a locator.
 - Long-form setup + retro-validation findings live at
   `<project-root>/.claude/notes/plans/tooling/` and
   `<project-root>/.claude/notes/research/2026-05-10-playwright-mcp-setup.md`
