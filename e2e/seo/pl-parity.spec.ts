@@ -135,7 +135,15 @@ test.describe('Polish render parity', () => {
 
       await api.register(customer)
       await api.markVerified(customer.email)
-      const login = await api.loginViaApi(customer.email, customer.password)
+      // ⚠️ A FRESH cookie per context, not one shared login. Refresh tokens
+      // rotate: every new context boots plugins/auth.ts -> /auth/refresh, which
+      // consumes the row, so a second context replaying the same cookie is
+      // treated as reuse and lands on /login. This spec visits four
+      // authenticated contexts (two /pl/ routes plus their English controls),
+      // and the identical bug in the a11y sweep passed locally but failed in
+      // CI. Rate limits are not a concern: CI sets E2E_DISABLE_RATE_LIMIT.
+      const freshCustomerCookie = async () =>
+        (await api.loginViaApi(customer.email, customer.password)).refreshCookie
 
       const routes: Array<{ path: string, authed: boolean }> = [
         { path: '/pl', authed: false },
@@ -154,7 +162,7 @@ test.describe('Polish render parity', () => {
       ): Promise<Array<{ key: string, en: string }>> => {
         const context = await browser.newContext({ locale })
         try {
-          if (authed) await context.addCookies([login.refreshCookie])
+          if (authed) await context.addCookies([await freshCustomerCookie()])
           const page = await context.newPage()
           await page.goto(path)
           await expect(page.getByRole('heading').first()).toBeVisible({ timeout: 60_000 })
