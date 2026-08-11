@@ -195,7 +195,21 @@ for (const locale of ['en', 'pl'] as const) {
 
       await api.register(customer)
       await api.markVerified(customer.email)
-      const customerLogin = await api.loginViaApi(customer.email, customer.password)
+
+      // ⚠️ Mint a FRESH refresh cookie per authenticated context. Refresh
+      // tokens ROTATE: every new browser context boots `plugins/auth.ts` →
+      // `/auth/refresh`, which consumes and replaces the row. Handing the same
+      // cookie to a second context therefore replays a spent token, the
+      // backend treats it as reuse, and that context lands on /login instead
+      // of the page under test.
+      //
+      // This passed locally and failed in CI, so it is not something to rely
+      // on timing for — the landing guard below is what caught it. Rate limits
+      // are not a concern: CI runs the backend with E2E_DISABLE_RATE_LIMIT.
+      const freshCustomerCookie = async () =>
+        (await api.loginViaApi(customer.email, customer.password)).refreshCookie
+      const freshAdminCookie = async () =>
+        (await api.loginViaApi(KNOWN_ADMIN.email, KNOWN_ADMIN.password)).refreshCookie
 
       // `prefix_except_default`: English is unprefixed, Polish gets /pl/.
       const localize = (p: string) => (locale === 'en' ? p : `/pl${p === '/' ? '' : p}`)
@@ -207,10 +221,10 @@ for (const locale of ['en', 'pl'] as const) {
         const context = await browser.newContext()
         try {
           if (route.access === 'customer') {
-            await context.addCookies([customerLogin.refreshCookie])
+            await context.addCookies([await freshCustomerCookie()])
           }
           else if (route.access === 'admin') {
-            await context.addCookies([admin.refreshCookie])
+            await context.addCookies([await freshAdminCookie()])
           }
 
           const scanPage = await context.newPage()
