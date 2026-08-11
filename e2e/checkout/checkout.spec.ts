@@ -11,7 +11,7 @@ import { KNOWN_ADMIN, randomEphemeralUser } from '../fixtures/testUser'
 test.use({ storageState: { cookies: [], origins: [] } })
 
 test.describe('Checkout', () => {
-  test('happy path: add to cart, fill shipping, place order, pending order created', async ({ page }) => {
+  test('happy path: add to cart, fill shipping, place order, pending order created', { tag: ['@mobile', '@smoke'] }, async ({ page }) => {
     const api = await ApiClient.create()
     const runId = Date.now()
     const user = randomEphemeralUser()

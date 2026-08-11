@@ -4,7 +4,7 @@ import { KNOWN_USER, LOCKOUT_USER } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
-test('login happy path → redirects to /account and shows welcome toast', async ({ page }) => {
+test('login happy path → redirects to /account and shows welcome toast', { tag: ['@mobile', '@smoke'] }, async ({ page }) => {
   await page.goto('/login')
   await page.waitForLoadState('networkidle')
 
