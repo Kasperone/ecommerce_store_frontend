@@ -305,7 +305,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        # `stagger` is spelled out per shard rather than computed, because
+        # GitHub Actions expressions have NO ARITHMETIC OPERATORS — the
+        # documented set is ( ) [ ] . ! < <= > >= == != && || and nothing else.
+        # An expression of the form "(matrix.shard - 1) * 30" is therefore NOT
+        # valid: it fails the workflow at validation time, producing a run with
+        # zero jobs and the unhelpful message "This run likely failed because
+        # of a workflow file issue". Cost one run to learn (31545847806).
+        include:
+          - shard: 1
+            stagger: 0
+          - shard: 2
+            stagger: 30
+          - shard: 3
+            stagger: 60
 
     services:
       postgres:
@@ -360,7 +373,7 @@ jobs:
           # lockstep through every retry; the first sharded run lost shard 3
           # that way, exhausting all 5 attempts and then failing every checkout
           # spec because no backend came up.
-          stagger_seconds: ${{ (matrix.shard - 1) * 30 }}
+          stagger_seconds: ${{ matrix.stagger }}
 
       - name: Start backend container
         run: |
