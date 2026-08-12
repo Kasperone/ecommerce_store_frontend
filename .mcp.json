@@ -4,8 +4,15 @@
       "command": "npx",
       "args": [
         "playwright",
-        "run-test-mcp-server"
-      ]
+        "run-test-mcp-server",
+        "--headless",
+        "-c",
+        "playwright.config.ts"
+      ],
+      "env": {
+        "E2E_DB_URL": "postgresql://postgres:postgres@10.0.0.1:5433/ecommerce_e2e",
+        "E2E_BACKEND_URL": "http://localhost:8000"
+      }
     }
   }
 }
