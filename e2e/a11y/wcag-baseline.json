@@ -1,0 +1,38 @@
+{
+  "en:account": [
+    "color-contrast",
+    "list"
+  ],
+  "en:account-orders": [
+    "color-contrast",
+    "list"
+  ],
+  "en:admin-dashboard": [],
+  "en:admin-products": [],
+  "en:cart": [],
+  "en:checkout": [],
+  "en:home": [],
+  "en:login": [],
+  "en:pdp": [
+    "color-contrast"
+  ],
+  "en:products": [],
+  "pl:account": [
+    "color-contrast",
+    "list"
+  ],
+  "pl:account-orders": [
+    "color-contrast",
+    "list"
+  ],
+  "pl:admin-dashboard": [],
+  "pl:admin-products": [],
+  "pl:cart": [],
+  "pl:checkout": [],
+  "pl:home": [],
+  "pl:login": [],
+  "pl:pdp": [
+    "color-contrast"
+  ],
+  "pl:products": []
+}
