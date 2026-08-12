@@ -12,6 +12,22 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
+  // Raised from Playwright's 30s default when the suite was sharded (2026-08-12).
+  //
+  // The suite runs against `npm run dev`, so the FIRST spec to touch a route
+  // pays Vite's cold compile for it. Unsharded, the checkout specs ran late
+  // enough that /checkout and /products/* were already warm and 30s was quietly
+  // enough. Sharding reassigns which spec goes first, so on shard 3 the
+  // checkout specs became the ones paying the compile — and timed out at 30s.
+  // The failure then cascaded: a timeout kill never runs `finally`, so
+  // auto-discount.spec.ts leaked its automatic coupon, and every retry picked
+  // up the stale coupon instead of its own and failed a different assertion.
+  //
+  // 57 of the 67 specs already set their own 90–240s budget; the 30s default
+  // was the outlier, and it was only ever survivable because of an ordering
+  // accident. A timeout is a cap, not a wait, so this costs passing runs
+  // nothing.
+  timeout: 90_000,
   // 2 retries (3 attempts) on CI: a fresh attempt self-heals the residual
   // timing flakiness on the shared hive runner even after E2E is serialized.
   retries: process.env.CI ? 2 : 0,
