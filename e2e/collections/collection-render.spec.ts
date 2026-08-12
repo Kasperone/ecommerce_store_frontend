@@ -14,7 +14,7 @@ test.use({ storageState: { cookies: [], origins: [] } })
 //
 // Seeded entirely via the admin API (no admin UI here — that's covered by the
 // admin CRUD smokes); the page itself is public, so it's viewed anonymously.
-test('storefront collection page renders its member product', async ({ page }) => {
+test('storefront collection page renders its member product', { tag: ['@mobile', '@smoke'] }, async ({ page }) => {
   // Generous budget: e2e runs against `npm run dev` (Vite) and this route
   // cold-compiles on first hit.
   test.setTimeout(90_000)

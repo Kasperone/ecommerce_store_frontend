@@ -12,7 +12,7 @@ import { KNOWN_ADMIN } from '../fixtures/testUser'
 test.use({ storageState: { cookies: [], origins: [] } })
 
 test.describe('Guest checkout', () => {
-  test('guest places an order and can track it via the public token page', async ({ page }) => {
+  test('guest places an order and can track it via the public token page', { tag: ['@mobile'] }, async ({ page }) => {
     const api = await ApiClient.create()
     const runId = Date.now()
     let adminToken = ''

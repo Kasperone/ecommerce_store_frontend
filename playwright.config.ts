@@ -49,6 +49,39 @@ export default defineConfig({
       testIgnore: /auth\.setup\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // Tag-scoped extra dimensions. Both are deliberately NOT full-suite runs:
+    // the back-office is desktop-shaped by design (wide tables, side-by-side
+    // locale panes) and running it at 412px would assert a layout nobody
+    // ships. Opt specs in with @mobile / @smoke instead — `grep` means an
+    // untagged spec costs these projects nothing.
+    //
+    // Replaces a hand-driven 375px sweep across 27 admin routes done once on
+    // 2026-06-11 and never repeated. A manual audit that goes stale in weeks
+    // is worth less than eight specs that run every time.
+    {
+      name: 'mobile',
+      testIgnore: /auth\.setup\.ts/,
+      grep: /@mobile/,
+      use: { ...devices['Pixel 7'] },
+    },
+    // A `webkit` project is deliberately NOT enabled yet, though the specs for
+    // it are already tagged @smoke. WebKit is the only non-Chromium engine
+    // available and would be the only thing to catch a Safari-only break
+    // (partially de-risking the deferred Apple Pay verification) — but it could
+    // not be verified on the machine this was written on: WebKit needs
+    // libicu74 / libxml2 / libflite1, which Arch does not provide under the
+    // names `playwright install-deps` expects, and there is no sudo.
+    //
+    // Enabling it is two changes, both trivial once someone can actually run it:
+    //   1. this block:
+    //        { name: 'webkit', testIgnore: /auth\.setup\.ts/,
+    //          grep: /@smoke/, use: { ...devices['Desktop Safari'] } }
+    //   2. `npx playwright install-deps chromium` -> `... chromium webkit`
+    //      in .github/ci-variants/test.ubuntu.yml (and mirror to test.yml).
+    //
+    // Shipping it unverified would mean discovering on main whether four specs
+    // pass in an engine nobody had run them in, so the tags land now and the
+    // project lands when it can be proven.
     // The `setup` project (auth.setup.ts) is intentionally NOT a default
     // project: every current spec brings its own fresh context via
     // `test.use({ storageState: empty })`. Re-enable it (and add a chromium

@@ -28,7 +28,10 @@ import { KNOWN_USER } from './fixtures/testUser'
 test.use({ storageState: { cookies: [], origins: [] } })
 
 test.describe('Seed', () => {
-  test('boots authenticated as the known customer', async ({ page }) => {
+  // Not @mobile: this asserts the header's inline 'Account' link, which is
+  // correct desktop chrome — at 412px the header collapses to a hamburger, so
+  // the assertion is desktop-shaped by design, not a responsive defect.
+  test('boots authenticated as the known customer', { tag: ['@smoke'] }, async ({ page }) => {
     // API login + cookie injection — the auth plugin exchanges the refresh
     // cookie for an access token on app boot (no form login needed).
     const api = await ApiClient.create()

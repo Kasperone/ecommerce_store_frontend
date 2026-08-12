@@ -15,7 +15,7 @@ test.use({ storageState: { cookies: [], origins: [] } })
 test.setTimeout(180_000)
 
 test.describe('Account panel', () => {
-  test('profile edit persists across a reload', async ({ page }) => {
+  test('profile edit persists across a reload', { tag: ['@mobile'] }, async ({ page }) => {
     const api = await ApiClient.create()
     const user = randomEphemeralUser()
     try {

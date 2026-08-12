@@ -13,7 +13,7 @@ test.use({ storageState: { cookies: [], origins: [] } })
 test.setTimeout(120_000)
 
 test.describe('Wishlist', () => {
-  test('save a product from the PDP, see it on the wishlist page, then remove it', async ({ page }) => {
+  test('save a product from the PDP, see it on the wishlist page, then remove it', { tag: ['@mobile'] }, async ({ page }) => {
     const api = await ApiClient.create()
     const runId = Date.now()
     const user = randomEphemeralUser()

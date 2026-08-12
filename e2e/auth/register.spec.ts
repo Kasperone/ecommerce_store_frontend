@@ -3,6 +3,12 @@ import { randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
+// Not @mobile: at 412px the cookie-consent banner occupies the lower viewport
+// and Playwright's scroll-into-view then parks the submit button under the
+// sticky header, so the click is intercepted before the form is reached. That
+// is a fixture problem (the banner needs dismissing for mobile runs), not a
+// bug in registration — retag once the mobile project seeds a `cookie_consent`
+// cookie. See notes/plans/test/pending/ for the follow-up.
 test('register happy path → redirects to /verify-email-sent', async ({ page }) => {
   const user = randomEphemeralUser()
 
