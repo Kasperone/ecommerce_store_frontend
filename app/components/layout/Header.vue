@@ -12,6 +12,12 @@ const localePath = useLocalePath()
 
 const { data: categoryTree } = useStorefrontCategories()
 
+// Same brand source as LayoutLogo. Only used for UHeader's `title` prop, which
+// never renders here (we fill the #title slot) — it is the FALLBACK for the home
+// link's accessible name. See the comment above <template #title>.
+const { data: storeConfig } = useStoreConfig()
+const brandName = computed(() => storeConfig.value?.store_name?.trim() || t('footer.logo.name'))
+
 async function handleLogout() {
   await authStore.logout()
   await router.push(localePath('/login'))
@@ -44,15 +50,30 @@ const items = computed<NavigationMenuItem[]>(() => {
   <UHeader
     class="c-header"
     :to="localePath('/')"
+    :title="brandName"
     :toggle="{
       color: 'primary',
       variant: 'subtle',
       class: 'rounded-full',
     }"
   >
+    <!-- ⚠️ KEEP THIS COMMENT OUTSIDE #title. UHeader derives the home link's
+         accessible name from `getSlotChildrenText(slots.title())`, and that
+         helper returns `node.children` for ANY vnode whose children are a
+         string — comment vnodes included. A comment inside the slot therefore
+         BECOMES the link's aria-label (finding F1: screen-reader users heard
+         "UHeader's #title slot already links to home…" as the link name).
+
+         The slot itself: UHeader already links #title to home, so the mark
+         renders as a non-anchor to avoid nesting <a> inside <a> (hydration
+         mismatch).
+
+         `:title="brandName"` above is the fallback half of the same fix. The
+         accessible name is `slotText || props.title || "Nuxt UI"`, and the slot
+         is TEXTLESS whenever an uploaded `logo_url` replaces the SVG+wordmark
+         lockup — without the prop, such a store's home link would be announced
+         as the literal "Nuxt UI". -->
     <template #title>
-      <!-- UHeader's #title slot already links to home; render the mark as a
-           non-anchor to avoid nesting <a> inside <a> (hydration mismatch). -->
       <LayoutLogo :link="false" />
     </template>
 
