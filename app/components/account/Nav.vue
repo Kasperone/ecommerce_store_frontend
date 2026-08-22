@@ -103,11 +103,24 @@ const BASE_CLASS = [
   'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
 ].join(' ')
-const ACTIVE_CLASS = 'bg-primary/10 text-primary'
+// WCAG 2.2 AA (a11y finding A2): `text-primary` is green-700 (main.css shifts
+// it there for exactly this reason), but on the `bg-primary/10` wash this pair
+// paints #008236 on #e6f3eb = 4.32:1 at 14px — short of the 4.5:1 AA floor by
+// 0.18. One shade step down clears it at 6.2:1. `dark:` pins the 400 shade the
+// token already resolves to in dark mode, so dark rendering is unchanged.
+const ACTIVE_CLASS = 'bg-primary/10 text-primary-800 dark:text-primary-400'
 const INACTIVE_CLASS
   = 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+// WCAG 2.2 AA (a11y finding A3): this heading used to hardcode `text-gray-400`
+// = #99a1af, which is 2.6:1 on white at 12px and was the LAST remaining
+// contrast violation anywhere in the page-level sweep. The finding was filed
+// against the `text-muted` token, but that was a misread of the hex: Nuxt UI
+// resolves `text-muted` to neutral-500 (#6a7282, 4.83:1 — passes) and it is
+// `text-dimmed` that is neutral-400. So this is a local fix, not the global
+// token decision the plan feared. Using the semantic token also fixes dark
+// mode, where the old `dark:text-gray-500` sat at 4.1:1.
 const GROUP_HEADING_CLASS
-  = 'px-3 pt-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500'
+  = 'px-3 pt-2 text-xs font-semibold uppercase tracking-wide text-muted'
 </script>
 
 <template>
@@ -134,8 +147,12 @@ const GROUP_HEADING_CLASS
         </NuxtLink>
       </li>
 
-      <!-- Quotes: B2B-only, but a primary path. -->
-      <ClientOnly>
+      <!-- Quotes: B2B-only, but a primary path.
+           `placeholder-tag` is load-bearing (a11y finding A4): ClientOnly's
+           server/pending placeholder defaults to a `<span>`, which is an
+           illegal direct child of `<ul>` and tripped axe's `list` rule on
+           every account page. -->
+      <ClientOnly placeholder-tag="li">
         <li v-if="isB2B">
           <NuxtLink
             :to="quotesItem.to"

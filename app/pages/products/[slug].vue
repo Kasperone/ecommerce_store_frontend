@@ -345,6 +345,19 @@ useSchemaOrg([
             :allow-backorder="product.allow_backorder"
           />
 
+          <!--
+            WCAG 2.2 AA (a11y finding A1): Nuxt UI's `subtle` badge paints the
+            500 shade of its colour on a 10 % wash of the same hue, which at the
+            badge's 12px measures 2.0–2.6:1 against the 4.5:1 AA floor — the
+            in-stock success badge was the worst at 2.03:1. Pinning the light
+            text to the 800 shade puts all three coloured branches above 6:1;
+            `dark:` keeps the 400 shade the tokens already resolve to in dark
+            mode, so nothing changes there. Fixed locally rather than by moving
+            `--ui-success` / `--ui-info` / `--ui-warning` the way main.css moves
+            `--ui-primary`, so this does not repaint every semantic surface in
+            the product. The `neutral` branch is exempt: Nuxt UI special-cases
+            it to `text-default`, which already passes.
+          -->
           <div class="flex flex-wrap items-center gap-2">
             <UBadge
               v-if="outOfStock"
@@ -357,6 +370,7 @@ useSchemaOrg([
               v-else-if="backorder"
               color="info"
               variant="subtle"
+              class="text-info-800 dark:text-info-400"
             >
               {{ t('stock.backorder') }}
             </UBadge>
@@ -364,6 +378,7 @@ useSchemaOrg([
               v-else-if="lowStock"
               color="warning"
               variant="subtle"
+              class="text-warning-800 dark:text-warning-400"
             >
               {{ t('stock.lowStock', { count: effectiveStock }) }}
             </UBadge>
@@ -371,6 +386,7 @@ useSchemaOrg([
               v-else
               color="success"
               variant="subtle"
+              class="text-success-800 dark:text-success-400"
             >
               {{ t('stock.inStock') }}
             </UBadge>
