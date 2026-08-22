@@ -418,11 +418,40 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         {{ t('admin.products.sections.basics') }}
       </h2>
 
-      <UTabs
-        v-model="localeTab"
-        :items="localeTabItems"
-        class="w-full"
-      />
+      <!--
+        Client-only on purpose: server-rendered, this `UTabs` never hydrates its
+        interactivity. The markup and ARIA come out correct and no console error
+        fires, but the trigger emits nothing — clicking "Polski" left
+        `aria-selected="false"` and the PL pane never opened, so **every Polish
+        product field on this form was unreachable**. The same bug was found and
+        fixed on business self-signup (`forms/SignUpForm.vue`); this call site
+        had the identical latent version.
+
+        The dead tab bar was also the cause of the WCAG AA contrast failure that
+        surfaced it: with no hydration the active-tab indicator never paints, so
+        the active label rendered near-white on the bare grey track (1.09:1).
+
+        The `ui.trigger` override is the second half of that fix. Nuxt UI styles
+        an inactive trigger `text-muted` (neutral-500), which on the `bg-elevated`
+        track (neutral-100) measures 4.34:1 — under the 4.5:1 AA floor. One step
+        to `text-toned` (neutral-600) gives 6.92:1. Scoped to
+        `data-[state=inactive]` so the ACTIVE label keeps its white-on-pill
+        treatment, which already passes. Pinned at the call site rather than by
+        moving `--ui-text-muted` globally — the same call that was made for A1.
+
+        Panels render as siblings (`:content="false"`) — the `v-show` divs below
+        — so the EN pane still server-renders instead of the whole form going
+        blank until hydration.
+      -->
+      <ClientOnly>
+        <UTabs
+          v-model="localeTab"
+          :items="localeTabItems"
+          :content="false"
+          class="w-full"
+          :ui="{ trigger: 'data-[state=inactive]:text-toned' }"
+        />
+      </ClientOnly>
 
       <div
         v-show="localeTab === 'en'"
