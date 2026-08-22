@@ -431,6 +431,14 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
         surfaced it: with no hydration the active-tab indicator never paints, so
         the active label rendered near-white on the bare grey track (1.09:1).
 
+        The `ui.trigger` override is the second half of that fix. Nuxt UI styles
+        an inactive trigger `text-muted` (neutral-500), which on the `bg-elevated`
+        track (neutral-100) measures 4.34:1 — under the 4.5:1 AA floor. One step
+        to `text-toned` (neutral-600) gives 6.92:1. Scoped to
+        `data-[state=inactive]` so the ACTIVE label keeps its white-on-pill
+        treatment, which already passes. Pinned at the call site rather than by
+        moving `--ui-text-muted` globally — the same call that was made for A1.
+
         Panels render as siblings (`:content="false"`) — the `v-show` divs below
         — so the EN pane still server-renders instead of the whole form going
         blank until hydration.
@@ -441,6 +449,7 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
           :items="localeTabItems"
           :content="false"
           class="w-full"
+          :ui="{ trigger: 'data-[state=inactive]:text-toned' }"
         />
       </ClientOnly>
 
