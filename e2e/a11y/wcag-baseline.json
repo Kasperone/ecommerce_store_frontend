@@ -54,7 +54,9 @@
   "en:password-recovery": [],
   "en:pdp": [],
   "en:products": [],
-  "en:search": [],
+  "en:search": [
+    "color-contrast"
+  ],
   "en:sign-up": [],
   "pl:account": [],
   "pl:account-addresses": [],
@@ -111,6 +113,8 @@
   "pl:password-recovery": [],
   "pl:pdp": [],
   "pl:products": [],
-  "pl:search": [],
+  "pl:search": [
+    "color-contrast"
+  ],
   "pl:sign-up": []
 }
