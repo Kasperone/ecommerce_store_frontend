@@ -37,6 +37,15 @@
 // writes what it finds and always passes. Review the diff before committing —
 // a growing baseline is a regression that has been waved through, and the whole
 // point of the ratchet is that this takes a deliberate act.
+//
+// TRIAGING A VIOLATION
+//
+//   A11Y_DETAIL=1 npm run e2e -- e2e/a11y/wcag.spec.ts
+//
+// adds every failing node to the output — axe's failure summary, which for
+// `color-contrast` includes the measured ratio and both hex values, plus the
+// element's HTML. Combine with A11Y_WRITE_BASELINE=1 to triage and re-baseline
+// in a single run.
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { expect, test } from '@playwright/test'
@@ -149,6 +158,7 @@ const ROUTES: Route[] = [
 
 const KNOWN: Record<string, string[]> = baseline as Record<string, string[]>
 const WRITE_BASELINE = !!process.env.A11Y_WRITE_BASELINE
+const DETAIL = !!process.env.A11Y_DETAIL
 const BASELINE_PATH = fileURLToPath(new URL('./wcag-baseline.json', import.meta.url))
 
 /** Generic readiness: the first rendered heading. True of every route in the
@@ -158,8 +168,28 @@ async function headingReady(page: Page, timeout = 60_000): Promise<void> {
   await expect(page.getByRole('heading').first()).toBeVisible({ timeout })
 }
 
-async function scan(page: Page): Promise<string[]> {
+async function scan(page: Page, key: string): Promise<string[]> {
   const { violations } = await new AxeBuilder({ page }).withTags(WCAG_22_AA).analyze()
+
+  // Triage aid. The baseline stores rule ids, which is the right granularity
+  // for a ratchet but useless for finding the offending code: axe's own node
+  // selectors are generated Tailwind soup (`.py-1`,
+  // `.router-link-active > span:nth-child(2)`). `A11Y_DETAIL=1` prints every
+  // failing node with axe's failure summary, which for `color-contrast` carries
+  // the measured ratio and both resolved hex values — enough to grep for. Off
+  // by default: it is pages of output that CI has no use for.
+  if (DETAIL) {
+    for (const v of violations) {
+      for (const node of v.nodes) {
+        console.log(
+          `  [${key}] ${v.id} — ${node.target.join(' ')}\n`
+          + `      ${node.failureSummary?.replace(/\n/g, '\n      ')}\n`
+          + `      ${node.html.slice(0, 240)}`,
+        )
+      }
+    }
+  }
+
   return [...new Set(violations.map(v => v.id))].sort()
 }
 
@@ -265,7 +295,7 @@ for (const locale of ['en', 'pl'] as const) {
             `${locale}:${route.key} did not land on ${target}`,
           ).toBe(target.replace(/\/$/, ''))
 
-          const found = await scan(scanPage)
+          const found = await scan(scanPage, `${locale}:${route.key}`)
           observed[`${locale}:${route.key}`] = found
           const known = KNOWN[`${locale}:${route.key}`] ?? []
 
