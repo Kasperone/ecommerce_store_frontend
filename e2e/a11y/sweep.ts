@@ -108,7 +108,23 @@ export async function headingReady(page: Page, timeout = 60_000): Promise<void> 
 }
 
 async function scan(page: Page, key: string): Promise<string[]> {
-  const { violations } = await new AxeBuilder({ page }).withTags(WCAG_22_AA).analyze()
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(WCAG_22_AA)
+    // ⚠️ The suite runs against `npm run dev`, which injects the Nuxt DevTools
+    // overlay into the page. axe scans it like any other DOM, and it fails
+    // `color-contrast` on its own chrome (#888888 on white at 9.6px, 3.54:1).
+    // That is not our app and must never reach the baseline.
+    //
+    // This is a LATENT FLAKE, not cosmetic noise: the overlay renders lazily, so
+    // whether axe catches it depends on how long the route's readiness signal
+    // happens to wait. It stayed invisible for three full sweeps and only showed
+    // up once `admin-product-new` started waiting for hydration. On a route whose
+    // baseline is empty, one late-rendering overlay node would introduce
+    // `color-contrast` as a NEW rule id and fail CI for a violation that is not
+    // in our code.
+    .exclude('nuxt-devtools-frame')
+    .exclude('#nuxt-devtools-anchor')
+    .analyze()
 
   // Triage aid. The baseline stores rule ids, which is the right granularity
   // for a ratchet but useless for finding the offending code: axe's own node

@@ -19,7 +19,7 @@
 // capability is implicitly held and no route bounces on RBAC. If one of these
 // ever starts landing on /admin instead of itself, the landing guard in
 // `runSweep` will say so rather than silently scanning the dashboard 28 times.
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
 import { KNOWN_ADMIN } from '../fixtures/testUser'
@@ -74,11 +74,26 @@ const ADMIN_PATHS: Array<[key: string, path: string]> = [
   ['admin-warehouses', '/admin/warehouses'],
 ]
 
+/** Routes where "a heading has painted" is NOT a sufficient readiness signal.
+ *
+ *  ⚠️ `admin-product-new`'s locale tab bar lives inside `<ClientOnly>`, so it is
+ *  absent from the SSR output entirely and only appears after hydration. A
+ *  heading-only wait lets axe scan the page BEFORE the tabs paint — which would
+ *  report the tab bar clean by never having seen it. That is the same class of
+ *  meaningless pass as scanning a spinner, and it would have silently hidden the
+ *  very violation (B3) that this route was added to catch. */
+const EXTRA_READY: Record<string, (page: Page) => Promise<void>> = {
+  'admin-product-new': async (page) => {
+    await adminReady(page)
+    await expect(page.getByRole('tab').first()).toBeVisible({ timeout: 120_000 })
+  },
+}
+
 const ROUTES: Route<Ctx>[] = ADMIN_PATHS.map(([key, path]) => ({
   key,
   path: () => path,
   access: 'admin' as const,
-  ready: adminReady,
+  ready: EXTRA_READY[key] ?? adminReady,
 }))
 
 for (const locale of ['en', 'pl'] as const) {
