@@ -402,6 +402,16 @@ export class ApiClient {
     return { id: category.id }
   }
 
+  /** Admin: delete a category (cleanup). 404 is fine — already gone. */
+  async deleteCategory(accessToken: string, categoryId: number): Promise<void> {
+    const res = await this.http.delete(`/api/v1/categories/${categoryId}`, {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`deleteCategory failed: ${res.status()} ${await res.text()}`)
+    }
+  }
+
   /**
    * The `categories` row for a slug, straight from pg — `null` once the row is
    * gone. Ground truth for the admin tree: asserting the list endpoint instead
