@@ -13,23 +13,22 @@ The backend uvicorn process needs:
 
 | Variable | Value | Reason |
 |---|---|---|
-| `DATABASE_URL` | `postgresql://postgres:...@10.0.0.1:5433/ecommerce_e2e` | Separate DB so E2E doesn't fight pytest's `ecommerce_test` |
+| `DATABASE_URL` | `postgresql://postgres:...@localhost:5433/ecommerce_e2e` | Separate DB so E2E doesn't fight pytest's `ecommerce_test` |
 | `RESEND_API_KEY` | `""` | Empty → email sends fail silently; E2E asserts on API responses, not email contents |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `2` | Required by `refresh.spec.ts` (PR2). Field is `int` in `app/core/config.py`. TTL=1 collides with the auth store's proactive-refresh window (60s) and hammers `/auth/refresh` until the 30/hour rate limit trips; TTL=2 spaces refreshes 60s apart. The refresh test waits 130s. |
 
 ## Local prep (one-time)
 
-> hive is addressed at its WireGuard IP (`10.0.0.1`) so these commands work from any
-> network; the LAN IP `192.168.1.14` only resolves at home and is no longer used in
-> config. Tunnel down? `nmcli con up wg-hive`. See `.claude/notes/plans/infra/`.
+> Commands assume the backend's `docker-compose` Postgres (`localhost:5433`).
+> Using a database on another host? Swap `localhost` for its address.
 
 ```bash
-# Create the DB on hive (Docker Postgres at 10.0.0.1:5433)
-psql -h 10.0.0.1 -p 5433 -U postgres -c "CREATE DATABASE ecommerce_e2e"
+# Create the DB (start it first: cd ecommerce_store_backend && docker-compose up -d postgres)
+psql -h localhost -p 5433 -U postgres -c "CREATE DATABASE ecommerce_e2e"
 
 # Apply migrations to ecommerce_e2e
 cd ecommerce_store_backend
-DATABASE_URL=postgresql://postgres:postgres@10.0.0.1:5433/ecommerce_e2e \
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/ecommerce_e2e \
   .venv/bin/alembic upgrade head
 
 # Install Chromium for Playwright (one-time)
@@ -42,14 +41,14 @@ npm run e2e:install
 ```bash
 # Terminal 1: backend pointed at the E2E DB
 cd ecommerce_store_backend
-DATABASE_URL=postgresql://postgres:postgres@10.0.0.1:5433/ecommerce_e2e \
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/ecommerce_e2e \
   RESEND_API_KEY="" \
   ENVIRONMENT=development \
   .venv/bin/uvicorn app.main:app --port 8000
 
 # Terminal 2: run the suite (Nuxt dev launched by Playwright's webServer)
 cd ecommerce_store_frontend
-E2E_DB_URL=postgresql://postgres:postgres@10.0.0.1:5433/ecommerce_e2e \
+E2E_DB_URL=postgresql://postgres:postgres@localhost:5433/ecommerce_e2e \
   npm run e2e
 
 # Or interactively
@@ -186,7 +185,7 @@ honest while staying tiny.
 **Run only this spec.**
 
 ```bash
-E2E_DB_URL=postgresql://postgres:postgres@10.0.0.1:5433/ecommerce_e2e \
+E2E_DB_URL=postgresql://postgres:postgres@localhost:5433/ecommerce_e2e \
 E2E_R2_ENABLED=1 \
   npm run e2e -- e2e/admin/product-gallery.spec.ts
 ```

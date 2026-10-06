@@ -60,7 +60,7 @@ const ROUTES: Route<Ctx>[] = [
     //
     // CI runs no Meilisearch, so the backend's /search endpoints 503 and this
     // page renders its results shell plus an ErrorAlert. A DEV MACHINE USUALLY
-    // HAS A WORKING MEILI (`.env` points at hive), so the same URL renders a
+    // HAS A WORKING MEILI (configured in `.env`), so the same URL renders a
     // populated result list instead — a different DOM with a different set of
     // axe rules. The baseline entry below (`color-contrast`, from the error
     // alert's `--ui-error` red — the same token issue as B2) reflects **CI**,
