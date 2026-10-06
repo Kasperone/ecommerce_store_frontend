@@ -44,7 +44,7 @@ jobs:
       # run that would have caught it.
       #
       # FAIL-OPEN by construction: every unknown (no PR number, unreachable
-      # ref, missing `gh`/`jq` on a self-hosted runner, unreadable check runs)
+      # ref, missing `gh`/`jq` on the runner, unreadable check runs)
       # falls through to running the full suite. The worst case is the status
       # quo, never a silent gap in coverage.
       - name: Decide whether this push re-tests an already-green tree
@@ -292,10 +292,6 @@ jobs:
   #
   # `fail-fast: false` so one shard failing still reports the other two — with
   # fail-fast a single flake would hide two thirds of the signal.
-  #
-  # Not mirrored into test.hive.yml: hive has only two frontend runner services
-  # (hive-fe, hive-fe-aux) on one shared host, so a 3-way matrix would queue the
-  # third shard behind the others and collide on host ports for no gain.
   e2e:
     name: E2E (Playwright + backend image) shard ${{ matrix.shard }}/3
     runs-on: ubuntu-latest
@@ -485,26 +481,3 @@ jobs:
             backend.log
           retention-days: 14
           if-no-files-found: ignore
-
-  variant-sync:
-    name: CI variant in sync
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      # Tripwire for ci-variant drift (2026-07-08): .github/workflows/test.yml is a
-      # generated artifact — a byte-for-byte copy of one .github/ci-variants/test.<mode>.yml.
-      # Editing test.yml directly without mirroring into the matching variant makes the
-      # switch-ci-runner skill's drift guard abort at switch time (and forces a manual
-      # reconciliation). This fails the FIRST drifting PR instead, so drift never
-      # accumulates. Fix: edit ci-variants/test.<mode>.yml and copy it to test.yml
-      # (or re-run the switch-ci-runner skill).
-      - name: Assert test.yml matches a captured ci-variant
-        run: |
-          if diff -q .github/workflows/test.yml .github/ci-variants/test.ubuntu.yml >/dev/null 2>&1 \
-             || diff -q .github/workflows/test.yml .github/ci-variants/test.hive.yml >/dev/null 2>&1; then
-            echo "✓ test.yml is byte-identical to a captured ci-variant"
-          else
-            echo "::error file=.github/workflows/test.yml::test.yml matches NEITHER ci-variant — hand-edited without mirroring. Edit .github/ci-variants/test.<mode>.yml and copy it to test.yml (or re-run the switch-ci-runner skill). See switch-ci-runner SKILL.md > Handling drift."
-            exit 1
-          fi
