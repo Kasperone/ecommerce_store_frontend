@@ -9,7 +9,7 @@ import { KNOWN_ADMIN } from '../fixtures/testUser'
  *
  * The timeout has to be explicit and generous: that route cold-compiles on
  * first hit and stays slow even warm, so the 5s default is a latent flake. It
- * goes red whenever lint/unit/typecheck share the hive box with e2e — FE #344
+ * goes red whenever lint/unit/typecheck share a CI host with e2e — FE #344
  * fixed exactly this pattern in the order specs, but this spec predates the
  * rule and kept the default until a longer e2e run finally tipped it over.
  */

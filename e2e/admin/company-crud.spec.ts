@@ -170,7 +170,7 @@ test.describe('Admin company directory', () => {
       await openDeleteModal()
       await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
       // "Nothing happened" needs a settled window: a mutant that deleted on the
-      // *arming* click would beat an immediate pg read (~10 ms over WireGuard)
+      // *arming* click would beat an immediate pg read (~10 ms)
       // and pass.
       await expect(deleteHeading).toBeHidden({ timeout: 10_000 })
       await page.waitForTimeout(1_500)

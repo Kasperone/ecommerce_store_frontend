@@ -9,9 +9,8 @@ import { randomEphemeralUser } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
-// CI runs several E2E jobs concurrently on the shared hive host and the
-// dev server compiles page chunks on first hit — generous budget, same
-// pattern as auth/refresh.spec.ts.
+// The dev server compiles page chunks on first hit (slow on CI) — generous
+// budget, same pattern as auth/refresh.spec.ts.
 test.setTimeout(180_000)
 
 test.describe('Account panel', () => {
