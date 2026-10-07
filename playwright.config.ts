@@ -76,7 +76,7 @@ export default defineConfig({
     //        { name: 'webkit', testIgnore: /auth\.setup\.ts/,
     //          grep: /@smoke/, use: { ...devices['Desktop Safari'] } }
     //   2. `npx playwright install-deps chromium` -> `... chromium webkit`
-    //      in .github/ci-variants/test.ubuntu.yml (and mirror to test.yml).
+    //      in .github/workflows/test.yml.
     //
     // Shipping it unverified would mean discovering on main whether four specs
     // pass in an engine nobody had run them in, so the tags land now and the
