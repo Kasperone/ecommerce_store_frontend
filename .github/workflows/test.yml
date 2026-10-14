@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   tree-gate:
     name: Redundant main-run gate
@@ -100,6 +103,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@v5
@@ -124,6 +129,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@v5
@@ -148,9 +155,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [tree-gate]
     if: needs.tree-gate.outputs.redundant != 'true'
+    permissions:
+      contents: read
+      actions: write
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@v5
@@ -191,7 +203,14 @@ jobs:
     name: OpenAPI codegen drift
     runs-on: ubuntu-latest
     needs: [tree-gate]
-    if: needs.tree-gate.outputs.redundant != 'true'
+    if: >-
+      needs.tree-gate.outputs.redundant != 'true'
+      && (github.event_name != 'pull_request'
+        || github.event.pull_request.head.repo.full_name == github.repository)
+    permissions:
+      contents: read
+      packages: read
+      actions: write
 
     services:
       postgres:
@@ -214,6 +233,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@v5
@@ -296,7 +317,14 @@ jobs:
     name: E2E (Playwright + backend image) shard ${{ matrix.shard }}/3
     runs-on: ubuntu-latest
     needs: [tree-gate]
-    if: needs.tree-gate.outputs.redundant != 'true'
+    if: >-
+      needs.tree-gate.outputs.redundant != 'true'
+      && (github.event_name != 'pull_request'
+        || github.event.pull_request.head.repo.full_name == github.repository)
+    permissions:
+      contents: read
+      packages: read
+      actions: write
 
     strategy:
       fail-fast: false
@@ -348,6 +376,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@v5
