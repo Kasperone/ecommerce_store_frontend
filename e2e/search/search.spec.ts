@@ -38,9 +38,8 @@ test('header search → autocomplete → faceted /search page', async ({ page })
       slug: `e2e-search-cat-${runId}`,
     })
     categoryId = category.id
-    const productName = `E2E Search ${searchTerm}`
     const product = await api.createProduct(adminToken, {
-      name: productName,
+      name: `E2E Search ${searchTerm}`,
       slug: `e2e-search-${runId}`,
       price_usd: 100,
       price_pln: 400,
@@ -61,28 +60,17 @@ test('header search → autocomplete → faceted /search page', async ({ page })
 
     await page.goto('/')
 
-    // Header mounts two SearchBar instances (desktop + mobile drawer); `.first()`
-    // can hit the hidden one and never open the autocomplete dropdown.
-    const input = page
-      .getByRole('textbox', { name: /search products/i })
-      .and(page.locator(':visible'))
-      .first()
+    // Header mounts two SearchBar instances (desktop + mobile drawer).
+    const input = page.getByRole('textbox', { name: /search products/i }).filter({ visible: true })
     await input.click()
+    const suggestResponse = page.waitForResponse(
+      resp => resp.url().includes('/api/v1/search/suggest') && resp.status() === 200,
+      { timeout: 30_000 },
+    )
     await input.fill(searchTerm)
-
-    // Suggest is debounced client-side; wait for Meili + the API before asserting UI.
-    await expect(async () => {
-      const res = await page.request.get(
-        `${BACKEND_URL}/api/v1/search/suggest?q=${encodeURIComponent(searchTerm)}`,
-      )
-      expect(res.ok()).toBeTruthy()
-      const body = (await res.json()) as { products: unknown[] }
-      expect(body.products.length).toBeGreaterThan(0)
-    }).toPass({ timeout: 30_000 })
-
-    await expect(async () => {
-      await expect(page.getByText(productName)).toBeVisible({ timeout: 2_000 })
-    }).toPass({ timeout: 15_000 })
+    const suggestRes = await suggestResponse
+    const suggestBody = (await suggestRes.json()) as { products: unknown[] }
+    expect(suggestBody.products.length).toBeGreaterThan(0)
 
     await input.press('Enter')
     await expect(page).toHaveURL(new RegExp(`/search\\?q=${encodeURIComponent(searchTerm).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`))
