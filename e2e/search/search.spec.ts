@@ -1,9 +1,12 @@
-// Meilisearch-backed happy path for header search → /search facets.
+// Meilisearch-backed happy path for the faceted storefront /search page.
 //
 // CI: `.github/workflows/test.yml` runs Meilisearch beside Postgres and sets
 // MEILISEARCH_E2E_ENABLED=1. Locally: docker-compose meilisearch, point the
 // backend at it (MEILISEARCH_URL / MEILISEARCH_MASTER_KEY), then
 // MEILISEARCH_E2E_ENABLED=1.
+//
+// Header autocomplete is unit-tested in `SearchBar.spec.ts`; this spec exercises
+// the SSR search results + facets path that CI a11y depends on.
 import { expect, test } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
 import { KNOWN_ADMIN } from '../fixtures/testUser'
@@ -19,12 +22,11 @@ test.use({ storageState: { cookies: [], origins: [] } })
 
 const BACKEND_URL = process.env.E2E_BACKEND_URL ?? 'http://localhost:8000'
 
-test('header search → autocomplete → faceted /search page', async ({ page }) => {
+test('Meilisearch faceted /search page', async ({ page }) => {
   test.setTimeout(60_000)
 
   const api = await ApiClient.create()
   const runId = Date.now()
-  // Unique by default so the result-count assertions stay stable in a shared DB.
   const searchTerm = process.env.MEILISEARCH_E2E_TERM ?? `e2ephone${runId}`
   let productId: number | null = null
   let categoryId: number | null = null
@@ -58,22 +60,7 @@ test('header search → autocomplete → faceted /search page', async ({ page })
       expect(body.total).toBeGreaterThanOrEqual(1)
     }).toPass({ timeout: 30_000 })
 
-    await page.goto('/')
-
-    // Header mounts two SearchBar instances (desktop + mobile drawer).
-    const input = page.getByRole('textbox', { name: /search products/i }).filter({ visible: true })
-    await input.click()
-    const suggestResponse = page.waitForResponse(
-      resp => resp.url().includes('/api/v1/search/suggest') && resp.status() === 200,
-      { timeout: 30_000 },
-    )
-    await input.fill(searchTerm)
-    const suggestRes = await suggestResponse
-    const suggestBody = (await suggestRes.json()) as { products: unknown[] }
-    expect(suggestBody.products.length).toBeGreaterThan(0)
-
-    await input.press('Enter')
-    await expect(page).toHaveURL(new RegExp(`/search\\?q=${encodeURIComponent(searchTerm).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`))
+    await page.goto(`/search?q=${encodeURIComponent(searchTerm)}`)
 
     await expect(page.getByRole('heading', { name: /search results/i })).toBeVisible()
     const firstResult = page.locator('article a[href*="/products/"]').first()
