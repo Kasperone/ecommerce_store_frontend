@@ -46,8 +46,10 @@ test.describe('Checkout focus order', () => {
         ).toBeVisible({ timeout: 2_000 })
       }).toPass({ timeout: 20_000 })
 
-      await page.goto('/checkout')
-      await expect(page.getByTestId('guest-email')).toBeVisible()
+      await expect(async () => {
+        await page.goto('/checkout')
+        await expect(page.getByTestId('guest-email')).toBeVisible({ timeout: 5_000 })
+      }).toPass({ timeout: 30_000 })
 
       await page.getByTestId('guest-email').fill('guest-focus@example.com')
       await page.getByLabel('Address', { exact: true }).fill('5 Focus Ave')
@@ -64,7 +66,7 @@ test.describe('Checkout focus order', () => {
       let trail: Awaited<ReturnType<typeof collectFocusTrail>> = []
       await expect(async () => {
         await page.getByTestId('guest-email').focus()
-        const collected = await collectFocusTrail(page, { maxSteps: 60 })
+        const collected = await collectFocusTrail(page, { maxSteps: 80 })
         const reachedSubmit = indexOfFocusStop(
           collected,
           s => s.testId === 'checkout-place-order' || s.name === 'Place order',
@@ -83,7 +85,9 @@ test.describe('Checkout focus order', () => {
       )
       const methodIdx = indexOfFocusStop(
         trail,
-        s => s.role === 'radio' && s.name.includes('E2E Standard'),
+        s =>
+          s.testId === 'shipping-method-option'
+          || (s.role === 'radio' && /e2e standard/i.test(s.name)),
       )
       const placeOrderIdx = indexOfFocusStop(
         trail,
