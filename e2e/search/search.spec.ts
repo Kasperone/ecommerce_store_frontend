@@ -38,8 +38,9 @@ test('header search → autocomplete → faceted /search page', async ({ page })
       slug: `e2e-search-cat-${runId}`,
     })
     categoryId = category.id
+    const productName = `E2E Search ${searchTerm}`
     const product = await api.createProduct(adminToken, {
-      name: `E2E Search ${searchTerm}`,
+      name: productName,
       slug: `e2e-search-${runId}`,
       price_usd: 100,
       price_pln: 400,
@@ -75,7 +76,7 @@ test('header search → autocomplete → faceted /search page', async ({ page })
     }).toPass({ timeout: 30_000 })
 
     await expect(async () => {
-      await expect(page.getByText(/see all results/i)).toBeVisible({ timeout: 2_000 })
+      await expect(page.getByText(productName)).toBeVisible({ timeout: 2_000 })
     }).toPass({ timeout: 15_000 })
 
     await input.press('Enter')
