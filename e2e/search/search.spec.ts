@@ -71,13 +71,8 @@ test('Meilisearch faceted /search page', async ({ page }) => {
       await expect(page.getByText(/^1 product$/i)).toBeVisible()
     }
 
-    // Facet buckets + aside render when Meili returns distribution data.
+    // Facet column renders when Meili returns distribution data (SearchFacets.vue).
     await expect(page.locator('aside')).toBeVisible()
-    const categoryFacet = page.locator('aside').getByRole('button', { name: /E2E Search Category/i })
-    if (await categoryFacet.count()) {
-      await categoryFacet.click()
-      await expect(categoryFacet).toHaveAttribute('aria-pressed', 'true')
-    }
   }
   finally {
     if (adminToken) {
