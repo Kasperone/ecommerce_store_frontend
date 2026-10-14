@@ -128,8 +128,10 @@ Partially covered, worth knowing the edges of:
   (`search/fault-search-unavailable.spec.ts`) and several checkout/admin paths.
   Payment 500s and offline-at-checkout remain thin.
 - **Page-level a11y** — `axe-core` + `vitest-axe` cover 20+ components, but
-  never a composed page, so landmark structure, heading order, cross-component
-  duplicate ids and full-page focus order are unchecked.
+  never a composed page, so landmark structure, heading order, and cross-component
+  duplicate ids stay unchecked. **Checkout tab order** is covered by
+  `a11y/checkout-focus-order.spec.ts` (WCAG 2.4.3); other routes still have
+  no focus-sequence specs.
 
 ## Flags / known issues
 

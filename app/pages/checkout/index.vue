@@ -492,9 +492,7 @@ async function placeOrder(shipping: ShippingInput | null) {
               <CheckoutShippingForm
                 :key="shippingFormKey"
                 :initial="initialShipping"
-                :loading="createOrder.isLoading.value"
                 :error="error"
-                :submit-disabled="selectedMethodId === null || invoiceBlocksSubmit || inpostBlocksSubmit"
                 :guest="isGuest"
                 @submit="placeOrder"
                 @update:country="selectedCountry = $event"
@@ -596,6 +594,21 @@ async function placeOrder(shipping: ShippingInput | null) {
                   {{ netTermsError }}
                 </p>
               </div>
+
+              <!-- Submit sits after shipping method + payment options so tab order
+                   matches the logical checkout flow (WCAG 2.4.3). Still submits
+                   the address form via the HTML `form` attribute. -->
+              <UButton
+                type="submit"
+                form="checkout-shipping-form"
+                color="primary"
+                block
+                :loading="createOrder.isLoading.value"
+                :disabled="selectedMethodId === null || invoiceBlocksSubmit || inpostBlocksSubmit"
+                data-testid="checkout-place-order"
+              >
+                {{ t('checkout.placeOrder') }}
+              </UButton>
             </template>
           </section>
 

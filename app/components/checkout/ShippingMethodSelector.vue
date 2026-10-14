@@ -207,6 +207,7 @@ function freeAboveHint(amount: number | null | undefined): string | null {
             :value="item.value"
             :name="`shipping-method-${$.uid}`"
             class="mt-1"
+            data-testid="shipping-method-option"
           >
           <span>
             <span class="block text-sm font-medium">{{ item.label }}</span>
