@@ -1,9 +1,8 @@
 // Fault injection: the search backend is down (Meilisearch 503).
 //
-// The audit's open question was "does search degrade, or blank?". Nothing
-// answered it: `search/search.spec.ts` is skipped in CI because it needs a
-// running, seeded Meilisearch, so the storefront's single search surface has
-// had ZERO CI coverage in either direction.
+// The audit's open question was "does search degrade, or blank?". The happy
+// path lives in `search/search.spec.ts` (CI runs Meilisearch in `test.yml`).
+// This spec covers the failure half of the contract.
 //
 // Fault injection fixes that asymmetry. Fulfilling a 503 at the network edge
 // needs no Meilisearch at all, so unlike the happy-path spec this one runs
@@ -35,7 +34,7 @@ test.describe('Search fault injection', () => {
 
     // Autocomplete is pinned to a valid empty payload throughout. It is not the
     // subject of this test, and without it the suggest call would 503 off the
-    // real backend (no Meilisearch locally or in CI), making the dropdown's
+    // real backend when suggest is not mocked, making the dropdown's
     // behaviour — and therefore the Enter keypress — nondeterministic.
     await page.route('**/api/v1/search/suggest**', route => route.fulfill({
       status: 200,

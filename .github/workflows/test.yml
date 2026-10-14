@@ -359,6 +359,20 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
+      meilisearch:
+        image: getmeili/meilisearch:v1.12
+        env:
+          # Dev-only class — same throwaway pattern as E2E_SECRET_KEY below.
+          MEILI_MASTER_KEY: e2e-meili-master-key-not-for-prod--not-for-prod--padding
+          MEILI_ENV: development
+        ports:
+          - 7700:7700
+        options: >-
+          --health-cmd "wget --no-verbose --spider http://localhost:7700/health || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     env:
       # GHCR repo names must be lowercase. `metadata-action` lowercases on publish,
       # so the image lives at ghcr.io/kasperone/... regardless of the GitHub
@@ -373,6 +387,8 @@ jobs:
       # secret: it is a throwaway literal for the ephemeral e2e stack.
       E2E_SECRET_KEY: e2e-secret-not-for-prod--not-for-prod--padding
       NUXT_PUBLIC_API_BASE: http://localhost:8000
+      MEILISEARCH_E2E_ENABLED: "1"
+      E2E_MEILI_MASTER_KEY: e2e-meili-master-key-not-for-prod--not-for-prod--padding
 
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -422,7 +438,21 @@ jobs:
             -e R2_SECRET_ACCESS_KEY="${{ secrets.R2_SECRET_ACCESS_KEY }}" \
             -e R2_BUCKET_NAME="${{ secrets.R2_BUCKET_NAME }}" \
             -e R2_PUBLIC_URL="${{ secrets.R2_PUBLIC_URL }}" \
+            -e MEILISEARCH_URL=http://localhost:7700 \
+            -e MEILISEARCH_MASTER_KEY="${{ env.E2E_MEILI_MASTER_KEY }}" \
             "$BACKEND_IMAGE"
+
+      - name: Wait for Meilisearch /health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:7700/health >/dev/null; then
+              echo "meilisearch ready after ${i} attempts"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "meilisearch never came up"
+          exit 1
 
       - name: Wait for backend /health
         run: |
@@ -436,6 +466,9 @@ jobs:
           echo "backend never came up"
           docker logs backend || true
           exit 1
+
+      - name: Configure Meilisearch indexes
+        run: docker exec backend python -m app.scripts.reindex_search
 
       # Provision the Playwright browsers from the official Microsoft image
       # (mcr.microsoft.com — a reliable registry) instead of `npx playwright

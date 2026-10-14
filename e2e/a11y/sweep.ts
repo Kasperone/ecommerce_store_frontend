@@ -51,11 +51,8 @@
 // through, and the whole point of the ratchet is that this takes a deliberate
 // act.
 //
-// ⚠️ A SHRINKING baseline needs review just as much, because one route is
-// environment-dependent: `/search` renders a populated result list on a dev box
-// with Meilisearch up, but a 503 error alert in CI, which has none. Regenerating
-// locally drops the `*:search` entries and CI then fails on them. See the long
-// note at that route in `wcag.storefront.spec.ts` before touching them.
+// A shrinking `*:search` baseline usually means Meilisearch was down during
+// `A11Y_WRITE_BASELINE=1` — CI runs Meili in the e2e job, so match that stack.
 //
 // TRIAGING A VIOLATION
 //

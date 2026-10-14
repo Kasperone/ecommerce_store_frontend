@@ -79,7 +79,7 @@ e2e/
 ├── auth/         (5)     # login, register, password-reset, refresh, lockout
 ├── checkout/    (14)     # cart → single-page checkout, payments, coupons, VAT, PL money path
 ├── collections/  (1)     # manual collections
-├── search/       (1)     # Meilisearch-backed storefront search
+├── search/       (2)     # Meilisearch happy path + 503 fault injection
 └── seo/          (1)     # sitemap / JSON-LD / hreflang / robots artifacts
 
 specs/                    # human-readable test plans written by the planner agent
@@ -124,9 +124,9 @@ Partially covered, worth knowing the edges of:
   spec asserts that a rendered `/pl/` page is free of English fallback copy —
   the `app.scripts.audit_translations` pre-deploy gate checks the *data* layer
   and structurally cannot see the fallback render path.
-- **Fault / error states** — `page.route` appears in exactly one spec
-  (`admin/category-hero-seo.spec.ts`). Payment 500s, order-POST failures,
-  Meilisearch 503 and offline are unexercised.
+- **Fault / error states** — `page.route` fault specs cover search 503
+  (`search/fault-search-unavailable.spec.ts`) and several checkout/admin paths.
+  Payment 500s and offline-at-checkout remain thin.
 - **Page-level a11y** — `axe-core` + `vitest-axe` cover 20+ components, but
   never a composed page, so landmark structure, heading order, cross-component
   duplicate ids and full-page focus order are unchecked.
@@ -151,6 +151,26 @@ outside `development`, so production can never lose rate limiting. CI's
 backend containers set it (see `.github/workflows/test.yml`). If you run
 the backend *without* the flag, the old advice applies: restart `uvicorn`
 to reset the in-memory limiter (`memory://`).
+
+### CI e2e stack (GitHub Actions)
+
+The `e2e` job in `.github/workflows/test.yml` mirrors local docker-compose:
+
+| Service | Image | Host port |
+|---|---|---|
+| Postgres 16 | `postgres:16` | 5432 |
+| Meilisearch v1.12 | `getmeili/meilisearch:v1.12` | 7700 |
+| Backend | `ghcr.io/kasperone/ecommerce_store_backend:main` | 8000 (`--network host`) |
+
+The backend container receives `MEILISEARCH_URL=http://localhost:7700` and a
+throwaway `MEILISEARCH_MASTER_KEY` (same dev-only class as `E2E_SECRET_KEY`).
+Each shard runs `python -m app.scripts.reindex_search` once after `/health`,
+then Playwright with `MEILISEARCH_E2E_ENABLED=1` so `search/search.spec.ts`
+runs without opt-in.
+
+Local parity: `docker-compose up -d postgres meilisearch`, point uvicorn at
+`MEILISEARCH_*`, export `MEILISEARCH_E2E_ENABLED=1` for the happy-path search
+spec.
 
 ### Real-R2 gallery spec
 
