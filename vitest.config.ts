@@ -24,11 +24,13 @@ export default defineVitestConfig({
     // under v8 coverage locally and tip past Vitest's default 5s test / 10s hook
     // timeouts on slower CI runners under parallel load — an otherwise-green suite
     // then fails on a timeout, not a real assertion (hit on FE #312: the checkout
-    // spec timed out at 10007ms, passed on re-run). Generous headroom keeps that
-    // CI-only flake class out without masking a genuine hang (a truly stuck test
-    // still fails — just later).
+    // spec timed out at 10007ms, passed on re-run). The Nuxt environment's global
+    // `beforeAll(setupNuxt)` is a hook too: on a saturated GHA runner after ~30min
+    // of `test:coverage`, `app/pages/checkout/index.spec.ts` once hit "Hook timed
+    // out in 20000ms" (run 38606491815) while every assertion was fine on rerun.
+    // Generous headroom keeps that CI-only flake class out without masking a hang.
     testTimeout: 15000,
-    hookTimeout: 20000,
+    hookTimeout: 60000,
     setupFiles: ['./test/setup.ts'],
     include: [
       'shared/**/*.spec.ts',
