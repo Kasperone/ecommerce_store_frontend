@@ -79,9 +79,10 @@ test.describe('Checkout focus order', () => {
       }).toPass({ timeout: 15_000 })
 
       const guestEmailIdx = indexOfFocusStop(trail, s => s.testId === 'guest-email')
+      // Label is "Address" — not "Email address" on the guest contact field.
       const addressIdx = indexOfFocusStop(
         trail,
-        s => s.name.toLowerCase().includes('address') && s.role === 'textbox',
+        s => s.role === 'textbox' && s.name.trim() === 'Address',
       )
       const methodIdx = indexOfFocusStop(
         trail,
@@ -95,8 +96,10 @@ test.describe('Checkout focus order', () => {
       )
 
       expect(guestEmailIdx).toBeGreaterThanOrEqual(0)
-      expect(addressIdx).toBeGreaterThan(guestEmailIdx)
-      expect(methodIdx).toBeGreaterThan(addressIdx)
+      expect(addressIdx, `address field missing from tab trail: ${JSON.stringify(trail)}`)
+        .toBeGreaterThan(guestEmailIdx)
+      expect(methodIdx, `shipping method missing from tab trail: ${JSON.stringify(trail)}`)
+        .toBeGreaterThan(addressIdx)
       expect(placeOrderIdx).toBeGreaterThan(methodIdx)
     }
     finally {
