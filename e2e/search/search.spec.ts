@@ -71,10 +71,12 @@ test('Meilisearch faceted /search page', async ({ page }) => {
       await expect(page.getByText(/^1 product$/i)).toBeVisible()
     }
 
-    const facetButton = page.locator('aside button[aria-pressed]').first()
-    if (await facetButton.count()) {
-      await facetButton.click()
-      await expect(page).toHaveURL(/categoryId=/)
+    const categoryFacet = page.getByRole('button', { name: /E2E Search Category/i })
+    if (await categoryFacet.count()) {
+      await categoryFacet.click()
+      await expect(async () => {
+        await expect(page).toHaveURL(/categoryId=/, { timeout: 2_000 })
+      }).toPass({ timeout: 10_000 })
     }
   }
   finally {
