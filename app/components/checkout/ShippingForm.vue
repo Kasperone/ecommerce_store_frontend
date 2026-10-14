@@ -9,11 +9,8 @@ import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
 
 const props = defineProps<{
   initial?: Partial<ShippingInput>
-  loading?: boolean
   /** Raw caught submit error, surfaced via the gold-standard flow. */
   error?: unknown
-  /** Disabled when the page-level submit guard hasn't yet got a method id. */
-  submitDisabled?: boolean
   /**
    * Guest checkout (no bearer): renders a required contact-email field above
    * the address block + a "sign in instead" hint. The email rides on the
@@ -90,6 +87,7 @@ function onSubmit(event: { data: ShippingInput }) {
 
 <template>
   <UForm
+    id="checkout-shipping-form"
     ref="formRef"
     :schema="schema"
     :state="state"
@@ -192,15 +190,5 @@ function onSubmit(event: { data: ShippingInput }) {
         class="w-full"
       />
     </UFormField>
-
-    <UButton
-      type="submit"
-      color="primary"
-      block
-      :loading="loading"
-      :disabled="submitDisabled"
-    >
-      {{ t('checkout.placeOrder') }}
-    </UButton>
   </UForm>
 </template>
