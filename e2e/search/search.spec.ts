@@ -61,9 +61,22 @@ test('header search → autocomplete → faceted /search page', async ({ page })
     await page.goto('/')
 
     const input = page.getByRole('textbox', { name: /search products/i }).first()
+    await input.click()
     await input.fill(searchTerm)
 
-    await expect(page.getByText(/see all results/i)).toBeVisible()
+    // Suggest is debounced client-side; wait for Meili + the API before asserting UI.
+    await expect(async () => {
+      const res = await page.request.get(
+        `${BACKEND_URL}/api/v1/search/suggest?q=${encodeURIComponent(searchTerm)}`,
+      )
+      expect(res.ok()).toBeTruthy()
+      const body = (await res.json()) as { products: unknown[] }
+      expect(body.products.length).toBeGreaterThan(0)
+    }).toPass({ timeout: 30_000 })
+
+    await expect(async () => {
+      await expect(page.getByText(/see all results/i)).toBeVisible({ timeout: 2_000 })
+    }).toPass({ timeout: 15_000 })
 
     await input.press('Enter')
     await expect(page).toHaveURL(new RegExp(`/search\\?q=${encodeURIComponent(searchTerm).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`))
