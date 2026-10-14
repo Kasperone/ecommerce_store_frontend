@@ -55,35 +55,12 @@ const ROUTES: Route<Ctx>[] = [
     ready: page => headingReady(page),
   },
   {
-    // ⚠️⚠️ THE ONE ENVIRONMENT-DEPENDENT ROUTE IN THE SWEEP. READ BEFORE
-    // REGENERATING THE BASELINE.
-    //
-    // CI runs no Meilisearch, so the backend's /search endpoints 503 and this
-    // page renders its results shell plus an ErrorAlert. A DEV MACHINE USUALLY
-    // HAS A WORKING MEILI (configured in `.env`), so the same URL renders a
-    // populated result list instead — a different DOM with a different set of
-    // axe rules. The baseline entry below (`color-contrast`, from the error
-    // alert's `--ui-error` red — the same token issue as B2) reflects **CI**,
-    // which is the environment of record.
-    //
-    // ⚠️ Consequence: `A11Y_WRITE_BASELINE=1` run on a machine with Meili up
-    // will WRONGLY DROP that entry, and CI will then fail with
-    // "en:search → new WCAG 2.2 AA violations: color-contrast". This already
-    // happened once (FE #386, shard 1). Either stop Meilisearch before
-    // regenerating, or restore the two `*:search` entries by hand afterwards.
-    //
-    // Stubbing the API to make this deterministic does NOT work here:
-    // `useSearchResults` is SSR-fetched, so a hard `page.goto` resolves it
-    // inside the Nuxt server where `page.route` cannot see it. Forcing a
-    // client-side navigation through the header search box would work but
-    // breaks the uniform goto model this table relies on.
-    //
-    // PARTIAL COVERAGE, on purpose: because CI only ever renders the error
-    // state, `shop/SearchFacets.vue` NEVER RENDERS in this sweep — facets are
-    // derived from result buckets. Its three `text-primary on bg-elevated`
-    // call sites remain unscanned by anything: jsdom does not lay out or
-    // cascade, so the component specs cannot evaluate `color-contrast` either.
-    // Closing this needs a seeded Meili in CI (a11y plan, backlog item 8).
+    // `/search` is SSR-fetched (`useSearchResults`), so stubbing the API with
+    // `page.route` cannot make this route deterministic — the fetch runs in the
+    // Nuxt server. CI and local e2e both run Meilisearch (see `test.yml`); the
+    // sweep creates `E2E A11y Widget` before visiting `/search?q=A11y` so the
+    // results list + facets render here. Regenerate `wcag-baseline.json` with the
+    // same stack (Meili up, backend pointed at it), not with search disabled.
     key: 'search',
     path: () => '/search?q=A11y',
     access: 'anon',

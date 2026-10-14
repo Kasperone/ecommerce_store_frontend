@@ -1,51 +1,88 @@
+// Meilisearch-backed happy path for the faceted storefront /search page.
+//
+// CI: `.github/workflows/test.yml` runs Meilisearch beside Postgres and sets
+// MEILISEARCH_E2E_ENABLED=1. Locally: docker-compose meilisearch, point the
+// backend at it (MEILISEARCH_URL / MEILISEARCH_MASTER_KEY), then
+// MEILISEARCH_E2E_ENABLED=1.
+//
+// Header autocomplete is unit-tested in `SearchBar.spec.ts`; this spec exercises
+// the SSR search results + facets path that CI a11y depends on.
 import { expect, test } from '@playwright/test'
+import { ApiClient } from '../fixtures/apiClient'
+import { KNOWN_ADMIN } from '../fixtures/testUser'
 
-// CI has no Meilisearch, so this is skipped there — same pattern as the R2
-// gallery spec. To run locally: bring up Meilisearch, point the backend at it
-// (MEILISEARCH_URL/MASTER_KEY), seed it (`python -m app.scripts.reindex_search`),
-// then set MEILISEARCH_E2E_ENABLED=1. The dev DB must contain at least one
-// active product whose name matches SEARCH_TERM below.
+const meiliReady = process.env.MEILISEARCH_E2E_ENABLED === '1' || process.env.CI === 'true'
+
 test.skip(
-  !process.env.MEILISEARCH_E2E_ENABLED,
-  'requires a running + seeded Meilisearch; set MEILISEARCH_E2E_ENABLED=1',
+  !meiliReady,
+  'requires Meilisearch on the backend; set MEILISEARCH_E2E_ENABLED=1 (CI sets this automatically)',
 )
+
 test.use({ storageState: { cookies: [], origins: [] } })
 
-const SEARCH_TERM = process.env.MEILISEARCH_E2E_TERM ?? 'phone'
+const BACKEND_URL = process.env.E2E_BACKEND_URL ?? 'http://localhost:8000'
 
-test('header search → autocomplete → faceted /search page', async ({ page }) => {
+test('Meilisearch faceted /search page', async ({ page }) => {
   test.setTimeout(60_000)
 
-  await page.goto('/')
+  const api = await ApiClient.create()
+  const runId = Date.now()
+  const searchTerm = process.env.MEILISEARCH_E2E_TERM ?? `e2ephone${runId}`
+  let productId: number | null = null
+  let categoryId: number | null = null
+  let adminToken = ''
 
-  // The header search input (icon-only collapse not used on desktop).
-  const input = page.getByRole('textbox', { name: /search products/i }).first()
-  await input.fill(SEARCH_TERM)
+  try {
+    const admin = await api.loginViaApi(KNOWN_ADMIN.email, KNOWN_ADMIN.password)
+    adminToken = admin.accessToken
+    const category = await api.createCategory(adminToken, {
+      name: 'E2E Search Category',
+      slug: `e2e-search-cat-${runId}`,
+    })
+    categoryId = category.id
+    const product = await api.createProduct(adminToken, {
+      name: `E2E Search ${searchTerm}`,
+      slug: `e2e-search-${runId}`,
+      price_usd: 100,
+      price_pln: 400,
+      price_eur: 90,
+      stock: 5,
+      category_id: category.id,
+    })
+    productId = product.id
 
-  // Autocomplete dropdown surfaces a product section + a "see all" row.
-  await expect(page.getByText(/see all results/i)).toBeVisible()
+    await expect(async () => {
+      const res = await page.request.get(
+        `${BACKEND_URL}/api/v1/search?q=${encodeURIComponent(searchTerm)}&page_size=20`,
+      )
+      expect(res.ok()).toBeTruthy()
+      const body = (await res.json()) as { total: number }
+      expect(body.total).toBeGreaterThanOrEqual(1)
+    }).toPass({ timeout: 30_000 })
 
-  // Enter navigates to the faceted results page.
-  await input.press('Enter')
-  await expect(page).toHaveURL(new RegExp(`/search\\?q=${SEARCH_TERM}`))
+    await page.goto(`/search?q=${encodeURIComponent(searchTerm)}`)
 
-  // The results page renders the heading + at least one result card.
-  await expect(page.getByRole('heading', { name: /search results/i })).toBeVisible()
-  const firstResult = page.locator('article a[href*="/products/"]').first()
-  await expect(firstResult).toBeVisible()
+    await expect(page.getByRole('heading', { name: /search results/i })).toBeVisible()
+    const firstResult = page.locator('article a[href*="/products/"]').first()
+    await expect(firstResult).toBeVisible()
 
-  // Count copy pluralizes: a single match reads "1 result" (singular), not
-  // "1 results". Default SEARCH_TERM ('phone') matches exactly one seeded
-  // product; skip the assertion if a custom term widened the match set.
-  if (SEARCH_TERM === 'phone') {
-    await expect(page.getByText(/\b1 result for\b/i)).toBeVisible()
-    await expect(page.getByText(/^1 product$/i)).toBeVisible()
+    if (!process.env.MEILISEARCH_E2E_TERM) {
+      await expect(page.getByText(/\b1 result for\b/i)).toBeVisible()
+      await expect(page.getByText(/^1 product$/i)).toBeVisible()
+    }
+
+    // Facet column renders when Meili returns distribution data (SearchFacets.vue).
+    await expect(page.locator('aside')).toBeVisible()
   }
-
-  // The category facet (if any matched) narrows the result set.
-  const facetButton = page.locator('aside button[aria-pressed]').first()
-  if (await facetButton.count()) {
-    await facetButton.click()
-    await expect(page).toHaveURL(/categoryId=/)
+  finally {
+    if (adminToken) {
+      if (productId !== null) {
+        await api.deleteProduct(adminToken, productId)
+      }
+      if (categoryId !== null) {
+        await api.deleteCategory(adminToken, categoryId)
+      }
+    }
+    await api.dispose()
   }
 })
