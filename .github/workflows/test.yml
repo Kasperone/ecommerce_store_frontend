@@ -359,20 +359,6 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
-      meilisearch:
-        image: getmeili/meilisearch:v1.12
-        env:
-          # Dev-only class — same throwaway pattern as E2E_SECRET_KEY below.
-          MEILI_MASTER_KEY: e2e-meili-master-key-not-for-prod--not-for-prod--padding
-          MEILI_ENV: development
-        ports:
-          - 7700:7700
-        options: >-
-          --health-cmd "wget --no-verbose --spider http://localhost:7700/health || exit 1"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
     env:
       # GHCR repo names must be lowercase. `metadata-action` lowercases on publish,
       # so the image lives at ghcr.io/kasperone/... regardless of the GitHub
@@ -417,6 +403,30 @@ jobs:
           # spec because no backend came up.
           stagger_seconds: ${{ matrix.stagger }}
 
+      # Host-network sidecar (not a GHA service): the v1.12 image has no wget/curl
+      # for a service healthcheck, and the backend already uses --network host.
+      - name: Start Meilisearch container
+        run: |
+          docker run -d --name meilisearch \
+            --network host \
+            -e MEILI_MASTER_KEY="${{ env.E2E_MEILI_MASTER_KEY }}" \
+            -e MEILI_ENV=development \
+            -e MEILI_HTTP_ADDR=0.0.0.0:7700 \
+            getmeili/meilisearch:v1.12
+
+      - name: Wait for Meilisearch /health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:7700/health >/dev/null; then
+              echo "meilisearch ready after ${i} attempts"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "meilisearch never came up"
+          docker logs meilisearch || true
+          exit 1
+
       - name: Start backend container
         run: |
           docker run -d --name backend \
@@ -441,18 +451,6 @@ jobs:
             -e MEILISEARCH_URL=http://localhost:7700 \
             -e MEILISEARCH_MASTER_KEY="${{ env.E2E_MEILI_MASTER_KEY }}" \
             "$BACKEND_IMAGE"
-
-      - name: Wait for Meilisearch /health
-        run: |
-          for i in $(seq 1 30); do
-            if curl -fsS http://localhost:7700/health >/dev/null; then
-              echo "meilisearch ready after ${i} attempts"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "meilisearch never came up"
-          exit 1
 
       - name: Wait for backend /health
         run: |

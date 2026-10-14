@@ -158,8 +158,8 @@ The `e2e` job in `.github/workflows/test.yml` mirrors local docker-compose:
 
 | Service | Image | Host port |
 |---|---|---|
-| Postgres 16 | `postgres:16` | 5432 |
-| Meilisearch v1.12 | `getmeili/meilisearch:v1.12` | 7700 |
+| Postgres 16 | GHA service `postgres:16` | 5432 |
+| Meilisearch v1.12 | host-network `docker run` sidecar | 7700 |
 | Backend | `ghcr.io/kasperone/ecommerce_store_backend:main` | 8000 (`--network host`) |
 
 The backend container receives `MEILISEARCH_URL=http://localhost:7700` and a
