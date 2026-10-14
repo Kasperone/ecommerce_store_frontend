@@ -61,7 +61,12 @@ test('header search → autocomplete → faceted /search page', async ({ page })
 
     await page.goto('/')
 
-    const input = page.getByRole('textbox', { name: /search products/i }).first()
+    // Header mounts two SearchBar instances (desktop + mobile drawer); `.first()`
+    // can hit the hidden one and never open the autocomplete dropdown.
+    const input = page
+      .getByRole('textbox', { name: /search products/i })
+      .and(page.locator(':visible'))
+      .first()
     await input.click()
     await input.fill(searchTerm)
 
