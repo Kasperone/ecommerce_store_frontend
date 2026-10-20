@@ -1,5 +1,5 @@
 {
-  "total": 517,
+  "total": 516,
   "files": {
     "app/app.vue": 1,
     "app/blocks/components/CouponCalloutBlock.spec.ts": 1,
@@ -16,7 +16,7 @@
     "app/components/account/company/ProfileForm.vue": 1,
     "app/components/account/Nav.spec.ts": 1,
     "app/components/account/privacy/DeleteAccountConfirm.spec.ts": 1,
-    "app/components/account/quotes/CartCta.spec.ts": 2,
+    "app/components/account/quotes/CartCta.spec.ts": 1,
     "app/components/account/quotes/DownloadButton.spec.ts": 2,
     "app/components/account/quotes/StatusBadge.spec.ts": 1,
     "app/components/account/security/SessionsTable.spec.ts": 1,
