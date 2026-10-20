@@ -1,5 +1,5 @@
 {
-  "total": 408,
+  "total": 405,
   "files": {
     "app/app.vue": 1,
     "app/blocks/components/CouponCalloutBlock.spec.ts": 1,
@@ -162,7 +162,6 @@
     "app/pages/orders/track/[token].spec.ts": 1,
     "app/pages/products/[slug].vue": 1,
     "app/pages/verify-email/index.vue": 2,
-    "app/stores/cart.spec.ts": 41,
-    "app/stores/cart.ts": 3
+    "app/stores/cart.spec.ts": 41
   }
 }

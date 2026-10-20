@@ -162,9 +162,9 @@ export const useCartStore = defineStore('cart', () => {
       imageUrl: variant?.image_url ?? primaryImageUrl(product),
       // Variant prices are the EFFECTIVE per-currency values (inheritance
       // already resolved by the backend) — see ProductVariantPublic.
-      price_usd: variant ? variant.price_usd ?? null : product.price_usd,
-      price_pln: variant ? variant.price_pln ?? null : product.price_pln,
-      price_eur: variant ? variant.price_eur ?? null : product.price_eur,
+      price_usd: variant ? variant.price_usd ?? null : product.price_usd ?? null,
+      price_pln: variant ? variant.price_pln ?? null : product.price_pln ?? null,
+      price_eur: variant ? variant.price_eur ?? null : product.price_eur ?? null,
       stock,
       allowBackorder: product.allow_backorder,
       weightKg: product.weight_kg ?? null,
