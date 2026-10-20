@@ -36,7 +36,7 @@ async function onReorder(orderId: number) {
   try {
     const detail = await apiFetch<OrderWithUser>(`/api/v1/orders/${orderId}`)
     await reorder(
-      detail.items.map(item => ({
+      (detail.items ?? []).map(item => ({
         product_id: item.product_id,
         variant_id: item.variant_id ?? null,
         quantity: item.quantity,

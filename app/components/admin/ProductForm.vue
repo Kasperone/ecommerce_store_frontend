@@ -366,7 +366,7 @@ const categoryValue = computed({
 const TAX_HOME_COUNTRY = 'PL'
 
 function taxCategoryLabel(category: TaxCategoryResponse): string {
-  const homeRate = category.rates.find(
+  const homeRate = (category.rates ?? []).find(
     r => r.country_code === TAX_HOME_COUNTRY && r.valid_to == null,
   )
   const name = category.name_pl && locale.value === 'pl' ? category.name_pl : category.name

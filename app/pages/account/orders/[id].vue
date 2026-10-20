@@ -72,7 +72,7 @@ function money(value: number) {
 async function onReorder() {
   if (!order.value) return
   await reorder(
-    order.value.items.map(item => ({
+    (order.value.items ?? []).map(item => ({
       product_id: item.product_id,
       variant_id: item.variant_id ?? null,
       quantity: item.quantity,

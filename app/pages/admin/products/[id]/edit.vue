@@ -210,7 +210,7 @@ async function saveVariants() {
           <AdminProductImageUploader :product-id="product.id" />
 
           <div
-            v-if="product.images.length === 0"
+            v-if="!product.images?.length"
             class="text-muted text-sm py-6 text-center"
           >
             {{ $t('admin.products.media.emptyGallery') }}
