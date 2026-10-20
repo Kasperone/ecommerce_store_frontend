@@ -67,8 +67,8 @@ watch(available, (isAvailable) => {
   if (!isAvailable && props.modelValue) emit('update:modelValue', false)
 })
 
-function onToggle(value: boolean) {
-  emit('update:modelValue', value)
+function onToggle(value: boolean | 'indeterminate') {
+  emit('update:modelValue', value === true)
 }
 </script>
 
