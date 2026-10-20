@@ -13,8 +13,8 @@ import {
 import type {
   CompanyMemberInvite,
   CompanyMemberResponse,
-  CompanyRole,
 } from '~/composables/queries/useTeam'
+import type { CompanyRole } from '~/composables/queries/useCompany'
 
 /**
  * B2B company team management (slice 5). Any active member can read the roster;

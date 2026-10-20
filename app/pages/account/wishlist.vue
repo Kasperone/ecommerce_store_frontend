@@ -89,7 +89,7 @@ async function onRemove(item: WishlistItem) {
             v-if="count > 0"
             class="mt-1 text-sm text-muted"
           >
-            {{ t('wishlist.count', count, { count }) }}
+            {{ t('wishlist.count', { count }, count) }}
           </p>
         </ClientOnly>
       </div>
