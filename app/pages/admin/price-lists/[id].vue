@@ -105,7 +105,7 @@ async function onSaveEntry() {
   }
   catch (err) {
     toast.add({
-      title: parseProblem(err).detail ?? t('admin.priceLists.flashes.entryError'),
+      title: parseProblem(err)?.detail ?? t('admin.priceLists.flashes.entryError'),
       color: 'error',
       icon: 'i-lucide-triangle-alert',
     })
@@ -124,7 +124,7 @@ async function onDeleteEntry(entry: PriceListEntryResponse) {
   }
   catch (err) {
     toast.add({
-      title: parseProblem(err).detail ?? t('admin.priceLists.flashes.entryError'),
+      title: parseProblem(err)?.detail ?? t('admin.priceLists.flashes.entryError'),
       color: 'error',
       icon: 'i-lucide-triangle-alert',
     })

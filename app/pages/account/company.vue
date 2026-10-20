@@ -111,7 +111,7 @@ async function onVerifyVies() {
   }
   catch (err) {
     toast.add({
-      title: parseProblem(err).detail ?? t('account.settings.company.vies.verifyError'),
+      title: parseProblem(err)?.detail ?? t('account.settings.company.vies.verifyError'),
       color: 'error',
     })
   }

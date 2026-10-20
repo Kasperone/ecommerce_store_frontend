@@ -50,7 +50,7 @@ async function onDelete(row: PriceListListItem) {
   }
   catch (err) {
     toast.add({
-      title: parseProblem(err).detail ?? t('admin.priceLists.flashes.deleteError'),
+      title: parseProblem(err)?.detail ?? t('admin.priceLists.flashes.deleteError'),
       color: 'error',
       icon: 'i-lucide-triangle-alert',
     })

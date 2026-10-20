@@ -95,4 +95,14 @@ describe('AccountQuotesCartCta', () => {
     expect(mockToastAdd.mock.calls[0][0].color).toBe('error')
     expect(mockNavigate).not.toHaveBeenCalled()
   })
+
+  it('still toasts (does not throw) when the rejection carries no error (parseProblem returns null)', async () => {
+    mockRequest.mockRejectedValue(null)
+    const wrapper = await mountSuspended(CartCta)
+    await wrapper.find('[data-testid="request-quote-cta"]').trigger('click')
+    await flush()
+    expect(mockToastAdd).toHaveBeenCalledTimes(1)
+    expect(mockToastAdd.mock.calls[0][0].color).toBe('error')
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
 })
