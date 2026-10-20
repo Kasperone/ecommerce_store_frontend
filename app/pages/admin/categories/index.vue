@@ -7,7 +7,7 @@ import type {
   CategoryTreeNode,
   CategoryWithProductCount,
 } from '#shared/types/api'
-import { parseProblem } from '#shared/utils/problemDetails'
+import { parseProblem, type ProblemDetails } from '#shared/utils/problemDetails'
 import { filterCategoryTree, snapshotCategoryTree } from '#shared/utils/categoryTree'
 
 definePageMeta({
@@ -142,7 +142,7 @@ const creating = ref(false)
 const editing = ref<CategoryResponse | CategoryWithProductCount | CategoryTreeNode | null>(null)
 const moving = ref<CategoryTreeNode | null>(null)
 const deleting = ref<CategoryTreeNode | null>(null)
-const modalError = ref<unknown>(null)
+const modalError = ref<ProblemDetails | null>(null)
 
 const createMutation = useCreateCategory()
 const updateMutation = useUpdateCategory()
@@ -218,7 +218,7 @@ async function onCreate(payload: CategoryFormSubmit) {
     creating.value = false
   }
   catch (err) {
-    modalError.value = err
+    modalError.value = parseProblem(err)
     // If the row landed but the hero upload failed, compensate by
     // deleting the orphan category. Best-effort: a failure here is logged
     // but doesn't replace the original error surfaced to the admin.
@@ -264,7 +264,7 @@ async function onUpdate(payload: CategoryFormSubmit) {
     editing.value = null
   }
   catch (err) {
-    modalError.value = err
+    modalError.value = parseProblem(err)
   }
 }
 
@@ -278,7 +278,7 @@ async function onMoveConfirm(payload: { id: number, parentId: number | null }) {
     moving.value = null
   }
   catch (err) {
-    modalError.value = err
+    modalError.value = parseProblem(err)
   }
 }
 
@@ -294,7 +294,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
     deleting.value = null
   }
   catch (err) {
-    modalError.value = err
+    modalError.value = parseProblem(err)
   }
 }
 </script>

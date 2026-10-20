@@ -1,5 +1,5 @@
 {
-  "total": 405,
+  "total": 402,
   "files": {
     "app/app.vue": 1,
     "app/blocks/components/CouponCalloutBlock.spec.ts": 1,
@@ -99,7 +99,6 @@
     "app/components/cart/Trigger.spec.ts": 1,
     "app/components/checkout/PaymentMethods.spec.ts": 1,
     "app/components/checkout/ShippingForm.spec.ts": 1,
-    "app/components/checkout/StoreCreditField.vue": 1,
     "app/components/checkout/WalletButton.spec.ts": 5,
     "app/components/ErrorAlert.spec.ts": 1,
     "app/components/ImpersonationBanner.spec.ts": 1,
@@ -134,7 +133,7 @@
     "app/pages/account/company.spec.ts": 1,
     "app/pages/account/index.vue": 1,
     "app/pages/account/profile.spec.ts": 1,
-    "app/pages/admin/categories/index.vue": 4,
+    "app/pages/admin/categories/index.vue": 2,
     "app/pages/admin/collections/index.spec.ts": 1,
     "app/pages/admin/customers/[id].vue": 1,
     "app/pages/admin/customers/index.vue": 1,
