@@ -499,7 +499,7 @@ useHead({ title: () => t('admin.draftOrders.detail.title', { id: draft.value?.id
               color="neutral"
               variant="ghost"
               :disabled="deleteMutation.isLoading.value"
-              @click="deleteOpen = false"
+              @click="() => { deleteOpen = false }"
             >
               {{ $t('admin.draftOrders.delete.dismiss') }}
             </UButton>
@@ -541,7 +541,7 @@ useHead({ title: () => t('admin.draftOrders.detail.title', { id: draft.value?.id
               color="neutral"
               variant="ghost"
               :disabled="convertMutation.isLoading.value"
-              @click="convertOpen = false"
+              @click="() => { convertOpen = false }"
             >
               {{ $t('admin.draftOrders.convert.dismiss') }}
             </UButton>

@@ -101,7 +101,7 @@ const issueOpen = ref(false)
           color="primary"
           icon="i-lucide-plus"
           data-testid="gift-card-issue-button"
-          @click="issueOpen = true"
+          @click="() => { issueOpen = true }"
         >
           {{ $t('admin.giftCards.actions.issue') }}
         </UButton>

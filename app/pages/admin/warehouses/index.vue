@@ -220,7 +220,7 @@ async function confirmDelete() {
             <UButton
               color="neutral"
               variant="soft"
-              @click="deleteOpen = false"
+              @click="() => { deleteOpen = false }"
             >
               {{ $t('admin.warehouses.delete.cancel') }}
             </UButton>

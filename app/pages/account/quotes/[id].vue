@@ -230,7 +230,7 @@ useHead({
           <UButton
             color="neutral"
             variant="soft"
-            @click="acceptOpen = false"
+            @click="() => { acceptOpen = false }"
           >
             {{ t('account.quotes.accept.dismiss') }}
           </UButton>
@@ -262,7 +262,7 @@ useHead({
           <UButton
             color="neutral"
             variant="soft"
-            @click="convertOpen = false"
+            @click="() => { convertOpen = false }"
           >
             {{ t('account.quotes.convert.dismiss') }}
           </UButton>

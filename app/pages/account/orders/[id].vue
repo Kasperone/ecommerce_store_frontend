@@ -352,7 +352,7 @@ useHead({
           <UButton
             color="neutral"
             variant="soft"
-            @click="cancelOpen = false"
+            @click="() => { cancelOpen = false }"
           >
             {{ t('orders.cancel.dismiss') }}
           </UButton>

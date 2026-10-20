@@ -289,7 +289,7 @@ async function onDelete(id: number) {
           color="neutral"
           variant="soft"
           :label="$t('admin.productTags.manage.close')"
-          @click="openModel = false"
+          @click="() => { openModel = false }"
         />
       </div>
     </template>

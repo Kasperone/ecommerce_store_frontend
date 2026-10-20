@@ -479,7 +479,7 @@ useHead({ title: () => t('admin.giftCards.detail.title', { code: maskedCode.valu
               color="neutral"
               variant="ghost"
               :disabled="updateMutation.isLoading.value"
-              @click="editOpen = false"
+              @click="() => { editOpen = false }"
             >
               {{ $t('admin.giftCards.edit.cancel') }}
             </UButton>
@@ -543,7 +543,7 @@ useHead({ title: () => t('admin.giftCards.detail.title', { code: maskedCode.valu
               color="neutral"
               variant="ghost"
               :disabled="adjustMutation.isLoading.value"
-              @click="adjustOpen = false"
+              @click="() => { adjustOpen = false }"
             >
               {{ $t('admin.giftCards.edit.cancel') }}
             </UButton>

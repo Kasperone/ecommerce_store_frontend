@@ -191,7 +191,7 @@ function onKeydown(event: KeyboardEvent) {
               color="neutral"
               variant="ghost"
               class="justify-center"
-              @click="showManage = true"
+              @click="() => { showManage = true }"
             >
               {{ t('cookies.banner.manage') }}
             </UButton>

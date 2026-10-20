@@ -418,7 +418,7 @@ function starsLabel(rating: number) {
               color="neutral"
               variant="soft"
               :disabled="submitting"
-              @click="showForm = false"
+              @click="() => { showForm = false }"
             >
               {{ t('reviews.form.cancel') }}
             </UButton>

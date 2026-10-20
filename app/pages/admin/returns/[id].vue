@@ -460,7 +460,7 @@ useHead({ title: () => t('admin.returns.detail.title', { id: ret.value?.id ?? ''
               color="neutral"
               variant="ghost"
               :disabled="transitionMutation.isLoading.value"
-              @click="actionOpen = false"
+              @click="() => { actionOpen = false }"
             >
               {{ $t('admin.returns.actionModal.dismiss') }}
             </UButton>
@@ -548,7 +548,7 @@ useHead({ title: () => t('admin.returns.detail.title', { id: ret.value?.id ?? ''
               color="neutral"
               variant="ghost"
               :disabled="refundMutation.isLoading.value"
-              @click="refundOpen = false"
+              @click="() => { refundOpen = false }"
             >
               {{ $t('admin.returns.refundModal.cancel') }}
             </UButton>

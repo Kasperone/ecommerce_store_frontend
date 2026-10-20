@@ -241,7 +241,7 @@ async function onConfirmSignOutAll() {
               color="error"
               variant="outline"
               size="sm"
-              @click="signOutAllOpen = true"
+              @click="() => { signOutAllOpen = true }"
             >
               {{ t('account.settings.security.signOutAll.button') }}
             </UButton>
@@ -278,7 +278,7 @@ async function onConfirmSignOutAll() {
             color="neutral"
             variant="soft"
             :disabled="revokingId !== null"
-            @click="revokeOpen = false"
+            @click="() => { revokeOpen = false }"
           >
             {{ t('account.settings.security.sessions.cancel') }}
           </UButton>
@@ -310,7 +310,7 @@ async function onConfirmSignOutAll() {
             color="neutral"
             variant="soft"
             :disabled="signingOutAll"
-            @click="signOutAllOpen = false"
+            @click="() => { signOutAllOpen = false }"
           >
             {{ t('account.settings.security.signOutAll.cancel') }}
           </UButton>
