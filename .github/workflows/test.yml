@@ -138,6 +138,23 @@ jobs:
           node-version: "24"
           cache: npm
 
+      - name: Check out base-branch baseline
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: .base
+          sparse-checkout: typecheck-baseline.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      # A PR may re-record the baseline only downwards. Escape hatch for an
+      # intentional regression (e.g. a dependency bump): the
+      # `typecheck-accept-regression` label.
+      - name: Baseline may only go down
+        if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'typecheck-accept-regression')
+        run: node scripts/typecheck-baseline-guard.mjs .base/typecheck-baseline.json typecheck-baseline.json
+
       - name: Install dependencies
         run: npm ci
 

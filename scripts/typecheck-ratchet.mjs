@@ -14,12 +14,18 @@
  * change how many errors a file has.
  *
  *   npm run typecheck          # raw `nuxt typecheck`, all errors, human-readable
- *   npm run typecheck:ci       # the gate CI runs
+ *   npm run typecheck:ci       # the gate CI runs (--strict: a stale baseline fails)
  *   npm run typecheck:ci -- --update   # re-record the baseline after fixing some
  *
  * Burning the backlog down is the point: fix errors in a file, re-run with
  * --update, and the ratchet locks the improvement in. See
- * the project-root notes: .claude/notes/plans/qa/pending/2026-07-29-frontend-typecheck-backlog.md.
+ * the project-root notes: .claude/notes/plans/qa/pending/2026-07-29-frontend-typecheck-backlog.md
+ * and .claude/notes/plans/typecheck/pending/2026-10-20-typecheck-ratchet-plan.md.
+ *
+ * `--strict` (CI) closes the "freed budget is re-spendable" gap: if any file is
+ * now better than its recorded budget the run fails until the baseline is
+ * re-recorded in the same PR. The companion typecheck-baseline-guard.mjs stops a
+ * PR from re-recording a *higher* baseline than the base branch's.
  */
 
 import { execFile } from 'node:child_process'
@@ -31,6 +37,7 @@ import process from 'node:process'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const BASELINE = join(ROOT, 'typecheck-baseline.json')
 const UPDATE = process.argv.includes('--update')
+const STRICT = process.argv.includes('--strict')
 
 // `path/to/file.vue(12,34): error TS2322: ...`
 const ERROR_LINE = /^(.+?)\((\d+),(\d+)\): error (TS\d+):/
@@ -123,12 +130,21 @@ if (regressions.length > 0) {
   process.exit(1)
 }
 
-console.log(`✓ no new type errors (${currentTotal} known, baseline ${baseline.total})`)
-
 if (improvements.length > 0) {
+  if (STRICT) {
+    console.error(`✘ baseline is stale: ${improvements.length} file(s) improved — run npm run typecheck:ci -- --update and commit typecheck-baseline.json\n`)
+    for (const { file, count, budget } of improvements) {
+      console.error(`  ${file}: ${count} (baseline ${budget})`)
+    }
+    process.exit(1)
+  }
+  console.log(`✓ no new type errors (${currentTotal} known, baseline ${baseline.total})`)
   console.log('\nFiles now better than the baseline — re-record it to lock this in:')
   for (const { file, count, budget } of improvements) {
     console.log(`  ${file}: ${count} (baseline ${budget})`)
   }
   console.log('\n  npm run typecheck:ci -- --update\n')
+}
+else {
+  console.log(`✓ no new type errors (${currentTotal} known, baseline ${baseline.total})`)
 }
