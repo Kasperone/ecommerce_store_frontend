@@ -334,7 +334,7 @@ async function save() {
               <div class="flex justify-end gap-2">
                 <UButton
                   variant="ghost"
-                  @click="editing = null"
+                  @click="() => { editing = null }"
                 >
                   {{ t('actions.cancel') }}
                 </UButton>

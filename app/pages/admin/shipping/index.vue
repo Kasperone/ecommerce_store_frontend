@@ -308,7 +308,7 @@ defineExpose({ localizedCountries })
                 color="error"
                 icon="i-lucide-trash-2"
                 :aria-label="t('actions.delete')"
-                @click="zoneToDelete = row.original"
+                @click="() => { zoneToDelete = row.original }"
               />
             </div>
           </template>
@@ -356,7 +356,7 @@ defineExpose({ localizedCountries })
                 color="error"
                 icon="i-lucide-trash-2"
                 :aria-label="t('actions.delete')"
-                @click="methodToDelete = row.original"
+                @click="() => { methodToDelete = row.original }"
               />
             </div>
           </template>
@@ -444,7 +444,7 @@ defineExpose({ localizedCountries })
                 color="error"
                 icon="i-lucide-trash-2"
                 :aria-label="t('actions.delete')"
-                @click="rateToDelete = row.original"
+                @click="() => { rateToDelete = row.original }"
               />
             </div>
           </template>
@@ -491,7 +491,7 @@ defineExpose({ localizedCountries })
             <div class="flex justify-end gap-2">
               <UButton
                 variant="ghost"
-                @click="zoneToDelete = null"
+                @click="() => { zoneToDelete = null }"
               >
                 {{ t('actions.cancel') }}
               </UButton>
@@ -525,7 +525,7 @@ defineExpose({ localizedCountries })
             <div class="flex justify-end gap-2">
               <UButton
                 variant="ghost"
-                @click="methodToDelete = null"
+                @click="() => { methodToDelete = null }"
               >
                 {{ t('actions.cancel') }}
               </UButton>
@@ -563,7 +563,7 @@ defineExpose({ localizedCountries })
             <div class="flex justify-end gap-2">
               <UButton
                 variant="ghost"
-                @click="rateToDelete = null"
+                @click="() => { rateToDelete = null }"
               >
                 {{ t('actions.cancel') }}
               </UButton>

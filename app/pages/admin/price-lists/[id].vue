@@ -196,7 +196,7 @@ const columns: TableColumn<PriceListEntryResponse>[] = [
             color="neutral"
             variant="outline"
             icon="i-lucide-pencil"
-            @click="editOpen = true"
+            @click="() => { editOpen = true }"
           >
             {{ $t('admin.priceLists.actions.editHeader') }}
           </UButton>

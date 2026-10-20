@@ -256,7 +256,7 @@ function onSubmit() {
           color="neutral"
           variant="soft"
           :disabled="loading"
-          @click="openModel = false"
+          @click="() => { openModel = false }"
         >
           {{ t('orders.returns.modal.cancel') }}
         </UButton>

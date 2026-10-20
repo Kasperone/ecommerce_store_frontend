@@ -337,7 +337,7 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
                 variant="ghost"
                 icon="i-lucide-pencil"
                 data-testid="order-edit-items-toggle"
-                @click="editingItems = true"
+                @click="() => { editingItems = true }"
               >
                 {{ $t('admin.orders.edit.editItems') }}
               </UButton>
@@ -619,7 +619,7 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
               color="neutral"
               variant="ghost"
               :disabled="cancelMutation.isLoading.value"
-              @click="cancelOpen = false"
+              @click="() => { cancelOpen = false }"
             >
               {{ $t('admin.orders.cancel.dismiss') }}
             </UButton>

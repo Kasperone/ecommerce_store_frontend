@@ -212,7 +212,7 @@ const chartSummary = computed(() =>
               :variant="chartType === opt.value ? 'solid' : 'outline'"
               :aria-label="opt.label"
               :aria-pressed="chartType === opt.value"
-              @click="chartType = opt.value"
+              @click="() => { chartType = opt.value }"
             />
           </div>
           <USelectMenu

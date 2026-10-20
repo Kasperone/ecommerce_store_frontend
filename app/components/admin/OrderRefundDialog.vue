@@ -400,7 +400,7 @@ function onSubmit() {
           color="neutral"
           variant="soft"
           :disabled="loading"
-          @click="openModel = false"
+          @click="() => { openModel = false }"
         >
           {{ t('admin.orders.refund.cancel') }}
         </UButton>

@@ -192,7 +192,7 @@ const columns: TableColumn<ProductWithCategory>[] = [
             color="neutral"
             variant="soft"
             icon="i-lucide-upload"
-            @click="importOpen = true"
+            @click="() => { importOpen = true }"
           >
             {{ $t('admin.products.csv.import.button') }}
           </UButton>

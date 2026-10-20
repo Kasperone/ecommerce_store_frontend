@@ -125,7 +125,7 @@ const columns: TableColumn<CustomerListItem>[] = [
           variant="outline"
           icon="i-lucide-tags"
           :label="$t('admin.customers.manageTags')"
-          @click="showTagManager = true"
+          @click="() => { showTagManager = true }"
         />
       </header>
 

@@ -262,7 +262,7 @@ async function onConfirmDelete() {
             color="neutral"
             variant="soft"
             :disabled="deletingId !== null"
-            @click="deleteOpen = false"
+            @click="() => { deleteOpen = false }"
           >
             {{ t('account.settings.addresses.cancel') }}
           </UButton>

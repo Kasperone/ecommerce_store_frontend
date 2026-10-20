@@ -115,7 +115,7 @@ function onRemove(name: string) {
         icon="i-lucide-settings-2"
         :label="$t('admin.productTags.manage.open')"
         :disabled="disabled"
-        @click="managerOpen = true"
+        @click="() => { managerOpen = true }"
       />
     </div>
 

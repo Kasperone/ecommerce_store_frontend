@@ -387,7 +387,7 @@ useEventListener(window, 'beforeunload', (e: BeforeUnloadEvent) => {
             color="neutral"
             variant="outline"
             icon="i-lucide-history"
-            @click="historyOpen = true"
+            @click="() => { historyOpen = true }"
           >
             {{ t('admin.cms.actions.history') }}
           </UButton>
