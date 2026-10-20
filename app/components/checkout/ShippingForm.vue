@@ -91,7 +91,7 @@ function onSubmit(event: { data: ShippingInput }) {
     ref="formRef"
     :schema="schema"
     :state="state"
-    :validate-on="['submit']"
+    :validate-on="[]"
     class="space-y-4"
     @submit="onSubmit"
   >

@@ -93,7 +93,7 @@ async function onSubmit(_event: FormSubmitEvent<ProfileFormData>) {
           ref="formRef"
           :schema="schema"
           :state="state"
-          :validate-on="['submit']"
+          :validate-on="[]"
           class="space-y-6"
           @submit="onSubmit"
         >

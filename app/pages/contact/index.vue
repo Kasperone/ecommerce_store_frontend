@@ -159,7 +159,7 @@ async function onSubmit(event: FormSubmitEvent<ContactFormData>) {
               ref="formRef"
               :schema="schema"
               :state="state"
-              :validate-on="['submit']"
+              :validate-on="[]"
               class="space-y-5"
               @submit="onSubmit"
             >

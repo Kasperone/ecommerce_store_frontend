@@ -360,7 +360,7 @@ function starsLabel(rating: number) {
           ref="reviewFormRef"
           :schema="schema"
           :state="state"
-          :validate-on="['submit']"
+          :validate-on="[]"
           class="space-y-4 rounded-lg border border-default p-4"
           @submit="onSubmit"
         >

@@ -106,7 +106,7 @@ const submit = async (payload: FormSubmitEvent<PersonalSignUpFormData>) => {
       ref="authFormRef"
       :schema="schema"
       :fields="fields"
-      :validate-on="['submit']"
+      :validate-on="[]"
       :loading="isLoading"
       @submit="submit"
     >

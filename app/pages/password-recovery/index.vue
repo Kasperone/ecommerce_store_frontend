@@ -92,7 +92,7 @@ const submit = async (payload: FormSubmitEvent<ForgotPasswordFormData>) => {
           :schema="schema"
           :fields="fields"
           :submit="{ label: t('auth.passwordReset.requestSubmit'), loading: isLoading }"
-          :validate-on="['submit']"
+          :validate-on="[]"
           @submit="submit"
         >
           <template #footer>

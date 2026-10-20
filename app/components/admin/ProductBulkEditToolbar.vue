@@ -139,7 +139,7 @@ async function onApply() {
       ref="formRef"
       :schema="schema"
       :state="state"
-      :validate-on="['submit']"
+      :validate-on="[]"
       class="space-y-3"
       @submit="onApply"
     >

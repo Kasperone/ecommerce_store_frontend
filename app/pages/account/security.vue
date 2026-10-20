@@ -162,7 +162,7 @@ async function onConfirmSignOutAll() {
           ref="pwFormRef"
           :schema="pwSchema"
           :state="pwState"
-          :validate-on="['submit']"
+          :validate-on="[]"
           class="space-y-6"
           @submit="onChangePassword"
         >
