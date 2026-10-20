@@ -7,7 +7,7 @@ import type {
   CategoryTreeNode,
   CategoryWithProductCount,
 } from '#shared/types/api'
-import { parseProblem, type ProblemDetails } from '#shared/utils/problemDetails'
+import { parseProblem } from '#shared/utils/problemDetails'
 import { filterCategoryTree, snapshotCategoryTree } from '#shared/utils/categoryTree'
 
 definePageMeta({
@@ -142,7 +142,9 @@ const creating = ref(false)
 const editing = ref<CategoryResponse | CategoryWithProductCount | CategoryTreeNode | null>(null)
 const moving = ref<CategoryTreeNode | null>(null)
 const deleting = ref<CategoryTreeNode | null>(null)
-const modalError = ref<ProblemDetails | null>(null)
+// Raw caught error: the form modals parse it themselves (useValidatedForm); the
+// move/delete dialogs take `ProblemDetails`, so those bindings parse it below.
+const modalError = ref<unknown>(null)
 
 const createMutation = useCreateCategory()
 const updateMutation = useUpdateCategory()
@@ -218,7 +220,7 @@ async function onCreate(payload: CategoryFormSubmit) {
     creating.value = false
   }
   catch (err) {
-    modalError.value = parseProblem(err)
+    modalError.value = err
     // If the row landed but the hero upload failed, compensate by
     // deleting the orphan category. Best-effort: a failure here is logged
     // but doesn't replace the original error surfaced to the admin.
@@ -264,7 +266,7 @@ async function onUpdate(payload: CategoryFormSubmit) {
     editing.value = null
   }
   catch (err) {
-    modalError.value = parseProblem(err)
+    modalError.value = err
   }
 }
 
@@ -278,7 +280,7 @@ async function onMoveConfirm(payload: { id: number, parentId: number | null }) {
     moving.value = null
   }
   catch (err) {
-    modalError.value = parseProblem(err)
+    modalError.value = err
   }
 }
 
@@ -294,7 +296,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
     deleting.value = null
   }
   catch (err) {
-    modalError.value = parseProblem(err)
+    modalError.value = err
   }
 }
 </script>
@@ -415,7 +417,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         :node="moving"
         :tree="treeData"
         :loading="updateMutation.isLoading.value"
-        :error="modalError"
+        :error="parseProblem(modalError)"
         @update:open="(v) => { if (!v) moving = null; modalError = null }"
         @confirm="onMoveConfirm"
         @cancel="moving = null"
@@ -426,7 +428,7 @@ async function onDelete(payload: { id: number, mode: 'none' | 'cascade' | 'repar
         :category="deleting"
         :preview="deletePreviewQuery.data.value ?? null"
         :loading="deleteMutation.isLoading.value || deleteWithModeMutation.isLoading.value"
-        :error="modalError"
+        :error="parseProblem(modalError)"
         @update:open="(v) => { if (!v) deleting = null; modalError = null }"
         @confirm="onDelete"
         @cancel="deleting = null"
