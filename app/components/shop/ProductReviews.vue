@@ -248,7 +248,7 @@ function starsLabel(rating: number) {
           size-class="size-5"
         />
         <span class="text-sm text-muted">
-          {{ t('reviews.basedOn', summary.total, { count: summary.total }) }}
+          {{ t('reviews.basedOn', { count: summary.total }, summary.total) }}
         </span>
       </div>
       <div class="space-y-1">
@@ -549,7 +549,7 @@ function starsLabel(rating: number) {
             class="text-xs text-muted"
           >
             {{
-              t('reviews.helpfulCount', displayedCount(review), { count: displayedCount(review) })
+              t('reviews.helpfulCount', { count: displayedCount(review) }, displayedCount(review))
             }}
           </span>
         </div>

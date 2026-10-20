@@ -68,7 +68,7 @@ const hasRows = computed(() => props.rows.length > 0)
           </p>
         </div>
         <span class="text-xs text-muted shrink-0">
-          {{ t('admin.reports.topProducts.orders', row.order_count, { count: row.order_count }) }}
+          {{ t('admin.reports.topProducts.orders', { count: row.order_count }, row.order_count) }}
         </span>
         <UBadge
           color="primary"

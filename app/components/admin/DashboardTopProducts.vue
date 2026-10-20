@@ -39,7 +39,7 @@ const localePath = useLocalePath()
           {{ item.name }}
         </NuxtLink>
         <span class="text-xs text-muted shrink-0">
-          {{ t('admin.dashboardKpis.top.orders', item.order_count, { count: item.order_count }) }}
+          {{ t('admin.dashboardKpis.top.orders', { count: item.order_count }, item.order_count) }}
         </span>
         <UBadge
           color="primary"

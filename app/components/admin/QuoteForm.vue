@@ -10,8 +10,8 @@
  */
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
+import type { CompanyResponse } from '~/composables/queries/useCompanyQueries'
 import type {
-  CompanyResponse,
   QuoteCreate,
   QuoteCurrency,
   QuoteItemCreate,
