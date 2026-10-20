@@ -273,7 +273,7 @@ function onSubmit(_event: FormSubmitEvent<FormState>) {
     ref="formRef"
     :state="state"
     :validate="validate"
-    :validate-on="['submit']"
+    :validate-on="[]"
     class="space-y-8"
     @submit="onSubmit"
   >

@@ -8,7 +8,7 @@ import type { ValidatedFormInstance } from '~/composables/useValidatedForm'
  *
  * Two modes:
  *  - **Gold-standard** (pass a `schema` + `state`): the body is wrapped in a
- *    `<UForm :validate-on="['submit']">`, client-side Zod validation runs on
+ *    `<UForm :validate-on="[]">`, client-side Zod validation runs on
  *    submit, and `useValidatedForm` drives scroll-to-error, type-to-clear,
  *    backend field-error mapping, an inline `UAlert`, and an error toast. The
  *    `error` prop is the raw caught error in this mode.
@@ -104,7 +104,7 @@ function onFooterSubmit() {
         ref="formRef"
         :schema="schema"
         :state="state"
-        :validate-on="['submit']"
+        :validate-on="[]"
         @submit="onSubmit"
       >
         <UAlert

@@ -76,7 +76,7 @@ const resolveFormApi = (
  *  4. Owns the `errorMessage` ref used by the `#validation`/`UAlert` slot.
  *
  * Forms still own their Zod schema (`createXxxSchema(t)`) and
- * `:validate-on="['submit']"`; this composable owns everything downstream of
+ * `:validate-on="[]"`; this composable owns everything downstream of
  * a submit.
  */
 export function useValidatedForm(

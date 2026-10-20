@@ -399,7 +399,7 @@ const submitLabel = computed(() => props.submitLabel ?? t('admin.products.action
     ref="formRef"
     :state="state"
     :validate="validate"
-    :validate-on="['submit']"
+    :validate-on="[]"
     class="space-y-8"
     @submit="onSubmit"
   >

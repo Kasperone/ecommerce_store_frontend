@@ -155,7 +155,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
           :schema="schema"
           :fields="fields"
           :submit="{ label: t('auth.passwordReset.confirmSubmit'), loading: isLoading }"
-          :validate-on="['submit']"
+          :validate-on="[]"
           @submit="submit"
         >
           <template #password-field="{ state, field }">

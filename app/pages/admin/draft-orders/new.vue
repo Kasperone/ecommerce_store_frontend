@@ -98,7 +98,7 @@ async function onSubmit() {
           ref="formRef"
           :schema="schema"
           :state="state"
-          :validate-on="['submit']"
+          :validate-on="[]"
           class="space-y-6"
           data-testid="draft-order-form"
           @submit="onSubmit"

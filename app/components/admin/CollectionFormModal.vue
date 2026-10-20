@@ -283,7 +283,7 @@ const title = computed(() =>
         ref="formRef"
         :state="state"
         :validate="validate"
-        :validate-on="['submit']"
+        :validate-on="[]"
         class="space-y-6"
         @submit="onSubmit"
       >
