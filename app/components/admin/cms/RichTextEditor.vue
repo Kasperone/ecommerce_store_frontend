@@ -70,7 +70,7 @@ const extensions = [
   }),
 ]
 
-const editor = ref<Editor | null>(null)
+const editor = shallowRef<Editor | null>(null)
 
 if (import.meta.client) {
   editor.value = new Editor({
@@ -115,17 +115,36 @@ function onSourceInput(value: string) {
 function chain() {
   return editor.value?.chain().focus()
 }
-const toggleBold = () => chain()?.toggleBold().run()
-const toggleItalic = () => chain()?.toggleItalic().run()
-const toggleUnderline = () => chain()?.toggleUnderline().run()
-const toggleBulletList = () => chain()?.toggleBulletList().run()
-const toggleOrderedList = () => chain()?.toggleOrderedList().run()
-const toggleBlockquote = () => chain()?.toggleBlockquote().run()
-const toggleCode = () => chain()?.toggleCode().run()
-const setHr = () => chain()?.setHorizontalRule().run()
-const toggleHeading = (level: 1 | 2 | 3 | 4 | 5 | 6) =>
+const toggleBold = (): void => {
+  chain()?.toggleBold().run()
+}
+const toggleItalic = (): void => {
+  chain()?.toggleItalic().run()
+}
+const toggleUnderline = (): void => {
+  chain()?.toggleUnderline().run()
+}
+const toggleBulletList = (): void => {
+  chain()?.toggleBulletList().run()
+}
+const toggleOrderedList = (): void => {
+  chain()?.toggleOrderedList().run()
+}
+const toggleBlockquote = (): void => {
+  chain()?.toggleBlockquote().run()
+}
+const toggleCode = (): void => {
+  chain()?.toggleCode().run()
+}
+const setHr = (): void => {
+  chain()?.setHorizontalRule().run()
+}
+const toggleHeading = (level: 1 | 2 | 3 | 4 | 5 | 6): void => {
   chain()?.toggleHeading({ level }).run()
-const setParagraph = () => chain()?.setParagraph().run()
+}
+const setParagraph = (): void => {
+  chain()?.setParagraph().run()
+}
 
 /** Insert/replace a link over the current selection (or unset if blank). */
 function setLink() {
@@ -302,7 +321,7 @@ const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const
         icon="i-lucide-code-2"
         :aria-label="t('admin.cms.richText.sourceToggle')"
         :title="t('admin.cms.richText.sourceToggle')"
-        @click="showSource = !showSource"
+        @click="() => { showSource = !showSource }"
       >
         {{ t('admin.cms.richText.source') }}
       </UButton>

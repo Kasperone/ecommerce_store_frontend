@@ -1,5 +1,5 @@
 {
-  "total": 453,
+  "total": 441,
   "files": {
     "app/app.vue": 1,
     "app/blocks/components/CouponCalloutBlock.spec.ts": 1,
@@ -37,7 +37,6 @@
     "app/components/admin/CategoryMoveDialog.vue": 1,
     "app/components/admin/CategoryTreeNode.spec.ts": 12,
     "app/components/admin/CategoryTreeNode.vue": 1,
-    "app/components/admin/cms/RichTextEditor.vue": 12,
     "app/components/admin/CompanyDeleteConfirm.spec.ts": 2,
     "app/components/admin/CompanyFormModal.spec.ts": 4,
     "app/components/admin/CompanyFormModal.vue": 1,
