@@ -16,7 +16,7 @@
     "e2e:install": "playwright install chromium",
     "e2e:ui": "playwright test --ui",
     "typecheck": "nuxt typecheck",
-    "typecheck:ci": "node scripts/typecheck-ratchet.mjs",
+    "typecheck:ci": "node scripts/typecheck-ratchet.mjs --strict",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "gen:types": "openapi-typescript http://localhost:8000/openapi.json -o shared/types/api.gen.ts",
