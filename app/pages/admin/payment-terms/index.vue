@@ -44,7 +44,7 @@ async function onDelete(row: PaymentTermResponse) {
   }
   catch (err) {
     toast.add({
-      title: parseProblem(err).detail ?? t('admin.paymentTerms.flashes.deleteError'),
+      title: parseProblem(err)?.detail ?? t('admin.paymentTerms.flashes.deleteError'),
       color: 'error',
       icon: 'i-lucide-triangle-alert',
     })

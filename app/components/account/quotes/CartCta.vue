@@ -42,7 +42,7 @@ async function onRequest() {
   catch (err) {
     toast.add({
       title: t('cart.requestQuote.error'),
-      description: parseProblem(err).detail,
+      description: parseProblem(err)?.detail,
       color: 'error',
       icon: 'i-lucide-alert-circle',
     })

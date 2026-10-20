@@ -68,7 +68,7 @@ async function onDeleteCategory(c: TaxCategoryResponse) {
   }
   catch (err) {
     toast.add({
-      title: parseProblem(err).detail ?? t('admin.tax.flashes.deleteError'),
+      title: parseProblem(err)?.detail ?? t('admin.tax.flashes.deleteError'),
       color: 'error',
       icon: 'i-lucide-triangle-alert',
     })
@@ -98,7 +98,7 @@ async function onDeleteRate(r: TaxRateResponse) {
   }
   catch (err) {
     toast.add({
-      title: parseProblem(err).detail ?? t('admin.tax.flashes.deleteError'),
+      title: parseProblem(err)?.detail ?? t('admin.tax.flashes.deleteError'),
       color: 'error',
       icon: 'i-lucide-triangle-alert',
     })
