@@ -80,7 +80,7 @@ async function runDryRun() {
     const problem = parseProblem(err)
     toast.add({
       title: t('admin.products.csv.import.error'),
-      description: problem.detail,
+      description: problem?.detail,
       color: 'error',
       icon: 'i-lucide-alert-circle',
     })
@@ -122,7 +122,7 @@ async function applyChanges() {
     const problem = parseProblem(err)
     toast.add({
       title: t('admin.products.csv.import.error'),
-      description: problem.detail,
+      description: problem?.detail,
       color: 'error',
       icon: 'i-lucide-alert-circle',
     })

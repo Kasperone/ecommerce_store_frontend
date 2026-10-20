@@ -285,9 +285,12 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
                 <dt class="text-muted">
                   {{ $t('admin.orders.detail.email') }}
                 </dt>
-                <dd>{{ order.user.email }}</dd>
+                <dd>{{ order.user?.email ?? order.guest_email }}</dd>
               </div>
-              <div class="flex justify-between gap-4">
+              <div
+                v-if="order.user"
+                class="flex justify-between gap-4"
+              >
                 <dt class="text-muted">
                   {{ $t('admin.orders.detail.name') }}
                 </dt>

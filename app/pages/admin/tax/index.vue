@@ -41,7 +41,7 @@ function categoryName(c: TaxCategoryResponse): string {
 }
 
 function homeRate(c: TaxCategoryResponse): string {
-  const r = c.rates.find(x => x.country_code === TAX_HOME_COUNTRY && x.valid_to == null)
+  const r = (c.rates ?? []).find(x => x.country_code === TAX_HOME_COUNTRY && x.valid_to == null)
   return r ? `${Number(r.rate_pct)}%` : '—'
 }
 
