@@ -142,7 +142,7 @@ function openEdit(row: TranslationResourceRow) {
 }
 
 const updateMutation = useUpdateTranslation()
-const saving = computed(() => updateMutation.asyncStatus.value === 'loading')
+const saving = computed(() => updateMutation.status.value === 'loading')
 
 async function save() {
   if (!editing.value) return

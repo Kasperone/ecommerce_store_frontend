@@ -1,5 +1,5 @@
 {
-  "total": 514,
+  "total": 517,
   "files": {
     "app/app.vue": 1,
     "app/blocks/components/CouponCalloutBlock.spec.ts": 1,
@@ -152,6 +152,8 @@
     "app/components/shop/VariantSelector.spec.ts": 1,
     "app/components/UnknownBlock.spec.ts": 1,
     "app/composables/useApi.ts": 2,
+    "app/composables/useB2bProductPrice.ts": 1,
+    "app/composables/useCompanyContext.ts": 1,
     "app/composables/useCookieConsent.spec.ts": 4,
     "app/pages/account/addresses.vue": 1,
     "app/pages/account/company.spec.ts": 1,
@@ -193,7 +195,7 @@
     "app/pages/admin/returns/index.vue": 1,
     "app/pages/admin/shipping/index.vue": 6,
     "app/pages/admin/tax/index.vue": 1,
-    "app/pages/admin/translations/index.vue": 1,
+    "app/pages/admin/translations/index.vue": 2,
     "app/pages/admin/warehouses/index.vue": 1,
     "app/pages/checkout/index.vue": 1,
     "app/pages/contact/index.vue": 1,

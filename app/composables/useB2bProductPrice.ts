@@ -31,6 +31,7 @@ export function useB2bProductPrice(slug: MaybeRefOrGetter<string>) {
     // entirely for guests and non-B2B customers).
     enabled: () => import.meta.client && isB2B.value,
     staleTime: 1000 * 60,
+    retry: false,
   })
 
   return { product: query.data }
