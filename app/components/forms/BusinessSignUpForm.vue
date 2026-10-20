@@ -19,7 +19,9 @@ const errorMessage = ref('')
 const authFormRef = useTemplateRef<AuthFormPublicInstance>('authFormRef')
 const confirmPasswordTouched = ref(false)
 
-const fields = computed<AuthFormField[]>(() => {
+// Input-only fields keyed by the form's state, so `state[field.name]` and `field.placeholder` type-check in slots.
+type InputField = Exclude<AuthFormField, { type: 'checkbox' | 'select' | 'otp' }> & { name: keyof BusinessSignUpFormData }
+const fields = computed<InputField[]>(() => {
   void locale.value
   return [
     { name: 'firstName', type: 'text', label: t('auth.firstName'), placeholder: t('auth.enterYourFirstName') },
@@ -139,7 +141,7 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
 
       <template #password-field="{ state, field }">
         <UInput
-          v-model="state[field.name]"
+          v-model="state.password"
           v-bind="{
             name: field.name,
             placeholder: field.placeholder,
@@ -148,12 +150,12 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
           }"
           type="password"
         />
-        <FormsPasswordStrengthMeter :password="state[field.name]" />
+        <FormsPasswordStrengthMeter :password="state.password" />
       </template>
 
       <template #confirmPassword-field="{ state, field }">
         <UInput
-          v-model="state[field.name]"
+          v-model="state.confirmPassword"
           v-bind="{
             name: field.name,
             placeholder: field.placeholder,
@@ -165,9 +167,9 @@ const submit = async (payload: FormSubmitEvent<BusinessSignUpFormData>) => {
         />
         <p
           v-if="confirmPasswordTouched
-            && state[field.name]
+            && state.confirmPassword
             && state.password
-            && state[field.name] !== state.password"
+            && state.confirmPassword !== state.password"
           class="mt-1 text-xs text-red-600 dark:text-red-400"
         >
           {{ t('auth.errors.passwordsDontMatch') }}

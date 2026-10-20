@@ -30,7 +30,9 @@ useHead({
   titleTemplate: '%s | Reset Password',
 })
 
-const fields = computed<AuthFormField[]>(() => {
+// Input-only fields keyed by the form's state, so `state[field.name]` and `field.placeholder` type-check in slots.
+type InputField = Exclude<AuthFormField, { type: 'checkbox' | 'select' | 'otp' }> & { name: keyof ResetPasswordFormData }
+const fields = computed<InputField[]>(() => {
   void locale.value
   return [{
     name: 'password',
@@ -160,7 +162,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
         >
           <template #password-field="{ state, field }">
             <UInput
-              v-model="state[field.name]"
+              v-model="state.password"
               v-bind="{
                 name: field.name,
                 placeholder: field.placeholder,
@@ -171,7 +173,7 @@ const submit = async (payload: FormSubmitEvent<ResetPasswordFormData>) => {
             />
             <FormsPasswordStrengthMeter
               v-if="field.name === 'password'"
-              :password="state[field.name]"
+              :password="state.password"
             />
           </template>
           <template
