@@ -1,5 +1,5 @@
 {
-  "total": 229,
+  "total": 188,
   "files": {
     "app/app.vue": 1,
     "app/components/account/company/ProfileForm.spec.ts": 1,
@@ -44,7 +44,6 @@
     "app/pages/admin/collections/index.spec.ts": 1,
     "app/pages/admin/pages/[id].spec.ts": 3,
     "app/pages/admin/products/new.spec.ts": 1,
-    "app/pages/orders/track/[token].spec.ts": 1,
-    "app/stores/cart.spec.ts": 41
+    "app/pages/orders/track/[token].spec.ts": 1
   }
 }
