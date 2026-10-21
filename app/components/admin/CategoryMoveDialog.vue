@@ -73,7 +73,7 @@ const parentOptions = computed(() => [
   })),
 ])
 
-const selectedParentId = ref<number | 'root' | null>(null)
+const selectedParentId = ref<number | 'root' | undefined>(undefined)
 
 watch(
   () => [props.open, props.node?.id] as const,
@@ -95,7 +95,7 @@ const isUnchanged = computed(() => {
 
 function onConfirm() {
   if (!props.node || isUnchanged.value) return
-  const parentId = selectedParentId.value === 'root' ? null : selectedParentId.value
+  const parentId = selectedParentId.value === 'root' ? null : (selectedParentId.value ?? null)
   emit('confirm', { id: props.node.id, parentId })
 }
 </script>

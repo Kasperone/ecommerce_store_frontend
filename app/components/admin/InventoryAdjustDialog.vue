@@ -168,7 +168,7 @@ async function onSubmit() {
           required
         >
           <USelect
-            v-model="state.warehouse_id"
+            v-model.nullable="state.warehouse_id"
             :items="warehouseOptions"
             value-key="value"
             class="w-full"

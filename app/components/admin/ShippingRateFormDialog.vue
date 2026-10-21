@@ -66,8 +66,8 @@ const CURRENCIES: { value: ShippingCurrency, label: string }[] = [
 ]
 
 const state = reactive({
-  zone_id: null as number | null,
-  method_id: null as number | null,
+  zone_id: undefined as number | undefined,
+  method_id: undefined as number | undefined,
   currency: 'USD' as ShippingCurrency,
   amount: 0,
   // `UInputNumber` writes `undefined` (not `null`) when the field is emptied,
@@ -156,8 +156,8 @@ watch(
       weightTiersExpanded.value = state.weight_tiers.length > 0
     }
     else {
-      state.zone_id = props.presetCombo?.zoneId ?? null
-      state.method_id = props.presetCombo?.methodId ?? null
+      state.zone_id = props.presetCombo?.zoneId ?? undefined
+      state.method_id = props.presetCombo?.methodId ?? undefined
       state.currency = props.presetCombo?.currency ?? 'USD'
       state.amount = 0
       state.free_above_subtotal = null
@@ -201,7 +201,7 @@ function clearFreeAbove() {
 }
 
 const submitDisabled = computed(
-  () => state.zone_id === null || state.method_id === null || state.amount < 0,
+  () => state.zone_id === undefined || state.method_id === undefined || state.amount < 0,
 )
 
 async function onSubmit() {

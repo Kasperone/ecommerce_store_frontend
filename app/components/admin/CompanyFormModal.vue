@@ -348,7 +348,7 @@ async function onSubmit() {
         >
           <div class="flex items-center gap-2">
             <USelectMenu
-              v-model="primaryUserId"
+              v-model.nullable="primaryUserId"
               :items="contactOptions"
               value-key="value"
               searchable
