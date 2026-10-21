@@ -276,7 +276,7 @@ async function onSave() {
               :label="$t('admin.orders.edit.variant')"
             >
               <USelect
-                v-model="pickedVariantId"
+                v-model.nullable="pickedVariantId"
                 :items="variantOptions"
                 value-key="value"
                 :loading="variantsLoading"
@@ -364,7 +364,7 @@ async function onSave() {
         </UFormField>
         <UFormField :label="$t('admin.orders.edit.shippingMethod')">
           <USelect
-            v-model="shippingMethodId"
+            v-model.nullable="shippingMethodId"
             :items="methodOptions"
             value-key="value"
             class="w-56"

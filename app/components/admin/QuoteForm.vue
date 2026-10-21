@@ -123,7 +123,7 @@ defineExpose({ state })
         required
       >
         <USelectMenu
-          v-model="state.company_id"
+          v-model.nullable="state.company_id"
           :items="companyOptions"
           value-key="value"
           :placeholder="t('admin.quotes.form.companyPlaceholder')"

@@ -326,7 +326,7 @@ function lineName(item: DraftOrderItemResponse): string {
             class="min-w-0"
           >
             <USelect
-              v-model="pickedVariantId"
+              v-model.nullable="pickedVariantId"
               :items="variantOptions"
               value-key="value"
               :loading="variantsLoading"

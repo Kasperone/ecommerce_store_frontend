@@ -385,7 +385,7 @@ async function onSubmit() {
             :required="state.min_total_spent != null"
           >
             <USelect
-              v-model="state.currency"
+              v-model.nullable="state.currency"
               :items="currencyOptions"
               value-key="value"
               :placeholder="t('admin.segments.form.currencyPlaceholder')"

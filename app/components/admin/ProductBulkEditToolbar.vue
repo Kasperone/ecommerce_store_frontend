@@ -41,7 +41,7 @@ const state = reactive<{
   price_pln?: number
   price_eur?: number
   is_active: 'unset' | 'true' | 'false'
-  low_stock_threshold?: number | null
+  low_stock_threshold?: number
 }>({
   price_usd: undefined,
   price_pln: undefined,

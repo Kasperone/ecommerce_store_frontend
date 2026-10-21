@@ -292,7 +292,7 @@ async function onSubmit() {
           required
         >
           <USelect
-            v-model="state.segment_id"
+            v-model.nullable="state.segment_id"
             :items="segmentOptions"
             value-key="value"
             :placeholder="t('admin.campaigns.form.segmentPlaceholder')"

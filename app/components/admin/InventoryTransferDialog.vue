@@ -136,7 +136,7 @@ async function onSubmit() {
           required
         >
           <USelect
-            v-model="state.from_warehouse_id"
+            v-model.nullable="state.from_warehouse_id"
             :items="warehouseOptions"
             value-key="value"
             class="w-full"
@@ -154,7 +154,7 @@ async function onSubmit() {
           required
         >
           <USelect
-            v-model="state.to_warehouse_id"
+            v-model.nullable="state.to_warehouse_id"
             :items="warehouseOptions"
             value-key="value"
             :placeholder="t('admin.inventory.transfer.toPlaceholder')"
