@@ -113,7 +113,7 @@ function countryLabel(code: string) {
               variant="link"
               :aria-label="t('actions.dismiss')"
               :class="ui.close()"
-              @click="nudgeDismissed = true"
+              @click="() => { nudgeDismissed = true }"
             />
           </template>
           <template #description>

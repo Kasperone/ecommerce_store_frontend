@@ -1,5 +1,5 @@
 {
-  "total": 383,
+  "total": 382,
   "files": {
     "app/app.vue": 1,
     "app/blocks/components/CouponCalloutBlock.spec.ts": 1,
@@ -125,7 +125,6 @@
     "app/components/UnknownBlock.spec.ts": 1,
     "app/composables/useCookieConsent.spec.ts": 4,
     "app/pages/account/company.spec.ts": 1,
-    "app/pages/account/index.vue": 1,
     "app/pages/account/profile.spec.ts": 1,
     "app/pages/admin/collections/index.spec.ts": 1,
     "app/pages/admin/customers/[id].vue": 1,
