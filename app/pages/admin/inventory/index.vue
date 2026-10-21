@@ -111,7 +111,7 @@ function openTransfer(row: InventoryListItem) {
             color="neutral"
             variant="soft"
             icon="i-lucide-scroll-text"
-            @click="navigateTo(localePath('/admin/inventory/movements'))"
+            :to="localePath('/admin/inventory/movements')"
           >
             {{ $t('admin.inventory.actions.viewMovements') }}
           </UButton>

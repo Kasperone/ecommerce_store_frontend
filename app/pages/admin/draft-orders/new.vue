@@ -79,7 +79,7 @@ async function onSubmit() {
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo(localePath('/admin/draft-orders'))"
+        :to="localePath('/admin/draft-orders')"
       >
         {{ $t('admin.draftOrders.actions.back') }}
       </UButton>
@@ -160,7 +160,7 @@ async function onSubmit() {
               color="neutral"
               variant="soft"
               :disabled="createDraft.isLoading.value"
-              @click="navigateTo(localePath('/admin/draft-orders'))"
+              :to="localePath('/admin/draft-orders')"
             >
               {{ t('admin.draftOrders.form.cancel') }}
             </UButton>

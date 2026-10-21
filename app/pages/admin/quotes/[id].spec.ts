@@ -197,8 +197,8 @@ describe('admin/quotes/[id] page', () => {
     expect(wrapper.find('[data-testid="quote-convert"]').exists()).toBe(false)
     const link = wrapper.find('[data-testid="quote-converted-link"]')
     expect(link.exists()).toBe(true)
-    await link.trigger('click')
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/orders/42')
+    // Real navigation: the link carries `to` rather than a click handler.
+    expect(link.attributes('to')).toBe('/admin/orders/42')
   })
 
   it('surfaces a 404 load error via ErrorAlert', async () => {

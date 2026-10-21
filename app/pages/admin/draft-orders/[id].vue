@@ -201,7 +201,7 @@ useHead({ title: () => t('admin.draftOrders.detail.title', { id: draft.value?.id
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo(localePath('/admin/draft-orders'))"
+        :to="localePath('/admin/draft-orders')"
       >
         {{ $t('admin.draftOrders.actions.back') }}
       </UButton>
@@ -243,7 +243,7 @@ useHead({ title: () => t('admin.draftOrders.detail.title', { id: draft.value?.id
               variant="soft"
               icon="i-lucide-package-check"
               data-testid="draft-order-converted-link"
-              @click="navigateTo(localePath(`/admin/orders/${draft.converted_order_id}`))"
+              :to="localePath(`/admin/orders/${draft.converted_order_id}`)"
             >
               {{ $t('admin.draftOrders.convert.converted') }}
             </UButton>

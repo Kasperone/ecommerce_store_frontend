@@ -120,7 +120,7 @@ useHead({ title: () => t('admin.customers.detail.title', { email: customer.value
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo(localePath('/admin/customers'))"
+        :to="localePath('/admin/customers')"
       >
         {{ $t('admin.customers.actions.back') }}
       </UButton>

@@ -193,7 +193,7 @@ useHead({ title: () => t('admin.returns.detail.title', { id: ret.value?.id ?? ''
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo(localePath('/admin/returns'))"
+        :to="localePath('/admin/returns')"
       >
         {{ $t('admin.returns.actions.back') }}
       </UButton>

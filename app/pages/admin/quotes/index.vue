@@ -114,7 +114,7 @@ const columns: TableColumn<QuoteListItem>[] = [
         <UButton
           color="primary"
           icon="i-lucide-plus"
-          @click="navigateTo(localePath('/admin/quotes/new'))"
+          :to="localePath('/admin/quotes/new')"
         >
           {{ $t('admin.quotes.actions.create') }}
         </UButton>
@@ -200,7 +200,7 @@ const columns: TableColumn<QuoteListItem>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.quotes.actions.view')"
-              @click="navigateTo(localePath(`/admin/quotes/${row.original.id}`))"
+              :to="localePath(`/admin/quotes/${row.original.id}`)"
             />
           </div>
         </template>

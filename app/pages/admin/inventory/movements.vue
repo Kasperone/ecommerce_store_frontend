@@ -82,7 +82,7 @@ function reasonLabel(reason: string) {
           color="neutral"
           icon="i-lucide-arrow-left"
           :padded="false"
-          @click="navigateTo(localePath('/admin/inventory'))"
+          :to="localePath('/admin/inventory')"
         >
           {{ $t('admin.inventory.movements.back') }}
         </UButton>

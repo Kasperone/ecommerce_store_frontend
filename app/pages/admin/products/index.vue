@@ -199,7 +199,7 @@ const columns: TableColumn<ProductWithCategory>[] = [
           <UButton
             color="primary"
             icon="i-lucide-plus"
-            @click="navigateTo(localePath('/admin/products/new'))"
+            :to="localePath('/admin/products/new')"
           >
             {{ $t('admin.products.actions.create') }}
           </UButton>
@@ -352,7 +352,7 @@ const columns: TableColumn<ProductWithCategory>[] = [
               icon="i-lucide-pencil"
               size="sm"
               :aria-label="$t('admin.products.actions.edit')"
-              @click="navigateTo(localePath(`/admin/products/${row.original.id}/edit`))"
+              :to="localePath(`/admin/products/${row.original.id}/edit`)"
             />
             <UButton
               color="neutral"

@@ -134,7 +134,7 @@ const columns: TableColumn<PriceListListItem>[] = [
               icon="i-lucide-pencil"
               size="sm"
               :aria-label="$t('admin.priceLists.actions.edit')"
-              @click="navigateTo(localePath(`/admin/price-lists/${row.original.id}`))"
+              :to="localePath(`/admin/price-lists/${row.original.id}`)"
             />
             <UButton
               color="error"

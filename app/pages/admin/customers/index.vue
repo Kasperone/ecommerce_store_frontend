@@ -269,7 +269,7 @@ const columns: TableColumn<CustomerListItem>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.customers.actions.view')"
-              @click="navigateTo(localePath(`/admin/customers/${row.original.id}`))"
+              :to="localePath(`/admin/customers/${row.original.id}`)"
             />
           </div>
         </template>
