@@ -76,6 +76,8 @@ function makeOrder(overrides: Partial<GuestOrderResponse> = {}): GuestOrderRespo
     shipping_city: 'Warsaw',
     shipping_country: 'PL',
     gift_card_amount: 0,
+    store_credit_amount: 0,
+    amount_due: 24.5,
     ...overrides,
   }
 }
