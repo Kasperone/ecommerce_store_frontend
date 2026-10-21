@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CategoryTreeNode } from '#shared/types/api'
-import { filterCategoryTree, findCategoryNode, flattenCategoryTree, localizedCategoryName, snapshotCategoryTree } from './categoryTree'
+import { filterCategoryTree, findCategoryNode, flattenCategoryTree, localizedCategoryName, snapshotCategoryTree, sortedIds } from './categoryTree'
 
 function node(overrides: Partial<CategoryTreeNode> = {}): CategoryTreeNode {
   return {
@@ -207,5 +207,12 @@ describe('findCategoryNode', () => {
 
   it('returns null when the id is absent', () => {
     expect(findCategoryNode(fixture(), 999)).toBeNull()
+  })
+})
+
+describe('sortedIds', () => {
+  it('reads ids in order and skips values without a numeric id', () => {
+    expect(sortedIds([{ id: 3 }, { id: 1 }, null, 'x', { id: '2' }, { name: 'n' }, { id: 2 }])).toEqual([3, 1, 2])
+    expect(sortedIds([])).toEqual([])
   })
 })

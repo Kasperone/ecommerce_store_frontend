@@ -14,6 +14,11 @@
 
 export type CurrencyCode = 'USD' | 'PLN' | 'EUR'
 
+/** Narrow an untyped API string (e.g. `currency?: string | null`) to a supported currency. */
+export function isCurrencyCode(value: unknown): value is CurrencyCode {
+  return CURRENCIES.some(c => c.code === value)
+}
+
 export const CURRENCIES: { code: CurrencyCode, symbol: string }[] = [
   { code: 'USD', symbol: '$' },
   { code: 'PLN', symbol: 'zł' },

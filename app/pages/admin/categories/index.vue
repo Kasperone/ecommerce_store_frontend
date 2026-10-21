@@ -8,7 +8,7 @@ import type {
   CategoryWithProductCount,
 } from '#shared/types/api'
 import { parseProblem } from '#shared/utils/problemDetails'
-import { filterCategoryTree, snapshotCategoryTree } from '#shared/utils/categoryTree'
+import { filterCategoryTree, snapshotCategoryTree, sortedIds } from '#shared/utils/categoryTree'
 
 definePageMeta({
   middleware: ['admin'],
@@ -120,16 +120,15 @@ async function pushReorder(
 }
 
 function handleRootSort(data: {
-  previousValues: CategoryTreeNode[]
-  values: CategoryTreeNode[]
+  previousValues: readonly unknown[]
+  values: readonly unknown[]
 }) {
   // Belt-and-suspenders: the drag handle is also hidden while filtered, but
   // guard here too so a stray sort event can't renumber a partial list.
   if (isFiltered.value) return
-  const prev = data.previousValues.map(n => n.id).join(',')
-  const next = data.values.map(n => n.id).join(',')
-  if (prev === next) return
-  void pushReorder(null, data.values.map(n => n.id))
+  const nextIds = sortedIds(data.values)
+  if (sortedIds(data.previousValues).join(',') === nextIds.join(',')) return
+  void pushReorder(null, nextIds)
 }
 
 function onChildReorder(payload: { parentId: number, orderedIds: number[] }) {
@@ -214,7 +213,8 @@ async function onCreate(payload: CategoryFormSubmit) {
   let createdId: number | null = null
   try {
     const body = buildPatchPayload(payload)
-    const created = await createMutation.mutateAsync(body)
+    // sort_order is required by the generated type; 0 is the backend default on create.
+    const created = await createMutation.mutateAsync({ ...body, sort_order: 0 })
     createdId = created.id
     await uploadHeroIfStaged(created.id, payload.heroFile, payload.heroAlt)
     creating.value = false

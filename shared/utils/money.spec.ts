@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CURRENCIES, defaultCurrencyForLocale, formatMoney, formatMoneyCompact, selectPrice } from './money'
+import { CURRENCIES, defaultCurrencyForLocale, formatMoney, formatMoneyCompact, isCurrencyCode, selectPrice } from './money'
 
 // pl-PL uses a non-breaking space (U+00A0) for BOTH the thousands separator and
 // the gap before the `zł` symbol — NOT an ASCII space. Asserting with a normal
@@ -107,6 +107,15 @@ describe('formatMoneyCompact', () => {
 describe('CURRENCIES', () => {
   it('lists the three supported currencies', () => {
     expect(CURRENCIES.map(c => c.code)).toEqual(['USD', 'PLN', 'EUR'])
+  })
+})
+
+describe('isCurrencyCode', () => {
+  it('accepts supported currencies only', () => {
+    expect(isCurrencyCode('PLN')).toBe(true)
+    expect(isCurrencyCode('GBP')).toBe(false)
+    expect(isCurrencyCode(null)).toBe(false)
+    expect(isCurrencyCode(undefined)).toBe(false)
   })
 })
 

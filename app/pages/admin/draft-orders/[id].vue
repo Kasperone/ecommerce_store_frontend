@@ -285,7 +285,7 @@ useHead({ title: () => t('admin.draftOrders.detail.title', { id: draft.value?.id
                 :help="$t('admin.draftOrders.detail.customerIdHint')"
               >
                 <UInput
-                  v-model="customerIdModel"
+                  v-model.number="customerIdModel"
                   type="number"
                   min="1"
                   step="1"
@@ -360,7 +360,7 @@ useHead({ title: () => t('admin.draftOrders.detail.title', { id: draft.value?.id
                 :help="$t('admin.draftOrders.detail.discountHint', { currency: draft.currency })"
               >
                 <UInput
-                  v-model="discountModel"
+                  v-model.number="discountModel"
                   type="number"
                   min="0"
                   step="0.01"

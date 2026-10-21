@@ -33,6 +33,17 @@ export function snapshotCategoryTree(nodes: CategoryTreeNode[]): string {
   return JSON.stringify(nodes.map(serialise))
 }
 
+/**
+ * Ordered ids out of a `@formkit/drag-and-drop` sort event. The library types
+ * `onSort` as `<T>(data: SortEventData<T>) => void`, so a handler can't name
+ * `CategoryTreeNode` in its signature; it receives `unknown[]` and reads ids here.
+ */
+export function sortedIds(values: readonly unknown[]): number[] {
+  return values.flatMap(v =>
+    typeof v === 'object' && v !== null && 'id' in v && typeof v.id === 'number' ? [v.id] : [],
+  )
+}
+
 export type CategoryActiveFilter = 'all' | 'true' | 'false'
 
 export interface CategoryTreeFilter {

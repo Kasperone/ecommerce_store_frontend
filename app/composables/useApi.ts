@@ -43,7 +43,7 @@ export const useApi = () => {
     }
 
     try {
-      return await $fetch<T>(url, opts)
+      return await $fetch<T, string>(url, opts)
     }
     catch (error) {
       const { status } = narrowFetchError(error)
@@ -67,7 +67,7 @@ export const useApi = () => {
       }
 
       // Retry once with the freshly minted access token.
-      return await $fetch<T>(url, {
+      return await $fetch<T, string>(url, {
         ...opts,
         headers: buildHeaders(options.headers as HeadersInit | undefined),
       })

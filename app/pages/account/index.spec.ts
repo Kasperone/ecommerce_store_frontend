@@ -218,6 +218,15 @@ describe('account overview dashboard', () => {
     expect(wrapper.find('[data-testid="completeness-nudge"]').exists()).toBe(false)
   })
 
+  it('dismisses the nudge when its dismiss button is clicked', async () => {
+    const wrapper = await mountPage()
+    const close = wrapper.find('[data-testid="completeness-nudge"] button[aria-label="Dismiss"]')
+    expect(close.exists()).toBe(true)
+    expect(close.attributes('aria-label')).toBe('Dismiss')
+    await close.trigger('click')
+    expect(wrapper.find('[data-testid="completeness-nudge"]').exists()).toBe(false)
+  })
+
   it('dismisses the nudge when its close control fires', async () => {
     const wrapper = await mountPage()
     expect(wrapper.find('[data-testid="completeness-nudge"]').exists()).toBe(true)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { type DateValue, getLocalTimeZone, today } from '@internationalized/date'
 import dayjs from 'dayjs'
@@ -28,13 +28,13 @@ const tz = getLocalTimeZone()
 const todayValue = today(tz)
 const minValue = todayValue.subtract({ days: MAX_RANGE_DAYS - 1 })
 
-type CalRange = { start: DateValue | null, end: DateValue | null }
+type CalRange = { start: DateValue | undefined, end: DateValue | undefined }
 
 const mode = ref<'preset' | 'custom'>('preset')
 const windowDays = ref(30)
 // Seeded so the calendar opens on a sensible range; reseeded from the active preset
 // each time Custom is (re)entered.
-const customRange = ref<CalRange>({ start: todayValue.subtract({ days: 29 }), end: todayValue })
+const customRange = shallowRef<CalRange>({ start: todayValue.subtract({ days: 29 }), end: todayValue })
 
 const presets = computed(() => [
   { value: 7, label: t('admin.dashboardKpis.window.preset7') },
