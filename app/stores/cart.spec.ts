@@ -1,8 +1,28 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useCartStore } from './cart'
+import type { AddableProduct } from './cart'
+import type { ProductImageResponse, ProductVariantPublic } from '#shared/types/api'
 
-function product(overrides: Record<string, unknown> = {}) {
+function image(overrides: Partial<ProductImageResponse> = {}): ProductImageResponse {
+  return {
+    id: 1,
+    product_id: 1,
+    url: 'https://cdn/a.jpg',
+    alt_text: null,
+    sort_order: 0,
+    is_primary: false,
+    width: 800,
+    height: 800,
+    bytes: 1000,
+    mime: 'image/jpeg',
+    created_at: '2026-01-01T00:00:00Z',
+    updated_at: '2026-01-01T00:00:00Z',
+    ...overrides,
+  }
+}
+
+function product(overrides: Partial<AddableProduct> = {}): AddableProduct {
   return {
     id: 1,
     slug: 'widget',
@@ -12,6 +32,8 @@ function product(overrides: Record<string, unknown> = {}) {
     price_pln: 40,
     price_eur: 9,
     stock: 5,
+    allow_backorder: false,
+    is_gift_card: false,
     ...overrides,
   }
 }
@@ -43,8 +65,8 @@ describe('useCartStore', () => {
     const cart = useCartStore()
     cart.add(product({
       images: [
-        { url: 'https://cdn/a.jpg', is_primary: false },
-        { url: 'https://cdn/b.jpg', is_primary: true },
+        image({ id: 1, url: 'https://cdn/a.jpg', is_primary: false }),
+        image({ id: 2, url: 'https://cdn/b.jpg', is_primary: true }),
       ],
     }))
     expect(cart.items[0]!.imageUrl).toBe('https://cdn/b.jpg')
@@ -175,7 +197,7 @@ describe('useCartStore', () => {
 // Variants (F2) — line identity is the (productId, variantId) pair.
 // ---------------------------------------------------------------------------
 
-function variant(overrides: Record<string, unknown> = {}) {
+function variant(overrides: Partial<ProductVariantPublic> = {}): ProductVariantPublic {
   return {
     id: 11,
     title: 'Red / XL',
@@ -190,8 +212,7 @@ function variant(overrides: Record<string, unknown> = {}) {
     in_stock: true,
     option_value_ids: [1, 2],
     ...overrides,
-    // Loose test fixture for ProductVariantPublic.
-  } as never
+  }
 }
 
 describe('useCartStore — variants', () => {
@@ -249,7 +270,7 @@ describe('useCartStore — variants', () => {
   it('uses the variant image when it has one', () => {
     const cart = useCartStore()
     cart.add(
-      product({ images: [{ url: 'https://cdn/prod.jpg', is_primary: true }] }),
+      product({ images: [image({ url: 'https://cdn/prod.jpg', is_primary: true })] }),
       1,
       variant({ image_url: 'https://cdn/variant.jpg' }),
     )
@@ -292,7 +313,7 @@ describe('useCartStore — variants', () => {
     const cart = useCartStore()
     if (cart.items.length === 0) {
       // Env without localStorage: seed the same legacy shape directly.
-      cart.items.push(legacy[0] as never)
+      cart.items.push(legacy[0]!)
     }
     cart.add(product())
     expect(cart.items).toHaveLength(1)
@@ -379,8 +400,8 @@ describe('useCartStore — mergeRecovered', () => {
   it('adds missing lines from the recovered cart', () => {
     const cart = useCartStore()
     cart.mergeRecovered([
-      { quantity: 2, product: product({ id: 1 }) as never, variant: null },
-      { quantity: 1, product: product({ id: 2, slug: 'gadget', name: 'Gadget' }) as never, variant: null },
+      { quantity: 2, product: product({ id: 1 }), variant: null },
+      { quantity: 1, product: product({ id: 2, slug: 'gadget', name: 'Gadget' }), variant: null },
     ])
     expect(cart.items).toHaveLength(2)
     expect(cart.items[0]).toMatchObject({ productId: 1, quantity: 2 })
@@ -391,7 +412,7 @@ describe('useCartStore — mergeRecovered', () => {
     const cart = useCartStore()
     cart.add(product({ id: 1 }), 3)
     cart.mergeRecovered([
-      { quantity: 5, product: product({ id: 1 }) as never, variant: null },
+      { quantity: 5, product: product({ id: 1 }), variant: null },
     ])
     expect(cart.items).toHaveLength(1)
     expect(cart.items[0]!.quantity).toBe(3)
@@ -402,11 +423,11 @@ describe('useCartStore — mergeRecovered', () => {
     cart.add(product({ id: 1 }), 1, variant({ id: 11 }))
     cart.mergeRecovered([
       // Same (product, variant) pair → existing quantity wins.
-      { quantity: 4, product: product({ id: 1 }) as never, variant: variant({ id: 11 }) },
+      { quantity: 4, product: product({ id: 1 }), variant: variant({ id: 11 }) },
       // Same product, other variant → added as its own line.
-      { quantity: 2, product: product({ id: 1 }) as never, variant: variant({ id: 12, title: 'Blue / XL' }) },
+      { quantity: 2, product: product({ id: 1 }), variant: variant({ id: 12, title: 'Blue / XL' }) },
       // Variantless line of the same product → also its own line.
-      { quantity: 1, product: product({ id: 1 }) as never, variant: null },
+      { quantity: 1, product: product({ id: 1 }), variant: null },
     ])
     expect(cart.items).toHaveLength(3)
     expect(cart.items.find(i => i.variantId === 11)!.quantity).toBe(1)
@@ -417,7 +438,7 @@ describe('useCartStore — mergeRecovered', () => {
   it('clamps recovered quantities to current stock via add()', () => {
     const cart = useCartStore()
     cart.mergeRecovered([
-      { quantity: 10, product: product({ id: 1, stock: 2 }) as never, variant: null },
+      { quantity: 10, product: product({ id: 1, stock: 2 }), variant: null },
     ])
     expect(cart.items[0]!.quantity).toBe(2)
   })
@@ -425,7 +446,7 @@ describe('useCartStore — mergeRecovered', () => {
   it('skips a recovered line that is out of stock without backorder', () => {
     const cart = useCartStore()
     cart.mergeRecovered([
-      { quantity: 1, product: product({ id: 1, stock: 0 }) as never, variant: null },
+      { quantity: 1, product: product({ id: 1, stock: 0 }), variant: null },
     ])
     expect(cart.isEmpty).toBe(true)
   })
