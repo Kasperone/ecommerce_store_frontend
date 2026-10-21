@@ -211,7 +211,7 @@ const offerUrl = () => `${siteUrl}${localePath(`/products/${slug}`)}`
 const schemaOffers
   = hasVariants.value && variantOfferPrices.value.length > 0
     ? [
-        defineAggregateOffer({
+        defineAggregateOffer<Record<string, unknown>>({
           lowPrice: () => Math.min(...variantOfferPrices.value.map(p => p.amount)),
           highPrice: () => Math.max(...variantOfferPrices.value.map(p => p.amount)),
           priceCurrency: () => variantOfferPrices.value[0]!.currency,

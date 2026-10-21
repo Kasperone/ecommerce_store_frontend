@@ -160,6 +160,7 @@ describe('AdminOrderRefundDialog', () => {
       restock: true,
       note: null,
       items: [{ order_item_id: 11, quantity: 2 }],
+      destination: 'original',
     })
   })
 

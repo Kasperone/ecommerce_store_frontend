@@ -583,7 +583,7 @@ async function placeOrder(shipping: ShippingInput | null) {
                   class="mt-1 text-xs text-muted"
                 >
                   {{ t('checkout.netTerms.available', {
-                    amount: formatMoney(companyCredit.available, companyCredit.currency ?? currency, locale),
+                    amount: formatMoney(companyCredit.available, isCurrencyCode(companyCredit.currency) ? companyCredit.currency : currency, locale),
                   }) }}
                 </p>
                 <p

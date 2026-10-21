@@ -37,7 +37,7 @@ const schema = computed(() =>
     role: z.enum(COMPANY_ROLES as [CompanyRole, ...CompanyRole[]]),
   }),
 )
-type InviteInput = z.infer<ReturnType<typeof schema['value']>>
+type InviteInput = z.infer<typeof schema.value>
 
 const state = reactive<InviteInput>({
   email: '',

@@ -258,6 +258,8 @@ function onSubmit() {
     note: note.value.trim() || null,
     restock: restock.value && items !== null,
     items,
+    // Wire-identical to the backend default; the generated type marks it required.
+    destination: 'original',
   })
 }
 </script>

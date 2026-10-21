@@ -57,9 +57,6 @@ export function useCompanyContext() {
     enabled: () => import.meta.client && authStore.isAuthenticated,
     // The B2B probe is near-static for a session; cache hard so it does not re-fire per page.
     staleTime: 1000 * 60 * 5,
-    // Not-a-B2B-account is a 200 + null body (an expected outcome), so there's
-    // nothing to retry; keep retry off for a genuine transient error too.
-    retry: false,
   })
 
   // B2B only when the call resolved to a company. `isLoading` lets callers hold

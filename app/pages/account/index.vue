@@ -102,10 +102,20 @@ function countryLabel(code: string) {
           variant="soft"
           icon="i-lucide-sparkles"
           :title="t('account.overview.completeness.title')"
-          :close="{ 'aria-label': t('actions.dismiss') }"
+          close
           data-testid="completeness-nudge"
           @update:open="(open: boolean) => { if (!open) nudgeDismissed = true }"
         >
+          <template #close="{ ui }">
+            <UButton
+              icon="i-lucide-x"
+              color="neutral"
+              variant="link"
+              :aria-label="t('actions.dismiss')"
+              :class="ui.close()"
+              @click="() => { nudgeDismissed = true }"
+            />
+          </template>
           <template #description>
             <p class="mb-2">
               {{ t('account.overview.completeness.subtitle') }}

@@ -356,7 +356,7 @@ function lineName(item: DraftOrderItemResponse): string {
             :help="t('admin.draftOrders.items.overrideHint')"
           >
             <UInput
-              v-model="overrideInput"
+              v-model.number="overrideInput"
               type="number"
               min="0"
               step="0.01"
@@ -438,7 +438,7 @@ function lineName(item: DraftOrderItemResponse): string {
             :data-testid="`draft-order-item-${item.id}-quantity`"
           />
           <UInput
-            v-model="rowEdits[item.id]!.override"
+            v-model.number="rowEdits[item.id]!.override"
             type="number"
             min="0"
             step="0.01"

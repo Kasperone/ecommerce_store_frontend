@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import type { CategoryTreeNode } from '#shared/types/api'
-import { snapshotCategoryTree } from '#shared/utils/categoryTree'
+import { snapshotCategoryTree, sortedIds } from '#shared/utils/categoryTree'
 
 /**
  * Recursive tree node for the admin categories page.
@@ -69,12 +69,12 @@ watch(
 )
 
 function handleSort(data: {
-  previousValues: CategoryTreeNode[]
-  values: CategoryTreeNode[]
+  previousValues: readonly unknown[]
+  values: readonly unknown[]
 }) {
   if (props.reorderDisabled) return
-  const previousIds = data.previousValues.map(n => n.id)
-  const nextIds = data.values.map(n => n.id)
+  const previousIds = sortedIds(data.previousValues)
+  const nextIds = sortedIds(data.values)
   if (previousIds.join(',') === nextIds.join(',')) return
   emit('reorder', { parentId: props.node.id, orderedIds: nextIds })
 }

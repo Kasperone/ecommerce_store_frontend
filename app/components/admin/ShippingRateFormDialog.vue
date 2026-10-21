@@ -350,7 +350,7 @@ async function onSubmit() {
           >
             <div class="flex items-center gap-2">
               <UInputNumber
-                v-model.number="state.free_above_subtotal"
+                v-model="state.free_above_subtotal"
                 :min="0"
                 :step="0.01"
                 class="flex-1"
