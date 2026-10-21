@@ -4,6 +4,7 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import { ref } from 'vue'
 import ReviewModerationDialog from './ReviewModerationDialog.vue'
+import type { AdminReviewListItem } from '#shared/types/api'
 
 /**
  * The dialog owns the moderate (approve/reject) + delete mutations and the
@@ -41,7 +42,7 @@ beforeEach(() => {
   document.body.innerHTML = ''
 })
 
-function baseReview(overrides: Record<string, unknown> = {}) {
+function baseReview(overrides: Partial<AdminReviewListItem> = {}): AdminReviewListItem {
   return {
     id: 7,
     created_at: '2026-05-27T10:00:00Z',
@@ -57,6 +58,7 @@ function baseReview(overrides: Record<string, unknown> = {}) {
     body: 'Battery lasts all day and the screen is gorgeous.',
     status: 'pending',
     is_verified_purchase: true,
+    helpful_count: 0,
     ...overrides,
   }
 }

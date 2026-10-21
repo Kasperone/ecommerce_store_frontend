@@ -74,7 +74,7 @@ describe('CategoryMoveDialog', () => {
   it('lists every other node as an eligible parent when moving a leaf', async () => {
     const { tree, byId } = buildFixture()
     await mountSuspended(CategoryMoveDialog, {
-      props: { open: true, node: byId[3], tree },
+      props: { open: true, node: byId[3]!, tree },
     })
     const values = radioValues()
     expect(values).toContain('root')
@@ -87,7 +87,7 @@ describe('CategoryMoveDialog', () => {
     const { tree, byId } = buildFixture()
     // Moving "Sub" (id=2). Should hide id=2 (self) and id=3 (descendant).
     await mountSuspended(CategoryMoveDialog, {
-      props: { open: true, node: byId[2], tree },
+      props: { open: true, node: byId[2]!, tree },
     })
     const values = radioValues()
     expect(values).toContain('1') // Top, eligible
@@ -100,7 +100,7 @@ describe('CategoryMoveDialog', () => {
   it('emits cancel when the cancel button is clicked', async () => {
     const { tree, byId } = buildFixture()
     const wrapper = await mountSuspended(CategoryMoveDialog, {
-      props: { open: true, node: byId[2], tree },
+      props: { open: true, node: byId[2]!, tree },
     })
     const cancelBtn = [...document.querySelectorAll('button')].find(
       b => b.textContent?.trim() === 'Cancel',
@@ -115,7 +115,7 @@ describe('CategoryMoveDialog', () => {
     // Sub-Sub starts under "Sub" (parent_id=2). Default selection matches
     // current parent → Move stays disabled.
     await mountSuspended(CategoryMoveDialog, {
-      props: { open: true, node: byId[3], tree },
+      props: { open: true, node: byId[3]!, tree },
     })
     const moveBtn = [...document.querySelectorAll('button')].find(
       b => b.textContent?.trim() === 'Move',
@@ -127,7 +127,7 @@ describe('CategoryMoveDialog', () => {
   it('enables Move once a new parent is picked', async () => {
     const { tree, byId } = buildFixture()
     const wrapper = await mountSuspended(CategoryMoveDialog, {
-      props: { open: true, node: byId[3], tree },
+      props: { open: true, node: byId[3]!, tree },
     })
     // Sub-Sub starts under Sub (id 2). Click "Root" instead.
     const rootRadio = findRadio('root')!
@@ -147,7 +147,7 @@ describe('CategoryMoveDialog', () => {
     await mountSuspended(CategoryMoveDialog, {
       props: {
         open: true,
-        node: byId[3],
+        node: byId[3]!,
         tree,
         error: { title: 'Maximum category depth exceeded' },
       },
@@ -160,7 +160,7 @@ describe('CategoryMoveDialog', () => {
   it('renders no error alert when error is null', async () => {
     const { tree, byId } = buildFixture()
     await mountSuspended(CategoryMoveDialog, {
-      props: { open: true, node: byId[3], tree, error: null },
+      props: { open: true, node: byId[3]!, tree, error: null },
     })
     expect(document.querySelector('[role="alert"]')).toBeNull()
   })

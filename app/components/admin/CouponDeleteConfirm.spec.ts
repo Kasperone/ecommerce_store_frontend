@@ -31,6 +31,7 @@ function makeCoupon(over: Partial<CouponResponse> = {}): CouponResponse {
     starts_at: null,
     ends_at: null,
     is_active: true,
+    is_automatic: false,
     created_at: '2026-05-28T00:00:00Z',
     updated_at: '2026-05-28T00:00:00Z',
     ...over,

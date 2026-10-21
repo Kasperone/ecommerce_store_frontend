@@ -75,6 +75,7 @@ function makeOrder(overrides: Partial<GuestOrderResponse> = {}): GuestOrderRespo
     tracking_url: 'https://track.example.com/JD0123456789',
     shipping_city: 'Warsaw',
     shipping_country: 'PL',
+    gift_card_amount: 0,
     ...overrides,
   }
 }
