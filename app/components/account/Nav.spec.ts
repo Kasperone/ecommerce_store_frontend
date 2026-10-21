@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import type { VueWrapper } from '@vue/test-utils'
 import Nav from './Nav.vue'
 
 /**
@@ -30,7 +31,7 @@ beforeEach(() => {
   companyRef.value = null
 })
 
-function hrefsOf(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
+function hrefsOf(wrapper: VueWrapper) {
   return wrapper.findAll('a').map(l => l.attributes('href'))
 }
 

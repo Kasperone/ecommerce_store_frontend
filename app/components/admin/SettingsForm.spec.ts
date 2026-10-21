@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import SettingsForm from './SettingsForm.vue'
+import type { StoreConfigUpdate } from '~/composables/queries/useSettingsQueries'
 
 /**
  * The settings form is a single-record edit form: it prefills from the loaded
@@ -142,7 +143,8 @@ describe('SettingsForm', () => {
 
     const submits = wrapper.emitted('submit')
     expect(submits).toBeTruthy()
-    expect(submits![0]![0]!.low_stock_default_threshold).toBeNull()
+    const [payload] = submits![0]! as [StoreConfigUpdate]
+    expect(payload.low_stock_default_threshold).toBeNull()
   })
 
   it('blocks save and does not emit when the low-stock threshold is negative', async () => {
