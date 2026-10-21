@@ -83,7 +83,7 @@ async function onSubmit(payload: ProductFormPayload) {
           variant="ghost"
           icon="i-lucide-arrow-left"
           :aria-label="$t('admin.products.actions.backToList')"
-          @click="navigateTo(localePath('/admin/products'))"
+          :to="localePath('/admin/products')"
         />
         <div>
           <h1 class="text-2xl font-bold">

@@ -134,12 +134,12 @@ describe('admin/quotes list page', () => {
 
   it('navigates to the create page from the New quote CTA', async () => {
     const wrapper = await mountPage()
+    // Real navigation: the CTA carries `to` (UButton renders a link) rather than a click handler.
     const create = [...wrapper.findAll('button')].find(
       b => b.text().trim() === 'New quote',
     )
     expect(create).toBeTruthy()
-    await create!.trigger('click')
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/quotes/new')
+    expect(create!.attributes('to')).toBe('/admin/quotes/new')
   })
 
   it('renders the list error via ErrorAlert', async () => {

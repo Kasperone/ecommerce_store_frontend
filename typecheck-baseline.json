@@ -1,5 +1,5 @@
 {
-  "total": 382,
+  "total": 355,
   "files": {
     "app/app.vue": 1,
     "app/blocks/components/CouponCalloutBlock.spec.ts": 1,
@@ -127,29 +127,9 @@
     "app/pages/account/company.spec.ts": 1,
     "app/pages/account/profile.spec.ts": 1,
     "app/pages/admin/collections/index.spec.ts": 1,
-    "app/pages/admin/customers/[id].vue": 1,
-    "app/pages/admin/customers/index.vue": 1,
-    "app/pages/admin/draft-orders/[id].vue": 2,
-    "app/pages/admin/draft-orders/index.vue": 2,
-    "app/pages/admin/draft-orders/new.vue": 2,
-    "app/pages/admin/gift-cards/[id].vue": 1,
-    "app/pages/admin/inventory/index.vue": 1,
-    "app/pages/admin/inventory/movements.vue": 1,
-    "app/pages/admin/orders/[id].vue": 1,
-    "app/pages/admin/orders/index.vue": 1,
     "app/pages/admin/pages/[id].spec.ts": 3,
-    "app/pages/admin/price-lists/index.vue": 1,
-    "app/pages/admin/products/[id]/edit.vue": 1,
-    "app/pages/admin/products/index.vue": 2,
     "app/pages/admin/products/new.spec.ts": 1,
-    "app/pages/admin/products/new.vue": 1,
-    "app/pages/admin/quotes/[id].vue": 2,
-    "app/pages/admin/quotes/index.vue": 2,
-    "app/pages/admin/quotes/new.vue": 1,
-    "app/pages/admin/returns/[id].vue": 1,
-    "app/pages/admin/returns/index.vue": 1,
     "app/pages/orders/track/[token].spec.ts": 1,
-    "app/pages/verify-email/index.vue": 2,
     "app/stores/cart.spec.ts": 41
   }
 }

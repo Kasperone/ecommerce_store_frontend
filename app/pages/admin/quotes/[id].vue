@@ -161,7 +161,7 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo(localePath('/admin/quotes'))"
+        :to="localePath('/admin/quotes')"
       >
         {{ $t('admin.quotes.actions.back') }}
       </UButton>
@@ -211,7 +211,7 @@ useHead({ title: () => t('admin.quotes.detail.title', { id: quote.value?.id ?? '
               variant="soft"
               icon="i-lucide-package-check"
               data-testid="quote-converted-link"
-              @click="navigateTo(localePath(`/admin/orders/${convertedOrderId}`))"
+              :to="localePath(`/admin/orders/${convertedOrderId}`)"
             >
               {{ $t('admin.quotes.convert.converted') }}
             </UButton>

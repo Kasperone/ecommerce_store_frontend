@@ -236,7 +236,7 @@ useHead({ title: () => t('admin.orders.detail.title', { number: order.value?.ord
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo(localePath('/admin/orders'))"
+        :to="localePath('/admin/orders')"
       >
         {{ $t('admin.orders.actions.back') }}
       </UButton>

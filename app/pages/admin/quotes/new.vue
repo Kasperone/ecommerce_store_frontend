@@ -44,7 +44,7 @@ async function onSubmit(body: QuoteCreate) {
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo(localePath('/admin/quotes'))"
+        :to="localePath('/admin/quotes')"
       >
         {{ $t('admin.quotes.actions.back') }}
       </UButton>

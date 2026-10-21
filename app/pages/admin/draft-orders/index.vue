@@ -96,7 +96,7 @@ const columns: TableColumn<DraftOrderListItem>[] = [
           color="primary"
           icon="i-lucide-plus"
           data-testid="draft-order-create"
-          @click="navigateTo(localePath('/admin/draft-orders/new'))"
+          :to="localePath('/admin/draft-orders/new')"
         >
           {{ $t('admin.draftOrders.actions.create') }}
         </UButton>
@@ -173,7 +173,7 @@ const columns: TableColumn<DraftOrderListItem>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.draftOrders.actions.view')"
-              @click="navigateTo(localePath(`/admin/draft-orders/${row.original.id}`))"
+              :to="localePath(`/admin/draft-orders/${row.original.id}`)"
             />
           </div>
         </template>

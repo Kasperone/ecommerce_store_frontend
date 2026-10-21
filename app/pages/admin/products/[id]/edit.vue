@@ -153,7 +153,7 @@ async function saveVariants() {
           variant="ghost"
           icon="i-lucide-arrow-left"
           :aria-label="$t('admin.products.actions.backToList')"
-          @click="navigateTo(localePath('/admin/products'))"
+          :to="localePath('/admin/products')"
         />
         <div class="flex-1">
           <h1 class="text-2xl font-bold">

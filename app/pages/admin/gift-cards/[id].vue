@@ -205,7 +205,7 @@ useHead({ title: () => t('admin.giftCards.detail.title', { code: maskedCode.valu
         color="neutral"
         icon="i-lucide-arrow-left"
         :padded="false"
-        @click="navigateTo(localePath('/admin/gift-cards'))"
+        :to="localePath('/admin/gift-cards')"
       >
         {{ $t('admin.giftCards.actions.back') }}
       </UButton>

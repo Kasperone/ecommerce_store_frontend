@@ -182,7 +182,7 @@ const goToLogin = () => {
               color="primary"
               variant="outline"
               block
-              @click="router.push(localePath('/login'))"
+              :to="localePath('/login')"
             />
 
             <UButton
@@ -190,7 +190,7 @@ const goToLogin = () => {
               color="neutral"
               variant="ghost"
               block
-              @click="router.push(localePath('/'))"
+              :to="localePath('/')"
             />
           </div>
         </div>

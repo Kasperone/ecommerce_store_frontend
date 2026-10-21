@@ -163,7 +163,7 @@ const columns: TableColumn<ReturnRequestResponse>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.returns.actions.view')"
-              @click="navigateTo(localePath(`/admin/returns/${row.original.id}`))"
+              :to="localePath(`/admin/returns/${row.original.id}`)"
             />
           </div>
         </template>

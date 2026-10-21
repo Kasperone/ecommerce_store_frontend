@@ -196,7 +196,7 @@ const columns: TableColumn<OrderListItem>[] = [
               icon="i-lucide-eye"
               size="sm"
               :aria-label="$t('admin.orders.actions.view')"
-              @click="navigateTo(localePath(`/admin/orders/${row.original.id}`))"
+              :to="localePath(`/admin/orders/${row.original.id}`)"
             />
           </div>
         </template>
