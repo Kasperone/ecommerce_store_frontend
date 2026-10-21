@@ -1,5 +1,5 @@
 {
-  "total": 95,
+  "total": 94,
   "files": {
     "app/app.vue": 1,
     "app/components/account/company/ProfileForm.spec.ts": 1,
@@ -20,7 +20,6 @@
     "app/components/admin/ProductExportButton.spec.ts": 1,
     "app/components/admin/ProductImageUploader.spec.ts": 2,
     "app/components/admin/ProductImportModal.spec.ts": 2,
-    "app/components/admin/QuoteForm.vue": 1,
     "app/components/admin/ReportExportButton.spec.ts": 1,
     "app/components/admin/ReviewModerationDialog.spec.ts": 10,
     "app/components/admin/SettingsForm.spec.ts": 1,
