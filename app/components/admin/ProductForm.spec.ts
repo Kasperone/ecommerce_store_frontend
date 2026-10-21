@@ -2,26 +2,30 @@
 import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductForm from './ProductForm.vue'
+import type { CategoryResponse, ProductWithCategory, TaxCategoryResponse } from '#shared/types/api'
 
-const baseCategories = [
+const baseCategories: CategoryResponse[] = [
   {
     id: 1,
     name: 'Books',
     slug: 'books',
     description: null,
+    sort_order: 0,
     is_active: true,
     created_at: '2026-01-01T00:00:00Z',
     updated_at: '2026-01-01T00:00:00Z',
   },
 ]
 
-const baseTaxCategories = [
+const baseTaxCategories: TaxCategoryResponse[] = [
   {
     id: 1,
     code: 'STANDARD',
     name: 'Standard',
     name_pl: null,
     is_default: true,
+    created_at: '2026-01-01T00:00:00Z',
+    updated_at: '2026-01-01T00:00:00Z',
     rates: [
       {
         id: 1,
@@ -37,7 +41,7 @@ const baseTaxCategories = [
   },
 ]
 
-const baseProduct = {
+const baseProduct: ProductWithCategory = {
   id: 7,
   name: 'Encyclopedia',
   slug: 'encyclopedia',
@@ -50,6 +54,9 @@ const baseProduct = {
   is_active: true,
   is_featured: false,
   is_gift_card: false,
+  condition: 'new',
+  allow_backorder: false,
+  has_variants: false,
   category_id: 1,
   tax_category_id: 1,
   in_stock: true,
