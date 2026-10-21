@@ -1,5 +1,5 @@
 {
-  "total": 95,
+  "total": 82,
   "files": {
     "app/app.vue": 1,
     "app/components/account/company/ProfileForm.spec.ts": 1,
@@ -14,7 +14,6 @@
     "app/components/admin/CompanyDeleteConfirm.spec.ts": 1,
     "app/components/admin/CompanyFormModal.spec.ts": 3,
     "app/components/admin/CouponDeleteConfirm.spec.ts": 1,
-    "app/components/admin/DashboardSalesTrend.spec.ts": 12,
     "app/components/admin/InventoryExportButton.spec.ts": 1,
     "app/components/admin/InventoryLowStockReportButton.spec.ts": 2,
     "app/components/admin/ProductExportButton.spec.ts": 1,
@@ -36,7 +35,6 @@
     "app/pages/account/profile.spec.ts": 1,
     "app/pages/admin/collections/index.spec.ts": 1,
     "app/pages/admin/pages/[id].spec.ts": 3,
-    "app/pages/admin/products/new.spec.ts": 1,
     "app/pages/orders/track/[token].spec.ts": 1
   }
 }
