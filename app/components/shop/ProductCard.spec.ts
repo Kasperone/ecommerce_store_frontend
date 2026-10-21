@@ -3,30 +3,20 @@ import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import ProductCard from './ProductCard.vue'
+import { makeProduct } from '../../../test/helpers/fixtures'
+import type { ProductWithCategory } from '#shared/types/api'
 
 const AXE_OPTIONS = { rules: { region: { enabled: false } } }
 
-function product(overrides: Record<string, unknown> = {}) {
-  return {
-    id: 1,
+function product(overrides: Partial<ProductWithCategory> = {}) {
+  return makeProduct({
     name: 'Blue Mug',
     slug: 'blue-mug',
-    description: null,
-    sku: null,
     price_usd: 12,
     price_pln: 48,
     price_eur: 11,
-    stock: 5,
-    low_stock_threshold: null,
-    is_active: true,
-    is_featured: false,
-    category_id: null,
-    images: [],
-    created_at: '',
-    updated_at: '',
-    in_stock: true,
     ...overrides,
-  }
+  })
 }
 
 describe('ShopProductCard', () => {

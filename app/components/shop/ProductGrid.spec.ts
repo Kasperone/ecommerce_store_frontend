@@ -3,29 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import ProductGrid from './ProductGrid.vue'
+import { makeProduct } from '../../../test/helpers/fixtures'
 
 const AXE_OPTIONS = { rules: { region: { enabled: false } } }
 
 function product(id: number, name: string) {
-  return {
-    id,
-    name,
-    slug: `p-${id}`,
-    description: null,
-    sku: null,
-    price_usd: 10,
-    price_pln: 40,
-    price_eur: 9,
-    stock: 5,
-    low_stock_threshold: null,
-    is_active: true,
-    is_featured: false,
-    category_id: null,
-    images: [],
-    created_at: '',
-    updated_at: '',
-    in_stock: true,
-  }
+  return makeProduct({ id, name, slug: `p-${id}` })
 }
 
 describe('ShopProductGrid', () => {

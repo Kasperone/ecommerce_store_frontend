@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import AddToCartButton from './AddToCartButton.vue'
+import { makeProduct } from '../../../test/helpers/fixtures'
+import type { ProductWithCategory } from '#shared/types/api'
 
 const { add, openDrawer, trackAddToCart, items, authState } = vi.hoisted(() => ({
   add: vi.fn(),
@@ -21,27 +23,8 @@ mockNuxtImport('useAuthStore', () => () => ({
 
 const AXE_OPTIONS = { rules: { region: { enabled: false } } }
 
-function product(overrides: Record<string, unknown> = {}) {
-  return {
-    id: 1,
-    name: 'Widget',
-    slug: 'widget',
-    description: null,
-    sku: null,
-    price_usd: 10,
-    price_pln: 40,
-    price_eur: 9,
-    stock: 5,
-    low_stock_threshold: null,
-    is_active: true,
-    is_featured: false,
-    category_id: null,
-    images: [],
-    created_at: '',
-    updated_at: '',
-    in_stock: true,
-    ...overrides,
-  }
+function product(overrides: Partial<ProductWithCategory> = {}) {
+  return makeProduct(overrides)
 }
 
 beforeEach(() => {
