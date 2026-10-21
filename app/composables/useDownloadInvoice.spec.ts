@@ -36,7 +36,7 @@ describe('useDownloadInvoice', () => {
     const result = await useDownloadInvoice().download(7, 'ORD-20260527-ABC123', 'en')
 
     expect(result).toBeNull()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/7/invoice')
     expect(options.responseType).toBe('blob')
     expect(options.query).toEqual({ lang: 'en' })
@@ -52,7 +52,7 @@ describe('useDownloadInvoice', () => {
     apiFetch.mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' }))
     const { useDownloadInvoice } = await import('./useDownloadInvoice')
     await useDownloadInvoice().download(3, 'ORD-X', 'pl')
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/3/invoice')
     expect(options.query).toEqual({ lang: 'pl' })
   })

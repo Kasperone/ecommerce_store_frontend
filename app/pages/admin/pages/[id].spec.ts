@@ -230,7 +230,7 @@ describe('admin/pages editor', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(saveMock).toHaveBeenCalledTimes(1)
-    const arg = saveMock.mock.calls[0][0]
+    const arg = saveMock.mock.calls[0]![0]
     expect(arg.id).toBe(5)
     // The added spacer makes 2 sections in the saved layout.
     expect(arg.patch.draft_layout.sections).toHaveLength(2)
@@ -244,7 +244,7 @@ describe('admin/pages editor', () => {
     await wrapper.find('[data-testid="form-modal-submit"]').trigger('click')
     await new Promise(r => setTimeout(r, 0))
     expect(publishMock).toHaveBeenCalledTimes(1)
-    expect(publishMock.mock.calls[0][0].id).toBe(5)
+    expect(publishMock.mock.calls[0]![0].id).toBe(5)
   })
 
   it('lists versions and rolls back to a chosen version', async () => {
@@ -258,7 +258,7 @@ describe('admin/pages editor', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(rollbackMock).toHaveBeenCalledTimes(1)
-    expect(rollbackMock.mock.calls[0][0]).toMatchObject({ id: 5, versionId: 21 })
+    expect(rollbackMock.mock.calls[0]![0]).toMatchObject({ id: 5, versionId: 21 })
   })
 
   it('registers an unsaved-changes route-leave guard', async () => {

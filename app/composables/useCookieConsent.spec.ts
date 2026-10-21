@@ -99,7 +99,7 @@ describe('useCookieConsent', () => {
     expect(c.categories.value).toEqual({ necessary: true, analytics: true, marketing: true })
 
     expect(mockApiFetch).toHaveBeenCalledTimes(1)
-    const [url, opts] = mockApiFetch.mock.calls[0]
+    const [url, opts] = mockApiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/cookie-consent')
     expect(opts.method).toBe('POST')
     expect(opts.body).toMatchObject({
@@ -121,7 +121,7 @@ describe('useCookieConsent', () => {
     await c.rejectAll()
 
     expect(c.categories.value).toEqual({ necessary: true, analytics: false, marketing: false })
-    expect(mockApiFetch.mock.calls[0][1].body.categories).toEqual({
+    expect(mockApiFetch.mock.calls[0]![1].body.categories).toEqual({
       necessary: true,
       analytics: false,
       marketing: false,
@@ -134,7 +134,7 @@ describe('useCookieConsent', () => {
     await c.save({ analytics: true, marketing: false })
 
     expect(c.categories.value).toEqual({ necessary: true, analytics: true, marketing: false })
-    expect(mockApiFetch.mock.calls[0][1].body.categories).toEqual({
+    expect(mockApiFetch.mock.calls[0]![1].body.categories).toEqual({
       necessary: true,
       analytics: true,
       marketing: false,
@@ -161,7 +161,7 @@ describe('useCookieConsent', () => {
     expect(c.categories.value).toEqual({ necessary: true, analytics: false, marketing: false })
 
     await c.save({})
-    expect(mockApiFetch.mock.calls[0][1].body.gpc).toBe(true)
+    expect(mockApiFetch.mock.calls[0]![1].body.gpc).toBe(true)
   })
 
   it('hasDecided is true when a current-policy cookie is already present', async () => {

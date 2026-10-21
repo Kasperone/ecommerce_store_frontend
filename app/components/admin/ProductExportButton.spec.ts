@@ -49,6 +49,6 @@ describe('ProductExportButton', () => {
     await flush()
 
     expect(mockToastAdd).toHaveBeenCalledTimes(1)
-    expect(mockToastAdd.mock.calls[0][0].color).toBe('error')
+    expect(mockToastAdd.mock.calls[0]![0].color).toBe('error')
   })
 })
