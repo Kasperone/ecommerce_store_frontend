@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import LineItem from './LineItem.vue'
+import type { CartItem } from '~/stores/cart'
 
 const { setQuantity, remove } = vi.hoisted(() => ({ setQuantity: vi.fn(), remove: vi.fn() }))
 mockNuxtImport('useCartStore', () => () => ({ setQuantity, remove }))
@@ -14,7 +15,7 @@ mockNuxtImport('useCurrencyPreference', () => () => ({
 
 const AXE_OPTIONS = { rules: { region: { enabled: false } } }
 
-function item(overrides: Record<string, unknown> = {}) {
+function item(overrides: Partial<CartItem> = {}): CartItem {
   return {
     productId: 1,
     slug: 'widget',
@@ -24,6 +25,7 @@ function item(overrides: Record<string, unknown> = {}) {
     price_pln: 40,
     price_eur: 9,
     stock: 5,
+    allowBackorder: false,
     quantity: 2,
     ...overrides,
   }

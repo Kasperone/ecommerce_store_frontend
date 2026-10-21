@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
 import ProductDeleteConfirm from './ProductDeleteConfirm.vue'
+import { makeProduct } from '../../../test/helpers/fixtures'
 
 const AXE_OPTIONS = {
   rules: {
@@ -10,25 +11,14 @@ const AXE_OPTIONS = {
   },
 }
 
-const baseProduct = {
+const baseProduct = makeProduct({
   id: 11,
   name: 'Encyclopedia',
   slug: 'encyclopedia',
-  description: null as string | null,
-  sku: null as string | null,
   price_usd: 19.99,
   price_pln: 79.99,
   price_eur: 17.99,
-  stock: 5,
-  is_active: true,
-  is_featured: false,
-  category_id: null as number | null,
-  in_stock: true,
-  images: [],
-  category: null,
-  created_at: '2026-01-01T00:00:00Z',
-  updated_at: '2026-01-01T00:00:00Z',
-}
+})
 
 describe('ProductDeleteConfirm', () => {
   it('renders the product name in the title', async () => {

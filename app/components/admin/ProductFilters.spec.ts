@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ProductFilters, { type ProductFilterValues } from './ProductFilters.vue'
+import { makeCategory } from '../../../test/helpers/fixtures'
 
 const baseValues: ProductFilterValues = {
   active: 'all',
@@ -14,24 +15,8 @@ const baseValues: ProductFilterValues = {
 }
 
 const categoriesFixture = [
-  {
-    id: 1,
-    name: 'Books',
-    slug: 'books',
-    description: null,
-    is_active: true,
-    created_at: '2026-01-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: 2,
-    name: 'Music',
-    slug: 'music',
-    description: null,
-    is_active: true,
-    created_at: '2026-01-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
-  },
+  makeCategory({ id: 1 }),
+  makeCategory({ id: 2, name: 'Music', slug: 'music' }),
 ]
 
 describe('ProductFilters', () => {
