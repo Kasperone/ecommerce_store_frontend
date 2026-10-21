@@ -1,5 +1,5 @@
 {
-  "total": 72,
+  "total": 71,
   "files": {
     "app/app.vue": 1,
     "app/components/account/company/ProfileForm.spec.ts": 1,
@@ -21,7 +21,6 @@
     "app/components/admin/ShippingZoneFormDialog.spec.ts": 1,
     "app/components/admin/StaffRoleDialog.spec.ts": 6,
     "app/components/shop/CatalogToolbar.spec.ts": 4,
-    "app/composables/useExportSalesReport.spec.ts": 1,
     "app/pages/account/company.spec.ts": 1,
     "app/pages/account/profile.spec.ts": 1,
     "app/pages/admin/products/new.spec.ts": 1,

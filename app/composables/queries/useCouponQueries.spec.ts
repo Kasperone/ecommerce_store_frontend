@@ -49,7 +49,7 @@ describe('useCouponsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/coupons/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -99,7 +99,7 @@ describe('useCreateCoupon', () => {
       is_active: true,
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/coupons/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ code: 'SUMMER', discount_type: 'percent', value: 10 })
@@ -114,7 +114,7 @@ describe('useUpdateCoupon', () => {
     const result = (await runInComponent(() => useUpdateCoupon())) as any
     await result.mutateAsync({ id: 3, patch: { value: 20 } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/coupons/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ value: 20 })
@@ -129,7 +129,7 @@ describe('useDeleteCoupon', () => {
     const result = (await runInComponent(() => useDeleteCoupon())) as any
     await result.mutateAsync(5)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/coupons/5')
     expect(options.method).toBe('DELETE')
   })

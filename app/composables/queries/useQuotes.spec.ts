@@ -84,7 +84,7 @@ describe('useRequestQuote', () => {
       items: [{ product_id: 11, quantity: 2 }],
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/quotes/')
     expect(options.method).toBe('POST')
     expect(options.body).toEqual({
@@ -102,7 +102,7 @@ describe('useAcceptQuote', () => {
     const result = (await runInComponent(() => useAcceptQuote())) as any
     await result.mutateAsync(4)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/quotes/4/accept')
     expect(options.method).toBe('POST')
   })

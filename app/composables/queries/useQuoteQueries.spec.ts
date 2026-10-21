@@ -49,7 +49,7 @@ describe('useQuotesQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/quotes/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -109,7 +109,7 @@ describe('useCreateQuote', () => {
       items: [{ description: 'Widget', quantity: 2, unit_price: 10, product_id: null }],
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/quotes/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({
@@ -128,7 +128,7 @@ describe('useUpdateQuote', () => {
     const result = (await runInComponent(() => useUpdateQuote())) as any
     await result.mutateAsync({ id: 4, patch: { status: 'accepted' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/quotes/4')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ status: 'accepted' })
@@ -143,7 +143,7 @@ describe('useDeleteQuote', () => {
     const result = (await runInComponent(() => useDeleteQuote())) as any
     await result.mutateAsync(7)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/quotes/7')
     expect(options.method).toBe('DELETE')
   })
@@ -157,7 +157,7 @@ describe('useConvertQuote', () => {
     const result = (await runInComponent(() => useConvertQuote())) as any
     const order = await result.mutateAsync(7)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/quotes/7/convert')
     expect(options.method).toBe('POST')
     expect(order).toMatchObject({ id: 42, order_number: 'ORD-1' })
@@ -173,7 +173,7 @@ describe('useQuoteCompaniesQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/companies/')
     expect(options.query).toMatchObject({ page: 1, page_size: 100 })
   })

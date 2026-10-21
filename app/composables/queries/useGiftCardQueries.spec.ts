@@ -52,7 +52,7 @@ describe('useGiftCardsQuery', () => {
     await nextTick()
     await tick()
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/gift-cards/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -129,7 +129,7 @@ describe('useIssueGiftCard', () => {
       locale: 'pl',
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/gift-cards/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ initial_value: 100, currency: 'PLN', locale: 'pl' })
@@ -144,7 +144,7 @@ describe('useUpdateGiftCard', () => {
     const result = (await runInComponent(() => useUpdateGiftCard())) as any
     await result.mutateAsync({ id: 3, patch: { status: 'disabled' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/gift-cards/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ status: 'disabled' })
@@ -159,7 +159,7 @@ describe('useAdjustGiftCard', () => {
     const result = (await runInComponent(() => useAdjustGiftCard())) as any
     await result.mutateAsync({ id: 3, body: { amount: -20, note: 'fraud claw-back' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/gift-cards/3/adjust')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ amount: -20, note: 'fraud claw-back' })

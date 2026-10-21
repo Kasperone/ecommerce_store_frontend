@@ -54,7 +54,7 @@ describe('useCategoriesQuery', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(apiFetch).toHaveBeenCalled()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/')
     expect(options.query).toMatchObject({ is_active: true, skip: 0, limit: 50 })
   })
@@ -80,7 +80,7 @@ describe('useCreateCategory', () => {
     const result = await runInComponent(() => useCreateCategory()) as any
     await result.mutateAsync({ name: 'Books', slug: 'books', is_active: true })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'Books', slug: 'books' })
@@ -95,7 +95,7 @@ describe('useUpdateCategory', () => {
     const result = await runInComponent(() => useUpdateCategory()) as any
     await result.mutateAsync({ id: 1, patch: { slug: 'books-updated' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/1')
     expect(options.method).toBe('PUT')
     expect(options.body).toMatchObject({ slug: 'books-updated' })
@@ -110,7 +110,7 @@ describe('useDeleteCategory', () => {
     const result = await runInComponent(() => useDeleteCategory()) as any
     await result.mutateAsync(42)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/42')
     expect(options.method).toBe('DELETE')
   })
@@ -126,7 +126,7 @@ describe('useCategoryTreeQuery', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(apiFetch).toHaveBeenCalled()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/tree')
     expect(options.query).toMatchObject({ is_active: true })
   })
@@ -157,7 +157,7 @@ describe('useBulkReorderCategories', () => {
       ],
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/bulk-reorder')
     expect(options.method).toBe('POST')
     expect(options.body).toEqual({
@@ -177,7 +177,7 @@ describe('useDeleteCategoryWithMode', () => {
     const result = await runInComponent(() => useDeleteCategoryWithMode()) as any
     await result.mutateAsync({ id: 7, mode: 'cascade' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/7')
     expect(options.method).toBe('DELETE')
     expect(options.query).toEqual({ mode: 'cascade' })
@@ -190,7 +190,7 @@ describe('useDeleteCategoryWithMode', () => {
     const result = await runInComponent(() => useDeleteCategoryWithMode()) as any
     await result.mutateAsync({ id: 9, mode: 'reparent_to_root' })
 
-    const [, options] = apiFetch.mock.calls[0]
+    const [, options] = apiFetch.mock.calls[0]!
     expect(options.query).toEqual({ mode: 'reparent_to_root' })
   })
 })
@@ -205,7 +205,7 @@ describe('useUploadCategoryHero', () => {
     const result = await runInComponent(() => useUploadCategoryHero()) as any
     await result.mutateAsync({ id: 7, formData })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/7/hero')
     expect(options.method).toBe('POST')
     expect(options.body).toBe(formData)
@@ -219,7 +219,7 @@ describe('useUpdateCategoryHeroAlt', () => {
     const result = await runInComponent(() => useUpdateCategoryHeroAlt()) as any
     await result.mutateAsync({ id: 9, patch: { hero_image_alt: 'A photo' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/9/hero')
     expect(options.method).toBe('PATCH')
     expect(options.body).toEqual({ hero_image_alt: 'A photo' })
@@ -233,7 +233,7 @@ describe('useDeleteCategoryHero', () => {
     const result = await runInComponent(() => useDeleteCategoryHero()) as any
     await result.mutateAsync(12)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/12/hero')
     expect(options.method).toBe('DELETE')
   })
@@ -253,7 +253,7 @@ describe('useCategoryDeletePreviewQuery', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(apiFetch).toHaveBeenCalled()
-    const [url] = apiFetch.mock.calls[0]
+    const [url] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/categories/5/delete-preview')
   })
 

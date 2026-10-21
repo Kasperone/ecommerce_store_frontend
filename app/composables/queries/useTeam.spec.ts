@@ -66,7 +66,7 @@ describe('useInviteMember', () => {
     const result = (await runInComponent(() => useInviteMember())) as any
     await result.mutateAsync({ email: 'new@co.com', role: 'BUYER' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/companies/me/users')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ email: 'new@co.com', role: 'BUYER' })
@@ -81,7 +81,7 @@ describe('useUpdateMember', () => {
     const result = (await runInComponent(() => useUpdateMember())) as any
     await result.mutateAsync({ id: 5, patch: { role: 'COMPANY_ADMIN' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/companies/me/users/5')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ role: 'COMPANY_ADMIN' })
@@ -106,7 +106,7 @@ describe('useRemoveMember', () => {
     const result = (await runInComponent(() => useRemoveMember())) as any
     await result.mutateAsync(9)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/companies/me/users/9')
     expect(options.method).toBe('DELETE')
   })

@@ -69,7 +69,7 @@ describe('useCreateNote', () => {
     const result = await runInComponent(() => useCreateNote()) as any
     await result.mutateAsync({ customerId: 4, body: { body: 'hi' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/4/notes')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ body: 'hi' })
@@ -84,7 +84,7 @@ describe('useUpdateNote', () => {
     const result = await runInComponent(() => useUpdateNote()) as any
     await result.mutateAsync({ customerId: 4, noteId: 9, body: { body: 'new' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/4/notes/9')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ body: 'new' })
@@ -99,7 +99,7 @@ describe('useDeleteNote', () => {
     const result = await runInComponent(() => useDeleteNote()) as any
     await result.mutateAsync({ customerId: 4, noteId: 9 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/4/notes/9')
     expect(options.method).toBe('DELETE')
   })

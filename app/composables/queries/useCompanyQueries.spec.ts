@@ -49,7 +49,7 @@ describe('useCompaniesQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/companies/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -93,7 +93,7 @@ describe('useCreateCompany', () => {
     const result = (await runInComponent(() => useCreateCompany())) as any
     await result.mutateAsync({ name: 'Acme', status: 'pending' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/companies/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'Acme', status: 'pending' })
@@ -108,7 +108,7 @@ describe('useUpdateCompany', () => {
     const result = (await runInComponent(() => useUpdateCompany())) as any
     await result.mutateAsync({ id: 3, patch: { status: 'approved' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/companies/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ status: 'approved' })
@@ -123,7 +123,7 @@ describe('useDeleteCompany', () => {
     const result = (await runInComponent(() => useDeleteCompany())) as any
     await result.mutateAsync(5)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/companies/5')
     expect(options.method).toBe('DELETE')
   })
