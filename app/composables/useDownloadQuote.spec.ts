@@ -35,7 +35,7 @@ describe('useDownloadQuote', () => {
     const result = await useDownloadQuote().download(12, 'pl')
 
     expect(result).toBeNull()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/quotes/12/quote.pdf')
     expect(options.responseType).toBe('blob')
     expect(options.query).toEqual({ lang: 'pl' })

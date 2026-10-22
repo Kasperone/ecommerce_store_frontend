@@ -92,7 +92,7 @@ describe('AccountQuotesCartCta', () => {
     await wrapper.find('[data-testid="request-quote-cta"]').trigger('click')
     await flush()
     expect(mockToastAdd).toHaveBeenCalledTimes(1)
-    expect(mockToastAdd.mock.calls[0][0].color).toBe('error')
+    expect(mockToastAdd.mock.calls[0]![0].color).toBe('error')
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 

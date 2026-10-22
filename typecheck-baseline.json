@@ -1,29 +1,14 @@
 {
-  "total": 56,
+  "total": 20,
   "files": {
     "app/app.vue": 1,
     "app/components/account/Nav.spec.ts": 1,
-    "app/components/account/quotes/CartCta.spec.ts": 1,
-    "app/components/account/quotes/DownloadButton.spec.ts": 1,
     "app/components/admin/CategoryFormModal.spec.ts": 1,
     "app/components/admin/CategoryHeroStaging.spec.ts": 1,
-    "app/components/admin/CategoryTreeNode.spec.ts": 11,
     "app/components/admin/DashboardSalesTrend.spec.ts": 12,
-    "app/components/admin/InventoryExportButton.spec.ts": 1,
-    "app/components/admin/InventoryLowStockReportButton.spec.ts": 2,
-    "app/components/admin/ProductExportButton.spec.ts": 1,
-    "app/components/admin/ProductImageUploader.spec.ts": 2,
-    "app/components/admin/ProductImportModal.spec.ts": 2,
-    "app/components/admin/QuoteForm.vue": 1,
-    "app/components/admin/ReportExportButton.spec.ts": 1,
+    "app/components/admin/ProductImageUploader.spec.ts": 1,
     "app/components/admin/SettingsForm.spec.ts": 1,
-    "app/components/checkout/WalletButton.spec.ts": 4,
-    "app/components/orders/ExportButton.spec.ts": 1,
-    "app/components/orders/InvoiceDownloadButton.spec.ts": 1,
-    "app/composables/useCookieConsent.spec.ts": 4,
     "app/pages/account/company.spec.ts": 1,
-    "app/pages/admin/collections/index.spec.ts": 1,
-    "app/pages/admin/pages/[id].spec.ts": 3,
     "app/pages/admin/products/new.spec.ts": 1
   }
 }

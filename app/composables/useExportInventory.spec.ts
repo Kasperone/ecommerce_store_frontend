@@ -39,7 +39,7 @@ describe('useExportInventory', () => {
     const result = await useExportInventory().exportInventory({ status: 'low_stock', search: 'bolt' })
 
     expect(result).toBeNull()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/inventory/export')
     expect(options.responseType).toBe('blob')
     expect(options.query).toMatchObject({ status: 'low_stock', search: 'bolt' })

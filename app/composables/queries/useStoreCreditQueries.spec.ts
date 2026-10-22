@@ -74,7 +74,7 @@ describe('useAdjustCustomerStoreCredit', () => {
       body: { amount: 50, currency: 'EUR', note: 'goodwill' },
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/42/store-credit/adjust')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ amount: 50, currency: 'EUR', note: 'goodwill' })

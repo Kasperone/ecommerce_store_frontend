@@ -47,7 +47,7 @@ describe('useStaffQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/staff/')
     expect(options.query).toMatchObject({ page: 2, page_size: 10, search: 'ann' })
   })
@@ -85,7 +85,7 @@ describe('useUpdateStaff', () => {
     const result = (await runInComponent(() => useUpdateStaff())) as any
     await result.mutateAsync({ userId: 3, patch: { role: 'ADMIN', is_active: false } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/staff/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ role: 'ADMIN', is_active: false })

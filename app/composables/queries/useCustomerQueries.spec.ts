@@ -49,7 +49,7 @@ describe('useCustomersQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -105,7 +105,7 @@ describe('useUpdateCustomer', () => {
     const result = await runInComponent(() => useUpdateCustomer()) as any
     await result.mutateAsync({ id: 3, patch: { is_active: false } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ is_active: false })
@@ -120,7 +120,7 @@ describe('useUnlockCustomer', () => {
     const result = await runInComponent(() => useUnlockCustomer()) as any
     await result.mutateAsync(8)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/8/unlock')
     expect(options.method).toBe('POST')
   })
@@ -134,7 +134,7 @@ describe('useSendCustomerPasswordReset', () => {
     const result = await runInComponent(() => useSendCustomerPasswordReset()) as any
     await result.mutateAsync(11)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/11/password-reset')
     expect(options.method).toBe('POST')
   })

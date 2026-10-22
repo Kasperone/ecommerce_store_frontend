@@ -138,7 +138,7 @@ describe('useAuthStore', () => {
       expect(store.fullName).toBe('Ada Lovelace')
 
       // OAuth2 password-grant FormData payload
-      const [, opts] = mockAuthFetcher.mock.calls[0]
+      const [, opts] = mockAuthFetcher.mock.calls[0]!
       expect(opts.method).toBe('POST')
       expect(opts.body).toBeInstanceOf(FormData)
       expect((opts.body as FormData).get('username')).toBe('ada@example.com')

@@ -94,7 +94,7 @@ describe('useCreateReturnRequest', () => {
       },
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/7/returns')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({
@@ -113,7 +113,7 @@ describe('useAdminReturnsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/returns/')
     expect(options.query).toMatchObject({ page: 2, page_size: 10, status: 'requested' })
   })
@@ -155,7 +155,7 @@ describe('useReturnTransition', () => {
       const result = await runInComponent(() => useReturnTransition()) as any
       await result.mutateAsync({ id: 3, action, adminNote: 'ok' })
 
-      const [url, options] = apiFetch.mock.calls[0]
+      const [url, options] = apiFetch.mock.calls[0]!
       expect(url).toBe(`/api/v1/admin/returns/3/${action}`)
       expect(options.method).toBe('POST')
       expect(options.body).toMatchObject({ admin_note: 'ok' })
@@ -185,7 +185,7 @@ describe('useReturnRefund', () => {
       refund: { amount: 25, restock: true, reason: 'customer_request', note: null },
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/returns/3/refund')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ amount: 25, restock: true, reason: 'customer_request' })
