@@ -78,7 +78,7 @@ describe('AdminQuoteForm', () => {
       props: { companies: COMPANIES },
     })
     const vm = wrapper.vm as any
-    vm.state.company_id = null
+    vm.state.company_id = undefined
     vm.state.items = [{ description: 'Service', quantity: 1, unit_price: 1, product_id: null }]
     await new Promise(r => setTimeout(r, 0))
     await wrapper.find('form').trigger('submit')
