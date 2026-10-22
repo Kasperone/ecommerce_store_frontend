@@ -45,7 +45,7 @@ describe('CategoryTreeNode', () => {
       props: {
         node: makeNode({ name: 'Furniture', slug: 'furniture' }),
         depth: 0,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
       },
     })
     expect(wrapper.text()).toContain('Furniture')
@@ -61,7 +61,7 @@ describe('CategoryTreeNode', () => {
           children: [makeNode({ id: 2, name: 'Child', slug: 'child' })],
         }),
         depth: 0,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
       },
     })
     // The <ul data-children-list> renders but is v-show'd false → not visible.
@@ -95,7 +95,7 @@ describe('CategoryTreeNode', () => {
           children: [makeNode({ id: 99, slug: 'c' })],
         }),
         depth: 0,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
       },
     })
     const chevron = wrapper.find('button[aria-label="Expand"]')
@@ -108,7 +108,7 @@ describe('CategoryTreeNode', () => {
   it('emits edit / move / delete on the corresponding action buttons', async () => {
     const node = makeNode({ id: 7, name: 'Edit me' })
     const wrapper = await mountSuspended(CategoryTreeNode, {
-      props: { node, depth: 0, expandedIds: new Set() },
+      props: { node, depth: 0, expandedIds: new Set<number>() },
     })
     await wrapper.find('button[aria-label="Edit category"]').trigger('click')
     await wrapper.find('button[aria-label="Move under…"]').trigger('click')
@@ -123,7 +123,7 @@ describe('CategoryTreeNode', () => {
       props: {
         node: makeNode({ is_active: false }),
         depth: 0,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
       },
     })
     // Dedicated badge copy, not the "Inactive only" filter label (minor #1).
@@ -133,7 +133,7 @@ describe('CategoryTreeNode', () => {
 
   it('exposes a draggable handle by default', async () => {
     const wrapper = await mountSuspended(CategoryTreeNode, {
-      props: { node: makeNode(), depth: 0, expandedIds: new Set() },
+      props: { node: makeNode(), depth: 0, expandedIds: new Set<number>() },
     })
     expect(wrapper.find('.handle').exists()).toBe(true)
   })
@@ -145,7 +145,7 @@ describe('CategoryTreeNode', () => {
       props: {
         node: makeNode(),
         depth: 0,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
         reorderDisabled: true,
       },
     })
@@ -158,7 +158,7 @@ describe('CategoryTreeNode', () => {
       props: {
         node: makeNode({ product_count: 12 }),
         depth: 0,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
       },
     })
     expect(wrapper.text()).toContain('12')
@@ -169,7 +169,7 @@ describe('CategoryTreeNode', () => {
       props: {
         node: makeNode({ children: [] }),
         depth: 0,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
       },
     })
     expect(wrapper.find('button[aria-label="Expand"]').exists()).toBe(false)
@@ -181,7 +181,7 @@ describe('CategoryTreeNode', () => {
       props: {
         node: makeNode({ name: 'Axe test' }),
         depth: 0,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
       },
     })
     expect(await axe(wrapper.element as HTMLElement, AXE_OPTIONS)).toHaveNoViolations()
@@ -192,7 +192,7 @@ describe('CategoryTreeNode', () => {
       props: {
         node: makeNode({ name: 'Deep' }),
         depth: 2,
-        expandedIds: new Set(),
+        expandedIds: new Set<number>(),
       },
     })
     const row = wrapper.find('[data-category-id="1"] > div')
