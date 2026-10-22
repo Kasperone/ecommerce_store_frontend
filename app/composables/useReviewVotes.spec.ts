@@ -40,7 +40,7 @@ describe('useReviewVotes', () => {
     apiFetch.mockResolvedValue({ review_id: 9, helpful_count: 1, my_vote: true })
     const { useReviewVotes } = await import('./useReviewVotes')
     await useReviewVotes().vote(5, 9)
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/5/reviews/9/vote')
     expect(options.method).toBe('PUT')
   })
@@ -49,7 +49,7 @@ describe('useReviewVotes', () => {
     apiFetch.mockResolvedValue({ review_id: 9, helpful_count: 0, my_vote: false })
     const { useReviewVotes } = await import('./useReviewVotes')
     await useReviewVotes().unvote(5, 9)
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/5/reviews/9/vote')
     expect(options.method).toBe('DELETE')
   })

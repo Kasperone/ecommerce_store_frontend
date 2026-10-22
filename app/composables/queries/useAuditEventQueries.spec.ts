@@ -55,7 +55,7 @@ describe('useAuditEventsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/audit-events/')
     expect(options.query).toMatchObject({
       page: 2,

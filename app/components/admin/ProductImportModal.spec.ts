@@ -76,7 +76,7 @@ describe('ProductImportModal', () => {
     await flush()
 
     expect(mockMutate).toHaveBeenCalledWith({ file: expect.any(File), dryRun: true })
-    expect(mockMutate.mock.calls[0][0].dryRun).toBe(true)
+    expect(mockMutate.mock.calls[0]![0].dryRun).toBe(true)
     expect(document.body.textContent).toContain('2 to create')
     expect(document.body.textContent).toContain('1 to update')
   })
@@ -115,7 +115,7 @@ describe('ProductImportModal', () => {
     await flush()
 
     expect(mockMutate).toHaveBeenCalledTimes(2)
-    expect(mockMutate.mock.calls[1][0].dryRun).toBe(false)
+    expect(mockMutate.mock.calls[1]![0].dryRun).toBe(false)
     expect(mockToastAdd.mock.calls.some(c => c[0].color === 'success')).toBe(true)
     expect(wrapper.emitted('update:open')?.some(e => e[0] === false)).toBe(true)
   })

@@ -60,7 +60,7 @@ describe('useCreateProductTag', () => {
     const result = await runInComponent(() => useCreateProductTag()) as any
     await result.mutateAsync({ name: 'sale', color: '#22c55e' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/product-tags/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'sale', color: '#22c55e' })
@@ -75,7 +75,7 @@ describe('useUpdateProductTag', () => {
     const result = await runInComponent(() => useUpdateProductTag()) as any
     await result.mutateAsync({ id: 5, patch: { name: 'new-arrival' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/product-tags/5')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ name: 'new-arrival' })
@@ -90,7 +90,7 @@ describe('useDeleteProductTag', () => {
     const result = await runInComponent(() => useDeleteProductTag()) as any
     await result.mutateAsync(9)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/product-tags/9')
     expect(options.method).toBe('DELETE')
   })

@@ -36,7 +36,8 @@ describe('AdminShippingMethodFormDialog', () => {
 
   it('renders edit mode header when a method is provided', async () => {
     const method = {
-      id: 1, name: 'Standard', code: 'standard', description: null, sort_order: 0,
+      id: 1, name: 'Standard', code: 'standard', description: null,
+      name_pl: null, description_pl: null, sort_order: 0,
       is_active: true,
       created_at: '2026-05-30T00:00:00Z', updated_at: '2026-05-30T00:00:00Z',
     }

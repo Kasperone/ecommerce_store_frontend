@@ -45,7 +45,7 @@ describe('InventoryLowStockReportButton', () => {
 
     expect(mockMutate).toHaveBeenCalledTimes(1)
     expect(mockToastAdd).toHaveBeenCalledTimes(1)
-    const opts = mockToastAdd.mock.calls[0][0]
+    const opts = mockToastAdd.mock.calls[0]![0]
     expect(opts.color).toBe('success')
     expect(opts.description).toContain('3')
     expect(opts.description).toContain('admin@store.test')
@@ -58,6 +58,6 @@ describe('InventoryLowStockReportButton', () => {
     await flush()
 
     expect(mockToastAdd).toHaveBeenCalledTimes(1)
-    expect(mockToastAdd.mock.calls[0][0].color).toBe('error')
+    expect(mockToastAdd.mock.calls[0]![0].color).toBe('error')
   })
 })

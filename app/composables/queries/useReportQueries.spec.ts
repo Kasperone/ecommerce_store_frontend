@@ -49,7 +49,7 @@ describe('useSalesReport', () => {
       useSalesReport({ start: '2026-05-01', end: '2026-05-31', granularity: 'week' }),
     )
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/reports/sales')
     expect(options.query).toMatchObject({
       start: '2026-05-01',
@@ -84,7 +84,7 @@ describe('useTopProductsReport', () => {
 
     await runInComponent(() => useTopProductsReport({ start: '2026-05-01', end: '2026-05-31' }))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/reports/top-products')
     expect(options.query).toMatchObject({ start: '2026-05-01', end: '2026-05-31', limit: 10 })
   })
@@ -106,7 +106,7 @@ describe('useCategoryRevenueReport', () => {
 
     await runInComponent(() => useCategoryRevenueReport({ start: '2026-05-01', end: '2026-05-31' }))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/reports/by-category')
     expect(options.query).toMatchObject({ start: '2026-05-01', end: '2026-05-31' })
   })
@@ -119,7 +119,7 @@ describe('useRefundSummaryReport', () => {
 
     await runInComponent(() => useRefundSummaryReport({ start: '2026-05-01', end: '2026-05-31' }))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/reports/refund-summary')
     expect(options.query).toMatchObject({ start: '2026-05-01', end: '2026-05-31' })
   })
@@ -132,7 +132,7 @@ describe('useEuDistanceSellingStatus', () => {
 
     await runInComponent(() => useEuDistanceSellingStatus())
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/reports/eu-distance-selling')
     expect(options.query).toMatchObject({ year: undefined })
   })
@@ -143,7 +143,7 @@ describe('useEuDistanceSellingStatus', () => {
 
     await runInComponent(() => useEuDistanceSellingStatus(2024))
 
-    const [, options] = apiFetch.mock.calls[0]
+    const [, options] = apiFetch.mock.calls[0]!
     expect(options.query).toMatchObject({ year: 2024 })
   })
 })

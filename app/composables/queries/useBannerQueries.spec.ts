@@ -49,7 +49,7 @@ describe('useBannersQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/banners/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -88,7 +88,7 @@ describe('useCreateBanner', () => {
       is_active: true,
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/banners/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ title: 'Summer hero', placement: 'home_hero' })
@@ -103,7 +103,7 @@ describe('useUpdateBanner', () => {
     const result = (await runInComponent(() => useUpdateBanner())) as any
     await result.mutateAsync({ id: 3, patch: { sort_order: 5 } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/banners/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ sort_order: 5 })
@@ -118,7 +118,7 @@ describe('useDeleteBanner', () => {
     const result = (await runInComponent(() => useDeleteBanner())) as any
     await result.mutateAsync(5)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/banners/5')
     expect(options.method).toBe('DELETE')
   })

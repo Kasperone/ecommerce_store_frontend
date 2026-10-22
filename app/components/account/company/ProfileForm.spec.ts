@@ -24,6 +24,9 @@ const company: CompanyMe = {
   billing_address_country: 'Poland',
   billing_address_state: 'Mazowieckie',
   default_currency: 'PLN',
+  net_terms_enabled: false,
+  auto_charge_enabled: false,
+  vies_valid: false,
 }
 
 async function flush(wrapper: { vm: { $nextTick: () => Promise<void> } }) {

@@ -53,7 +53,7 @@ describe('usePagesQuery', () => {
     )
     await settle()
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/pages/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -130,7 +130,7 @@ describe('useCreatePage', () => {
     const result = (await runInComponent(() => useCreatePage())) as any
     await result.mutateAsync({ slug: 'about', type: 'standard', locale: 'en' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/pages/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ slug: 'about' })
@@ -145,7 +145,7 @@ describe('useSavePageDraft', () => {
     const result = (await runInComponent(() => useSavePageDraft())) as any
     await result.mutateAsync({ id: 3, patch: { draft_layout: { sections: [] } } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/pages/3/draft')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ draft_layout: { sections: [] } })
@@ -160,7 +160,7 @@ describe('usePublishPage', () => {
     const result = (await runInComponent(() => usePublishPage())) as any
     await result.mutateAsync({ id: 3, body: { label: 'v2' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/pages/3/publish')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ label: 'v2' })
@@ -185,7 +185,7 @@ describe('useCreatePreviewToken', () => {
     const result = (await runInComponent(() => useCreatePreviewToken())) as any
     const res = await result.mutateAsync({ id: 5 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/pages/5/preview-token')
     expect(options.method).toBe('POST')
     expect(res.token).toBe('tok-abc')
@@ -200,7 +200,7 @@ describe('useRollbackPageVersion', () => {
     const result = (await runInComponent(() => useRollbackPageVersion())) as any
     await result.mutateAsync({ id: 3, versionId: 9 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/pages/3/versions/9/rollback')
     expect(options.method).toBe('POST')
   })

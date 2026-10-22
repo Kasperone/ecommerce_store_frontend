@@ -47,7 +47,7 @@ describe('AccountQuotesDownloadButton', () => {
     await wrapper.find('button').trigger('click')
     await flush()
     expect(mockToastAdd).toHaveBeenCalledTimes(1)
-    expect(mockToastAdd.mock.calls[0][0].color).toBe('error')
+    expect(mockToastAdd.mock.calls[0]![0].color).toBe('error')
   })
 
   it('is axe-clean', async () => {
