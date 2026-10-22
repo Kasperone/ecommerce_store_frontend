@@ -53,7 +53,7 @@ describe('useOrdersQuery', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(apiFetch).toHaveBeenCalled()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/')
     expect(options.query).toMatchObject({ page: 2, page_size: 10, status: 'pending' })
   })
@@ -115,7 +115,7 @@ describe('useUpdateOrder', () => {
     const result = await runInComponent(() => useUpdateOrder()) as any
     await result.mutateAsync({ id: 3, patch: { status: 'paid', notes: 'ok' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ status: 'paid', notes: 'ok' })
@@ -130,7 +130,7 @@ describe('useCancelOrder', () => {
     const result = await runInComponent(() => useCancelOrder()) as any
     await result.mutateAsync(9)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/9/cancel')
     expect(options.method).toBe('POST')
   })
@@ -151,7 +151,7 @@ describe('useCreateOrder', () => {
       items: [{ product_id: 8, quantity: 2 }],
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ currency: 'PLN', items: [{ product_id: 8, quantity: 2 }] })
@@ -179,7 +179,7 @@ describe('useIssueRefund', () => {
       },
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/7/refunds')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({

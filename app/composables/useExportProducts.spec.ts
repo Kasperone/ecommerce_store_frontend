@@ -43,7 +43,7 @@ describe('useExportProducts', () => {
     })
 
     expect(result).toBeNull()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/products/export')
     expect(options.responseType).toBe('blob')
     expect(options.query).toMatchObject({ category_id: 3, is_active: true, search: 'tea' })

@@ -95,7 +95,7 @@ describe('contact page', () => {
     await submit(wrapper)
 
     expect(apiFetch).toHaveBeenCalledTimes(1)
-    const [url, opts] = apiFetch.mock.calls[0]
+    const [url, opts] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/contact')
     expect(opts.method).toBe('POST')
     expect(opts.body).toEqual({

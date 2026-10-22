@@ -49,7 +49,7 @@ describe('useCampaignsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/campaigns/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -102,7 +102,7 @@ describe('useCreateCampaign', () => {
       scheduled_at: null,
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/campaigns/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'Spring', audience: 'all', status: 'draft' })
@@ -117,7 +117,7 @@ describe('useUpdateCampaign', () => {
     const result = (await runInComponent(() => useUpdateCampaign())) as any
     await result.mutateAsync({ id: 3, patch: { status: 'sent' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/campaigns/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ status: 'sent' })
@@ -132,7 +132,7 @@ describe('useSendCampaign', () => {
     const result = (await runInComponent(() => useSendCampaign())) as any
     await result.mutateAsync(9)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/campaigns/9/send')
     expect(options.method).toBe('POST')
   })
@@ -146,7 +146,7 @@ describe('useDeleteCampaign', () => {
     const result = (await runInComponent(() => useDeleteCampaign())) as any
     await result.mutateAsync(5)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/campaigns/5')
     expect(options.method).toBe('DELETE')
   })

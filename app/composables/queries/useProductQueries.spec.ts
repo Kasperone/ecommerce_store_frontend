@@ -63,7 +63,7 @@ describe('useProductsQuery', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(apiFetch).toHaveBeenCalled()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -128,7 +128,7 @@ describe('useCreateProduct', () => {
       price_eur: 8.99,
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'Book', slug: 'book' })
@@ -143,7 +143,7 @@ describe('useUpdateProduct', () => {
     const result = await runInComponent(() => useUpdateProduct()) as any
     await result.mutateAsync({ id: 1, patch: { name: 'Book updated' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/1')
     expect(options.method).toBe('PUT')
     expect(options.body).toMatchObject({ name: 'Book updated' })
@@ -158,7 +158,7 @@ describe('useDeleteProduct', () => {
     const result = await runInComponent(() => useDeleteProduct()) as any
     await result.mutateAsync(42)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/42')
     expect(options.method).toBe('DELETE')
   })
@@ -183,7 +183,7 @@ describe('useImportProducts', () => {
     const file = new File(['id,name\r\n'], 'p.csv', { type: 'text/csv' })
     await result.mutateAsync({ file, dryRun: true })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/products/import')
     expect(options.method).toBe('POST')
     expect(options.query).toMatchObject({ dry_run: true })
@@ -211,7 +211,7 @@ describe('useBulkUpdateProducts', () => {
     const result = await runInComponent(() => useBulkUpdateProducts()) as any
     await result.mutateAsync({ productIds: [1, 2], set: { price_usd: 9.99, is_active: false } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/products/bulk')
     expect(options.method).toBe('PATCH')
     expect(options.body).toEqual({

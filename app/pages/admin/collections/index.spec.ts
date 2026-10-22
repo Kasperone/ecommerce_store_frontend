@@ -127,7 +127,7 @@ describe('admin/collections list page', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(createMutate).toHaveBeenCalledTimes(1)
-    expect(createMutate.mock.calls[0][0]).toMatchObject({ name: 'Autumn', slug: 'autumn', type: 'manual' })
+    expect(createMutate.mock.calls[0]![0]).toMatchObject({ name: 'Autumn', slug: 'autumn', type: 'manual' })
   })
 
   it('on edit submit updates the collection and PUTs the ordered membership', async () => {

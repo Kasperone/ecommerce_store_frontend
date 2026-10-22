@@ -49,7 +49,7 @@ describe('useReviewsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/reviews/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -88,7 +88,7 @@ describe('useModerateReview', () => {
     const result = (await runInComponent(() => useModerateReview())) as Moderate
     await result.mutateAsync({ id: 5, status: 'approved' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/reviews/5')
     expect(options.method).toBe('PATCH')
     expect(options.body).toEqual({ status: 'approved' })
@@ -127,7 +127,7 @@ describe('useDeleteReview', () => {
     }
     await result.mutateAsync(9)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/reviews/9')
     expect(options.method).toBe('DELETE')
   })

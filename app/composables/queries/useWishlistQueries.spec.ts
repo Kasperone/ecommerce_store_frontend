@@ -101,7 +101,7 @@ describe('useAddToWishlist', () => {
     const result = await runInComponent(() => useAddToWishlist()) as any
     await result.mutateAsync({ product_id: 42, variant_id: 7 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/wishlist')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ product_id: 42, variant_id: 7 })
@@ -116,7 +116,7 @@ describe('useRemoveFromWishlist', () => {
     const result = await runInComponent(() => useRemoveFromWishlist()) as any
     await result.mutateAsync(9)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/wishlist/9')
     expect(options.method).toBe('DELETE')
   })
