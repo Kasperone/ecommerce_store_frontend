@@ -1,5 +1,5 @@
 {
-  "total": 94,
+  "total": 83,
   "files": {
     "app/app.vue": 1,
     "app/components/account/company/ProfileForm.spec.ts": 1,
@@ -10,7 +10,6 @@
     "app/components/admin/CategoryFormModal.spec.ts": 2,
     "app/components/admin/CategoryHeroStaging.spec.ts": 1,
     "app/components/admin/CategoryMoveDialog.spec.ts": 7,
-    "app/components/admin/CategoryTreeNode.spec.ts": 11,
     "app/components/admin/CompanyDeleteConfirm.spec.ts": 1,
     "app/components/admin/CompanyFormModal.spec.ts": 3,
     "app/components/admin/CouponDeleteConfirm.spec.ts": 1,
