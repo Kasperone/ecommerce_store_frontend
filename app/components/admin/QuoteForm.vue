@@ -36,7 +36,7 @@ const toast = useToast()
 const CURRENCIES: QuoteCurrency[] = ['USD', 'PLN', 'EUR']
 
 const state = reactive({
-  company_id: null as number | null,
+  company_id: undefined as number | undefined,
   currency: 'USD' as QuoteCurrency,
   valid_until: '',
   notes: '',
@@ -123,7 +123,7 @@ defineExpose({ state })
         required
       >
         <USelectMenu
-          v-model.nullable="state.company_id"
+          v-model="state.company_id"
           :items="companyOptions"
           value-key="value"
           :placeholder="t('admin.quotes.form.companyPlaceholder')"
