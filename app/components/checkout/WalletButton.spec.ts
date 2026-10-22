@@ -28,8 +28,11 @@ const {
 } = vi.hoisted(() => {
   const onHandlers = new Map<string, (...args: unknown[]) => unknown>()
   const submitMock = vi.fn(async () => ({ error: undefined as { message?: string } | undefined }))
+  // The component passes `{ elements, clientSecret, confirmParams }`; typing the
+  // arg lets the specs read it back from `mock.calls` without a cast.
+  type ConfirmPaymentArg = { clientSecret?: string, confirmParams: { return_url: string } }
   const confirmPaymentMock = vi.fn(
-    async () => ({ error: undefined as { message?: string } | undefined }),
+    async (_arg: ConfirmPaymentArg) => ({ error: undefined as { message?: string } | undefined }),
   )
   const mountMock = vi.fn()
   const expressEl = {
@@ -106,10 +109,7 @@ describe('CheckoutWalletButton', () => {
     expect(submitMock).toHaveBeenCalled()
     expect(createPiMutate).toHaveBeenCalledWith({ orderId: 7, guestToken: undefined })
     expect(confirmPaymentMock).toHaveBeenCalledTimes(1)
-    const arg = confirmPaymentMock.mock.calls[0]![0] as {
-      clientSecret: string
-      confirmParams: { return_url: string }
-    }
+    const arg = confirmPaymentMock.mock.calls[0]![0]
     expect(arg.clientSecret).toBe('pi_1_secret_abc')
     expect(arg.confirmParams.return_url).toContain('/checkout/payment/return')
     expect(arg.confirmParams.return_url).toContain('order=ORD-7')
@@ -127,9 +127,7 @@ describe('CheckoutWalletButton', () => {
     await settle()
 
     expect(createPiMutate).toHaveBeenCalledWith({ orderId: 7, guestToken: 'tok-guest-abc' })
-    const arg = confirmPaymentMock.mock.calls[0]![0] as {
-      confirmParams: { return_url: string }
-    }
+    const arg = confirmPaymentMock.mock.calls[0]![0]
     expect(arg.confirmParams.return_url).toContain('token=tok-guest-abc')
   })
 

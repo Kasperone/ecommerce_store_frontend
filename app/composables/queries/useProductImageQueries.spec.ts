@@ -48,7 +48,7 @@ describe('useUploadProductImage', () => {
     const result = await runInComponent(() => useUploadProductImage()) as any
     await result.mutateAsync({ productId: 5, formData })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/5/images')
     expect(options.method).toBe('POST')
     expect(options.body).toBeInstanceOf(FormData)
@@ -63,7 +63,7 @@ describe('useUpdateProductImage', () => {
     const result = await runInComponent(() => useUpdateProductImage()) as any
     await result.mutateAsync({ productId: 5, imageId: 9, patch: { is_primary: true } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/5/images/9')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ is_primary: true })
@@ -80,7 +80,7 @@ describe('useUpdateProductImage', () => {
       patch: { alt_text: 'A book', sort_order: 2 },
     })
 
-    const [, options] = apiFetch.mock.calls[0]
+    const [, options] = apiFetch.mock.calls[0]!
     expect(options.body).toMatchObject({ alt_text: 'A book', sort_order: 2 })
   })
 })
@@ -93,7 +93,7 @@ describe('useDeleteProductImage', () => {
     const result = await runInComponent(() => useDeleteProductImage()) as any
     await result.mutateAsync({ productId: 5, imageId: 9 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/5/images/9')
     expect(options.method).toBe('DELETE')
   })

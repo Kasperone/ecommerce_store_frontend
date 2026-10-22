@@ -120,7 +120,7 @@ describe('useUpdateOptionsMatrix', () => {
     const result = await runInComponent(() => useUpdateOptionsMatrix()) as any
     await result.mutateAsync({ productId: 5, matrix })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/5/options')
     expect(options.method).toBe('PUT')
     expect(options.body).toEqual(matrix)

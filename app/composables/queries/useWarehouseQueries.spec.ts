@@ -47,7 +47,7 @@ describe('useWarehousesQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/warehouses/')
     expect(options.query).toMatchObject({ page: 2, page_size: 10, is_active: true })
   })
@@ -74,7 +74,7 @@ describe('useCreateWarehouse', () => {
     const result = (await runInComponent(() => useCreateWarehouse())) as any
     await result.mutateAsync({ name: 'Europe', code: 'EU-1', is_active: true, is_default: false })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/warehouses/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ code: 'EU-1', is_default: false })
@@ -89,7 +89,7 @@ describe('useUpdateWarehouse', () => {
     const result = (await runInComponent(() => useUpdateWarehouse())) as any
     await result.mutateAsync({ id: 3, patch: { name: 'Renamed' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/warehouses/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ name: 'Renamed' })
@@ -104,7 +104,7 @@ describe('useDeleteWarehouse', () => {
     const result = (await runInComponent(() => useDeleteWarehouse())) as any
     await result.mutateAsync(5)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/warehouses/5')
     expect(options.method).toBe('DELETE')
   })

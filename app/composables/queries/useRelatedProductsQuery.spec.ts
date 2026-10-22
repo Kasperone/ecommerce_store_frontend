@@ -62,7 +62,7 @@ describe('useRelatedProductsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/blue-mug/related')
     expect(options.query).toEqual({ limit: 8 })
     expect(query.data.value).toHaveLength(1)
@@ -76,7 +76,7 @@ describe('useRelatedProductsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/a%2Fb%20mug/related')
     expect(options.query).toEqual({ limit: 4 })
   })

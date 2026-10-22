@@ -48,7 +48,7 @@ describe('useStoreConfigQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url] = apiFetch.mock.calls[0]
+    const [url] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/settings')
   })
 })
@@ -61,7 +61,7 @@ describe('useUpdateStoreConfig', () => {
     const result = (await runInComponent(() => useUpdateStoreConfig())) as any
     await result.mutateAsync({ store_name: 'Renamed', invoice_vat_rate: 23 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/settings')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ store_name: 'Renamed', invoice_vat_rate: 23 })

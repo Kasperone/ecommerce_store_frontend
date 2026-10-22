@@ -45,7 +45,7 @@ describe('useExportOrders', () => {
     })
 
     expect(result).toBeNull()
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/orders/export')
     expect(options.responseType).toBe('blob')
     expect(options.query).toMatchObject({

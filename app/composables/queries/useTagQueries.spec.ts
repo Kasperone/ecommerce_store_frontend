@@ -59,7 +59,7 @@ describe('useCreateTag', () => {
     const result = await runInComponent(() => useCreateTag()) as any
     await result.mutateAsync({ name: 'VIP', color: '#3b82f6' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tags/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'VIP', color: '#3b82f6' })
@@ -74,7 +74,7 @@ describe('useUpdateTag', () => {
     const result = await runInComponent(() => useUpdateTag()) as any
     await result.mutateAsync({ id: 5, patch: { name: 'Gold' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tags/5')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ name: 'Gold' })
@@ -89,7 +89,7 @@ describe('useDeleteTag', () => {
     const result = await runInComponent(() => useDeleteTag()) as any
     await result.mutateAsync(9)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tags/9')
     expect(options.method).toBe('DELETE')
   })
@@ -103,7 +103,7 @@ describe('useAttachTag', () => {
     const result = await runInComponent(() => useAttachTag()) as any
     await result.mutateAsync({ customerId: 4, body: { name: 'New' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/4/tags')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'New' })
@@ -118,7 +118,7 @@ describe('useDetachTag', () => {
     const result = await runInComponent(() => useDetachTag()) as any
     await result.mutateAsync({ customerId: 4, tagId: 7 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/customers/4/tags/7')
     expect(options.method).toBe('DELETE')
   })

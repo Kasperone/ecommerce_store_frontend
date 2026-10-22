@@ -17,15 +17,19 @@ const AXE_OPTIONS = { rules: { region: { enabled: false } } }
 const CHART_PROPS = [
   'data', 'yAxis', 'categories', 'xFormatter', 'yFormatter', 'height',
   'curveType', 'lineWidth', 'radius', 'barPadding', 'hideLegend', 'minMaxTicksOnly',
-]
+] as const
 const BarChartStub = defineComponent({
   name: 'BarChart',
-  props: CHART_PROPS,
+  // Spread: defineComponent wants a mutable array; the literal union keeps
+  // `wrapper.props('data')` etc. typed.
+  props: [...CHART_PROPS],
   template: '<div data-testid="trend-bar" />',
 })
 const LineChartStub = defineComponent({
   name: 'LineChart',
-  props: CHART_PROPS,
+  // Spread: defineComponent wants a mutable array; the literal union keeps
+  // `wrapper.props('data')` etc. typed.
+  props: [...CHART_PROPS],
   template: '<div data-testid="trend-line" />',
 })
 

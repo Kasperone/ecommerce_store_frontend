@@ -49,7 +49,7 @@ describe('AdminShippingZoneFormDialog', () => {
   it('renders edit mode header when a zone is provided', async () => {
     const zone = {
       id: 1, name: 'Poland Zone', country_count: 1, rate_count: 0, sort_order: 0,
-      is_active: true, description: null,
+      is_active: true, description: null, dim_divisor: null,
       created_at: '2026-05-30T00:00:00Z', updated_at: '2026-05-30T00:00:00Z',
     }
     await mountSuspended(ShippingZoneFormDialog, {

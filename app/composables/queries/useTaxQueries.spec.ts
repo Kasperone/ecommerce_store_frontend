@@ -52,7 +52,7 @@ describe('useTaxCategoriesQuery', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(apiFetch).toHaveBeenCalled()
-    const [url] = apiFetch.mock.calls[0]
+    const [url] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tax/categories')
   })
 })
@@ -65,7 +65,7 @@ describe('useCreateTaxCategory', () => {
     const result = await runInComponent(() => useCreateTaxCategory()) as any
     await result.mutateAsync({ code: 'BOOKS', name: 'Books', name_pl: null, is_default: false })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tax/categories')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ code: 'BOOKS', name: 'Books' })
@@ -80,7 +80,7 @@ describe('useUpdateTaxCategory', () => {
     const result = await runInComponent(() => useUpdateTaxCategory()) as any
     await result.mutateAsync({ id: 3, patch: { name: 'Renamed' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tax/categories/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ name: 'Renamed' })
@@ -95,7 +95,7 @@ describe('useDeleteTaxCategory', () => {
     const result = await runInComponent(() => useDeleteTaxCategory()) as any
     await result.mutateAsync(9)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tax/categories/9')
     expect(options.method).toBe('DELETE')
   })
@@ -112,7 +112,7 @@ describe('useCreateTaxRate', () => {
       input: { country_code: 'DE', rate_pct: 19, valid_from: '2020-01-01', valid_to: null },
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tax/categories/4/rates')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ country_code: 'DE', rate_pct: 19 })
@@ -127,7 +127,7 @@ describe('useUpdateTaxRate', () => {
     const result = await runInComponent(() => useUpdateTaxRate()) as any
     await result.mutateAsync({ id: 5, patch: { valid_to: '2025-01-01' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tax/rates/5')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ valid_to: '2025-01-01' })
@@ -142,7 +142,7 @@ describe('useDeleteTaxRate', () => {
     const result = await runInComponent(() => useDeleteTaxRate()) as any
     await result.mutateAsync(11)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/tax/rates/11')
     expect(options.method).toBe('DELETE')
   })

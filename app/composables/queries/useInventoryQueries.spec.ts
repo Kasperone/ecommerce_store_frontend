@@ -49,7 +49,7 @@ describe('useInventoryQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/inventory/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -83,7 +83,7 @@ describe('useInventoryMovementsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/inventory/movements')
     expect(options.query).toMatchObject({ page: 3, page_size: 20, product_id: 7 })
   })
@@ -110,7 +110,7 @@ describe('useAdjustStock', () => {
     const result = (await runInComponent(() => useAdjustStock())) as any
     await result.mutateAsync({ productId: 4, warehouseId: 2, newStock: 15, note: 'recount' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/inventory/products/4/stock')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ warehouse_id: 2, new_stock: 15, note: 'recount' })
@@ -137,7 +137,7 @@ describe('useRestock', () => {
     const result = (await runInComponent(() => useRestock())) as any
     await result.mutateAsync({ productId: 4, warehouseId: 2, quantity: 5, note: 'PO-1' })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/inventory/products/4/restock')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ warehouse_id: 2, quantity: 5, note: 'PO-1' })
@@ -157,7 +157,7 @@ describe('useTransferStock', () => {
       quantity: 3,
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/inventory/transfer')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({
@@ -190,7 +190,7 @@ describe('useEmailLowStockReport', () => {
     const result = (await runInComponent(() => useEmailLowStockReport())) as any
     const data = await result.mutateAsync()
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/inventory/low-stock-report/email')
     expect(options.method).toBe('POST')
     expect(data).toMatchObject({ recipients: ['admin@store.test'], product_count: 4 })
@@ -205,7 +205,7 @@ describe('useSetLowStockThreshold', () => {
     const result = (await runInComponent(() => useSetLowStockThreshold())) as any
     await result.mutateAsync({ productId: 9, threshold: 5 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/9')
     expect(options.method).toBe('PUT')
     expect(options.body).toMatchObject({ low_stock_threshold: 5 })

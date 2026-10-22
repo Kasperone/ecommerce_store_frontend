@@ -77,7 +77,7 @@ describe('ProductImageUploader', () => {
     await new Promise(r => setTimeout(r, 0))
 
     expect(mutateAsync).toHaveBeenCalledTimes(1)
-    const call = mutateAsync.mock.calls[0][0]
+    const call = mutateAsync.mock.calls[0]![0]
     expect(call.productId).toBe(42)
     expect(call.formData).toBeInstanceOf(FormData)
     const uploadedFile = call.formData.get('file') as File

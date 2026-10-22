@@ -60,7 +60,7 @@ describe('useCollectionProductsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/products/')
     expect(options.query).toMatchObject({ collection_id: 7 })
   })
@@ -74,7 +74,7 @@ describe('useCreateCollection', () => {
     const result = await runInComponent(() => useCreateCollection()) as any
     await result.mutateAsync({ name: 'Summer', slug: 'summer', type: 'manual', is_active: true, sort_order: 0 })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/collections/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'Summer', slug: 'summer' })
@@ -89,7 +89,7 @@ describe('useUpdateCollection', () => {
     const result = await runInComponent(() => useUpdateCollection()) as any
     await result.mutateAsync({ id: 3, patch: { name: 'Winter' } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/collections/3')
     expect(options.method).toBe('PUT')
     expect(options.body).toMatchObject({ name: 'Winter' })
@@ -104,7 +104,7 @@ describe('useDeleteCollection', () => {
     const result = await runInComponent(() => useDeleteCollection()) as any
     await result.mutateAsync(8)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/collections/8')
     expect(options.method).toBe('DELETE')
   })
@@ -118,7 +118,7 @@ describe('useSetCollectionProducts', () => {
     const result = await runInComponent(() => useSetCollectionProducts()) as any
     await result.mutateAsync({ id: 4, productIds: [3, 1, 2] })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/collections/4/products')
     expect(options.method).toBe('PUT')
     expect(options.body).toEqual({ product_ids: [3, 1, 2] })
@@ -134,7 +134,7 @@ describe('useUploadCollectionHero', () => {
     const formData = new FormData()
     await result.mutateAsync({ id: 2, formData })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/collections/2/hero')
     expect(options.method).toBe('POST')
   })

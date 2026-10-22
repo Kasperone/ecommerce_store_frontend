@@ -50,7 +50,7 @@ describe('useSegmentsQuery', () => {
     await nextTick()
     await new Promise(r => setTimeout(r, 0))
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/segments/')
     expect(options.query).toMatchObject({
       page: 2,
@@ -88,7 +88,7 @@ describe('useCreateSegment', () => {
       filters: { tag_match: 'any', min_order_count: 5 },
     })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/segments/')
     expect(options.method).toBe('POST')
     expect(options.body).toMatchObject({ name: 'VIP', is_active: true })
@@ -103,7 +103,7 @@ describe('useUpdateSegment', () => {
     const result = (await runInComponent(() => useUpdateSegment())) as any
     await result.mutateAsync({ id: 3, patch: { is_active: false } })
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/segments/3')
     expect(options.method).toBe('PATCH')
     expect(options.body).toMatchObject({ is_active: false })
@@ -118,7 +118,7 @@ describe('useDeleteSegment', () => {
     const result = (await runInComponent(() => useDeleteSegment())) as any
     await result.mutateAsync(5)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/segments/5')
     expect(options.method).toBe('DELETE')
   })
@@ -132,7 +132,7 @@ describe('useSegmentPreview', () => {
     const result = (await runInComponent(() => useSegmentPreview())) as any
     const out = await result.previewFilters({ tag_match: 'all', min_order_count: 3 }, 5)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/segments/preview')
     expect(options.method).toBe('POST')
     expect(options.query).toMatchObject({ limit: 5 })
@@ -147,7 +147,7 @@ describe('useSegmentPreview', () => {
     const result = (await runInComponent(() => useSegmentPreview())) as any
     await result.previewSaved(9, 0)
 
-    const [url, options] = apiFetch.mock.calls[0]
+    const [url, options] = apiFetch.mock.calls[0]!
     expect(url).toBe('/api/v1/admin/segments/9/preview')
     expect(options.query).toMatchObject({ limit: 0 })
     expect(options.method).toBeUndefined()
