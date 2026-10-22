@@ -23,7 +23,7 @@ beforeEach(() => {
   // happy-dom doesn't implement URL.createObjectURL — patch the two static
   // methods directly so we don't replace the URL constructor (which other
   // code in Nuxt UI / our component imports uses for new URL(...) calls).
-  vi.spyOn(URL, 'createObjectURL').mockImplementation((_: Blob) => 'blob://mocked')
+  vi.spyOn(URL, 'createObjectURL').mockImplementation((_: Blob | MediaSource) => 'blob://mocked')
   vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
 })
 

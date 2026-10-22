@@ -33,7 +33,7 @@ function clickTab(value: 'en' | 'pl') {
 }
 
 beforeEach(() => {
-  vi.spyOn(URL, 'createObjectURL').mockImplementation((_: Blob) => 'blob://mocked')
+  vi.spyOn(URL, 'createObjectURL').mockImplementation((_: Blob | MediaSource) => 'blob://mocked')
   vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
 })
 
