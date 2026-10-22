@@ -1,14 +1,12 @@
 {
-  "total": 20,
+  "total": 7,
   "files": {
     "app/app.vue": 1,
     "app/components/account/Nav.spec.ts": 1,
     "app/components/admin/CategoryFormModal.spec.ts": 1,
     "app/components/admin/CategoryHeroStaging.spec.ts": 1,
-    "app/components/admin/DashboardSalesTrend.spec.ts": 12,
     "app/components/admin/ProductImageUploader.spec.ts": 1,
     "app/components/admin/SettingsForm.spec.ts": 1,
-    "app/pages/account/company.spec.ts": 1,
-    "app/pages/admin/products/new.spec.ts": 1
+    "app/pages/account/company.spec.ts": 1
   }
 }

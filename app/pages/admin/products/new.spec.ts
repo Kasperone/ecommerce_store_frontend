@@ -1,6 +1,6 @@
 // @vitest-environment nuxt
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { defineComponent, h } from 'vue'
+import { type Component, defineComponent, h } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 
 const {
@@ -120,7 +120,7 @@ const ButtonStub = defineComponent({
   },
 })
 
-async function mountPage(stagingStub = StagingStub) {
+async function mountPage(stagingStub: Component = StagingStub) {
   const NewPage = (await import('./new.vue')).default
   return await mountSuspended(NewPage, {
     global: {
