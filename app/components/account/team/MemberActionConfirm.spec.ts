@@ -35,7 +35,9 @@ const MEMBER: CompanyMemberResponse = {
 
 let wrapper: Awaited<ReturnType<typeof mountSuspended>> | null = null
 
-async function mountConfirm(props: Record<string, unknown>) {
+async function mountConfirm(
+  props: { action: 'remove' | 'suspend' | 'reactivate' } & Record<string, unknown>,
+) {
   wrapper = await mountSuspended(MemberActionConfirm, {
     props: { open: true, member: MEMBER, ...props },
   })

@@ -24,6 +24,8 @@ const USER: UserResponse = {
   is_active: true,
   is_verified: true,
   role: 'CUSTOMER',
+  is_owner: false,
+  capabilities: [],
   created_at: '2026-05-28T00:00:00Z',
   updated_at: '2026-05-28T00:00:00Z',
 }

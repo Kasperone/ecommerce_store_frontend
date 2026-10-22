@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { axe } from 'vitest-axe'
-import CatalogToolbar from './CatalogToolbar.vue'
+import CatalogToolbar, { type CatalogFilterValues } from './CatalogToolbar.vue'
 
 const AXE_OPTIONS = {
   rules: {
@@ -15,8 +15,14 @@ const AXE_OPTIONS = {
 }
 
 function baseProps(overrides: Record<string, unknown> = {}) {
+  const values: CatalogFilterValues = {
+    sort: 'newest',
+    search: undefined,
+    categoryId: undefined,
+    inStock: undefined,
+  }
   return {
-    values: { sort: 'newest', search: undefined, categoryId: undefined, inStock: undefined },
+    values,
     categories: [{ id: 1, name: 'Electronics' }, { id: 2, name: 'Books' }],
     ...overrides,
   }
