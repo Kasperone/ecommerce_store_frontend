@@ -86,14 +86,12 @@ test.describe('Admin CMS page builder', () => {
       await selectOption(page, dialog, 'Type', 'Landing')
       await dialog.getByRole('button', { name: 'Create', exact: true }).click()
 
-      // Creating navigates straight into the editor for the new page.
-      //
-      // ⚠️ 120 s, not the usual 60 s: this is a CLIENT-side navigation, so the
-      // URL does not move until Vite has compiled the route chunk — and the
-      // editor pulls in the whole block registry plus the rich-text editor.
-      // A cold run blew straight through 60 s here while the page row was
-      // already in pg (i.e. the create had worked fine).
-      await expect(page).toHaveURL(/\/admin\/pages\/\d+/, { timeout: 120_000 })
+      // Creating navigates straight into the editor for the new page. It is a
+      // CLIENT-side navigation, so the URL only moves once the route chunk has
+      // loaded. On a cold dev server that load used to discover `vuedraggable`
+      // and full-reload the tab back onto /admin/pages, dropping the navigation
+      // for good (no timeout was ever enough). nuxt.config.ts pre-bundles it now.
+      await expect(page).toHaveURL(/\/admin\/pages\/\d+/, { timeout: 60_000 })
       const created = await api.getPageRow(slug)
       expect(created).not.toBeNull()
       pageId = created!.id
