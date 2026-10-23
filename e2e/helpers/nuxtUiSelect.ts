@@ -44,8 +44,18 @@ export async function openSelect(scope: Page | Locator, label: string): Promise<
  * the control takes focus and nothing opens — no error, no console warning.
  * Specs that happened to touch another control first (a search field, say) hid
  * this by giving hydration time; one whose first interaction IS the select does
- * not. The retry re-clicks only while the option is still hidden, so it can
- * never toggle an already-open listbox shut.
+ * not. The retry re-clicks only while the trigger reports itself closed, so it
+ * can never toggle an already-open listbox shut.
+ *
+ * "Is it open?" is asked of the trigger (`aria-expanded`), and options are only
+ * matched inside the listbox it `aria-controls` while that listbox is
+ * `data-state="open"` — never by whether a matching option is merely visible.
+ * After a pick the listbox stays mounted for its 100ms `scale-out` exit
+ * animation with every option still visible, so picking from the same select
+ * again inside that window (e.g. "Disabled" then "All" with only a fast
+ * row-count assertion between) used to find the *closing* listbox's option,
+ * skip the open click, and click an element that detached mid-click — then
+ * wait on a listbox nobody reopened until the test timed out.
  */
 export async function selectOption(
   page: Page,
@@ -53,12 +63,21 @@ export async function selectOption(
   label: string,
   optionName: string,
 ): Promise<void> {
-  const option = page.getByRole('option', { name: optionName, exact: true })
+  // A handle, not a locator, resolved while the select is still closed: an open
+  // select aria-hides everything outside its listbox, so a `getByRole('dialog')`
+  // scope stops matching the moment it opens — and a page-wide `#id` is no
+  // substitute, since a modal can reuse an id the page behind it already has.
+  const trigger = await (await fieldControl(scope, label)).elementHandle()
+  // Re-read per use: a `USelectMenu` trigger's `aria-controls` stays empty
+  // until its first open mounts the content.
+  const openOption = async () => page
+    .locator(`[id="${await trigger.getAttribute('aria-controls')}"][data-state="open"]`)
+    .getByRole('option', { name: optionName, exact: true })
   await expect(async () => {
-    if (!(await option.isVisible())) {
-      await openSelect(scope, label)
+    if ((await trigger.getAttribute('aria-expanded')) !== 'true') {
+      await trigger.click()
     }
-    await expect(option).toBeVisible({ timeout: 2_000 })
+    await expect(await openOption()).toBeVisible({ timeout: 2_000 })
   }).toPass({ timeout: 30_000 })
-  await option.click()
+  await (await openOption()).click()
 }
