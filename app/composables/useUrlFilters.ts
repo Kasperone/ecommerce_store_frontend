@@ -66,12 +66,22 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(
     return parsed.success ? parsed.data : defaults
   })
 
+  // Patches whose navigation has not landed yet. `filters` reads the committed
+  // route and `router.push` is async, so a second `set()` inside that window
+  // (a select pick, then a search keystroke) would otherwise merge against the
+  // stale query — and its push cancels the first one, writing the old value
+  // back. Only the latest push clears it, landed or failed: after that the
+  // route is the truth again.
+  let pending: Partial<T> = {}
+
   // `push` (not `replace`) so back/forward navigation restores the previous
   // filter combination. Search input is upstream-debounced by the caller, so
   // we don't get one history entry per keystroke; selects update per-click
   // which is the desired granularity.
   const set = (patch: Partial<T>) => {
-    const merged = { ...filters.value, ...patch }
+    pending = { ...pending, ...patch }
+    const inFlight = pending
+    const merged = { ...filters.value, ...pending }
     const query: Record<string, string | undefined> = {}
     for (const key of Object.keys(defaults) as Array<keyof T>) {
       const k = key as string
@@ -81,16 +91,14 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(
     }
     void router.push({
       query: { ...route.query, ...query },
+    }).finally(() => {
+      if (pending === inFlight) pending = {}
     })
   }
 
-  const reset = () => {
-    const cleared: Record<string, undefined> = {}
-    for (const key of Object.keys(defaults)) {
-      cleared[key] = undefined
-    }
-    void router.push({ query: { ...route.query, ...cleared } })
-  }
+  // Every key back to its default, i.e. stripped from the URL — through `set`
+  // so a `set()` issued before the reset lands does not undo it.
+  const reset = () => set({ ...defaults })
 
   return { filters, set, reset }
 }

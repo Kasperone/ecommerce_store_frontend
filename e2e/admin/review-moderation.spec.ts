@@ -225,21 +225,6 @@ test.describe('Admin review moderation', () => {
 
       const rowFor = (label: string) => page.getByRole('row').filter({ hasText: names[label] })
 
-      // Picking a `USelect` option is not reliably one click: the listbox
-      // re-positions over its trigger as it opens (Reka scrolls the selected
-      // item into view), so a click computed against the pre-scroll layout can
-      // land on nothing — `selectOption` resolves happily and the model never
-      // changes. Observed on the third select of the run, with the trigger
-      // still reading the previous value. Assert the trigger's displayed value
-      // and re-pick until it takes.
-      const setFilter = async (label: string, option: string) => {
-        const trigger = await fieldControl(page, label)
-        await expect(async () => {
-          await selectOption(page, page, label, option)
-          await expect(trigger).toContainText(option, { timeout: 2_000 })
-        }).toPass({ timeout: 30_000 })
-      }
-
       await page.context().addCookies([admin.refreshCookie])
       await page.goto('/admin/reviews')
       await expect(page).toHaveURL(/\/admin\/reviews/, { timeout: 60_000 })
@@ -256,21 +241,21 @@ test.describe('Admin review moderation', () => {
 
       // Status: only the approved one survives. Alpha is the control that must
       // stay PRESENT — without it, a filter that dropped every row would pass.
-      await setFilter('Status', 'Approved')
+      await selectOption(page, page, 'Status', 'Approved')
       await expect(rowFor('Alpha')).toBeVisible({ timeout: 15_000 })
       await expect(rowFor('Bravo')).toHaveCount(0)
       await expect(rowFor('Charlie')).toHaveCount(0)
 
       // Rating: back to all statuses, then the 2-star review is the only match
       // (and now it is the control).
-      await setFilter('Status', 'All statuses')
-      await setFilter('Rating', '2 stars')
+      await selectOption(page, page, 'Status', 'All statuses')
+      await selectOption(page, page, 'Rating', '2 stars')
       await expect(rowFor('Bravo')).toBeVisible({ timeout: 15_000 })
       await expect(rowFor('Alpha')).toHaveCount(0)
       await expect(rowFor('Charlie')).toHaveCount(0)
 
       // Search: narrowing the term to one product name pins that row alone.
-      await setFilter('Rating', 'All ratings')
+      await selectOption(page, page, 'Rating', 'All ratings')
       await search.fill(names['Charlie'])
       await expect(rowFor('Charlie')).toBeVisible({ timeout: 15_000 })
       await expect(rowFor('Alpha')).toHaveCount(0)
