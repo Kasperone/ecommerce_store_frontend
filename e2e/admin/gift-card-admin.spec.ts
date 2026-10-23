@@ -214,9 +214,11 @@ test.describe('Admin gift cards', () => {
       await selectOption(page, page, 'Status', 'Active')
       await expect(rows).toHaveCount(1, { timeout: 30_000 })
       await expect(rows.filter({ hasText: keeperEmail })).toHaveCount(1)
+      // Active → Disabled is one row → one row, so a count asserted first passes
+      // on the stale Active row before the refetch: pin the swap by content.
       await selectOption(page, page, 'Status', 'Disabled')
-      await expect(rows).toHaveCount(1, { timeout: 30_000 })
-      await expect(rows.filter({ hasText: targetEmail })).toHaveCount(1)
+      await expect(rows.filter({ hasText: targetEmail })).toHaveCount(1, { timeout: 30_000 })
+      await expect(rows).toHaveCount(1)
       await selectOption(page, page, 'Status', 'All')
       await expect(rows).toHaveCount(2, { timeout: 30_000 })
 
@@ -234,9 +236,10 @@ test.describe('Admin gift cards', () => {
 
       // ...and the keeper's own last4 brings back the other card, proving the
       // narrowing above followed the argument rather than emptying the table.
+      // (One row → one row again: content first, as with Active → Disabled.)
       await search.fill(keeper.last4)
-      await expect(rows).toHaveCount(1, { timeout: 30_000 })
-      await expect(rows.filter({ hasText: keeperEmail })).toHaveCount(1)
+      await expect(rows.filter({ hasText: keeperEmail })).toHaveCount(1, { timeout: 30_000 })
+      await expect(rows).toHaveCount(1)
     }
     finally {
       await api.purgeGiftCardsByRecipientPrefix(emailPrefix)
