@@ -212,6 +212,16 @@ export default defineNuxtConfig({
         '#shared': resolve('./shared'),
       },
     },
+    // Dev-server only. `vuedraggable` (CJS) is imported only by the CMS editor
+    // (`/admin/pages/[id]`), so Vite's startup scan never sees it: the first
+    // client-side navigation into the editor discovers it, re-optimizes, and
+    // full-reloads the tab — at the URL the router has not left yet, which
+    // silently drops the navigation. Pre-bundling it at startup means no reload.
+    // (Every cold e2e run failed cms-page-builder.spec.ts on its first attempt
+    // this way.)
+    optimizeDeps: {
+      include: ['vuedraggable'],
+    },
   },
 
   eslint: {
