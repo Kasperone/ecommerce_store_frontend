@@ -37,26 +37,6 @@ function field(scope: Page | Locator, label: string): Locator {
   return scope.getByLabel(new RegExp(`^${label}\\s*\\*?$`))
 }
 
-/**
- * Picking a `USelect` option is not reliably one click: the listbox re-positions
- * over its trigger as it opens (Reka scrolls the selected item into view), so a
- * click computed against the pre-scroll layout can land on nothing —
- * `selectOption` resolves happily and the model never changes. Assert the
- * trigger's displayed value and re-pick until it takes.
- */
-async function setSelect(
-  page: Page,
-  scope: Page | Locator,
-  label: string,
-  option: string,
-): Promise<void> {
-  const trigger = await fieldControl(scope, label)
-  await expect(async () => {
-    await selectOption(page, scope, label, option)
-    await expect(trigger).toContainText(option, { timeout: 2_000 })
-  }).toPass({ timeout: 30_000 })
-}
-
 test.describe('Admin email campaigns', () => {
   test('draft → schedule (rejected without a date) → send → delete', async ({ page }) => {
     test.slow()
@@ -109,11 +89,11 @@ test.describe('Admin email campaigns', () => {
       await field(dialog, 'Name').fill(name)
       await field(dialog, 'Subject').fill(subject)
       await field(dialog, 'Body').fill(body)
-      await setSelect(page, dialog, 'Audience', 'Segment')
+      await selectOption(page, dialog, 'Audience', 'Segment')
       // The segment picker only exists once the audience is `segment`, and it
       // resolves the recipient count through the live preview endpoint — proof
       // the campaign is aimed at the one address this run owns.
-      await setSelect(page, dialog, 'Segment', segmentName)
+      await selectOption(page, dialog, 'Segment', segmentName)
       await expect(dialog.getByText('1 recipient', { exact: true })).toBeVisible({ timeout: 15_000 })
       await dialog.getByRole('button', { name: 'Save', exact: true }).click()
 
@@ -140,7 +120,7 @@ test.describe('Admin email campaigns', () => {
       }
       await openEditor()
 
-      await setSelect(page, dialog, 'Status', 'Scheduled')
+      await selectOption(page, dialog, 'Status', 'Scheduled')
       await dialog.getByRole('button', { name: 'Save', exact: true }).click()
       await expect(
         dialog.getByText('A scheduled date is required when the status is Scheduled.'),
@@ -294,30 +274,30 @@ test.describe('Admin email campaigns', () => {
 
       // Status: only the sent one survives. Charlie is the control that must
       // stay PRESENT — without it, a filter that dropped every row would pass.
-      await setSelect(page, page, 'Status', 'Sent')
+      await selectOption(page, page, 'Status', 'Sent')
       await expect(rows).toHaveCount(1, { timeout: 15_000 })
       await expect(rowFor('Charlie')).toBeVisible()
       await expect(rowFor('Alpha')).toHaveCount(0)
       await expect(rowFor('Bravo')).toHaveCount(0)
 
       // Scheduled is the mirror: now Bravo is the control.
-      await setSelect(page, page, 'Status', 'Scheduled')
+      await selectOption(page, page, 'Status', 'Scheduled')
       await expect(rows).toHaveCount(1, { timeout: 15_000 })
       await expect(rowFor('Bravo')).toBeVisible()
       await expect(rowFor('Alpha')).toHaveCount(0)
       await expect(rowFor('Charlie')).toHaveCount(0)
 
       // Audience is a second, independent axis over the same working set.
-      await setSelect(page, page, 'Status', 'All')
+      await selectOption(page, page, 'Status', 'All')
       await expect(rows).toHaveCount(seeds.length, { timeout: 15_000 })
-      await setSelect(page, page, 'Audience', 'Customers')
+      await selectOption(page, page, 'Audience', 'Customers')
       await expect(rows).toHaveCount(1, { timeout: 15_000 })
       await expect(rowFor('Alpha')).toBeVisible()
       await expect(rowFor('Bravo')).toHaveCount(0)
       await expect(rowFor('Charlie')).toHaveCount(0)
 
       // Search narrows to one name on its own.
-      await setSelect(page, page, 'Audience', 'All')
+      await selectOption(page, page, 'Audience', 'All')
       await expect(rows).toHaveCount(seeds.length, { timeout: 15_000 })
       await (await fieldControl(page, 'Search')).fill(names['Bravo']!)
       await expect(rows).toHaveCount(1, { timeout: 15_000 })

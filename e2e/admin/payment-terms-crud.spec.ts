@@ -25,7 +25,7 @@
 // fail for a reason that looks nothing like the cause.
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
-import { fieldControl, selectOption } from '../helpers/nuxtUiSelect'
+import { selectOption } from '../helpers/nuxtUiSelect'
 import { KNOWN_ADMIN } from '../fixtures/testUser'
 
 test.use({ storageState: { cookies: [], origins: [] } })
@@ -39,25 +39,6 @@ test.setTimeout(240_000)
  */
 function field(scope: Page | Locator, label: string): Locator {
   return scope.getByLabel(new RegExp(`^${label}\\s*\\*?$`))
-}
-
-/**
- * Picking a `USelect` option is not reliably one click: the listbox re-positions
- * over its trigger as it opens, so a click computed against the pre-scroll
- * layout can land on nothing while `selectOption` resolves happily. Assert the
- * trigger's displayed value and re-pick until it takes.
- */
-async function setSelect(
-  page: Page,
-  scope: Page | Locator,
-  label: string,
-  option: string,
-): Promise<void> {
-  const trigger = await fieldControl(scope, label)
-  await expect(async () => {
-    await selectOption(page, scope, label, option)
-    await expect(trigger).toContainText(option, { timeout: 2_000 })
-  }).toPass({ timeout: 30_000 })
 }
 
 test.describe('Admin payment terms', () => {
@@ -118,7 +99,7 @@ test.describe('Admin payment terms', () => {
       }
       await openEditor()
 
-      await setSelect(page, dialog, 'Term type', 'Fixed date')
+      await selectOption(page, dialog, 'Term type', 'Fixed date')
       await dialog.getByRole('button', { name: 'Save', exact: true }).click()
       await expect(dialog.getByText('Pick a due date')).toBeVisible({ timeout: 15_000 })
       // "Nothing was written" needs a settled window — an immediate pg read
