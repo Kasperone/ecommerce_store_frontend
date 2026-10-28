@@ -219,8 +219,14 @@ export default defineNuxtConfig({
     // silently drops the navigation. Pre-bundling it at startup means no reload.
     // (Every cold e2e run failed cms-page-builder.spec.ts on its first attempt
     // this way.)
+    //
+    // Same story for the rest of this list, each first reached behind a lazy
+    // route or a dynamic import: `zod` + `@vueuse/router` on the first admin
+    // page, `@stripe/stripe-js/pure` on checkout. A cold dev server logs
+    // "New dependencies found" and reloads the tab mid-navigation, which is the
+    // occasional first-run `toHaveURL` timeout (auto-discount, say).
     optimizeDeps: {
-      include: ['vuedraggable'],
+      include: ['vuedraggable', 'zod', '@vueuse/router', '@stripe/stripe-js/pure'],
     },
   },
 
