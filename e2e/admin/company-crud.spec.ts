@@ -36,26 +36,6 @@ function field(scope: Page | Locator, label: string): Locator {
   return scope.getByLabel(new RegExp(`^${label}\\s*\\*?$`))
 }
 
-/**
- * Picking a `USelect` option is not reliably one click: the listbox re-positions
- * over its trigger as it opens (Reka scrolls the selected item into view), so a
- * click computed against the pre-scroll layout can land on nothing —
- * `selectOption` resolves happily and the model never changes. Assert the
- * trigger's displayed value and re-pick until it takes.
- */
-async function setSelect(
-  page: Page,
-  scope: Page | Locator,
-  label: string,
-  option: string,
-): Promise<void> {
-  const trigger = await fieldControl(scope, label)
-  await expect(async () => {
-    await selectOption(page, scope, label, option)
-    await expect(trigger).toContainText(option, { timeout: 2_000 })
-  }).toPass({ timeout: 30_000 })
-}
-
 test.describe('Admin company directory', () => {
   test('create → edit (rename, status, primary contact) → delete', async ({ page }) => {
     test.slow()
@@ -102,7 +82,7 @@ test.describe('Admin company directory', () => {
       await field(dialog, 'Phone').fill(phone)
       await field(dialog, 'Account manager').fill(accountManager)
       await field(dialog, 'Notes').fill(notes)
-      await setSelect(page, dialog, 'Status', 'Approved')
+      await selectOption(page, dialog, 'Status', 'Approved')
       await dialog.getByRole('button', { name: 'Save', exact: true }).click()
 
       // pg is the ground truth. Every field the form claims to send is checked,
@@ -129,7 +109,7 @@ test.describe('Admin company directory', () => {
       }).toPass({ timeout: 60_000 })
 
       await field(dialog, 'Name').fill(renamed)
-      await setSelect(page, dialog, 'Status', 'Rejected')
+      await selectOption(page, dialog, 'Status', 'Rejected')
 
       // The contact picker is a searchable `USelectMenu` (portalled listbox,
       // 250 ms-debounced remote search), so both the open click and the search
@@ -252,14 +232,14 @@ test.describe('Admin company directory', () => {
 
       // Status: only the approved one survives. Alpha is the control that must
       // stay PRESENT — without it, a filter that dropped every row would pass.
-      await setSelect(page, page, 'Status', 'Approved')
+      await selectOption(page, page, 'Status', 'Approved')
       await expect(rows).toHaveCount(1, { timeout: 15_000 })
       await expect(rowFor('Alpha')).toBeVisible()
       await expect(rowFor('Bravo')).toHaveCount(0)
       await expect(rowFor('Charlie')).toHaveCount(0)
 
       // Rejected is the mirror: now Charlie is the control.
-      await setSelect(page, page, 'Status', 'Rejected')
+      await selectOption(page, page, 'Status', 'Rejected')
       await expect(rows).toHaveCount(1, { timeout: 15_000 })
       await expect(rowFor('Charlie')).toBeVisible()
       await expect(rowFor('Alpha')).toHaveCount(0)
@@ -267,7 +247,7 @@ test.describe('Admin company directory', () => {
 
       // Search matches the tax id too, not just the name — the placeholder
       // promises it and nothing else covers it.
-      await setSelect(page, page, 'Status', 'All')
+      await selectOption(page, page, 'Status', 'All')
       await expect(rows).toHaveCount(seeds.length, { timeout: 15_000 })
       await (await fieldControl(page, 'Search')).fill(alphaTaxId)
       await expect(rows).toHaveCount(1, { timeout: 15_000 })
