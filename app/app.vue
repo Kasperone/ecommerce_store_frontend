@@ -101,7 +101,11 @@ useSchemaOrg([
     'email': () => storeConfig.value?.email?.trim() || undefined,
     'telephone': () => storeConfig.value?.phone?.trim() || undefined,
     'address': () => postalAddress.value,
-    'sameAs': () => (sameAs.value.length ? sameAs.value : undefined),
+    // A getter, not `sameAs.value`: storeConfig is async data, so a static read
+    // at setup would be empty. unhead resolves any getter and walks the array it
+    // returns, but schema-org types `sameAs` as `Arrayable<string>` and only
+    // models a getter per string — hence the cast.
+    'sameAs': (() => (sameAs.value.length ? sameAs.value : undefined)) as unknown as string[],
     // Nov-2025 Google change: declare the returns policy ONCE at Organization
     // level instead of per-Offer. Values mirror the /returns legal page
     // (EU 14-day right of withdrawal, customer bears the return shipping) —
