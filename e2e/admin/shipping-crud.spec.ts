@@ -19,11 +19,11 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
 import { ApiClient } from '../fixtures/apiClient'
 import { KNOWN_ADMIN } from '../fixtures/testUser'
-// `fieldControl` / `openSelect` were first derived here, then lifted to the
-// shared helper when the orders-export spec hit the same wall. Scope every call
-// to the dialog when one is open: the rates tab repeats Zone/Method/Currency as
-// filter labels on the page behind it.
-import { fieldControl, openSelect } from '../helpers/nuxtUiSelect'
+// `fieldControl` / `openSelect` / `selectOption` were first derived here, then
+// lifted to the shared helper when the orders-export spec hit the same wall.
+// Scope every call to the dialog when one is open: the rates tab repeats
+// Zone/Method/Currency as filter labels on the page behind it.
+import { fieldControl, openSelect, selectOption } from '../helpers/nuxtUiSelect'
 import { setUInputNumber } from '../helpers/uinputnumber'
 
 test.use({ storageState: { cookies: [], origins: [] } })
@@ -141,10 +141,8 @@ test.describe('Admin shipping CRUD', () => {
       await page.goto('/admin/shipping?tab=rates')
       await openDialog(page, 'New rate')
       const rateDialog = page.getByRole('dialog')
-      await openSelect(rateDialog, 'Zone')
-      await page.getByRole('option', { name: zoneName, exact: true }).click()
-      await openSelect(rateDialog, 'Method')
-      await page.getByRole('option', { name: methodName, exact: true }).click()
+      await selectOption(page, rateDialog, 'Zone', zoneName)
+      await selectOption(page, rateDialog, 'Method', methodName)
       // Currency already defaults to USD; assert rather than re-pick it (this
       // one is a `USelect`, whose popup does not survive a scripted click).
       await expect(await fieldControl(rateDialog, 'Currency')).toContainText('USD')
@@ -175,8 +173,7 @@ test.describe('Admin shipping CRUD', () => {
       // This leg is the regression guard for the `set(key, value)` bug: the page
       // was calling `useUrlFilters`' `set` with two args instead of one patch
       // object, so the merge was a no-op and the filter silently never applied.
-      await openSelect(page, 'Zone')
-      await page.getByRole('option', { name: zoneName, exact: true }).click()
+      await selectOption(page, page, 'Zone', zoneName)
       await expect(page).toHaveURL(/[?&]zoneId=\d+/, { timeout: 10_000 })
       await expect(rateRow).toBeVisible()
       // toHaveCount (not toBeHidden): the shared US zone owns several rate rows,
