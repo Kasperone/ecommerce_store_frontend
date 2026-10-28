@@ -4,6 +4,10 @@ import { defineConfig, devices } from '@playwright/test'
 // Defaults to 3000 so local `npm run e2e` is unchanged.
 const WEB_PORT = Number(process.env.E2E_WEB_PORT) || 3000
 
+// Specs that switch the shared `gift_cards_enabled` toggle; they get their own
+// serialized projects below instead of running in `chromium`.
+const GIFT_CARD_SPECS = /checkout\/gift-card(-purchase)?\.spec\.ts/
+
 export default defineConfig({
   testDir: 'e2e',
   outputDir: 'playwright/.test-results',
@@ -45,7 +49,25 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      testIgnore: /auth\.setup\.ts/,
+      testIgnore: [/auth\.setup\.ts/, GIFT_CARD_SPECS],
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // The two gift-card specs both switch `store_config.gift_cards_enabled` on
+    // and restore it in `afterAll` (see `restoreStoreConfigAfterAll`). That
+    // singleton is shared, and with more than one worker one file's restore
+    // switches the toggle off under the other file's tests — the flag input
+    // vanishes mid-checkout. Files only ever run in parallel with each other, so
+    // chaining them as dependent projects serializes just this pair and costs
+    // nothing at `workers: 1`. Everything else stays in `chromium`.
+    {
+      name: 'gift-card-tender',
+      testMatch: /checkout\/gift-card\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'gift-card-purchase',
+      testMatch: /checkout\/gift-card-purchase\.spec\.ts/,
+      dependencies: ['gift-card-tender'],
       use: { ...devices['Desktop Chrome'] },
     },
     // Tag-scoped extra dimensions. Both are deliberately NOT full-suite runs:

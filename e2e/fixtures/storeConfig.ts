@@ -31,7 +31,9 @@ import { KNOWN_ADMIN } from './testUser'
  *   or a developer running against a store that legitimately has the feature on.
  * - Safe under this repo's `workers: 1` + `fullyParallel: false`. With real
  *   parallelism the restore would race a concurrent file that needs the flag on,
- *   so revisit this if that config ever changes.
+ *   so revisit this if that config ever changes. The one pair that shares a key
+ *   today (the gift-card specs) is chained as dependent projects in
+ *   `playwright.config.ts`, so it is already safe with more workers.
  */
 export function restoreStoreConfigAfterAll(keys: readonly string[]): void {
   let snapshot: Record<string, unknown> | null = null
