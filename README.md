@@ -4,97 +4,170 @@ Modern e-commerce frontend built with Nuxt 4, Vue 3, and TypeScript.
 
 This store is my playground for learning Python and backend development as I expand from frontend toward full stack. It also lets me explore Nuxt 4 and Nuxt UI, experiment with AI coding agents, LLMs, IDEs and terminals, and use agents to test the application. It is an evolving learning project, not a production-ready store.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Nuxt 4** with Vue 3 Composition API and TypeScript
-- **Nuxt UI 4** — component library (Tailwind CSS v4 via its toolchain, not a direct `tailwindcss` npm dependency)
-- **Pinia** — state management
-- **@nuxtjs/i18n** — English and Polish (`i18n/locales/`, `i18n/i18n.config.ts`)
-- **Zod** — form validation (`shared/validators/`)
-- **Vite** — bundler (via Nuxt)
+- **Nuxt 4** - Vue framework
+- **Vue 3** - Progressive JavaScript framework
+- **TypeScript** - Type-safe development
+- **Pinia** - State management
+- **Nuxt UI** - Component library (ships Tailwind CSS v4; styling is wired through Nuxt UI and `app/assets/css/main.css`, not a direct `tailwindcss` package dependency)
+- **Nuxt i18n** - Internationalization (English, Polish)
+- **Vite** - Build tool
 
-Styling: `app/assets/css/main.css` imports `tailwindcss` and `@nuxt/ui`; `tailwind.config.ts` extends the theme for app-specific tokens.
+## 🚀 Quick Start
 
-Requires **Node.js 24** (see `.nvmrc`, `Dockerfile`, CI).
+Requires **Node.js 24** (`.nvmrc`, `Dockerfile`, CI).
 
-## Quick Start
+### 1. Install dependencies
 
 ```bash
 npm install
-cp .env.example .env.local   # at minimum NUXT_PUBLIC_API_BASE=http://localhost:8000
+```
+
+### 2. Setup environment variables
+
+```bash
+cp .env.example .env.local
+# Edit .env.local with your configuration
+```
+
+### 3. Start development server
+
+```bash
 npm run dev
 ```
 
-App: http://localhost:3000 — backend API defaults to http://localhost:8000.
+Application will be available at: http://localhost:3000
 
-## Coverage
+## 📁 Project Structure
 
-File-based routes under `app/pages/` implement the storefront (catalog, cart, checkout), customer account, admin panel, and CMS-driven pages. Playwright specs in `e2e/` exercise critical flows; accessibility sweeps use `@axe-core/playwright` (see `e2e/a11y/`).
-
-## Project structure
+Nuxt 4 uses `app/` as `srcDir` (top-level overview):
 
 ```
 app/
-  assets/css/       # main.css (Tailwind + Nuxt UI)
-  components/       # UI by area (shop, cart, checkout, admin, cms, …)
-  composables/      # useApi and feature composables
-  layouts/  middleware/  plugins/  pages/  stores/
+  assets/css/          # main.css (@import tailwindcss + @nuxt/ui)
+  components/  blocks/  composables/  layouts/  middleware/
+  pages/               # storefront, /admin/*, checkout, account, CMS (`[...slug].vue`)
+  plugins/  stores/
 shared/
   constants/  types/  utils/  validators/
 i18n/
   i18n.config.ts
   locales/en/  locales/pl/
-e2e/                # Playwright tests
-scripts/            # check-openapi-types.sh, etc.
+e2e/                   # Playwright specs (incl. e2e/a11y/ axe sweeps)
+public/  nuxt.config.ts  tailwind.config.ts
 ```
 
-Nuxt 4 uses `app/` as `srcDir`. Auto-imports apply to composables, stores, and components.
+## 🔑 Features
 
-## Commands
+Routes under `app/pages/` cover the storefront (catalog, cart, checkout), customer account, admin panel, and CMS-driven pages. `npm run e2e` runs Playwright against a backend image; accessibility checks use `@axe-core/playwright` in `e2e/a11y/`.
 
-| Command | Purpose |
-|--------|---------|
-| `npm run dev` | Dev server |
-| `npm run build` | Production build |
-| `npm run preview` | Preview production build |
-| `npm run generate` | Static generation |
-| `npm run lint` | ESLint |
-| `npm run test` | Vitest unit tests |
-| `npm run e2e` | Playwright E2E |
-| `npm run gen:types` | Regenerate `shared/types/api.gen.ts` from backend `/openapi.json` |
+### Authentication
+- User registration (personal & business)
+- Email verification with token
+- JWT-based authentication
+- Secure cookie storage
 
-## Regenerate API types from backend OpenAPI
+### Internationalization
+- Multi-language support (English, Polish)
+- Dynamic locale switching
+- URL-based locale detection
+- Browser language detection
+- Currency formatting per locale
 
-`shared/types/api.gen.ts` is generated from the backend OpenAPI spec and committed. After backend schema changes:
+### State Management
+- Centralized auth state with Pinia
+- Persistent user session
+- Token refresh handling
+
+### Forms
+- Login form
+- Sign-up form (personal & business)
+- Email verification form
+- Form validation
+- Error handling
+
+## 🏗️ Build Commands
+
+### Development
 
 ```bash
-# Backend reachable at http://localhost:8000
+npm run dev
+```
+
+### Production Build
+
+```bash
+npm run build
+```
+
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+### Generate Static Site (if needed)
+
+```bash
+npm run generate
+```
+
+### Regenerate API types from backend OpenAPI
+
+`shared/types/api.gen.ts` is generated from the backend's `/openapi.json`
+and committed. Whenever the backend changes a request/response schema:
+
+```bash
+# Backend must be reachable at http://localhost:8000
 npm run gen:types
 git add shared/types/api.gen.ts && git commit
 ```
 
-CI (`codegen-check` in `.github/workflows/test.yml`) boots the backend image and fails if `api.gen.ts` drifts. Local drift check: `scripts/check-openapi-types.sh`.
+CI (`codegen-check` job) boots the backend image and fails the PR if the
+checked-in `api.gen.ts` doesn't match. The local drift detector script is
+`scripts/check-openapi-types.sh`.
 
-## Environment variables
+## 🔐 Environment Variables
+
+Create `.env.local` file in the frontend root:
 
 ```env
 NUXT_PUBLIC_API_BASE=http://localhost:8000
 ```
 
-See `.env.example` for optional public keys (payments, analytics, InPost, etc.).
+## 🌐 API Integration
 
-## Authentication (high level)
+The frontend communicates with the FastAPI backend at `http://localhost:8000`. Key endpoints:
 
-Registration, email verification, JWT access tokens with HttpOnly refresh cookies, and password reset flows integrate with `/api/v1/auth/*`. Session handling lives in the Pinia auth store (`app/stores/auth.ts`).
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/verify-email` - Email verification
+- `POST /api/v1/auth/refresh` - Token refresh
 
-## Internationalization
+## 🎨 Component System
 
-Translations: `i18n/locales/en/` and `i18n/locales/pl/` (JSON per domain). Locale prefixes in URLs; currency display follows user/locale settings.
+Components are organized with auto-import enabled:
+- `components/forms/LoginForm.vue` → `<FormLoginForm />`
+- `components/layout/Header.vue` → `<LayoutHeader />`
 
-## API integration
+## 🌍 Internationalization
 
-Typed client helpers point at the FastAPI backend (`NUXT_PUBLIC_API_BASE`). Full route list: backend Swagger at `/docs`.
+Translations live in `i18n/locales/en/` and `i18n/locales/pl/` (JSON per domain). `@nuxtjs/i18n` module options (locales, `defaultLocale`, `detectBrowserLanguage`, URL strategy) are in `nuxt.config.ts`; `i18n/i18n.config.ts` holds vue-i18n runtime options (plural rules, number formats).
 
-## Related projects
+## 📦 Dependencies
+
+- **@nuxt/ui** - UI components
+- **@pinia/nuxt** - State management
+- **@nuxtjs/i18n** - Internationalization
+- **vue** - Progressive framework
+
+## 🔗 Related Projects
 
 - Backend: https://github.com/Kasperone/ecommerce_store_backend
+
+## 📝 Notes
+
+- Node.js 24 required (see `.nvmrc`)
+- Uses Nuxt 4 with Vue 3 Composition API
+- TypeScript enabled by default
