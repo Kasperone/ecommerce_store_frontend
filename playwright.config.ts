@@ -4,9 +4,13 @@ import { defineConfig, devices } from '@playwright/test'
 // Defaults to 3000 so local `npm run e2e` is unchanged.
 const WEB_PORT = Number(process.env.E2E_WEB_PORT) || 3000
 
-// Specs that switch the shared `gift_cards_enabled` toggle; they get their own
-// serialized projects below instead of running in `chromium`.
+// Specs that change state every other checkout spec can see (the automatic
+// coupon, `gift_cards_enabled`) or that share a `store_config` key with one
+// another (`returns_window_days`). They get their own serialized projects below
+// instead of running in `chromium`.
+const AUTO_DISCOUNT_SPEC = /checkout\/auto-discount\.spec\.ts/
 const GIFT_CARD_SPECS = /checkout\/gift-card(-purchase)?\.spec\.ts/
+const RETURNS_SPECS = /(account\/rma|admin\/return-processing)\.spec\.ts/
 
 export default defineConfig({
   testDir: 'e2e',
@@ -47,27 +51,57 @@ export default defineConfig({
     timeout: 120_000,
   },
   projects: [
+    // Exclusive prefix: `auto-discount` -> `gift-card-tender` -> `gift-card-purchase`
+    // run one file at a time, before `chromium` and `mobile` start (they depend
+    // on the last link). Each of them changes what *every* checkout renders,
+    // and none can be scoped to its own cart:
+    //   - `auto-discount` creates a live automatic coupon. A coupon has no
+    //     product or customer restriction, so it discounts whichever spec is
+    //     checking out, and those orders land in its own `used_count`.
+    //   - the gift-card specs switch `store_config.gift_cards_enabled` on and
+    //     restore it in `afterAll` (see `restoreStoreConfigAfterAll`). The flag
+    //     adds a gift-card input to checkout, so a sibling checkout re-renders
+    //     mid-test, and one file's restore switches the toggle off under the
+    //     other's tests.
+    // The cost: a dependency is re-run in every shard that holds a dependent,
+    // so CI executes these three specs once per shard.
     {
-      name: 'chromium',
-      testIgnore: [/auth\.setup\.ts/, GIFT_CARD_SPECS],
+      name: 'auto-discount',
+      testMatch: AUTO_DISCOUNT_SPEC,
       use: { ...devices['Desktop Chrome'] },
     },
-    // The two gift-card specs both switch `store_config.gift_cards_enabled` on
-    // and restore it in `afterAll` (see `restoreStoreConfigAfterAll`). That
-    // singleton is shared, and with more than one worker one file's restore
-    // switches the toggle off under the other file's tests — the flag input
-    // vanishes mid-checkout. Files only ever run in parallel with each other, so
-    // chaining them as dependent projects serializes just this pair and costs
-    // nothing at `workers: 1`. Everything else stays in `chromium`.
     {
       name: 'gift-card-tender',
       testMatch: /checkout\/gift-card\.spec\.ts/,
+      dependencies: ['auto-discount'],
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'gift-card-purchase',
       testMatch: /checkout\/gift-card-purchase\.spec\.ts/,
       dependencies: ['gift-card-tender'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'chromium',
+      testIgnore: [/auth\.setup\.ts/, AUTO_DISCOUNT_SPEC, GIFT_CARD_SPECS, RETURNS_SPECS],
+      dependencies: ['gift-card-purchase'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // The returns pair both pin `returns_window_days`: one file's restore would
+    // otherwise put the window back under the other's tests (or leave the
+    // pinned value behind as the "restored" one). Their orders are checkout
+    // orders too, so they wait for `auto-discount` but can overlap the rest.
+    {
+      name: 'returns-rma',
+      testMatch: /account\/rma\.spec\.ts/,
+      dependencies: ['auto-discount'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'returns-processing',
+      testMatch: /admin\/return-processing\.spec\.ts/,
+      dependencies: ['returns-rma'],
       use: { ...devices['Desktop Chrome'] },
     },
     // Tag-scoped extra dimensions. Both are deliberately NOT full-suite runs:
@@ -83,6 +117,7 @@ export default defineConfig({
       name: 'mobile',
       testIgnore: /auth\.setup\.ts/,
       grep: /@mobile/,
+      dependencies: ['gift-card-purchase'],
       use: { ...devices['Pixel 7'] },
     },
     // A `webkit` project is deliberately NOT enabled yet, though the specs for
