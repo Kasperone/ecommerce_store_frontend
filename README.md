@@ -2,18 +2,21 @@
 
 Modern e-commerce frontend built with Nuxt 4, Vue 3, and TypeScript.
 
+This store is my playground for learning Python and backend development as I expand from frontend toward full stack. It also lets me explore Nuxt 4 and Nuxt UI, experiment with AI coding agents, LLMs, IDEs and terminals, and use agents to test the application. It is an evolving learning project, not a production-ready store.
+
 ## 🛠️ Tech Stack
 
 - **Nuxt 4** - Vue framework
 - **Vue 3** - Progressive JavaScript framework
 - **TypeScript** - Type-safe development
 - **Pinia** - State management
-- **Nuxt UI** - Component library
-- **Tailwind CSS** - Utility-first CSS
+- **Nuxt UI** - Component library (ships Tailwind CSS v4; styling is wired through Nuxt UI and `app/assets/css/main.css`, not a direct `tailwindcss` package dependency)
 - **Nuxt i18n** - Internationalization (English, Polish)
 - **Vite** - Build tool
 
 ## 🚀 Quick Start
+
+Requires **Node.js 24** (`.nvmrc`, `Dockerfile`, CI).
 
 ### 1. Install dependencies
 
@@ -38,53 +41,32 @@ Application will be available at: http://localhost:3000
 
 ## 📁 Project Structure
 
+Nuxt 4 uses `app/` as `srcDir` (top-level overview):
+
 ```
-frontend/
-├── app/
-│   ├── layouts/              # Layout components
-│   ├── pages/                # Page components
-│   │   ├── index.vue         # Home page
-│   │   ├── login/
-│   │   ├── sign-up/
-│   │   ├── verify-email/
-│   │   └── verify-email-sent/
-│   ├── components/           # Reusable components
-│   │   ├── forms/           # Form components
-│   │   │   ├── LoginForm.vue
-│   │   │   ├── SignUpForm.vue
-│   │   │   ├── VerificationForm.vue
-│   │   │   └── RegisterBusinessForm.vue
-│   │   └── layout/          # Layout components
-│   │       ├── Header.vue
-│   │       └── Footer.vue
-│   ├── composables/         # Reusable logic
-│   │   ├── useAuth.ts       # Authentication
-│   │   ├── useApi.ts        # API communication
-│   │   └── useForm.ts       # Form handling
-│   ├── stores/              # Pinia stores
-│   │   └── auth.ts          # Authentication state
-│   ├── utils/               # Utilities
-│   └── app.vue              # Root component
-├── assets/
-│   ├── css/
-│   │   └── main.css         # Global styles
-│   └── images/
-├── public/                  # Static files
-├── nuxt.config.ts           # Nuxt configuration
-├── i18n.config.ts           # i18n configuration
-├── tsconfig.json            # TypeScript configuration
-├── tailwind.config.ts        # Tailwind CSS configuration
-└── README.md
+app/
+  assets/css/          # main.css (@import tailwindcss + @nuxt/ui)
+  components/  blocks/  composables/  layouts/  middleware/
+  pages/               # storefront, /admin/*, checkout, account, CMS (`[...slug].vue`)
+  plugins/  stores/
+shared/
+  constants/  types/  utils/  validators/
+i18n/
+  i18n.config.ts
+  locales/en/  locales/pl/
+e2e/                   # Playwright specs (incl. e2e/a11y/ axe sweeps)
+public/  nuxt.config.ts  tailwind.config.ts
 ```
 
 ## 🔑 Features
+
+Routes under `app/pages/` cover the storefront (catalog, cart, checkout), customer account, admin panel, and CMS-driven pages. `npm run e2e` runs Playwright against a backend image; accessibility checks use `@axe-core/playwright` in `e2e/a11y/`.
 
 ### Authentication
 - User registration (personal & business)
 - Email verification with token
 - JWT-based authentication
 - Secure cookie storage
-- Remember me functionality
 
 ### Internationalization
 - Multi-language support (English, Polish)
@@ -171,28 +153,13 @@ Components are organized with auto-import enabled:
 
 ## 🌍 Internationalization
 
-Translations are located in `locales/` directory:
-
-```
-locales/
-├── en/
-│   ├── common.json
-│   ├── home.json
-│   ├── product.json
-│   └── cart.json
-└── pl/
-    ├── common.json
-    ├── home.json
-    ├── product.json
-    └── cart.json
-```
+Translations live in `i18n/locales/en/` and `i18n/locales/pl/` (JSON per domain). `@nuxtjs/i18n` module options (locales, `defaultLocale`, `detectBrowserLanguage`, URL strategy) are in `nuxt.config.ts`; `i18n/i18n.config.ts` holds vue-i18n runtime options (plural rules, number formats).
 
 ## 📦 Dependencies
 
 - **@nuxt/ui** - UI components
 - **@pinia/nuxt** - State management
 - **@nuxtjs/i18n** - Internationalization
-- **tailwindcss** - Styling
 - **vue** - Progressive framework
 
 ## 🔗 Related Projects
@@ -201,7 +168,6 @@ locales/
 
 ## 📝 Notes
 
-- Node.js 18+ required
+- Node.js 24 required (see `.nvmrc`)
 - Uses Nuxt 4 with Vue 3 Composition API
 - TypeScript enabled by default
-- Tailwind CSS for styling
